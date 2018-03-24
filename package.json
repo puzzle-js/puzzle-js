@@ -1,0 +1,16 @@
+{
+  "name": "ty-puzzlejs",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^2.7.2",
+    "typings": "^2.1.1"
+  },
+  "scripts": {
+    "prepublish": "yarn build",
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
