@@ -5,12 +5,19 @@
   "types": "dist/index.d.ts",
   "license": "MIT",
   "devDependencies": {
+    "chai": "^4.1.2",
+    "mocha": "^5.0.5",
+    "ts-node": "^5.0.1",
     "typescript": "^2.7.2",
     "typings": "^2.1.1"
   },
   "scripts": {
     "prepublish": "yarn build",
     "build": "tsc",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha -r ts-node/register test/*.spec.ts"
+  },
+  "dependencies": {
+    "@types/chai": "^4.1.2",
+    "@types/mocha": "^5.0.0"
   }
 }
