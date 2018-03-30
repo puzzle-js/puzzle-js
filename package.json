@@ -14,7 +14,8 @@
   "scripts": {
     "prepublish": "yarn build",
     "build": "tsc",
-    "test": "mocha -r ts-node/register test/*.spec.ts"
+    "test": "mocha -r ts-node/register test/*.spec.ts",
+    "bdd": "nodemon --verbose --exec yarn test --ignore *.d.ts"
   },
   "dependencies": {
     "@types/chai": "^4.1.2",

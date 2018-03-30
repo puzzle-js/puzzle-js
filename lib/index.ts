@@ -1,5 +1,5 @@
-import {Gateway} from "./Gateway";
-import {Storefront} from "./Storefront";
+import {Gateway} from "./gateway";
+import {Storefront} from "./storefront";
 
 export default {
     Gateway,
