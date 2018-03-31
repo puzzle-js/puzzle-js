@@ -1,3 +1,6 @@
+import md5 from "md5";
+import {EventEmitter} from "events";
+
 export interface GatewayConfiguration {
     name: string;
     url: string;
@@ -19,17 +22,26 @@ export class Gateway {
 
 
 export class GatewayStorefrontInstance extends Gateway {
-    constructor(gatewayConfig: GatewayConfiguration) {
+    private eventBus: EventEmitter;
+    constructor(gatewayConfig: GatewayConfiguration, eventBus: EventEmitter) {
         super(gatewayConfig);
+
+        this.eventBus = eventBus;
     }
 }
 
 export class GatewayBFF extends Gateway {
+    public config: GatewayBFFConfiguration;
+    public hash: string;
+
     constructor(gatewayConfig: GatewayBFFConfiguration) {
         super(gatewayConfig);
+
+        this.config = gatewayConfig;
+        this.hash = md5(JSON.stringify(gatewayConfig));
     }
 
-    exposeConfig (){
-        //put hash object here
+    public exposeConfig (){
+
     }
 }

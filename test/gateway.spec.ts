@@ -2,7 +2,7 @@ import "mocha";
 import {expect} from "chai";
 import {Gateway} from "../lib/gateway";
 
-describe('', () => {
+describe('Gateway', () => {
     it('should create new gateway', function () {
        const gatewayConfiguration = {
            name: 'Browsing',

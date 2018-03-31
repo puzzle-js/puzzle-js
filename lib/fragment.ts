@@ -2,6 +2,11 @@ export interface IFragment {
     name: string;
 }
 
+export interface FragmentMap {
+    [name: string]: Fragment;
+}
+
+
 export class Fragment {
     public name: string;
 
