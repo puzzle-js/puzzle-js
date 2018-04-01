@@ -1,4 +1,4 @@
-import {FragmentMap} from "./fragment";
+import {IFragmentMap} from "./fragment";
 import cheerio from "cheerio";
 import {TemplateCompiler} from "./templateCompiler";
 import {HTML_FRAGMENT_NAME_ATTRIBUTE, HTML_GATEWAY_ATTRIBUTE} from "./enums";
@@ -29,7 +29,7 @@ export class TemplateClass {
 export class Template {
     private firstFlush: Function = () => '';
     private dom: CheerioStatic;
-    private fragments: FragmentMap = {};
+    private fragments: IFragmentMap = {};
     private pageClass: TemplateClass = new TemplateClass();
 
     constructor(rawHtml: string) {
@@ -61,10 +61,10 @@ export class Template {
         const fragments = this.dom('fragment');
         if (fragments.length === 0) {
             this.firstFlush = TemplateCompiler.compile(this.dom.html()).bind(this.pageClass);
-            console.log(this.firstFlush());
         } else {
             //bu anda gateway configi cekilmis olmali
-            this.dom('fragment').each((i, fragmentNode) => {
+            fragments.each((i, fragmentNode) => {
+                //this.fragments[fragmentNode.attribs.name] = new Fragment()
                 const $ = cheerio.load(`<div id="${fragmentNode.attribs.name}" ${HTML_GATEWAY_ATTRIBUTE}="${fragmentNode.attribs.from}" ${HTML_FRAGMENT_NAME_ATTRIBUTE}="${fragmentNode.attribs.name}"></div>`);
                 const fragmentItem = $('#' + fragmentNode.attribs.name);
                 fragmentItem.append('<script></script>'); // varsa start script
@@ -73,7 +73,7 @@ export class Template {
                 this.dom(fragmentNode).replaceWith($.html());
             });
             this.firstFlush = TemplateCompiler.compile(this.dom.html()).bind(this.pageClass);
-            console.log(this.firstFlush());
+            //console.log(this.firstFlush());
         }
     }
 

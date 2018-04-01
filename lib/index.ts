@@ -1,7 +1,7 @@
-import {Gateway} from "./gateway";
+import {GatewayBFF} from "./gateway";
 import {Storefront} from "./storefront";
 
 export default {
-    Gateway,
+    Gateway: GatewayBFF,
     Storefront
 };
