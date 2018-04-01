@@ -16,6 +16,10 @@
     "typescript": "^2.7.2",
     "typings": "^2.1.1"
   },
+  "author": {
+    "name": "Ahmet Can Guven",
+    "email": "ahmetcanguven44@gmail.com"
+  },
   "scripts": {
     "prepublish": "yarn build",
     "build": "tsc",
