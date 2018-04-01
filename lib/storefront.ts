@@ -2,7 +2,6 @@ import {GatewayConfiguration, GatewayStorefrontInstance} from "./gateway";
 import {Page, IPageConfiguration} from "./page";
 import {EventEmitter} from "events";
 
-
 export interface StorefrontConfig {
     gateways: Array<GatewayConfiguration>;
     port: number;
@@ -31,6 +30,4 @@ export class Storefront {
             this.gateways[gatewayConfiguration.name] = new GatewayStorefrontInstance(gatewayConfiguration, this.eventBus);
         });
     }
-
-
 }

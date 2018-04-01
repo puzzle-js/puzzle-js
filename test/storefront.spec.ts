@@ -3,6 +3,8 @@ import {expect} from "chai";
 import {Storefront} from "../lib/storefront";
 import {Page} from "../lib/page";
 import {GatewayStorefrontInstance} from "../lib/gateway";
+import * as fs from "fs";
+import * as path from "path";
 
 describe('Storefront', function () {
     it('should create a new storefront instance', function () {
@@ -17,7 +19,7 @@ describe('Storefront', function () {
 
     it('should create new page instance when registering a new storefront', function () {
         const pageConfiguration = {
-            html: '<div></div>',
+            html: fs.readFileSync(path.join(__dirname, './templates/noFragmentsWithClass.html'), 'utf8'),
             url: '/'
         };
 
