@@ -14,15 +14,15 @@ export class TemplateClass {
     }
 
     _onRequest(...args: any[]) {
-        this.onCreate && this.onCreate(...args);
+        this.onRequest && this.onRequest(...args);
     }
 
     _onChunk(...args: any[]) {
-        this.onCreate && this.onCreate(...args);
+        this.onChunk && this.onChunk(...args);
     }
 
     _onResponseEnd(...args: any[]) {
-        this.onCreate && this.onCreate(...args);
+        this.onResponseEnd && this.onResponseEnd(...args);
     }
 }
 
