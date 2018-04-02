@@ -1,8 +1,7 @@
 import md5 from "md5";
 import {EventEmitter} from "events";
-import {IFragmentBFF, IFragmentBFFRender} from "./fragment";
+import {FRAGMENT_RENDER_MODES, FragmentBFF, IFragmentBFF, IFragmentBFFRender} from "./fragment";
 import {IFileResourceAsset, IFileResourceDependency} from "./resource";
-import {IExposeConfig} from "../dist/lib/gateway";
 
 export interface IGatewayConfiguration {
     name: string;
@@ -52,8 +51,9 @@ export interface IExposeFragment {
 }
 
 export class GatewayBFF extends Gateway {
-    private config: IGatewayBFFConfiguration;
     public exposedConfig: IExposeConfig;
+    private config: IGatewayBFFConfiguration;
+    private fragments: { [name: string]: FragmentBFF } = {};
 
     constructor(gatewayConfig: IGatewayBFFConfiguration) {
         super(gatewayConfig);
@@ -67,6 +67,8 @@ export class GatewayBFF extends Gateway {
                     dependencies: fragment.versions[fragment.version].dependencies,
                 };
 
+                this.fragments[fragment.name] = new FragmentBFF(fragment);
+
                 return fragmentList;
             }, {}),
             hash: '',
@@ -74,13 +76,21 @@ export class GatewayBFF extends Gateway {
         this.exposedConfig.hash = md5(JSON.stringify(this.exposedConfig));
     }
 
-    public renderFragment(fragmentName: string, version?: string) {
-        const fragment = this.config.fragments
-            .find(fragment => fragment.name == fragmentName && (version ? typeof fragment.versions[version] != 'undefined' : true));
-
-        if(fragment){
-            console.log(fragment.versions[version || fragment.version].handler);
-            return fragment.versions[version || fragment.version].handler.content();
+    public async renderFragment(fragmentName: string, renderMode: FRAGMENT_RENDER_MODES = FRAGMENT_RENDER_MODES.PREVIEW, cookieValue?: string) {
+        if (this.fragments[fragmentName]) {
+            const fragmentContent = await this.fragments[fragmentName].render({}, cookieValue);
+            switch (renderMode) {
+                case FRAGMENT_RENDER_MODES.STREAM:
+                    return fragmentContent;
+                case FRAGMENT_RENDER_MODES.PREVIEW:
+                    return this.wrapFragmentContent(fragmentContent, fragmentName);
+            }
+        } else {
+            throw new Error(`Failed to find fragment: ${fragmentName}`);
         }
+    }
+
+    private wrapFragmentContent(htmlContent: string, fragmentName: string) {
+        return `<html><head><title>${this.config.name} - ${fragmentName}</title>${this.config.isMobile && '<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />'}</head><body>${htmlContent}</body></html>`
     }
 }

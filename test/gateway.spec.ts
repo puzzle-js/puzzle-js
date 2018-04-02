@@ -1,6 +1,7 @@
 import "mocha";
 import {expect} from "chai";
 import {Gateway, GatewayBFF, IGatewayBFFConfiguration} from "../lib/gateway";
+import {FRAGMENT_RENDER_MODES} from "../lib/fragment";
 
 describe('Gateway', () => {
     const commonGatewayConfiguration: IGatewayBFFConfiguration = {
@@ -13,14 +14,14 @@ describe('Gateway', () => {
     };
 
     it('should create new gateway', function () {
-       const gatewayConfiguration = {
-           name: 'Browsing',
-           url: 'http://localhost:4446/'
-       };
+        const gatewayConfiguration = {
+            name: 'Browsing',
+            url: 'http://localhost:4446/'
+        };
 
-       const browsingGateway = new Gateway(gatewayConfiguration);
-       expect(browsingGateway.name).to.eq(gatewayConfiguration.name);
-       expect(browsingGateway.url).to.eq(gatewayConfiguration.url);
+        const browsingGateway = new Gateway(gatewayConfiguration);
+        expect(browsingGateway.name).to.eq(gatewayConfiguration.name);
+        expect(browsingGateway.url).to.eq(gatewayConfiguration.url);
     });
 
     it('should create new gateway BFF instance', function () {
@@ -96,7 +97,7 @@ describe('Gateway', () => {
         });
     });
 
-    it('should render fragment by name', function () {
+    it('should render fragment in stream mode', async function () {
         const gatewayConfiguration: IGatewayBFFConfiguration = {
             ...commonGatewayConfiguration,
             fragments: [
@@ -118,6 +119,59 @@ describe('Gateway', () => {
         };
 
         const bffGw = new GatewayBFF(gatewayConfiguration);
-        expect(bffGw.renderFragment('boutique-list')).to.eq('test');
+        expect(await bffGw.renderFragment('boutique-list', FRAGMENT_RENDER_MODES.STREAM)).to.eq('test');
+    });
+
+    it('should render fragment in preview mode', async function () {
+        const gatewayConfiguration: IGatewayBFFConfiguration = {
+            ...commonGatewayConfiguration,
+            fragments: [
+                {
+                    name: 'boutique-list',
+                    version: 'test',
+                    render: {
+                        url: '/'
+                    },
+                    versions: {
+                        'test': {
+                            assets: [],
+                            dependencies: [],
+                            handler: require('./fragments/boutique-list/test')
+                        }
+                    }
+                }
+            ]
+        };
+
+        const bffGw = new GatewayBFF(gatewayConfiguration);
+        expect(await bffGw.renderFragment('boutique-list', FRAGMENT_RENDER_MODES.PREVIEW)).to.eq(`<html><head><title>Browsing - boutique-list</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" /></head><body>test</body></html>`);
+    });
+
+    it('should throw error at render when fragment name not found', function (done) {
+        const gatewayConfiguration: IGatewayBFFConfiguration = {
+            ...commonGatewayConfiguration,
+            fragments: [
+                {
+                    name: 'boutique-list',
+                    version: 'test',
+                    render: {
+                        url: '/'
+                    },
+                    versions: {
+                        'test': {
+                            assets: [],
+                            dependencies: [],
+                            handler: require('./fragments/boutique-list/test')
+                        }
+                    }
+                }
+            ]
+        };
+
+        const bffGw = new GatewayBFF(gatewayConfiguration);
+        bffGw.renderFragment('not_exists').then(data => done(data)).catch((e) => {
+            expect(e.message).to.include('Failed to find fragment');
+            done();
+        });
     });
 });

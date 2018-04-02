@@ -77,7 +77,7 @@ export class Template {
         }
     }
 
-    static generateFunctionString(functionContent: string, name?: string) {
+    public static generateFunctionString(functionContent: string, name?: string) {
         if (name) {
             return '<script>function ' + name + '(){' +
                 '/*<!--*/\n' +
