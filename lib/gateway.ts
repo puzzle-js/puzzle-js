@@ -1,4 +1,4 @@
-import md5 from "md5";
+import uuidv1 from "uuid/v1";
 import {EventEmitter} from "events";
 import {FRAGMENT_RENDER_MODES, FragmentBFF, IFragmentBFF, IFragmentBFFRender} from "./fragment";
 import {IFileResourceAsset, IFileResourceDependency} from "./resource";
@@ -71,9 +71,8 @@ export class GatewayBFF extends Gateway {
 
                 return fragmentList;
             }, {}),
-            hash: '',
+            hash: uuidv1(),
         };
-        this.exposedConfig.hash = md5(JSON.stringify(this.exposedConfig));
     }
 
     public async renderFragment(fragmentName: string, renderMode: FRAGMENT_RENDER_MODES = FRAGMENT_RENDER_MODES.PREVIEW, cookieValue?: string) {

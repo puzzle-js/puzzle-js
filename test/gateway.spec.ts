@@ -82,8 +82,7 @@ describe('Gateway', () => {
 
         const bffGw = new GatewayBFF(gatewayConfiguration);
 
-        expect(bffGw.exposedConfig).to.deep.eq({
-            hash: 'f74c5ac7e45728d45251fc5286e250d8',
+        expect(bffGw.exposedConfig).to.deep.include({
             fragments: {
                 'boutique-list': {
                     assets: [],
