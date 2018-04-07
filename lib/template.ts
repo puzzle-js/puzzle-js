@@ -29,7 +29,7 @@ export class TemplateClass {
 
 export class Template {
     private dom: CheerioStatic;
-    private fragments: {[name: string]: FragmentStorefront} = {};
+    private fragments: { [name: string]: FragmentStorefront } = {};
     private pageClass: TemplateClass = new TemplateClass();
 
     constructor(rawHtml: string) {
@@ -80,7 +80,7 @@ export class Template {
         });
     }
 
-    public async compile() {
+    public async compile(testCookies: { [cookieName: string]: string }) {
         const fragments = this.dom('fragment');
         let firstFlush = null;
         if (fragments.length === 0) {

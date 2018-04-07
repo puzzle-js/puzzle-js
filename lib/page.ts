@@ -45,7 +45,8 @@ export class Page {
             .filter(gatewayName => this.gatewayDependencies.gateways[gatewayMap[gatewayName].name])
             .forEach(gatewayName => {
                 gatewayMap[gatewayName].events.on(EVENTS.GATEWAY_UPDATED, this.gatewayUpdated.bind(this));
-                gatewayMap[gatewayName].events.once(EVENTS.GATEWAY_READY, this.gatewayReady.bind(this))
+                gatewayMap[gatewayName].events.once(EVENTS.GATEWAY_READY, this.gatewayReady.bind(this));
+                this.gatewayDependencies.gateways[gatewayName].gateway = gatewayMap[gatewayName];
             });
     }
 
@@ -55,7 +56,7 @@ export class Page {
 
     private gatewayReady(gateway: GatewayStorefrontInstance) {
         this.gatewayDependencies.gateways[gateway.name].ready = true;
-        this.gatewayDependencies.gateways[gateway.name].gateway = gateway;
+
         Object.keys(this.gatewayDependencies.fragments).forEach(fragmentName => {
             if (this.gatewayDependencies.fragments[fragmentName].gateway == gateway.name && gateway.config) {
                 this.gatewayDependencies.fragments[fragmentName].instance.update(gateway.config.fragments[fragmentName]);
@@ -63,13 +64,14 @@ export class Page {
         });
     }
 
-    public async handle(req: object, res: object) {
-        const preparedFragmentVersionsHash = "blabla";
-
-        if (!this.responseHandlers[preparedFragmentVersionsHash]) {
-            this.responseHandlers[preparedFragmentVersionsHash] = await this.template.compile();
-        }
-        this.responseHandlers[preparedFragmentVersionsHash](req, res);
-    }
+    // public async handle(req: { cookies: { [cookieName: string]: string } }, res: object) {
+    //     //todo wait for gateways ready
+    //     const testCookies = {}; //todo bunu olusturduk bi sekilde de iste, diger cookieler cikmali
+    //     const preparedFragmentVersionsHash = JSON.stringify(testCookies);
+    //     if (!this.responseHandlers[preparedFragmentVersionsHash]) {
+    //         this.responseHandlers[preparedFragmentVersionsHash] = await this.template.compile(req.cookies);
+    //     }
+    //     this.responseHandlers[preparedFragmentVersionsHash](req, res);
+    // }
 }
 
