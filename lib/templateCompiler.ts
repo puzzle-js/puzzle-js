@@ -12,9 +12,9 @@ export class TemplateCompiler {
         const partials = template.split(this.TEMPLATE_REGEX);
         for (let x = 0, len = partials.length; x < len; x++) {
             if (this.isExpression(partials[x])) {
-                const expressionMathes = partials[x].match(this.EXPRESSION_REGEX);
-                if (expressionMathes) {
-                    const expression = expressionMathes[1];
+                const expressionMatches = partials[x].match(this.EXPRESSION_REGEX);
+                if (expressionMatches) {
+                    const expression = expressionMatches[1];
                     if (expression.match(/if|for|else|switch|case|break|{|}/)) {
                         generatedFn += expression
                     } else {

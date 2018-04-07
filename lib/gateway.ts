@@ -3,6 +3,10 @@ import {EventEmitter} from "events";
 import {FRAGMENT_RENDER_MODES, FragmentBFF, IFragmentBFF, IFragmentBFFRender} from "./fragment";
 import {IFileResourceAsset, IFileResourceDependency} from "./resource";
 
+export interface IGatewayMap {
+    [name: string]: GatewayStorefrontInstance;
+}
+
 export interface IGatewayConfiguration {
     name: string;
     url: string;
@@ -27,27 +31,26 @@ export class Gateway {
 
 
 export class GatewayStorefrontInstance extends Gateway {
-    private eventBus: EventEmitter;
+    public events: EventEmitter = new EventEmitter();
+    public config: IExposeConfig | undefined;
 
-    constructor(gatewayConfig: IGatewayConfiguration, eventBus: EventEmitter) {
+    constructor(gatewayConfig: IGatewayConfiguration) {
         super(gatewayConfig);
-
-        this.eventBus = eventBus;
     }
 }
 
 export interface IExposeConfig {
     hash: string;
-    fragments: IExposeFragment
+    fragments: {
+        [name: string]: IExposeFragment
+    }
 }
 
 export interface IExposeFragment {
-    [name: string]: {
-        version: string;
-        render: IFragmentBFFRender;
-        assets: Array<IFileResourceAsset>;
-        dependencies: Array<IFileResourceDependency>;
-    }
+    version: string;
+    render: IFragmentBFFRender;
+    assets: Array<IFileResourceAsset>;
+    dependencies: Array<IFileResourceDependency>;
 }
 
 export class GatewayBFF extends Gateway {
@@ -59,7 +62,7 @@ export class GatewayBFF extends Gateway {
         super(gatewayConfig);
         this.config = gatewayConfig;
         this.exposedConfig = {
-            fragments: this.config.fragments.reduce((fragmentList: IExposeFragment, fragment) => {
+            fragments: this.config.fragments.reduce((fragmentList: { [name: string]: IExposeFragment }, fragment) => {
                 fragmentList[fragment.name] = {
                     version: fragment.version,
                     render: fragment.render,

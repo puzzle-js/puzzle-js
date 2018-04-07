@@ -1,5 +1,6 @@
 import {IFileResourceAsset, IFileResourceDependency} from "./resource";
 import Module = NodeJS.Module;
+import {IExposeConfig, IExposeFragment} from "./gateway";
 
 export interface IFragment {
     name: string;
@@ -28,9 +29,11 @@ export interface IFragmentBFFVersion {
 }
 
 export interface IFragmentBFF extends IFragment {
-    name: string;
-    versions: { [version: string]: IFragmentBFFVersion };
+    versions: {
+        [version: string]: IFragmentBFFVersion
+    };
     version: string;
+    testCookie: string;
     render: IFragmentBFFRender;
 }
 
@@ -65,15 +68,27 @@ export class FragmentBFF extends Fragment {
             if (this.config.render.static) {
                 return fragmentVersion.handler.content(req);
             } else {
-                if(fragmentVersion.handler.data){
+                if (fragmentVersion.handler.data) {
                     const data = await fragmentVersion.handler.data(req);
                     return fragmentVersion.handler.content(req, data);
-                }else{
+                } else {
                     throw new Error(`Failed to find data handler for fragment. Fragment: ${this.config.name}, Version: ${version || this.config.version}`)
                 }
             }
         } else {
             throw new Error(`Failed to find fragment version. Fragment: ${this.config.name}, Version: ${version || this.config.version}`);
         }
+    }
+}
+
+export class FragmentStorefront extends Fragment {
+    private config: IExposeFragment | undefined;
+
+    constructor(name: string) {
+        super({name});
+    }
+
+    public update(config: IExposeFragment){
+        this.config = config;
     }
 }

@@ -1,7 +1,8 @@
-import {IFragmentMap} from "./fragment";
+import {FragmentStorefront, IFragmentMap} from "./fragment";
 import cheerio from "cheerio";
 import {TemplateCompiler} from "./templateCompiler";
 import {HTML_FRAGMENT_NAME_ATTRIBUTE, HTML_GATEWAY_ATTRIBUTE} from "./enums";
+import {IPageDependentGateways} from "./page";
 
 export class TemplateClass {
     public onCreate: Function | undefined;
@@ -27,9 +28,8 @@ export class TemplateClass {
 }
 
 export class Template {
-    private firstFlush: Function = () => '';
     private dom: CheerioStatic;
-    private fragments: IFragmentMap = {};
+    private fragments: {[name: string]: FragmentStorefront} = {};
     private pageClass: TemplateClass = new TemplateClass();
 
     constructor(rawHtml: string) {
@@ -54,13 +54,37 @@ export class Template {
         }
 
         this.pageClass._onCreate();
-        this.generateFirstFlush();
     }
 
-    private generateFirstFlush() {
+    public getDependencies() {
+        return this.dom('fragment').toArray().reduce((dependencyList: IPageDependentGateways, fragment: any) => {
+            if (!dependencyList.gateways[fragment.attribs.from]) {
+                dependencyList.gateways[fragment.attribs.from] = {
+                    gateway: null,
+                    ready: false
+                }
+            }
+
+            if (!dependencyList.fragments[fragment.attribs.name]) {
+                this.fragments[fragment.attribs.name] = new FragmentStorefront(fragment.attribs.name);
+                dependencyList.fragments[fragment.attribs.name] = {
+                    gateway: fragment.attribs.from,
+                    instance: this.fragments[fragment.attribs.name]
+                }
+            }
+
+            return dependencyList;
+        }, {
+            gateways: {},
+            fragments: {}
+        });
+    }
+
+    public async compile() {
         const fragments = this.dom('fragment');
+        let firstFlush = null;
         if (fragments.length === 0) {
-            this.firstFlush = TemplateCompiler.compile(this.dom.html()).bind(this.pageClass);
+            firstFlush = TemplateCompiler.compile(this.dom.html()).bind(this.pageClass);
         } else {
             //bu anda gateway configi cekilmis olmali
             fragments.each((i, fragmentNode) => {
@@ -72,21 +96,10 @@ export class Template {
                 fragmentItem.append('<script></script>'); // varsa content end script, sarilmis olmali
                 this.dom(fragmentNode).replaceWith($.html());
             });
-            this.firstFlush = TemplateCompiler.compile(this.dom.html()).bind(this.pageClass);
-            //console.log(this.firstFlush());
+            firstFlush = TemplateCompiler.compile(this.dom.html()).bind(this.pageClass);
+        }
+        return (req: object, res: object) => {
+            //async waterfall
         }
     }
-
-    public static generateFunctionString(functionContent: string, name?: string) {
-        if (name) {
-            return '<script>function ' + name + '(){' +
-                '/*<!--*/\n' +
-                functionContent +
-                '\n/*-->*/};</script>';
-        } else {
-            return '<script>/*<!--*/\n' +
-                functionContent +
-                '\n/*-->*/;</script>';
-        }
-    };
 }

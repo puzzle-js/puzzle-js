@@ -39,6 +39,7 @@ describe('Gateway', () => {
                     render: {
                         url: '/'
                     },
+                    testCookie: 'fragment_test',
                     versions: {
                         'test': {
                             assets: [],
@@ -64,6 +65,7 @@ describe('Gateway', () => {
                     render: {
                         url: '/'
                     },
+                    testCookie: 'fragment_test',
                     versions: {
                         'test': {
                             assets: [],
@@ -94,6 +96,7 @@ describe('Gateway', () => {
                 }
             }
         });
+        expect(bffGw.exposedConfig.hash).to.be.a('string');
     });
 
     it('should render fragment in stream mode', async function () {
@@ -106,6 +109,7 @@ describe('Gateway', () => {
                     render: {
                         url: '/'
                     },
+                    testCookie: 'fragment_test',
                     versions: {
                         'test': {
                             assets: [],
@@ -131,6 +135,7 @@ describe('Gateway', () => {
                     render: {
                         url: '/'
                     },
+                    testCookie: 'fragment_test',
                     versions: {
                         'test': {
                             assets: [],
@@ -156,6 +161,7 @@ describe('Gateway', () => {
                     render: {
                         url: '/'
                     },
+                    testCookie: 'fragment_test',
                     versions: {
                         'test': {
                             assets: [],
