@@ -1,23 +1,8 @@
 import uuidv1 from "uuid/v1";
 import {EventEmitter} from "events";
-import {FRAGMENT_RENDER_MODES, FragmentBFF, IFragmentBFF, IFragmentBFFRender} from "./fragment";
-import {IFileResourceAsset, IFileResourceDependency} from "./resource";
-
-export interface IGatewayMap {
-    [name: string]: GatewayStorefrontInstance;
-}
-
-export interface IGatewayConfiguration {
-    name: string;
-    url: string;
-}
-
-export interface IGatewayBFFConfiguration extends IGatewayConfiguration {
-    fragments: Array<IFragmentBFF>;
-    api: Array<any>;
-    port: number;
-    isMobile?: boolean;
-}
+import {FragmentBFF} from "./fragment";
+import {FRAGMENT_RENDER_MODES} from "./enums";
+import {IExposeConfig, IExposeFragment, IGatewayBFFConfiguration, IGatewayConfiguration} from "../types/gateway";
 
 export class Gateway {
     public name: string;
@@ -37,20 +22,6 @@ export class GatewayStorefrontInstance extends Gateway {
     constructor(gatewayConfig: IGatewayConfiguration) {
         super(gatewayConfig);
     }
-}
-
-export interface IExposeConfig {
-    hash: string;
-    fragments: {
-        [name: string]: IExposeFragment
-    }
-}
-
-export interface IExposeFragment {
-    version: string;
-    render: IFragmentBFFRender;
-    assets: Array<IFileResourceAsset>;
-    dependencies: Array<IFileResourceDependency>;
 }
 
 export class GatewayBFF extends Gateway {

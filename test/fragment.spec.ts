@@ -1,6 +1,7 @@
 import "mocha";
 import {expect} from "chai";
-import {FragmentBFF, IFragmentBFF} from "../lib/fragment";
+import {FragmentBFF} from "../src/lib/fragment";
+import {IFragmentBFF} from "../src/types/fragment";
 describe('Fragment', () => {
     describe('BFF',() => {
         const commonFragmentBffConfiguration: any = {

@@ -1,11 +1,8 @@
-import {GatewayStorefrontInstance, IGatewayConfiguration, IGatewayMap} from "./gateway";
-import {IPageConfiguration, IPageMap, Page} from "./page";
-
-export interface IStorefrontConfig {
-    gateways: Array<IGatewayConfiguration>;
-    port: number;
-    pages: Array<IPageConfiguration>;
-}
+import {GatewayStorefrontInstance} from "./gateway";
+import {Page} from "./page";
+import {IGatewayMap} from "../types/gateway";
+import {IPageMap} from "../types/page";
+import {IStorefrontConfig} from "../types/storefront";
 
 export class Storefront {
     public pages: IPageMap = {};

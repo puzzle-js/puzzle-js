@@ -1,9 +1,10 @@
 import "mocha";
-import {IPageConfiguration, Page} from "../lib/page";
+import {Page} from "../src/lib/page";
 import {EventEmitter} from "events";
 import {expect} from "chai";
 import * as fs from "fs";
 import * as path from "path";
+import {IPageConfiguration} from "../src/types/page";
 
 describe('Page', () => {
     it('should create new page instance', function () {

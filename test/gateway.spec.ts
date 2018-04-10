@@ -1,7 +1,8 @@
 import "mocha";
 import {expect} from "chai";
-import {Gateway, GatewayBFF, IGatewayBFFConfiguration} from "../lib/gateway";
-import {FRAGMENT_RENDER_MODES} from "../lib/fragment";
+import {Gateway, GatewayBFF} from "../src/lib/gateway";
+import {FRAGMENT_RENDER_MODES} from "../src/lib/enums";
+import {IGatewayBFFConfiguration} from "../src/types/gateway";
 
 describe('Gateway', () => {
     const commonGatewayConfiguration: IGatewayBFFConfiguration = {

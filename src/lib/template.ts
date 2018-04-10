@@ -1,8 +1,9 @@
-import {FragmentStorefront, IFragmentMap} from "./fragment";
+import {FragmentStorefront} from "./fragment";
 import cheerio from "cheerio";
 import {TemplateCompiler} from "./templateCompiler";
 import {HTML_FRAGMENT_NAME_ATTRIBUTE, HTML_GATEWAY_ATTRIBUTE} from "./enums";
-import {IPageDependentGateways} from "./page";
+import {IPageDependentGateways} from "../types/page";
+import {IFragmentMap} from "../types/fragment";
 
 export class TemplateClass {
     public onCreate: Function | undefined;

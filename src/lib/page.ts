@@ -1,35 +1,8 @@
 import {Template} from "./template";
-import {GatewayStorefrontInstance, IGatewayMap} from "./gateway";
+import {GatewayStorefrontInstance} from "./gateway";
 import {EVENTS} from "./enums";
-import {FragmentStorefront} from "./fragment";
-
-export interface IPageConfiguration {
-    html: string,
-    url: string
-}
-
-export interface IPageMap {
-    [url: string]: Page;
-}
-
-export interface IPageDependentGateways {
-    gateways: {
-        [name: string]: {
-            gateway: GatewayStorefrontInstance | null,
-            ready: boolean
-        }
-    },
-    fragments: {
-        [name: string]: {
-            instance: FragmentStorefront,
-            gateway: string
-        }
-    }
-}
-
-export interface IResponseHandlers {
-    [versionsHash: string]: (req: object, res: object) => void;
-}
+import {IGatewayMap} from "../types/gateway";
+import {IPageDependentGateways, IResponseHandlers} from "../types/page";
 
 export class Page {
     public ready: boolean = false;
