@@ -82,6 +82,7 @@ export class Template {
 
     public async compile(testCookies: { [cookieName: string]: string }) {
         const fragments = this.dom('fragment');
+        //this.fragments kullan !!!!!
         let firstFlush = null;
         if (fragments.length === 0) {
             firstFlush = TemplateCompiler.compile(this.dom.html()).bind(this.pageClass);
@@ -99,7 +100,9 @@ export class Template {
             firstFlush = TemplateCompiler.compile(this.dom.html()).bind(this.pageClass);
         }
         return (req: object, res: object) => {
-            //async waterfall
+            //async waterfall,
+                //firstflush
+                //async.parallel
         }
     }
 }

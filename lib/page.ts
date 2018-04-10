@@ -50,7 +50,8 @@ export class Page {
             });
     }
 
-    private gatewayUpdated() {
+    private gatewayUpdated() { //hangi gateway?
+        //update fragments
         this.responseHandlers = {};
     }
 
@@ -62,6 +63,8 @@ export class Page {
                 this.gatewayDependencies.fragments[fragmentName].instance.update(gateway.config.fragments[fragmentName]);
             }
         });
+
+        //check all ready, then page ready
     }
 
     // public async handle(req: { cookies: { [cookieName: string]: string } }, res: object) {
