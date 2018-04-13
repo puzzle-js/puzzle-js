@@ -38,7 +38,7 @@ describe('Storefront', function () {
     it('should create new gateway instances when registering a new storefront', function () {
         const gateway = {
             name: 'Browsing',
-            url: 'http://localhost:4446'
+            url: 'http://browsing-gw.com'
         };
         const storefrontInstance = new Storefront({
             pages: [],
@@ -49,5 +49,6 @@ describe('Storefront', function () {
         });
 
         expect(storefrontInstance.gateways[gateway.name]).to.be.instanceOf(GatewayStorefrontInstance);
+        storefrontInstance.gateways['Browsing'].stopUpdate();
     });
 });

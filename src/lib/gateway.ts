@@ -1,8 +1,9 @@
 import uuidv1 from "uuid/v1";
 import {EventEmitter} from "events";
 import {FragmentBFF} from "./fragment";
-import {FRAGMENT_RENDER_MODES} from "./enums";
+import {EVENTS, FRAGMENT_RENDER_MODES} from "./enums";
 import {IExposeConfig, IExposeFragment, IGatewayBFFConfiguration, IGatewayConfiguration} from "../types/gateway";
+import fetch from "node-fetch";
 
 export class Gateway {
     public name: string;
@@ -18,9 +19,38 @@ export class Gateway {
 export class GatewayStorefrontInstance extends Gateway {
     public events: EventEmitter = new EventEmitter();
     public config: IExposeConfig | undefined;
+    private intervalId: number | null = null;
 
     constructor(gatewayConfig: IGatewayConfiguration) {
         super(gatewayConfig);
+
+        this.fetch();
+        this.intervalId = setInterval(this.fetch.bind(this), 3000);
+    }
+
+    public stopUpdate() {
+        if (this.intervalId) {
+            clearInterval(this.intervalId);
+        }
+    }
+
+    private fetch() {
+        fetch(this.url)
+            .then(res => res.json())
+            .then(this.update.bind(this))
+            .catch(e => console.log(e));
+    }
+
+    public update(data: IExposeConfig) {
+        if (!this.config) {
+            this.config = data;
+            this.events.emit(EVENTS.GATEWAY_READY, this);
+        } else {
+            if (data.hash != this.config.hash) {
+                this.config = data;
+                this.events.emit(EVENTS.GATEWAY_UPDATED, this);
+            }
+        }
     }
 }
 
