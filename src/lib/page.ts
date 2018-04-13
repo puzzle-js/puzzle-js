@@ -6,8 +6,8 @@ import {IPageDependentGateways, IResponseHandlers} from "../types/page";
 
 export class Page {
     public ready: boolean = false;
+    public gatewayDependencies: IPageDependentGateways;
     private template: Template;
-    private gatewayDependencies: IPageDependentGateways;
     private responseHandlers: IResponseHandlers = {};
 
     constructor(html: string, gatewayMap: IGatewayMap) {
@@ -18,8 +18,12 @@ export class Page {
             .filter(gatewayName => this.gatewayDependencies.gateways[gatewayMap[gatewayName].name])
             .forEach(gatewayName => {
                 gatewayMap[gatewayName].events.on(EVENTS.GATEWAY_UPDATED, this.gatewayUpdated.bind(this));
-                gatewayMap[gatewayName].events.once(EVENTS.GATEWAY_READY, this.gatewayReady.bind(this));
                 this.gatewayDependencies.gateways[gatewayName].gateway = gatewayMap[gatewayName];
+                if (!!gatewayMap[gatewayName].config) {
+                    this.gatewayDependencies.gateways[gatewayName].ready = true;
+                } else {
+                    gatewayMap[gatewayName].events.once(EVENTS.GATEWAY_READY, this.gatewayReady.bind(this));
+                }
             });
     }
 
