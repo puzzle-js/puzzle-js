@@ -11,6 +11,7 @@ export class Storefront {
     constructor(storefrontConfig: IStorefrontConfig) {
         storefrontConfig.gateways.forEach(gatewayConfiguration => {
             this.gateways[gatewayConfiguration.name] = new GatewayStorefrontInstance(gatewayConfiguration);
+            this.gateways[gatewayConfiguration.name].startUpdating();
         });
 
         storefrontConfig.pages.forEach(pageConfiguration => {

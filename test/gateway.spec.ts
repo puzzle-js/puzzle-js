@@ -217,14 +217,12 @@ describe('Gateway', () => {
             const gateway = new GatewayStorefrontInstance(commonGatewayStorefrontConfiguration);
 
             expect(gateway).to.be.instanceOf(GatewayStorefrontInstance);
-            gateway.stopUpdate();
         });
 
         it('should load remote configuration successfully and fire ready event', function (done) {
             const gateway = new GatewayStorefrontInstance(commonGatewayStorefrontConfiguration);
 
             gateway.events.on(EVENTS.GATEWAY_READY, () => {
-                gateway.stopUpdate();
                 done();
             });
         });
@@ -232,6 +230,7 @@ describe('Gateway', () => {
         it('should fire gateway ready updated event when hash changed', function (done) {
             this.timeout(5000);
             const gateway = new GatewayStorefrontInstance(commonGatewayStorefrontConfiguration);
+            gateway.startUpdating();
 
             gateway.events.on(EVENTS.GATEWAY_READY, () => {
                 if (gateway.config) {
@@ -243,7 +242,7 @@ describe('Gateway', () => {
 
             gateway.events.on(EVENTS.GATEWAY_UPDATED, () => {
                 if (gateway.config) {
-                    gateway.stopUpdate();
+                    gateway.stopUpdating();
                     done();
                 } else {
                     done('config is not defined');

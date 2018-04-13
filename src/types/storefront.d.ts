@@ -5,4 +5,5 @@ export interface IStorefrontConfig {
     gateways: Array<IGatewayConfiguration>;
     port: number;
     pages: Array<IPageConfiguration>;
+    pollInterval?: number;
 }

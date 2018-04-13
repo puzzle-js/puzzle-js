@@ -23,7 +23,7 @@ export class Page {
             });
     }
 
-    private gatewayUpdated() { //hangi gateway?
+    private gatewayUpdated(gateway: GatewayStorefrontInstance) {
         //update fragments
         this.responseHandlers = {};
     }

@@ -49,6 +49,6 @@ describe('Storefront', function () {
         });
 
         expect(storefrontInstance.gateways[gateway.name]).to.be.instanceOf(GatewayStorefrontInstance);
-        storefrontInstance.gateways['Browsing'].stopUpdate();
+        storefrontInstance.gateways['Browsing'].stopUpdating();
     });
 });
