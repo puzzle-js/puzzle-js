@@ -64,8 +64,18 @@ export class Page {
     }
 
     private gatewayUpdated(gateway: GatewayStorefrontInstance) {
-        //update fragments
+        Object.values(this.gatewayDependencies.fragments).forEach(fragment => {
+            if (fragment.gateway == gateway.name && gateway.config) {
+                fragment.instance.update(gateway.config.fragments[fragment.instance.name]);
+            }
+        });
+
+
         this.responseHandlers = {};
+    }
+
+    private updateFragmentConfig() {
+        //todo doldur gatewayready ve updatedi duzelt
     }
 
     private gatewayReady(gateway: GatewayStorefrontInstance) {
