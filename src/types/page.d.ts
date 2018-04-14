@@ -29,3 +29,8 @@ export interface IPageDependentGateways {
 export interface IResponseHandlers {
     [versionsHash: string]: (req: object, res: object) => void;
 }
+
+export interface IfragmentCookieMap {
+    name: string,
+    live: string
+}

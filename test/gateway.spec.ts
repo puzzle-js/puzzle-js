@@ -96,7 +96,8 @@ describe('Gateway', () => {
                         render: {
                             url: '/'
                         },
-                        version: 'test'
+                        version: 'test',
+                        testCookie: 'fragment_test'
                     }
                 }
             });
@@ -198,7 +199,8 @@ describe('Gateway', () => {
                             url: '/'
                         },
                         assets: [],
-                        dependencies: []
+                        dependencies: [],
+                        testCookie: 'test_1'
                     }
                 }
             }

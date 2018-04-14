@@ -2,8 +2,9 @@ import uuidv1 from "uuid/v1";
 import {EventEmitter} from "events";
 import {FragmentBFF} from "./fragment";
 import {DEFAULT_POLLING_INTERVAL, EVENTS, FRAGMENT_RENDER_MODES} from "./enums";
-import {IExposeConfig, IExposeFragment, IGatewayBFFConfiguration, IGatewayConfiguration} from "../types/gateway";
+import {IExposeConfig, IGatewayBFFConfiguration, IGatewayConfiguration} from "../types/gateway";
 import fetch from "node-fetch";
+import {IExposeFragment} from "../types/fragment";
 
 export class Gateway {
     public name: string;
@@ -72,6 +73,7 @@ export class GatewayBFF extends Gateway {
                     render: fragment.render,
                     assets: fragment.versions[fragment.version].assets,
                     dependencies: fragment.versions[fragment.version].dependencies,
+                    testCookie: fragment.testCookie
                 };
 
                 this.fragments[fragment.name] = new FragmentBFF(fragment);

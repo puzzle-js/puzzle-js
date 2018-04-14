@@ -1,4 +1,4 @@
-import {IExposeFragment} from "../types/gateway";
+import {IExposeFragment} from "../types/fragment";
 import {IFragment, IFragmentBFF} from "../types/fragment";
 
 export class Fragment {
@@ -37,7 +37,7 @@ export class FragmentBFF extends Fragment {
 }
 
 export class FragmentStorefront extends Fragment {
-    private config: IExposeFragment | undefined;
+    public config: IExposeFragment | undefined;
 
     constructor(name: string) {
         super({name});

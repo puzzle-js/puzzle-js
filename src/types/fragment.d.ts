@@ -1,6 +1,5 @@
-import {IFileResourceAsset} from "./resource";
+import {IFileResourceAsset, IFileResourceDependency} from "./resource";
 import {Fragment} from "../lib/fragment";
-import {IFileResourceDependency} from "./resource";
 
 export interface IFragment {
     name: string;
@@ -39,4 +38,12 @@ export interface IFragmentBFF extends IFragment {
 
 export interface IFragmentMap {
     [name: string]: Fragment;
+}
+
+export interface IExposeFragment {
+    version: string;
+    testCookie: string;
+    render: IFragmentBFFRender;
+    assets: Array<IFileResourceAsset>;
+    dependencies: Array<IFileResourceDependency>;
 }

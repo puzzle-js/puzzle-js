@@ -1,7 +1,5 @@
-import {IFragmentBFF, IFragmentBFFRender} from "./fragment";
-import {IFileResourceAsset} from "./resource";
+import {IExposeFragment, IFragmentBFF} from "./fragment";
 import {GatewayStorefrontInstance} from "../lib/gateway";
-import {IFileResourceDependency} from "./resource";
 
 export interface IGatewayMap {
     [name: string]: GatewayStorefrontInstance;
@@ -26,9 +24,3 @@ export interface IExposeConfig {
     }
 }
 
-export interface IExposeFragment {
-    version: string;
-    render: IFragmentBFFRender;
-    assets: Array<IFileResourceAsset>;
-    dependencies: Array<IFileResourceDependency>;
-}
