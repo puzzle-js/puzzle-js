@@ -14,7 +14,7 @@ export class Page {
 
     constructor(html: string, gatewayMap: IGatewayMap) {
         this.template = new Template(html);
-        this.gatewayDependencies = this.template.prepareDependencies();
+        this.gatewayDependencies = this.template.getDependencies();
 
         Object.keys(gatewayMap)
             .filter(gatewayName => this.gatewayDependencies.gateways[gatewayMap[gatewayName].name])

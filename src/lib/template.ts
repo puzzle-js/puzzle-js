@@ -58,7 +58,7 @@ export class Template {
         this.pageClass._onCreate();
     }
 
-    public prepareDependencies() {
+    public getDependencies() {
         return this.dom('fragment').toArray().reduce((dependencyList: IPageDependentGateways, fragment: any) => {
             if (!dependencyList.gateways[fragment.attribs.from]) {
                 dependencyList.gateways[fragment.attribs.from] = {

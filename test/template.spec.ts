@@ -21,4 +21,28 @@ describe('Page', () => {
         const template = new Template(`<script>module.exports = { onCreate(){this.testProp = 'test';} }</script><template><div></div></template>`);
         expect(template.pageClass.testProp).to.eq('test');
     });
+
+    it('should prepare dependencies', function () {
+        const template = new Template('<template><div><fragment from="Browsing" name="product"></fragment></div></template>');
+
+        const dependencyList = template.getDependencies();
+        expect(dependencyList).to.deep.include({
+            gateways: {
+                Browsing: {
+                    gateway: null,
+                    ready: false
+                }
+            },
+            fragments: {
+                product: {
+                    gateway: 'Browsing',
+                    instance: {
+                        name: 'product'
+                    }
+                }
+            }
+        })
+    });
+
+
 });
