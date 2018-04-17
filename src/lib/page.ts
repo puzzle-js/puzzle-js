@@ -50,7 +50,7 @@ export class Page {
         return this.fragmentCookieList.reduce((fragmentHandlerVersion, fragmentCookie) => {
             fragmentHandlerVersion += `{${fragmentCookie.name}_${req.cookies[fragmentCookie.name] || fragmentCookie.live}}`;
             return fragmentHandlerVersion;
-        }, '');;
+        }, '');
     }
 
     private getFragmentTestCookieList() {
