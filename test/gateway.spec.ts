@@ -2,7 +2,7 @@ import "mocha";
 import {expect} from "chai";
 import {Gateway, GatewayBFF, GatewayStorefrontInstance} from "../src/lib/gateway";
 import {EVENTS, FRAGMENT_RENDER_MODES} from "../src/lib/enums";
-import {IExposeConfig, IGatewayBFFConfiguration, IGatewayConfiguration} from "../src/types/gateway";
+import {IGatewayBFFConfiguration} from "../src/types/gateway";
 import nock from "nock";
 import {createGateway} from "./mock/mock";
 

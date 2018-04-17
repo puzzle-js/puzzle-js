@@ -12,10 +12,9 @@ export class Page {
     private template: Template;
     private fragmentCookieList: Array<IfragmentCookieMap> = [];
 
-
     constructor(html: string, gatewayMap: IGatewayMap) {
         this.template = new Template(html);
-        this.gatewayDependencies = this.template.getDependencies();
+        this.gatewayDependencies = this.template.prepareDependencies();
 
         Object.keys(gatewayMap)
             .filter(gatewayName => this.gatewayDependencies.gateways[gatewayMap[gatewayName].name])
@@ -29,7 +28,7 @@ export class Page {
                 }
             });
 
-        //todo if all already ready change page to ready
+        this.checkPageReady();
     }
 
     public async handle(req: { cookies: ICookieObject }, res: object) {
@@ -40,19 +39,24 @@ export class Page {
         this.responseHandlers[handlerVersion](req, res);
     }
 
-    private getHandlerVersion(req: { cookies: ICookieObject }){
-        const fragmentHandlerVersion = this.fragmentCookieList.reduce((fragmentHandlerVersion, fragmentCookie) => {
-            fragmentHandlerVersion += `{${fragmentCookie.name}_${req.cookies[fragmentCookie.name] || fragmentCookie.live}}`;
-            return fragmentHandlerVersion;
-        }, '');
-
-        return fragmentHandlerVersion;
+    private checkPageReady() {
+        if (Object.keys(this.gatewayDependencies.gateways).filter(gatewayName => this.gatewayDependencies.gateways[gatewayName].ready == false).length === 0) {
+            this.fragmentCookieList = this.getFragmentTestCookieList();
+            this.ready = true;
+        }
     }
 
-    private getFragmentTestCookieList(){
+    private getHandlerVersion(req: { cookies: ICookieObject }) {
+        return this.fragmentCookieList.reduce((fragmentHandlerVersion, fragmentCookie) => {
+            fragmentHandlerVersion += `{${fragmentCookie.name}_${req.cookies[fragmentCookie.name] || fragmentCookie.live}}`;
+            return fragmentHandlerVersion;
+        }, '');;
+    }
+
+    private getFragmentTestCookieList() {
         const cookieList: IfragmentCookieMap[] = [];
         Object.values(this.gatewayDependencies.fragments).forEach(fragment => {
-            if(fragment.instance.config){
+            if (fragment.instance.config) {
                 cookieList.push({
                     name: fragment.instance.config.testCookie,
                     live: fragment.instance.config.version
@@ -64,33 +68,23 @@ export class Page {
     }
 
     private gatewayUpdated(gateway: GatewayStorefrontInstance) {
+        this.updateFragmentsConfig(gateway);
+        this.responseHandlers = {};
+    }
+
+    private updateFragmentsConfig(gateway: GatewayStorefrontInstance) {
         Object.values(this.gatewayDependencies.fragments).forEach(fragment => {
             if (fragment.gateway == gateway.name && gateway.config) {
                 fragment.instance.update(gateway.config.fragments[fragment.instance.name]);
             }
         });
-
-
-        this.responseHandlers = {};
-    }
-
-    private updateFragmentConfig() {
-        //todo doldur gatewayready ve updatedi duzelt
     }
 
     private gatewayReady(gateway: GatewayStorefrontInstance) {
         this.gatewayDependencies.gateways[gateway.name].ready = true;
+        this.updateFragmentsConfig(gateway);
 
-        Object.values(this.gatewayDependencies.fragments).forEach(fragment => {
-            if (fragment.gateway == gateway.name && gateway.config) {
-                fragment.instance.update(gateway.config.fragments[fragment.instance.name]);
-            }
-        });
-
-        if(Object.keys(this.gatewayDependencies.gateways).filter(gatewayName => this.gatewayDependencies.gateways[gatewayName].ready == false).length === 0){
-            this.fragmentCookieList = this.getFragmentTestCookieList();
-            this.ready = true;
-        }
+        this.checkPageReady();
     }
 }
 

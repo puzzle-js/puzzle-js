@@ -5,6 +5,7 @@ import {DEFAULT_POLLING_INTERVAL, EVENTS, FRAGMENT_RENDER_MODES} from "./enums";
 import {IExposeConfig, IGatewayBFFConfiguration, IGatewayConfiguration} from "../types/gateway";
 import fetch from "node-fetch";
 import {IExposeFragment} from "../types/fragment";
+import Timer = NodeJS.Timer;
 
 export class Gateway {
     public name: string;
@@ -20,7 +21,7 @@ export class Gateway {
 export class GatewayStorefrontInstance extends Gateway {
     public events: EventEmitter = new EventEmitter();
     public config: IExposeConfig | undefined;
-    private intervalId: number | null = null;
+    private intervalId: Timer | null = null;
 
     constructor(gatewayConfig: IGatewayConfiguration) {
         super(gatewayConfig);

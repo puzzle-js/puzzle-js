@@ -1,10 +1,8 @@
 import "mocha";
 import {Page} from "../src/lib/page";
-import {EventEmitter} from "events";
 import {expect} from "chai";
 import * as fs from "fs";
 import * as path from "path";
-import {IPageConfiguration} from "../src/types/page";
 import {GatewayStorefrontInstance} from "../src/lib/gateway";
 import {createGateway} from "./mock/mock";
 import {EVENTS} from "../src/lib/enums";
@@ -97,6 +95,51 @@ describe('Page', () => {
         });
     });
 
+    it('should set page status to ready gateways are already ready', function () {
+        const commonGatewayStorefrontConfiguration = {
+            name: 'Browsing',
+            url: 'http://browsing-gw.com',
+            config: {
+                hash: '44',
+                fragments: {
+                    header: {
+                        version: '1.0.0',
+                        render: {
+                            url: '/'
+                        },
+                        assets: [],
+                        dependencies: [],
+                        testCookie: 'test_1'
+                    }
+                }
+            }
+        };
+        createGateway(commonGatewayStorefrontConfiguration.name, commonGatewayStorefrontConfiguration.url, commonGatewayStorefrontConfiguration.config, true);
+        const gateway = new GatewayStorefrontInstance(commonGatewayStorefrontConfiguration);
+
+        const template = fs.readFileSync(path.join(__dirname, './templates/fragmented2.html'), 'utf8');
+        gateway.config = {
+            hash: '44',
+            fragments: {
+                header: {
+                    version: '1.0.0',
+                    render: {
+                        url: '/'
+                    },
+                    assets: [],
+                    dependencies: [],
+                    testCookie: 'test_1'
+                }
+            }
+        };
+        const newPage = new Page(template, {
+            Browsing: gateway
+        });
+
+        expect(newPage.gatewayDependencies.gateways.Browsing.ready).to.eq(true);
+        expect(newPage.ready).to.eq(true);
+    });
+
     it('should wait for all gateways to be ready to change status to ready', function (done) {
         const commonGatewayStorefrontConfiguration = {
             name: 'Browsing',
@@ -161,6 +204,56 @@ describe('Page', () => {
                 expect(newPage.ready).to.eq(true);
                 done();
             }
+        });
+    });
+
+    it('should update fragment information when gateways updated', function (done) {
+        const commonGatewayStorefrontConfiguration = {
+            name: 'Browsing',
+            url: 'http://browsing-gw.com',
+            config: {
+                hash: '44',
+                fragments: {
+                    header: {
+                        version: '1.0.0',
+                        render: {
+                            url: '/'
+                        },
+                        assets: [],
+                        dependencies: [],
+                        testCookie: 'test_1'
+                    }
+                }
+            }
+        };
+        createGateway(commonGatewayStorefrontConfiguration.name, commonGatewayStorefrontConfiguration.url, commonGatewayStorefrontConfiguration.config, true);
+        const gateway = new GatewayStorefrontInstance(commonGatewayStorefrontConfiguration);
+        const template = fs.readFileSync(path.join(__dirname, './templates/fragmented2.html'), 'utf8');
+        const newPage = new Page(template, {
+            Browsing: gateway
+        });
+
+        gateway.events.on(EVENTS.GATEWAY_READY, () => {
+            expect(newPage.gatewayDependencies.gateways['Browsing'].ready).to.eq(true);
+
+            if(gateway.config){
+                gateway.config.fragments.header.testCookie = 'zek';
+                gateway.events.emit(EVENTS.GATEWAY_UPDATED, gateway);
+            }
+        });
+
+        gateway.events.on(EVENTS.GATEWAY_UPDATED, () => {
+           if(gateway.config){
+               expect(gateway.config.fragments.header.testCookie).to.eq('zek');
+               if(newPage.gatewayDependencies.fragments.header.instance.config){
+                   expect(newPage.gatewayDependencies.fragments.header.instance.config.testCookie).to.eq('zek');
+                   done();
+               }else{
+                   done('config does not exists on istance')
+               }
+           }else{
+               done('Gateway config is not defined');
+           }
         });
     });
 

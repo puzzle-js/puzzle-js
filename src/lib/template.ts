@@ -3,7 +3,6 @@ import cheerio from "cheerio";
 import {TemplateCompiler} from "./templateCompiler";
 import {HTML_FRAGMENT_NAME_ATTRIBUTE, HTML_GATEWAY_ATTRIBUTE} from "./enums";
 import {IPageDependentGateways} from "../types/page";
-import {IFragmentMap} from "../types/fragment";
 
 export class TemplateClass {
     public onCreate: Function | undefined;
@@ -26,12 +25,14 @@ export class TemplateClass {
     _onResponseEnd(...args: any[]) {
         this.onResponseEnd && this.onResponseEnd(...args);
     }
+
+    [name: string]: any;
 }
 
 export class Template {
-    private dom: CheerioStatic;
-    private fragments: { [name: string]: FragmentStorefront } = {};
-    private pageClass: TemplateClass = new TemplateClass();
+    public dom: CheerioStatic;
+    public fragments: { [name: string]: FragmentStorefront } = {};
+    public pageClass: TemplateClass = new TemplateClass();
 
     constructor(rawHtml: string) {
         const pageClassScriptRegex = /<script>(.*?)<\/script>(.*)<template>/mis;
@@ -57,7 +58,7 @@ export class Template {
         this.pageClass._onCreate();
     }
 
-    public getDependencies() {
+    public prepareDependencies() {
         return this.dom('fragment').toArray().reduce((dependencyList: IPageDependentGateways, fragment: any) => {
             if (!dependencyList.gateways[fragment.attribs.from]) {
                 dependencyList.gateways[fragment.attribs.from] = {
@@ -85,6 +86,7 @@ export class Template {
         const fragments = this.dom('fragment');
         //this.fragments kullan !!!!!
         let firstFlush = null;
+
         if (fragments.length === 0) {
             firstFlush = TemplateCompiler.compile(this.dom.html()).bind(this.pageClass);
         } else {
@@ -100,10 +102,11 @@ export class Template {
             });
             firstFlush = TemplateCompiler.compile(this.dom.html()).bind(this.pageClass);
         }
+
         return (req: object, res: object) => {
             //async waterfall,
-                //firstflush
-                //async.parallel
+            //firstflush
+            //async.parallel
         }
     }
 }
