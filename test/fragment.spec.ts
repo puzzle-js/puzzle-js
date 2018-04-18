@@ -2,6 +2,10 @@ import "mocha";
 import {expect} from "chai";
 import {FragmentBFF, FragmentStorefront} from "../src/lib/fragment";
 import {IFragmentBFF} from "../src/types/fragment";
+import nock from "nock";
+
+
+
 describe('Fragment', () => {
     describe('BFF',() => {
         const commonFragmentBffConfiguration: any = {
@@ -76,7 +80,8 @@ describe('Fragment', () => {
             assets: [],
             dependencies: [],
             render: {
-                url: '/'
+                url: '/',
+                placeholder: true
             }
         };
         it('should create new storefront fragment instance', function () {
@@ -87,11 +92,21 @@ describe('Fragment', () => {
 
         it('should update fragment configuration', function () {
             const fragment = new FragmentStorefront('product');
-
-
-            fragment.update(commonFragmentConfig, 'http://mygateway.com');
+            fragment.update(commonFragmentConfig, 'http://local.gatewaysimulator.com');
 
             expect(fragment.config).to.deep.eq(commonFragmentConfig);
+        });
+
+        it('should fetch placeholder', async function () {
+            let placeholderContent = '<div>placeholder</div>';
+            let scope = nock('http://local.gatewaysimulator.com')
+                .get('/product/placeholder')
+                .reply(200, placeholderContent);
+            const fragment = new FragmentStorefront('product');
+            fragment.update(commonFragmentConfig, 'http://local.gatewaysimulator.com');
+
+            const placeholder = await fragment.getPlaceholder();
+            expect(placeholder).to.eq(placeholderContent);
         });
     });
 });

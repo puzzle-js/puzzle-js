@@ -40,7 +40,7 @@ export class FragmentBFF extends Fragment {
 export class FragmentStorefront extends Fragment {
     public config: IExposeFragment | undefined;
     public primary: boolean;
-    private gatewayUrl: string | undefined;
+    private fragmentUrl: string | undefined;
 
     constructor(name: string, primary: boolean = false) {
         super({name});
@@ -48,12 +48,17 @@ export class FragmentStorefront extends Fragment {
         this.primary = primary;
     }
 
-    public update(config: IExposeFragment, gatewayUrl: string){
-        this.gatewayUrl = gatewayUrl;
+    public update(config: IExposeFragment, gatewayUrl: string) {
+        this.fragmentUrl = `${gatewayUrl}/${this.name}`;
         this.config = config;
     }
 
-    public async getPlaceholder(){
-
+    public async getPlaceholder() {
+        if(!this.fragmentUrl || !this.config || !this.config.render.placeholder) return '';
+        return fetch(`${this.fragmentUrl}/placeholder`).then(res => res.text()).then(html => {
+            return html;
+        }).catch(err => {
+            return '';
+        })
     }
 }
