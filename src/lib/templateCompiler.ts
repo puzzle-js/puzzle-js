@@ -7,7 +7,7 @@ export class TemplateCompiler {
         return template.indexOf('${') > -1;
     }
 
-    static compile(template: string) {
+    static compile(template: string): Function {
         if (!this.isExpression(template)) return () => template;
         let generatedFn = `let out = '';`;
         const partials = template.split(this.TEMPLATE_REGEX);

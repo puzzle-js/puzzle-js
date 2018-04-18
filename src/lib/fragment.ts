@@ -1,3 +1,4 @@
+import fetch from "node-fetch";
 import {IExposeFragment} from "../types/fragment";
 import {IFragment, IFragmentBFF} from "../types/fragment";
 
@@ -38,12 +39,21 @@ export class FragmentBFF extends Fragment {
 
 export class FragmentStorefront extends Fragment {
     public config: IExposeFragment | undefined;
+    public primary: boolean;
+    private gatewayUrl: string | undefined;
 
-    constructor(name: string) {
+    constructor(name: string, primary: boolean = false) {
         super({name});
+
+        this.primary = primary;
     }
 
-    public update(config: IExposeFragment){
+    public update(config: IExposeFragment, gatewayUrl: string){
+        this.gatewayUrl = gatewayUrl;
         this.config = config;
+    }
+
+    public async getPlaceholder(){
+
     }
 }

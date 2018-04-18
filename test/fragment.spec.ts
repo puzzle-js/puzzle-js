@@ -1,6 +1,6 @@
 import "mocha";
 import {expect} from "chai";
-import {FragmentBFF} from "../src/lib/fragment";
+import {FragmentBFF, FragmentStorefront} from "../src/lib/fragment";
 import {IFragmentBFF} from "../src/types/fragment";
 describe('Fragment', () => {
     describe('BFF',() => {
@@ -70,6 +70,28 @@ describe('Fragment', () => {
     });
 
     describe('Storefront',() => {
+        const commonFragmentConfig = {
+            version: '',
+            testCookie: 'test',
+            assets: [],
+            dependencies: [],
+            render: {
+                url: '/'
+            }
+        };
+        it('should create new storefront fragment instance', function () {
+            const fragment = new FragmentStorefront('product');
 
+            expect(fragment).to.be.instanceOf(FragmentStorefront);
+        });
+
+        it('should update fragment configuration', function () {
+            const fragment = new FragmentStorefront('product');
+
+
+            fragment.update(commonFragmentConfig, 'http://mygateway.com');
+
+            expect(fragment.config).to.deep.eq(commonFragmentConfig);
+        });
     });
 });

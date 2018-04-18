@@ -27,9 +27,11 @@
     "test:watch": "mocha --watch --require ts-node/register --watch-extensions ts,tsx \"test/**/*.{ts,tsx}\""
   },
   "dependencies": {
+    "@types/async": "^2.0.49",
     "@types/nock": "^9.1.3",
     "@types/node-fetch": "^1.6.8",
     "@types/uuid": "^3.4.3",
+    "async": "^2.6.0",
     "cheerio": "^1.0.0-rc.2",
     "node-fetch": "^2.1.2",
     "uuid": "^3.2.1"

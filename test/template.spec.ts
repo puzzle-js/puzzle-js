@@ -2,7 +2,7 @@ import "mocha";
 import {expect} from "chai";
 import {Template} from "../src/lib/template";
 
-describe('Page', () => {
+describe('Template', () => {
     it('should create a new Template instance', function () {
         const template = new Template('<template><div></div></template>');
 
@@ -37,12 +37,39 @@ describe('Page', () => {
                 product: {
                     gateway: 'Browsing',
                     instance: {
-                        name: 'product'
+                        name: 'product',
+                        primary: false
                     }
                 }
             }
         })
     });
 
+    it('should compile page and return a function without any fragments', async function () {
+        const template = new Template('<template><div><span>Puzzle</span></div></template>');
+        const handler = await template.compile({});
 
+        handler({}, {
+            write(str: string) {
+                throw new Error('Wrong express method, it should be end for single fragments')
+            },
+            end(str: string) {
+                expect(str).to.eq('<div><span>Puzzle</span></div>');
+            }
+        });
+    });
+
+    it('should compile page with script without fragments', async function () {
+        const template = new Template('<script>module.exports = {onCreate(){this.title = "Puzzle"}}</script><template><div><span>${this.title}</span></div></template>');
+        const handler = await template.compile({});
+
+        handler({}, {
+            write(str: string) {
+                throw new Error('Wrong express method, it should be end for single fragments')
+            },
+            end(str: string) {
+                expect(str).to.eq('<div><span>Puzzle</span></div>');
+            }
+        });
+    });
 });

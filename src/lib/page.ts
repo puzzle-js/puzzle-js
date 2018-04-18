@@ -75,7 +75,7 @@ export class Page {
     private updateFragmentsConfig(gateway: GatewayStorefrontInstance) {
         Object.values(this.gatewayDependencies.fragments).forEach(fragment => {
             if (fragment.gateway == gateway.name && gateway.config) {
-                fragment.instance.update(gateway.config.fragments[fragment.instance.name]);
+                fragment.instance.update(gateway.config.fragments[fragment.instance.name], gateway.url);
             }
         });
     }

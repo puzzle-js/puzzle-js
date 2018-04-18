@@ -38,19 +38,22 @@ describe('Page', () => {
                 header: {
                     gateway: 'Browsing',
                     instance: {
-                        name: 'header'
+                        name: 'header',
+                        primary: false
                     }
                 },
                 content: {
                     gateway: 'Browsing',
                     instance: {
-                        name: 'content'
+                        name: 'content',
+                        primary: false
                     }
                 },
                 footer: {
                     gateway: 'Browsing',
                     instance: {
-                        name: 'footer'
+                        name: 'footer',
+                        primary: false
                     }
                 }
             },
@@ -289,7 +292,10 @@ describe('Page', () => {
                     a: 'acg was here',
                     test_1: 'special'
                 }
-            }, {});
+            }, {
+                write: () => '',
+                end: () => ''
+            });
             expect(newPage.responseHandlers).to.haveOwnProperty('{test_1_special}');
             done();
         });
@@ -326,7 +332,10 @@ describe('Page', () => {
                 cookies: {
                     a: 'acg was here',
                 }
-            }, {});
+            }, {
+                write: () => '',
+                end: () => ''
+            });
             expect(newPage.responseHandlers).to.haveOwnProperty('{test_1_1.0.0}');
             done();
         });

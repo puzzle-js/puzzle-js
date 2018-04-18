@@ -3,6 +3,7 @@ import cheerio from "cheerio";
 import {TemplateCompiler} from "./templateCompiler";
 import {HTML_FRAGMENT_NAME_ATTRIBUTE, HTML_GATEWAY_ATTRIBUTE} from "./enums";
 import {IPageDependentGateways} from "../types/page";
+import async from "async";
 
 export class TemplateClass {
     public onCreate: Function | undefined;
@@ -84,29 +85,45 @@ export class Template {
 
     public async compile(testCookies: { [cookieName: string]: string }) {
         const fragments = this.dom('fragment');
-        //this.fragments kullan !!!!!
-        let firstFlush = null;
+        let taskSequence: Array<Function> = [];
+        let firstFlushHandler: Function;
+        let chunkHandlers: Array<Function> = [];
 
         if (fragments.length === 0) {
-            firstFlush = TemplateCompiler.compile(this.dom.html()).bind(this.pageClass);
+            firstFlushHandler = TemplateCompiler.compile(this.dom('body').html() as string).bind(this.pageClass);
         } else {
             //bu anda gateway configi cekilmis olmali
             fragments.each((i, fragmentNode) => {
                 //this.fragments[fragmentNode.attribs.name] = new Fragment()
                 const $ = cheerio.load(`<div id="${fragmentNode.attribs.name}" ${HTML_GATEWAY_ATTRIBUTE}="${fragmentNode.attribs.from}" ${HTML_FRAGMENT_NAME_ATTRIBUTE}="${fragmentNode.attribs.name}"></div>`);
                 const fragmentItem = $('#' + fragmentNode.attribs.name);
-                fragmentItem.append('<script></script>'); // varsa start script
-                fragmentItem.append('<div></div>'); // Asil contentler, varsa icinde placeholder olmali
-                fragmentItem.append('<script></script>'); // varsa content end script, sarilmis olmali
+                // fragmentItem.append('<script></script>'); // varsa start script
+                // fragmentItem.append('<div></div>'); // Asil contentler, varsa icinde placeholder olmali
+                // fragmentItem.append('<script></script>'); // varsa content end script, sarilmis olmali
                 this.dom(fragmentNode).replaceWith($.html());
             });
-            firstFlush = TemplateCompiler.compile(this.dom.html()).bind(this.pageClass);
+            firstFlushHandler = () => '';
         }
 
-        return (req: object, res: object) => {
-            //async waterfall,
-            //firstflush
-            //async.parallel
+        if(chunkHandlers.length == 0){
+            return (req: any, res: any) => {
+                res.end(firstFlushHandler.call(this.pageClass, req));
+                this.pageClass._onResponseEnd();
+            }
+        }else{
+            return (req: any, res: any) => {
+                this.pageClass._onRequest(req);
+                res.write(firstFlushHandler.call(this.pageClass, req));
+                async.parallel(chunkHandlers.map(fn => {
+                    return (async () => {
+                        res.write(await fn());
+                        this.pageClass._onChunk();
+                    });
+                }), err => {
+                    res.end();
+                    this.pageClass._onResponseEnd();
+                })
+            }
         }
     }
 }
