@@ -108,5 +108,13 @@ describe('Fragment', () => {
             const placeholder = await fragment.getPlaceholder();
             expect(placeholder).to.eq(placeholderContent);
         });
+
+        it('should return empty placeholder on any exception', async function () {
+            const fragment = new FragmentStorefront('product');
+            fragment.update(commonFragmentConfig, 'http://local.gatewaysimulator.com');
+
+            const placeholder = await fragment.getPlaceholder();
+            expect(placeholder).to.eq('');
+        });
     });
 });
