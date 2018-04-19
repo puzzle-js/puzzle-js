@@ -91,6 +91,7 @@ describe('Fragment', () => {
                 placeholder: true
             }
         };
+
         it('should create new storefront fragment instance', function () {
             const fragment = new FragmentStorefront('product');
 
@@ -125,15 +126,22 @@ describe('Fragment', () => {
         });
 
         it('should return fragment content', async function () {
-            let fragmentContent = '<div>fragment</div>';
+            let fragmentContent = {
+                main: '<div>fragment</div>'
+            };
             let scope = nock('http://local.gatewaysimulator.com')
                 .get('/product/')
+                .query({__renderMode: FRAGMENT_RENDER_MODES.STREAM})
                 .reply(200, fragmentContent);
             const fragment = new FragmentStorefront('product');
             fragment.update(commonFragmentConfig, 'http://local.gatewaysimulator.com');
 
             const content = await fragment.getContent();
-            expect(content).to.eq(fragmentContent);
+            expect(JSON.parse(content)).to.deep.eq(fragmentContent);
+        });
+
+        it('should fetch fragment assets', function () {
+            
         });
     });
 });

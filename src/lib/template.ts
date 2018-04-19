@@ -1,9 +1,10 @@
 import {FragmentStorefront} from "./fragment";
 import cheerio from "cheerio";
 import {TemplateCompiler} from "./templateCompiler";
-import {HTML_FRAGMENT_NAME_ATTRIBUTE, HTML_GATEWAY_ATTRIBUTE} from "./enums";
+import {HTML_FRAGMENT_NAME_ATTRIBUTE} from "./config";
 import {IPageDependentGateways} from "../types/page";
 import async from "async";
+import {HTML_GATEWAY_ATTRIBUTE} from "./config";
 
 export class TemplateClass {
     public onCreate: Function | undefined;

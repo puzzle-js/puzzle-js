@@ -67,14 +67,15 @@ export class FragmentStorefront extends Fragment {
     }
 
     public async getContent() {
-        if (!this.config) return '';
-        return fetch(`${this.fragmentUrl}${this.config.render.url}`)
+        if (!this.config) return '{}';
+        return fetch(`${this.fragmentUrl}${this.config.render.url}?__renderMode=${FRAGMENT_RENDER_MODES.STREAM}`)
             .then(res => res.text())
-            .then(html => {
-                return html;
+            .then(fragmentStreamJson => {
+                return fragmentStreamJson;
             })
             .catch(err => {
-                return '';
+                console.error(err);
+                return '{}';
             })
     }
 }
