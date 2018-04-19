@@ -1,6 +1,7 @@
 import fetch from "node-fetch";
 import {IExposeFragment} from "../types/fragment";
 import {IFragment, IFragmentBFF} from "../types/fragment";
+import {FRAGMENT_RENDER_MODES} from "./enums";
 
 export class Fragment {
     public name: string;
@@ -26,7 +27,7 @@ export class FragmentBFF extends Fragment {
             } else {
                 if (fragmentVersion.handler.data) {
                     const data = await fragmentVersion.handler.data(req);
-                    return fragmentVersion.handler.content(req, data);
+                    return fragmentVersion.handler.content(req, data)
                 } else {
                     throw new Error(`Failed to find data handler for fragment. Fragment: ${this.config.name}, Version: ${version || this.config.version}`)
                 }
@@ -54,11 +55,26 @@ export class FragmentStorefront extends Fragment {
     }
 
     public async getPlaceholder() {
-        if(!this.fragmentUrl || !this.config || !this.config.render.placeholder) return '';
-        return fetch(`${this.fragmentUrl}/placeholder`).then(res => res.text()).then(html => {
-            return html;
-        }).catch(err => {
-            return '';
-        })
+        if (!this.fragmentUrl || !this.config || !this.config.render.placeholder) return '';
+        return fetch(`${this.fragmentUrl}/placeholder`)
+            .then(res => res.text())
+            .then(html => {
+                return html;
+            })
+            .catch(err => {
+                return '';
+            })
+    }
+
+    public async getContent() {
+        if (!this.config) return '';
+        return fetch(`${this.fragmentUrl}${this.config.render.url}`)
+            .then(res => res.text())
+            .then(html => {
+                return html;
+            })
+            .catch(err => {
+                return '';
+            })
     }
 }

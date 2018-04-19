@@ -3,13 +3,14 @@ import {expect} from "chai";
 import {FragmentBFF, FragmentStorefront} from "../src/lib/fragment";
 import {IFragmentBFF} from "../src/types/fragment";
 import nock from "nock";
-
+import {FRAGMENT_RENDER_MODES} from "../src/lib/enums";
+import {deepEqual} from "assert";
 
 
 describe('Fragment', () => {
-    describe('BFF',() => {
+    describe('BFF', () => {
         const commonFragmentBffConfiguration: any = {
-            name:'test',
+            name: 'test',
             version: 'test',
             render: {
                 url: "/"
@@ -18,26 +19,32 @@ describe('Fragment', () => {
                 "test": {
                     assets: [],
                     dependencies: [],
-                    handler: {
-
-                    }
+                    handler: {}
                 }
             }
         };
 
         it('should create a new FragmentBFF', function () {
             const fragmentConfig = JSON.parse(JSON.stringify(commonFragmentBffConfiguration));
-            fragmentConfig.versions.test.handler.content = () => {};
+            fragmentConfig.versions.test.handler.content = () => {
+            };
             const fragment = new FragmentBFF(fragmentConfig);
             expect(fragment).to.be.instanceOf(FragmentBFF);
         });
 
-        it('should render fragment', async function () {
+        it('should render fragment as json format', async function () {
             const fragmentConfig = JSON.parse(JSON.stringify(commonFragmentBffConfiguration));
-            fragmentConfig.versions.test.handler.content = (req: any, data: any) => `${data} was here`;
+            fragmentConfig.versions.test.handler.content = (req: any, data: any) => {
+                return {
+                    main: `${data} was here`
+                }
+            };
             fragmentConfig.versions.test.handler.data = () => 'acg';
             const fragment = new FragmentBFF(fragmentConfig);
-            expect(await fragment.render({})).to.eq('acg was here');
+            const response = await fragment.render({});
+            expect(response).to.deep.eq({
+                main: `acg was here`
+            });
         });
 
         it('should throw at render error when not static and no data', function (done) {
@@ -66,14 +73,14 @@ describe('Fragment', () => {
             fragmentConfig.versions.test.handler.content = (req: any, data: any) => `${data} was here`;
             fragmentConfig.versions.test.handler.data = () => 'acg';
             const fragment = new FragmentBFF(fragmentConfig);
-            fragment.render({},'no_version').then(data => done(data)).catch(e => {
+            fragment.render({}, 'no_version').then(data => done(data)).catch(e => {
                 expect(e.message).to.include('Failed to find fragment version');
                 done();
             });
         });
     });
 
-    describe('Storefront',() => {
+    describe('Storefront', () => {
         const commonFragmentConfig = {
             version: '',
             testCookie: 'test',
@@ -115,6 +122,18 @@ describe('Fragment', () => {
 
             const placeholder = await fragment.getPlaceholder();
             expect(placeholder).to.eq('');
+        });
+
+        it('should return fragment content', async function () {
+            let fragmentContent = '<div>fragment</div>';
+            let scope = nock('http://local.gatewaysimulator.com')
+                .get('/product/')
+                .reply(200, fragmentContent);
+            const fragment = new FragmentStorefront('product');
+            fragment.update(commonFragmentConfig, 'http://local.gatewaysimulator.com');
+
+            const content = await fragment.getContent();
+            expect(content).to.eq(fragmentContent);
         });
     });
 });

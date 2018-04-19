@@ -6,6 +6,7 @@ import {IExposeConfig, IGatewayBFFConfiguration, IGatewayConfiguration} from "..
 import fetch from "node-fetch";
 import {IExposeFragment} from "../types/fragment";
 import Timer = NodeJS.Timer;
+import {render} from "typings/dist/support/cli";
 
 export class Gateway {
     public name: string;
@@ -90,9 +91,9 @@ export class GatewayBFF extends Gateway {
             const fragmentContent = await this.fragments[fragmentName].render({}, cookieValue);
             switch (renderMode) {
                 case FRAGMENT_RENDER_MODES.STREAM:
-                    return fragmentContent;
+                    return JSON.stringify(fragmentContent);
                 case FRAGMENT_RENDER_MODES.PREVIEW:
-                    return this.wrapFragmentContent(fragmentContent, fragmentName);
+                    return this.wrapFragmentContent(fragmentContent.main, fragmentName);
             }
         } else {
             throw new Error(`Failed to find fragment: ${fragmentName}`);

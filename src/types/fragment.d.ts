@@ -16,7 +16,10 @@ export interface IFragmentBFFRender {
 }
 
 export interface IFragmentHandler {
-    content: (req: object, data?: any) => string;
+    content: (req: object, data?: any) => {
+        main: string;
+        [name: string]: string;
+    };
     placeholder: () => string;
     data: (req: object) => any;
 }

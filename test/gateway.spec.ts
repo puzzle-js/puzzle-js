@@ -127,7 +127,9 @@ describe('Gateway', () => {
             };
 
             const bffGw = new GatewayBFF(gatewayConfiguration);
-            expect(await bffGw.renderFragment('boutique-list', FRAGMENT_RENDER_MODES.STREAM)).to.eq('test');
+            const gwResponse = await bffGw.renderFragment('boutique-list', FRAGMENT_RENDER_MODES.STREAM);
+            if(!gwResponse) throw new Error('No response from gateway');
+            expect(JSON.parse(gwResponse).main).to.eq('test');
         });
 
         it('should render fragment in preview mode', async function () {
@@ -153,7 +155,9 @@ describe('Gateway', () => {
             };
 
             const bffGw = new GatewayBFF(gatewayConfiguration);
-            expect(await bffGw.renderFragment('boutique-list', FRAGMENT_RENDER_MODES.PREVIEW)).to.eq(`<html><head><title>Browsing - boutique-list</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" /></head><body>test</body></html>`);
+            const gwResponse = await bffGw.renderFragment('boutique-list', FRAGMENT_RENDER_MODES.PREVIEW);
+            if(!gwResponse) throw new Error('No response from gateway');
+            expect(gwResponse).to.eq(`<html><head><title>Browsing - boutique-list</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" /></head><body>test</body></html>`);
         });
 
         it('should throw error at render when fragment name not found', function (done) {
