@@ -197,7 +197,7 @@ describe('Page', () => {
         gateway.events.on(EVENTS.GATEWAY_READY, () => {
             expect(newPage.gatewayDependencies.gateways['Browsing'].ready).to.eq(true);
             i++;
-            if(i == 2){
+            if(i === 2){
                 expect(newPage.ready).to.eq(true);
                 done();
             }
@@ -206,7 +206,7 @@ describe('Page', () => {
         gateway2.events.on(EVENTS.GATEWAY_READY, () => {
             expect(newPage.gatewayDependencies.gateways['Search'].ready).to.eq(true);
             i++;
-            if(i == 2){
+            if(i === 2){
                 expect(newPage.ready).to.eq(true);
                 done();
             }
@@ -255,7 +255,7 @@ describe('Page', () => {
                    expect(newPage.gatewayDependencies.fragments.header.instance.config.testCookie).to.eq('zek');
                    done();
                }else{
-                   done('config does not exists on istance')
+                   done('config does not exists on istance');
                }
            }else{
                done('Gateway config is not defined');

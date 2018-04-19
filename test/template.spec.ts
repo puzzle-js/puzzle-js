@@ -43,7 +43,7 @@ describe('Template', () => {
                     }
                 }
             }
-        })
+        });
     });
 
     it('should compile page and return a function without any fragments', async () => {
@@ -52,7 +52,7 @@ describe('Template', () => {
 
         handler({}, {
             write(str: string) {
-                throw new Error('Wrong express method, it should be end for single fragments')
+                throw new Error('Wrong express method, it should be end for single fragments');
             },
             end(str: string) {
                 expect(str).to.eq('<div><span>Puzzle</span></div>');
@@ -66,7 +66,7 @@ describe('Template', () => {
 
         handler({}, {
             write(str: string) {
-                throw new Error('Wrong express method, it should be end for single fragments')
+                throw new Error('Wrong express method, it should be end for single fragments');
             },
             end(str: string) {
                 expect(str).to.eq('<div><span>Puzzle</span></div>');
@@ -95,7 +95,7 @@ describe('Template', () => {
                     }
                 }
             }
-        })
+        });
     });
 
     it('should throw error when multiple primary fragments', () => {
@@ -112,7 +112,7 @@ describe('Template', () => {
             const dependencyList = template.getDependencies();
         };
 
-        expect(test).to.throw('Multiple primary')
+        expect(test).to.throw('Multiple primary');
     });
 
     it('should parse fragment attribute primary when fragment partials exists', () => {
@@ -143,7 +143,7 @@ describe('Template', () => {
                     }
                 }
             }
-        })
+        });
     });
 
     it('should parse fragment attribute shouldWait', () => {
@@ -173,7 +173,7 @@ describe('Template', () => {
                     }
                 }
             }
-        })
+        });
     });
 
     it('should parse fragment attribute shouldWait when fragment partials exists', () => {
@@ -205,7 +205,7 @@ describe('Template', () => {
                     }
                 }
             }
-        })
+        });
     });
 
     it('should parse fragment attribute shouldWait as true if parent node is head', () => {
@@ -242,7 +242,7 @@ describe('Template', () => {
                     }
                 }
             }
-        })
+        });
     });
 
 });

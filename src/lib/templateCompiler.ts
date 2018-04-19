@@ -27,5 +27,5 @@ export class TemplateCompiler {
             }
         }
         return new Function('req', generatedFn + 'return out;');
-    };
+    }
 }

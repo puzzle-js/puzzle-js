@@ -37,7 +37,7 @@ describe('Fragment', () => {
             fragmentConfig.versions.test.handler.content = (req: any, data: any) => {
                 return {
                     main: `${data} was here`
-                }
+                };
             };
             fragmentConfig.versions.test.handler.data = () => 'acg';
             const fragment = new FragmentBFF(fragmentConfig);
@@ -106,8 +106,8 @@ describe('Fragment', () => {
         });
 
         it('should fetch placeholder', async () => {
-            let placeholderContent = '<div>placeholder</div>';
-            let scope = nock('http://local.gatewaysimulator.com')
+            const placeholderContent = '<div>placeholder</div>';
+            const scope = nock('http://local.gatewaysimulator.com')
                 .get('/product/placeholder')
                 .reply(200, placeholderContent);
             const fragment = new FragmentStorefront('product');
@@ -126,10 +126,10 @@ describe('Fragment', () => {
         });
 
         it('should return fragment content', async () => {
-            let fragmentContent = {
+            const fragmentContent = {
                 main: '<div>fragment</div>'
             };
-            let scope = nock('http://local.gatewaysimulator.com')
+            const scope = nock('http://local.gatewaysimulator.com')
                 .get('/product/')
                 .query({__renderMode: FRAGMENT_RENDER_MODES.STREAM})
                 .reply(200, fragmentContent);
