@@ -40,13 +40,12 @@ export class FragmentBFF extends Fragment {
 
 export class FragmentStorefront extends Fragment {
     public config: IExposeFragment | undefined;
-    public primary: boolean;
+    public primary: boolean = false;
+    public shouldWait: boolean = false;
     private fragmentUrl: string | undefined;
 
-    constructor(name: string, primary: boolean = false) {
+    constructor(name: string) {
         super({name});
-
-        this.primary = primary;
     }
 
     public update(config: IExposeFragment, gatewayUrl: string) {

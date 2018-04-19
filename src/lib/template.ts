@@ -61,6 +61,8 @@ export class Template {
     }
 
     public getDependencies() {
+        let primaryName: string | null = null;
+
         return this.dom('fragment').toArray().reduce((dependencyList: IPageDependentGateways, fragment: any) => {
             if (!dependencyList.gateways[fragment.attribs.from]) {
                 dependencyList.gateways[fragment.attribs.from] = {
@@ -76,6 +78,20 @@ export class Template {
                     instance: this.fragments[fragment.attribs.name]
                 }
             }
+
+            if (this.fragments[fragment.attribs.name].primary == false) {
+                if (typeof fragment.attribs.primary != 'undefined') {
+                    if(primaryName != null && primaryName != fragment.attribs.name) throw new Error('Multiple primary fragments are not allowed');
+                    primaryName = fragment.attribs.name;
+                    this.fragments[fragment.attribs.name].primary = true;
+                    this.fragments[fragment.attribs.name].shouldWait = true;
+                }
+            }
+
+            if (this.fragments[fragment.attribs.name].shouldWait == false) {
+                this.fragments[fragment.attribs.name].shouldWait = typeof fragment.attribs.shouldwait != 'undefined' || (fragment.parent && fragment.parent.prev && fragment.parent.prev.name == 'head') || false;
+            }
+
 
             return dependencyList;
         }, {

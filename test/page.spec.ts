@@ -39,21 +39,24 @@ describe('Page', () => {
                     gateway: 'Browsing',
                     instance: {
                         name: 'header',
-                        primary: false
+                        primary: false,
+                        shouldWait: false
                     }
                 },
                 content: {
                     gateway: 'Browsing',
                     instance: {
                         name: 'content',
-                        primary: false
+                        primary: false,
+                        shouldWait: false
                     }
                 },
                 footer: {
                     gateway: 'Browsing',
                     instance: {
                         name: 'footer',
-                        primary: false
+                        primary: false,
+                        shouldWait: false
                     }
                 }
             },
