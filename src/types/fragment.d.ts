@@ -10,7 +10,7 @@ export interface IFragmentBFFRender {
     url: string;
     routeCache?: number;
     selfReplace?: boolean;
-    middlewares?: [Array<Function>];
+    middlewares?: [Function[]];
     cacheControl?: string;
     placeholder?: boolean;
 }
@@ -25,8 +25,8 @@ export interface IFragmentHandler {
 }
 
 export interface IFragmentBFFVersion {
-    assets: Array<IFileResourceAsset>;
-    dependencies: Array<IFileResourceDependency>;
+    assets: IFileResourceAsset[];
+    dependencies: IFileResourceDependency[];
     handler: IFragmentHandler;
 }
 
@@ -47,6 +47,6 @@ export interface IExposeFragment {
     version: string;
     testCookie: string;
     render: IFragmentBFFRender;
-    assets: Array<IFileResourceAsset>;
-    dependencies: Array<IFileResourceDependency>;
+    assets: IFileResourceAsset[];
+    dependencies: IFileResourceDependency[];
 }

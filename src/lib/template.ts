@@ -7,10 +7,10 @@ import async from "async";
 import {HTML_GATEWAY_ATTRIBUTE} from "./config";
 
 export class TemplateClass {
-    public onCreate: Function | undefined;
-    public onRequest: Function | undefined;
-    public onChunk: Function | undefined;
-    public onResponseEnd: Function | undefined;
+    onCreate: Function | undefined;
+    onRequest: Function | undefined;
+    onChunk: Function | undefined;
+    onResponseEnd: Function | undefined;
 
     _onCreate(...args: any[]) {
         this.onCreate && this.onCreate(...args);
@@ -32,9 +32,9 @@ export class TemplateClass {
 }
 
 export class Template {
-    public dom: CheerioStatic;
-    public fragments: { [name: string]: FragmentStorefront } = {};
-    public pageClass: TemplateClass = new TemplateClass();
+    dom: CheerioStatic;
+    fragments: { [name: string]: FragmentStorefront } = {};
+    pageClass: TemplateClass = new TemplateClass();
 
     constructor(rawHtml: string) {
         const pageClassScriptRegex = /<script>(.*?)<\/script>(.*)<template>/mis;
@@ -60,7 +60,7 @@ export class Template {
         this.pageClass._onCreate();
     }
 
-    public getDependencies() {
+    getDependencies() {
         let primaryName: string | null = null;
 
         return this.dom('fragment').toArray().reduce((dependencyList: IPageDependentGateways, fragment: any) => {
@@ -68,7 +68,7 @@ export class Template {
                 dependencyList.gateways[fragment.attribs.from] = {
                     gateway: null,
                     ready: false
-                }
+                };
             }
 
             if (!dependencyList.fragments[fragment.attribs.name]) {
@@ -76,20 +76,20 @@ export class Template {
                 dependencyList.fragments[fragment.attribs.name] = {
                     gateway: fragment.attribs.from,
                     instance: this.fragments[fragment.attribs.name]
-                }
+                };
             }
 
-            if (this.fragments[fragment.attribs.name].primary == false) {
-                if (typeof fragment.attribs.primary != 'undefined') {
-                    if(primaryName != null && primaryName != fragment.attribs.name) throw new Error('Multiple primary fragments are not allowed');
+            if (this.fragments[fragment.attribs.name].primary === false) {
+                if (typeof fragment.attribs.primary !== 'undefined') {
+                    if(primaryName != null && primaryName !== fragment.attribs.name) throw new Error('Multiple primary fragments are not allowed');
                     primaryName = fragment.attribs.name;
                     this.fragments[fragment.attribs.name].primary = true;
                     this.fragments[fragment.attribs.name].shouldWait = true;
                 }
             }
 
-            if (this.fragments[fragment.attribs.name].shouldWait == false) {
-                this.fragments[fragment.attribs.name].shouldWait = typeof fragment.attribs.shouldwait != 'undefined' || (fragment.parent && fragment.parent.prev && fragment.parent.prev.name == 'head') || false;
+            if (this.fragments[fragment.attribs.name].shouldWait === false) {
+                this.fragments[fragment.attribs.name].shouldWait = typeof fragment.attribs.shouldwait !== 'undefined' || (fragment.parent && fragment.parent.prev && fragment.parent.prev.name === 'head') || false;
             }
 
 
@@ -100,10 +100,10 @@ export class Template {
         });
     }
 
-    public async compile(testCookies: { [cookieName: string]: string }) {
+    async compile(testCookies: { [cookieName: string]: string }) {
         const fragments = this.dom('fragment');
         let firstFlushHandler: Function;
-        let chunkHandlers: Array<Function> = [];
+        const chunkHandlers: Function[] = [];
 
         if (fragments.length === 0) {
             firstFlushHandler = TemplateCompiler.compile(this.dom('body').html() as string).bind(this.pageClass);
@@ -125,12 +125,12 @@ export class Template {
     }
 
 
-    private buildHandler(firstFlushHandler: Function, chunkHandlers: Array<Function>) {
-        if (chunkHandlers.length == 0) {
+    private buildHandler(firstFlushHandler: Function, chunkHandlers: Function[]) {
+        if (chunkHandlers.length === 0) {
             return (req: any, res: any) => {
                 res.end(firstFlushHandler.call(this.pageClass, req));
                 this.pageClass._onResponseEnd();
-            }
+            };
         } else {
             return (req: any, res: any) => {
                 this.pageClass._onRequest(req);
@@ -143,8 +143,8 @@ export class Template {
                 }), err => {
                     res.end();
                     this.pageClass._onResponseEnd();
-                })
-            }
+                });
+            };
         }
     }
 }

@@ -3,8 +3,8 @@ import {GatewayStorefrontInstance} from "../lib/gateway";
 import {FragmentStorefront} from "../lib/fragment";
 
 export interface IPageConfiguration {
-    html: string,
-    url: string
+    html: string;
+    url: string;
 }
 
 export interface IPageMap {
@@ -31,6 +31,6 @@ export interface IResponseHandlers {
 }
 
 export interface IfragmentCookieMap {
-    name: string,
-    live: string
+    name: string;
+    live: string;
 }

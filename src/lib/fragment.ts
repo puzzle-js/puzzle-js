@@ -4,7 +4,7 @@ import {IFragment, IFragmentBFF} from "../types/fragment";
 import {FRAGMENT_RENDER_MODES} from "./enums";
 
 export class Fragment {
-    public name: string;
+    name: string;
 
     constructor(config: IFragment) {
         this.name = config.name;
@@ -19,7 +19,7 @@ export class FragmentBFF extends Fragment {
         this.config = config;
     }
 
-    public async render(req: object, version?: string) {
+    async render(req: object, version?: string) {
         const fragmentVersion = this.config.versions[version || this.config.version];
         if (fragmentVersion) {
             if (this.config.render.static) {
@@ -27,9 +27,9 @@ export class FragmentBFF extends Fragment {
             } else {
                 if (fragmentVersion.handler.data) {
                     const data = await fragmentVersion.handler.data(req);
-                    return fragmentVersion.handler.content(req, data)
+                    return fragmentVersion.handler.content(req, data);
                 } else {
-                    throw new Error(`Failed to find data handler for fragment. Fragment: ${this.config.name}, Version: ${version || this.config.version}`)
+                    throw new Error(`Failed to find data handler for fragment. Fragment: ${this.config.name}, Version: ${version || this.config.version}`);
                 }
             }
         } else {
@@ -39,21 +39,21 @@ export class FragmentBFF extends Fragment {
 }
 
 export class FragmentStorefront extends Fragment {
-    public config: IExposeFragment | undefined;
-    public primary: boolean = false;
-    public shouldWait: boolean = false;
+    config: IExposeFragment | undefined;
+    primary = false;
+    shouldWait = false;
     private fragmentUrl: string | undefined;
 
     constructor(name: string) {
         super({name});
     }
 
-    public update(config: IExposeFragment, gatewayUrl: string) {
+    update(config: IExposeFragment, gatewayUrl: string) {
         this.fragmentUrl = `${gatewayUrl}/${this.name}`;
         this.config = config;
     }
 
-    public async getPlaceholder() {
+    async getPlaceholder() {
         if (!this.fragmentUrl || !this.config || !this.config.render.placeholder) return '';
         return fetch(`${this.fragmentUrl}/placeholder`)
             .then(res => res.text())
@@ -62,10 +62,10 @@ export class FragmentStorefront extends Fragment {
             })
             .catch(err => {
                 return '';
-            })
+            });
     }
 
-    public async getContent() {
+    async getContent() {
         if (!this.config) return '{}';
         return fetch(`${this.fragmentUrl}${this.config.render.url}?__renderMode=${FRAGMENT_RENDER_MODES.STREAM}`)
             .then(res => res.text())
@@ -75,6 +75,6 @@ export class FragmentStorefront extends Fragment {
             .catch(err => {
                 console.error(err);
                 return '{}';
-            })
+            });
     }
 }

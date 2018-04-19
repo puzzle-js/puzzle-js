@@ -24,7 +24,7 @@ describe('Fragment', () => {
             }
         };
 
-        it('should create a new FragmentBFF', function () {
+        it('should create a new FragmentBFF', () => {
             const fragmentConfig = JSON.parse(JSON.stringify(commonFragmentBffConfiguration));
             fragmentConfig.versions.test.handler.content = () => {
             };
@@ -32,7 +32,7 @@ describe('Fragment', () => {
             expect(fragment).to.be.instanceOf(FragmentBFF);
         });
 
-        it('should render fragment as json format', async function () {
+        it('should render fragment as json format', async () => {
             const fragmentConfig = JSON.parse(JSON.stringify(commonFragmentBffConfiguration));
             fragmentConfig.versions.test.handler.content = (req: any, data: any) => {
                 return {
@@ -47,7 +47,7 @@ describe('Fragment', () => {
             });
         });
 
-        it('should throw at render error when not static and no data', function (done) {
+        it('should throw at render error when not static and no data', done => {
             const fragmentConfig = JSON.parse(JSON.stringify(commonFragmentBffConfiguration));
             fragmentConfig.versions.test.handler.content = (req: any, data: any) => `${data} was here`;
             const fragment = new FragmentBFF(fragmentConfig);
@@ -57,7 +57,7 @@ describe('Fragment', () => {
             });
         });
 
-        it('should render fragment which is static without calling data', function (done) {
+        it('should render fragment which is static without calling data', done => {
             const fragmentConfig = JSON.parse(JSON.stringify(commonFragmentBffConfiguration));
             fragmentConfig.render.static = true;
             fragmentConfig.versions.test.handler.content = (req: any, data: any) => `${data} was here`;
@@ -68,7 +68,7 @@ describe('Fragment', () => {
             fragment.render({}).then(data => done()).catch(done);
         });
 
-        it('should throw at render when failing to find version', function (done) {
+        it('should throw at render when failing to find version', done => {
             const fragmentConfig = JSON.parse(JSON.stringify(commonFragmentBffConfiguration));
             fragmentConfig.versions.test.handler.content = (req: any, data: any) => `${data} was here`;
             fragmentConfig.versions.test.handler.data = () => 'acg';
@@ -92,20 +92,20 @@ describe('Fragment', () => {
             }
         };
 
-        it('should create new storefront fragment instance', function () {
+        it('should create new storefront fragment instance', () => {
             const fragment = new FragmentStorefront('product');
 
             expect(fragment).to.be.instanceOf(FragmentStorefront);
         });
 
-        it('should update fragment configuration', function () {
+        it('should update fragment configuration', () => {
             const fragment = new FragmentStorefront('product');
             fragment.update(commonFragmentConfig, 'http://local.gatewaysimulator.com');
 
             expect(fragment.config).to.deep.eq(commonFragmentConfig);
         });
 
-        it('should fetch placeholder', async function () {
+        it('should fetch placeholder', async () => {
             let placeholderContent = '<div>placeholder</div>';
             let scope = nock('http://local.gatewaysimulator.com')
                 .get('/product/placeholder')
@@ -117,7 +117,7 @@ describe('Fragment', () => {
             expect(placeholder).to.eq(placeholderContent);
         });
 
-        it('should return empty placeholder on any exception', async function () {
+        it('should return empty placeholder on any exception', async () => {
             const fragment = new FragmentStorefront('product');
             fragment.update(commonFragmentConfig, 'http://local.gatewaysimulator.com');
 
@@ -125,7 +125,7 @@ describe('Fragment', () => {
             expect(placeholder).to.eq('');
         });
 
-        it('should return fragment content', async function () {
+        it('should return fragment content', async () => {
             let fragmentContent = {
                 main: '<div>fragment</div>'
             };

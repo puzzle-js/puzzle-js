@@ -8,28 +8,28 @@ import {createGateway} from "./mock/mock";
 import {EVENTS} from "../src/lib/enums";
 
 describe('Page', () => {
-    it('should create new page instance', function () {
+    it('should create new page instance', () => {
         const template = fs.readFileSync(path.join(__dirname, './templates/noFragments.html'), 'utf8');
         const newPage = new Page(template, {});
 
         expect(newPage).to.be.instanceOf(Page);
     });
 
-    it('should parse template with no fragments', function () {
+    it('should parse template with no fragments', () => {
         const template = fs.readFileSync(path.join(__dirname, './templates/noFragmentsWithClass.html'), 'utf8');
         const newPage = new Page(template, {});
 
         expect(newPage).to.be.instanceOf(Page);
     });
 
-    it('should parse template with fragments', function () {
+    it('should parse template with fragments', () => {
         const template = fs.readFileSync(path.join(__dirname, './templates/fragmented1.html'), 'utf8');
         const newPage = new Page(template, {});
 
         expect(newPage).to.be.instanceOf(Page);
     });
 
-    it('should create gateway dependencies', function () {
+    it('should create gateway dependencies', () => {
         const template = fs.readFileSync(path.join(__dirname, './templates/fragmented1.html'), 'utf8');
         const newPage = new Page(template, {});
 
@@ -69,7 +69,7 @@ describe('Page', () => {
         });
     });
 
-    it('should track for gateways to get ready', function (done) {
+    it('should track for gateways to get ready', done => {
         const commonGatewayStorefrontConfiguration = {
             name: 'Browsing',
             url: 'http://browsing-gw.com',
@@ -101,7 +101,7 @@ describe('Page', () => {
         });
     });
 
-    it('should set page status to ready gateways are already ready', function () {
+    it('should set page status to ready gateways are already ready', () => {
         const commonGatewayStorefrontConfiguration = {
             name: 'Browsing',
             url: 'http://browsing-gw.com',
@@ -146,7 +146,7 @@ describe('Page', () => {
         expect(newPage.ready).to.eq(true);
     });
 
-    it('should wait for all gateways to be ready to change status to ready', function (done) {
+    it('should wait for all gateways to be ready to change status to ready', done => {
         const commonGatewayStorefrontConfiguration = {
             name: 'Browsing',
             url: 'http://browsing-gw.com',
@@ -213,7 +213,7 @@ describe('Page', () => {
         });
     });
 
-    it('should update fragment information when gateways updated', function (done) {
+    it('should update fragment information when gateways updated', done => {
         const commonGatewayStorefrontConfiguration = {
             name: 'Browsing',
             url: 'http://browsing-gw.com',
@@ -263,7 +263,7 @@ describe('Page', () => {
         });
     });
 
-    it('should compile page with fragments cookies', function (done) {
+    it('should compile page with fragments cookies', done => {
         const commonGatewayStorefrontConfiguration = {
             name: 'Browsing',
             url: 'http://browsing-gw.com',
@@ -304,7 +304,7 @@ describe('Page', () => {
         });
     });
 
-    it('should compile page without fragments cookies (default version)', function (done) {
+    it('should compile page without fragments cookies (default version)', done => {
         const commonGatewayStorefrontConfiguration = {
             name: 'Browsing',
             url: 'http://browsing-gw.com',

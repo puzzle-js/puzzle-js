@@ -3,13 +3,13 @@ import {expect} from "chai";
 import {Template} from "../src/lib/template";
 
 describe('Template', () => {
-    it('should create a new Template instance', function () {
+    it('should create a new Template instance', () => {
         const template = new Template('<template><div></div></template>');
 
         expect(template).to.be.instanceOf(Template);
     });
 
-    it('should throw exception if template not found in html', function () {
+    it('should throw exception if template not found in html', () => {
         const test = () => {
             new Template('<div></div>');
         };
@@ -17,12 +17,12 @@ describe('Template', () => {
         expect(test).to.throw();
     });
 
-    it('should prepare page class if script exists', function () {
+    it('should prepare page class if script exists', () => {
         const template = new Template(`<script>module.exports = { onCreate(){this.testProp = 'test';} }</script><template><div></div></template>`);
         expect(template.pageClass.testProp).to.eq('test');
     });
 
-    it('should prepare dependencies', function () {
+    it('should prepare dependencies', () => {
         const template = new Template('<template><div><fragment from="Browsing" name="product"></fragment></div></template>');
 
         const dependencyList = template.getDependencies();
@@ -46,7 +46,7 @@ describe('Template', () => {
         })
     });
 
-    it('should compile page and return a function without any fragments', async function () {
+    it('should compile page and return a function without any fragments', async () => {
         const template = new Template('<template><div><span>Puzzle</span></div></template>');
         const handler = await template.compile({});
 
@@ -60,7 +60,7 @@ describe('Template', () => {
         });
     });
 
-    it('should compile page with script without fragments', async function () {
+    it('should compile page with script without fragments', async () => {
         const template = new Template('<script>module.exports = {onCreate(){this.title = "Puzzle"}}</script><template><div><span>${this.title}</span></div></template>');
         const handler = await template.compile({});
 
@@ -74,7 +74,7 @@ describe('Template', () => {
         });
     });
 
-    it('should parse fragment attribute primary', function () {
+    it('should parse fragment attribute primary', () => {
         const template = new Template('<template><div><fragment from="Browsing" name="product" primary></fragment></div></template>');
 
         const dependencyList = template.getDependencies();
@@ -98,7 +98,7 @@ describe('Template', () => {
         })
     });
 
-    it('should throw error when multiple primary fragments', function () {
+    it('should throw error when multiple primary fragments', () => {
         const template = new Template(`
             <template>
                 <div>
@@ -115,7 +115,7 @@ describe('Template', () => {
         expect(test).to.throw('Multiple primary')
     });
 
-    it('should parse fragment attribute primary when fragment partials exists', function () {
+    it('should parse fragment attribute primary when fragment partials exists', () => {
         const template = new Template(`
             <template>
                 <fragment from="Browsing" name="product" partial="notification"></fragment>
@@ -146,7 +146,7 @@ describe('Template', () => {
         })
     });
 
-    it('should parse fragment attribute shouldWait', function () {
+    it('should parse fragment attribute shouldWait', () => {
         const template = new Template(`
             <template>
                 <div>
@@ -176,7 +176,7 @@ describe('Template', () => {
         })
     });
 
-    it('should parse fragment attribute shouldWait when fragment partials exists', function () {
+    it('should parse fragment attribute shouldWait when fragment partials exists', () => {
         const template = new Template(`
             <template>
                 <fragment from="Browsing" name="product" partial="a"></fragment>
@@ -208,7 +208,7 @@ describe('Template', () => {
         })
     });
 
-    it('should parse fragment attribute shouldWait if parent node is head', function () {
+    it('should parse fragment attribute shouldWait as true if parent node is head', () => {
         const template = new Template(`
             <template>
                 <html>

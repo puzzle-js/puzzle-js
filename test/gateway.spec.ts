@@ -17,7 +17,7 @@ describe('Gateway', () => {
             url: 'http://localhost:4446/'
         };
 
-        it('should create new gateway', function () {
+        it('should create new gateway', () => {
             const gatewayConfiguration = {
                 name: 'Browsing',
                 url: 'http://localhost:4446/'
@@ -28,12 +28,12 @@ describe('Gateway', () => {
             expect(browsingGateway.url).to.eq(gatewayConfiguration.url);
         });
 
-        it('should create new gateway BFF instance', function () {
+        it('should create new gateway BFF instance', () => {
             const bffGw = new GatewayBFF(commonGatewayConfiguration);
             expect(bffGw).to.be.instanceOf(GatewayBFF);
         });
 
-        it('should create a new gateway bff instance with single fragment', function () {
+        it('should create a new gateway bff instance with single fragment', () => {
             const gatewayConfiguration: IGatewayBFFConfiguration = {
                 ...commonGatewayConfiguration,
                 fragments: [
@@ -59,7 +59,7 @@ describe('Gateway', () => {
             expect(bffGw).to.be.instanceOf(GatewayBFF);
         });
 
-        it('should expose public configuration reduced', function () {
+        it('should expose public configuration reduced', () => {
             const gatewayConfiguration: IGatewayBFFConfiguration = {
                 ...commonGatewayConfiguration,
                 fragments: [
@@ -104,7 +104,7 @@ describe('Gateway', () => {
             expect(bffGw.exposedConfig.hash).to.be.a('string');
         });
 
-        it('should render fragment in stream mode', async function () {
+        it('should render fragment in stream mode', async () => {
             const gatewayConfiguration: IGatewayBFFConfiguration = {
                 ...commonGatewayConfiguration,
                 fragments: [
@@ -132,7 +132,7 @@ describe('Gateway', () => {
             expect(JSON.parse(gwResponse).main).to.eq('test');
         });
 
-        it('should render fragment in preview mode', async function () {
+        it('should render fragment in preview mode', async () => {
             const gatewayConfiguration: IGatewayBFFConfiguration = {
                 ...commonGatewayConfiguration,
                 fragments: [
@@ -160,7 +160,7 @@ describe('Gateway', () => {
             expect(gwResponse).to.eq(`<html><head><title>Browsing - boutique-list</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" /></head><body>test</body></html>`);
         });
 
-        it('should throw error at render when fragment name not found', function (done) {
+        it('should throw error at render when fragment name not found', done => {
             const gatewayConfiguration: IGatewayBFFConfiguration = {
                 ...commonGatewayConfiguration,
                 fragments: [
@@ -219,13 +219,13 @@ describe('Gateway', () => {
             interceptor && interceptor.persist(false);
         });
 
-        it('should create a new gateway storefront instance', function () {
+        it('should create a new gateway storefront instance', () => {
             const gateway = new GatewayStorefrontInstance(commonGatewayStorefrontConfiguration);
 
             expect(gateway).to.be.instanceOf(GatewayStorefrontInstance);
         });
 
-        it('should load remote configuration successfully and fire ready event', function (done) {
+        it('should load remote configuration successfully and fire ready event', done => {
             const gateway = new GatewayStorefrontInstance(commonGatewayStorefrontConfiguration);
 
             gateway.events.on(EVENTS.GATEWAY_READY, () => {

@@ -6,11 +6,11 @@ import {IfragmentCookieMap, IPageDependentGateways, IResponseHandlers} from "../
 import {ICookieObject} from "../types/common";
 
 export class Page {
-    public ready: boolean = false;
-    public gatewayDependencies: IPageDependentGateways;
-    public responseHandlers: IResponseHandlers = {};
+    ready = false;
+    gatewayDependencies: IPageDependentGateways;
+    responseHandlers: IResponseHandlers = {};
     private template: Template;
-    private fragmentCookieList: Array<IfragmentCookieMap> = [];
+    private fragmentCookieList: IfragmentCookieMap[] = [];
 
     constructor(html: string, gatewayMap: IGatewayMap) {
         this.template = new Template(html);
@@ -31,7 +31,7 @@ export class Page {
         this.checkPageReady();
     }
 
-    public async handle(req: { cookies: ICookieObject }, res: object) {
+    async handle(req: { cookies: ICookieObject }, res: object) {
         const handlerVersion = this.getHandlerVersion(req);
         if (!this.responseHandlers[handlerVersion]) {
             this.responseHandlers[handlerVersion] = await this.template.compile(req.cookies);
@@ -40,7 +40,7 @@ export class Page {
     }
 
     private checkPageReady() {
-        if (Object.keys(this.gatewayDependencies.gateways).filter(gatewayName => this.gatewayDependencies.gateways[gatewayName].ready == false).length === 0) {
+        if (Object.keys(this.gatewayDependencies.gateways).filter(gatewayName => this.gatewayDependencies.gateways[gatewayName].ready === false).length === 0) {
             this.fragmentCookieList = this.getFragmentTestCookieList();
             this.ready = true;
         }
@@ -74,7 +74,7 @@ export class Page {
 
     private updateFragmentsConfig(gateway: GatewayStorefrontInstance) {
         Object.values(this.gatewayDependencies.fragments).forEach(fragment => {
-            if (fragment.gateway == gateway.name && gateway.config) {
+            if (fragment.gateway === gateway.name && gateway.config) {
                 fragment.instance.update(gateway.config.fragments[fragment.instance.name], gateway.url);
             }
         });

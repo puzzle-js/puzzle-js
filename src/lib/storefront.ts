@@ -5,8 +5,8 @@ import {IPageMap} from "../types/page";
 import {IStorefrontConfig} from "../types/storefront";
 
 export class Storefront {
-    public pages: IPageMap = {};
-    public gateways: IGatewayMap = {};
+    pages: IPageMap = {};
+    gateways: IGatewayMap = {};
 
     constructor(storefrontConfig: IStorefrontConfig) {
         storefrontConfig.gateways.forEach(gatewayConfiguration => {

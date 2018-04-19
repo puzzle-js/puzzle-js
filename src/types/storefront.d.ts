@@ -2,8 +2,8 @@ import {IGatewayConfiguration} from "./gateway";
 import {IPageConfiguration} from "./page";
 
 export interface IStorefrontConfig {
-    gateways: Array<IGatewayConfiguration>;
+    gateways: IGatewayConfiguration[];
     port: number;
-    pages: Array<IPageConfiguration>;
+    pages: IPageConfiguration[];
     pollInterval?: number;
 }

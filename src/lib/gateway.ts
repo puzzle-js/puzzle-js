@@ -9,8 +9,8 @@ import Timer = NodeJS.Timer;
 import {DEFAULT_POLLING_INTERVAL} from "./config";
 
 export class Gateway {
-    public name: string;
-    public url: string;
+    name: string;
+    url: string;
 
     constructor(gatewayConfig: IGatewayConfiguration) {
         this.name = gatewayConfig.name;
@@ -20,8 +20,8 @@ export class Gateway {
 
 
 export class GatewayStorefrontInstance extends Gateway {
-    public events: EventEmitter = new EventEmitter();
-    public config: IExposeConfig | undefined;
+    events: EventEmitter = new EventEmitter();
+    config: IExposeConfig | undefined;
     private intervalId: Timer | null = null;
 
     constructor(gatewayConfig: IGatewayConfiguration) {
@@ -30,11 +30,11 @@ export class GatewayStorefrontInstance extends Gateway {
         this.fetch();
     }
 
-    public startUpdating(pollingInterval: number = DEFAULT_POLLING_INTERVAL) {
+    startUpdating(pollingInterval: number = DEFAULT_POLLING_INTERVAL) {
         this.intervalId = setInterval(this.fetch.bind(this), pollingInterval);
     }
 
-    public stopUpdating() {
+    stopUpdating() {
         if (this.intervalId) {
             clearInterval(this.intervalId);
         }
@@ -52,7 +52,7 @@ export class GatewayStorefrontInstance extends Gateway {
             this.config = data;
             this.events.emit(EVENTS.GATEWAY_READY, this);
         } else {
-            if (data.hash != this.config.hash) {
+            if (data.hash !== this.config.hash) {
                 this.config = data;
                 this.events.emit(EVENTS.GATEWAY_UPDATED, this);
             }
@@ -61,7 +61,7 @@ export class GatewayStorefrontInstance extends Gateway {
 }
 
 export class GatewayBFF extends Gateway {
-    public exposedConfig: IExposeConfig;
+    exposedConfig: IExposeConfig;
     private config: IGatewayBFFConfiguration;
     private fragments: { [name: string]: FragmentBFF } = {};
 
@@ -86,7 +86,7 @@ export class GatewayBFF extends Gateway {
         };
     }
 
-    public async renderFragment(fragmentName: string, renderMode: FRAGMENT_RENDER_MODES = FRAGMENT_RENDER_MODES.PREVIEW, cookieValue?: string) {
+    async renderFragment(fragmentName: string, renderMode: FRAGMENT_RENDER_MODES = FRAGMENT_RENDER_MODES.PREVIEW, cookieValue?: string) {
         if (this.fragments[fragmentName]) {
             const fragmentContent = await this.fragments[fragmentName].render({}, cookieValue);
             switch (renderMode) {
@@ -94,6 +94,8 @@ export class GatewayBFF extends Gateway {
                     return JSON.stringify(fragmentContent);
                 case FRAGMENT_RENDER_MODES.PREVIEW:
                     return this.wrapFragmentContent(fragmentContent.main, fragmentName);
+                default:
+                    return JSON.stringify(fragmentContent);
             }
         } else {
             throw new Error(`Failed to find fragment: ${fragmentName}`);
@@ -101,6 +103,6 @@ export class GatewayBFF extends Gateway {
     }
 
     private wrapFragmentContent(htmlContent: string, fragmentName: string) {
-        return `<html><head><title>${this.config.name} - ${fragmentName}</title>${this.config.isMobile && '<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />'}</head><body>${htmlContent}</body></html>`
+        return `<html><head><title>${this.config.name} - ${fragmentName}</title>${this.config.isMobile && '<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />'}</head><body>${htmlContent}</body></html>`;
     }
 }

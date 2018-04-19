@@ -4,11 +4,11 @@ import {RESOURCE_TYPE} from "./enums";
 const singletonSymbol = Symbol();
 
 class ResourceFactory {
-    static singleton: Boolean | ResourceFactory = false;
+    static singleton: boolean | ResourceFactory = false;
     private resources: { [name: string]: IFileResourceStorefrontDependency } = {};
 
     constructor(enforcer: Symbol) {
-        if (enforcer != singletonSymbol) throw "Cannot construct singleton, use .singleton";
+        if (enforcer !== singletonSymbol) throw new Error("Cannot construct singleton, use .singleton");
     }
 
     static get instance() {
@@ -18,15 +18,15 @@ class ResourceFactory {
         return this.singleton;
     }
 
-    public registerDependencies(dependency: IFileResourceStorefrontDependency) {
+    registerDependencies(dependency: IFileResourceStorefrontDependency) {
         this.resources[dependency.name] = dependency;
     }
 
-    public getDependencyContent(dependencyName: string) {
+    getDependencyContent(dependencyName: string) {
         if (this.resources[dependencyName]) {
             return this.wrapDependency(this.resources[dependencyName]);
         } else {
-            return
+            return;
         }
     }
 

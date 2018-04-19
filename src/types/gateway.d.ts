@@ -11,8 +11,8 @@ export interface IGatewayConfiguration {
 }
 
 export interface IGatewayBFFConfiguration extends IGatewayConfiguration {
-    fragments: Array<IFragmentBFF>;
-    api: Array<any>;
+    fragments: IFragmentBFF[];
+    api: any[];
     port: number;
     isMobile?: boolean;
 }
@@ -21,6 +21,6 @@ export interface IExposeConfig {
     hash: string;
     fragments: {
         [name: string]: IExposeFragment
-    }
+    };
 }
 

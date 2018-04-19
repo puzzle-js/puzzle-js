@@ -17,7 +17,7 @@ export class TemplateCompiler {
                 if (expressionMathes) {
                     const expression = expressionMathes[1];
                     if (expression.match(/if|for|else|switch|case|break|{|}/)) {
-                        generatedFn += expression
+                        generatedFn += expression;
                     } else {
                         generatedFn += 'out+=\`${' + expression + '}\`;';
                     }
