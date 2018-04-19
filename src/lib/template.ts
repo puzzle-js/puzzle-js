@@ -86,7 +86,6 @@ export class Template {
 
     public async compile(testCookies: { [cookieName: string]: string }) {
         const fragments = this.dom('fragment');
-        let taskSequence: Array<Function> = [];
         let firstFlushHandler: Function;
         let chunkHandlers: Array<Function> = [];
 
@@ -106,12 +105,17 @@ export class Template {
             firstFlushHandler = () => '';
         }
 
-        if(chunkHandlers.length == 0){
+        return this.buildHandler(firstFlushHandler, chunkHandlers);
+    }
+
+
+    private buildHandler(firstFlushHandler: Function, chunkHandlers: Array<Function>) {
+        if (chunkHandlers.length == 0) {
             return (req: any, res: any) => {
                 res.end(firstFlushHandler.call(this.pageClass, req));
                 this.pageClass._onResponseEnd();
             }
-        }else{
+        } else {
             return (req: any, res: any) => {
                 this.pageClass._onRequest(req);
                 res.write(firstFlushHandler.call(this.pageClass, req));

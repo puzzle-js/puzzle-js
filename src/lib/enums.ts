@@ -13,6 +13,11 @@ export enum RESOURCE_INJECT_TYPE {
     EXTERNAL
 }
 
+export enum RESOURCE_TYPE {
+    CSS,
+    JS
+}
+
 export enum RESOURCE_LOCATION {
     HEAD,
     BODY_START,

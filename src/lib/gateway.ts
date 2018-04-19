@@ -6,7 +6,6 @@ import {IExposeConfig, IGatewayBFFConfiguration, IGatewayConfiguration} from "..
 import fetch from "node-fetch";
 import {IExposeFragment} from "../types/fragment";
 import Timer = NodeJS.Timer;
-import {render} from "typings/dist/support/cli";
 import {DEFAULT_POLLING_INTERVAL} from "./config";
 
 export class Gateway {

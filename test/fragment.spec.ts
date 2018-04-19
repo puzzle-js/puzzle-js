@@ -140,8 +140,6 @@ describe('Fragment', () => {
             expect(JSON.parse(content)).to.deep.eq(fragmentContent);
         });
 
-        it('should fetch fragment assets', function () {
-            
-        });
+        
     });
 });
