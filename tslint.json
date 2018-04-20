@@ -1,4 +1,3 @@
-
 {
   "rules": {
     "array-type": [true, "array-simple"],

@@ -93,13 +93,13 @@ describe('Fragment', () => {
         };
 
         it('should create new storefront fragment instance', () => {
-            const fragment = new FragmentStorefront('product');
+            const fragment = new FragmentStorefront({name: 'product', from: 'test'});
 
             expect(fragment).to.be.instanceOf(FragmentStorefront);
         });
 
         it('should update fragment configuration', () => {
-            const fragment = new FragmentStorefront('product');
+            const fragment = new FragmentStorefront({name: 'product', from: 'test'});
             fragment.update(commonFragmentConfig, 'http://local.gatewaysimulator.com');
 
             expect(fragment.config).to.deep.eq(commonFragmentConfig);
@@ -110,7 +110,7 @@ describe('Fragment', () => {
             const scope = nock('http://local.gatewaysimulator.com')
                 .get('/product/placeholder')
                 .reply(200, placeholderContent);
-            const fragment = new FragmentStorefront('product');
+            const fragment = new FragmentStorefront({name: 'product', from: 'test'});
             fragment.update(commonFragmentConfig, 'http://local.gatewaysimulator.com');
 
             const placeholder = await fragment.getPlaceholder();
@@ -118,7 +118,7 @@ describe('Fragment', () => {
         });
 
         it('should return empty placeholder on any exception', async () => {
-            const fragment = new FragmentStorefront('product');
+            const fragment = new FragmentStorefront({name: 'product', from: 'test'});
             fragment.update(commonFragmentConfig, 'http://local.gatewaysimulator.com');
 
             const placeholder = await fragment.getPlaceholder();
@@ -133,13 +133,13 @@ describe('Fragment', () => {
                 .get('/product/')
                 .query({__renderMode: FRAGMENT_RENDER_MODES.STREAM})
                 .reply(200, fragmentContent);
-            const fragment = new FragmentStorefront('product');
+            const fragment = new FragmentStorefront({name: 'product', from: 'test'});
             fragment.update(commonFragmentConfig, 'http://local.gatewaysimulator.com');
 
             const content = await fragment.getContent();
-            expect(JSON.parse(content)).to.deep.eq(fragmentContent);
+            expect(content).to.deep.eq(fragmentContent);
         });
 
-        
+
     });
 });

@@ -25,3 +25,9 @@ export enum RESOURCE_LOCATION {
     CONTENT_START,
     CONTENT_END
 }
+
+export enum REPLACE_ITEM_TYPE {
+    ASSET,
+    CONTENT,
+    PLACEHOLDER
+}

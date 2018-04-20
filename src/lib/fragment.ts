@@ -1,5 +1,5 @@
 import fetch from "node-fetch";
-import {IExposeFragment} from "../types/fragment";
+import {IExposeFragment, IFragmentStorefrontAttributes} from "../types/fragment";
 import {IFragment, IFragmentBFF} from "../types/fragment";
 import {FRAGMENT_RENDER_MODES} from "./enums";
 
@@ -40,12 +40,15 @@ export class FragmentBFF extends Fragment {
 
 export class FragmentStorefront extends Fragment {
     config: IExposeFragment | undefined;
+    attribs: IFragmentStorefrontAttributes;
     primary = false;
     shouldWait = false;
     private fragmentUrl: string | undefined;
 
-    constructor(name: string) {
-        super({name});
+    constructor(attribs: IFragmentStorefrontAttributes) {
+        super({name: attribs.name});
+
+        this.attribs = attribs;
     }
 
     update(config: IExposeFragment, gatewayUrl: string) {
@@ -65,16 +68,16 @@ export class FragmentStorefront extends Fragment {
             });
     }
 
-    async getContent() {
-        if (!this.config) return '{}';
+    async getContent(): Promise<{[name:string]: string}> {
+        if (!this.config) return {};
         return fetch(`${this.fragmentUrl}${this.config.render.url}?__renderMode=${FRAGMENT_RENDER_MODES.STREAM}`)
-            .then(res => res.text())
+            .then(res => res.json())
             .then(fragmentStreamJson => {
                 return fragmentStreamJson;
             })
             .catch(err => {
                 console.error(err);
-                return '{}';
+                return {};
             });
     }
 }

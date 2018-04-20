@@ -50,3 +50,11 @@ export interface IExposeFragment {
     assets: IFileResourceAsset[];
     dependencies: IFileResourceDependency[];
 }
+
+export interface IFragmentStorefrontAttributes {
+    name: string;
+    from: string;
+    partial?: string;
+    primary?: string;
+    shouldWait?: string;
+}

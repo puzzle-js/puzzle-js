@@ -1,6 +1,8 @@
 import "mocha";
 import {expect} from "chai";
 import {Template} from "../src/lib/template";
+import nock = require("nock");
+import {FRAGMENT_RENDER_MODES} from "../src/lib/enums";
 
 describe('Template', () => {
     it('should create a new Template instance', () => {
@@ -39,7 +41,11 @@ describe('Template', () => {
                     instance: {
                         name: 'product',
                         primary: false,
-                        shouldWait: false
+                        shouldWait: false,
+                        attribs: {
+                            from: "Browsing",
+                            name: "product",
+                        }
                     }
                 }
             }
@@ -91,7 +97,12 @@ describe('Template', () => {
                     instance: {
                         name: 'product',
                         primary: true,
-                        shouldWait: true
+                        shouldWait: true,
+                        attribs: {
+                            from: "Browsing",
+                            name: "product",
+                            primary: ""
+                        }
                     }
                 }
             }
@@ -139,7 +150,12 @@ describe('Template', () => {
                     instance: {
                         name: 'product',
                         primary: true,
-                        shouldWait: true
+                        shouldWait: true,
+                        attribs: {
+                            from: "Browsing",
+                            name: "product",
+                            partial: "notification"
+                        }
                     }
                 }
             }
@@ -169,7 +185,12 @@ describe('Template', () => {
                     instance: {
                         name: 'product',
                         primary: false,
-                        shouldWait: true
+                        shouldWait: true,
+                        attribs: {
+                            from: "Browsing",
+                            name: "product",
+                            shouldwait: ""
+                        }
                     }
                 }
             }
@@ -201,7 +222,12 @@ describe('Template', () => {
                     instance: {
                         name: 'product',
                         primary: false,
-                        shouldWait: true
+                        shouldWait: true,
+                        attribs: {
+                            from: "Browsing",
+                            name: "product",
+                            partial: "a"
+                        }
                     }
                 }
             }
@@ -238,11 +264,180 @@ describe('Template', () => {
                     instance: {
                         name: 'product',
                         primary: false,
-                        shouldWait: true
+                        shouldWait: true,
+                        attribs: {
+                            from: "Browsing",
+                            name: "product",
+                            partial: "meta"
+                        }
                     }
                 }
             }
         });
     });
 
+    describe('Output', () => {
+
+        it('should respond with single flush, shouldwait without partial - 1', (done) => {
+            let scope = nock('http://my-test-gateway.com')
+                .get('/product/')
+                .query({
+                    __renderMode: FRAGMENT_RENDER_MODES.STREAM
+                })
+                .reply(200, {
+                    main: 'Trendyol'
+                });
+
+
+            const template = new Template(`
+                <template>
+                    <div>
+                        <fragment from="Browsing" name="product" shouldWait></fragment>
+                    </div>
+                </template>
+            `);
+
+            template.getDependencies();
+
+            template.fragments.product.update({
+                render: {
+                    url: '/'
+                },
+                dependencies: [],
+                assets: [],
+                testCookie: 'test',
+                version: '1.0.0'
+            }, 'http://my-test-gateway.com');
+
+
+            template.compile({}).then(handler => {
+                handler({}, {
+                    write(str: string) {
+
+                    },
+                    end(str: string) {
+                        try {
+                            expect(str).to.eq(`<div><div puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div></div>`);
+                            done();
+                        } catch (e) {
+                            done(e);
+                        }
+                    }
+                });
+            });
+
+        });
+
+        it('should respond with single flush, shouldwait with partial - 2', (done) => {
+            let scope = nock('http://my-test-gateway.com')
+                .get('/product/')
+                .query({
+                    __renderMode: FRAGMENT_RENDER_MODES.STREAM
+                })
+                .reply(200, {
+                    main: 'Trendyol',
+                    gallery: 'List of great products'
+                });
+
+
+            const template = new Template(`
+                <template>
+                    <div>
+                        <fragment from="Browsing" name="product" shouldWait></fragment>
+                    </div>
+                    <div>
+                        <fragment from="Browsing" name="product" partial="gallery"></fragment>
+                    </div>
+                </template>
+            `);
+
+            template.getDependencies();
+
+            template.fragments.product.update({
+                render: {
+                    url: '/'
+                },
+                dependencies: [],
+                assets: [],
+                testCookie: 'test',
+                version: '1.0.0'
+            }, 'http://my-test-gateway.com');
+
+
+            template.compile({}).then(handler => {
+                handler({}, {
+                    write(str: string) {
+
+                    },
+                    end(str: string) {
+                        try {
+                            expect(str).to.eq(`<div><div puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div></div><div><div puzzle-fragment="product" puzzle-gateway="Browsing" fragment-partial="gallery">List of great products</div></div>`);
+                            done();
+                        } catch (e) {
+                            done(e);
+                        }
+                    }
+                });
+            });
+        });
+
+        it('should respond with single flush, multiple shouldwaits with partial - 3', (done) => {
+            let scope = nock('http://my-test-gateway.com')
+                .get('/product/')
+                .query({
+                    __renderMode: FRAGMENT_RENDER_MODES.STREAM
+                })
+                .reply(200, {
+                    main: 'Trendyol',
+                })
+                .get('/product2/')
+                .query({
+                    __renderMode: FRAGMENT_RENDER_MODES.STREAM
+                })
+                .reply(200, {
+                    main: 'List of great products',
+                });
+
+
+            const template = new Template(`
+                <template>
+                    <div>
+                        <fragment from="Browsing" name="product" shouldWait></fragment>
+                    </div>
+                    <div>
+                        <fragment from="Browsing" name="product2" shouldWait></fragment>
+                    </div>
+                </template>
+            `);
+
+            template.getDependencies();
+
+            template.fragments.product.update({
+                render: {
+                    url: '/'
+                },
+                dependencies: [],
+                assets: [],
+                testCookie: 'test',
+                version: '1.0.0'
+            }, 'http://my-test-gateway.com');
+
+
+            template.compile({}).then(handler => {
+                handler({}, {
+                    write(str: string) {
+
+                    },
+                    end(str: string) {
+                        try {
+                            expect(str).to.eq(`<div><div puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div></div><div><div puzzle-fragment="product2" puzzle-gateway="Browsing">List of great products</div></div>`);
+                            done();
+                        } catch (e) {
+                            done(e);
+                        }
+                    }
+                });
+            });
+        });
+    });
 });

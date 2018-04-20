@@ -70,12 +70,13 @@ export class GatewayBFF extends Gateway {
         this.config = gatewayConfig;
         this.exposedConfig = {
             fragments: this.config.fragments.reduce((fragmentList: { [name: string]: IExposeFragment }, fragment) => {
+                //todo test cookieler calismiyor
                 fragmentList[fragment.name] = {
                     version: fragment.version,
                     render: fragment.render,
                     assets: fragment.versions[fragment.version].assets,
                     dependencies: fragment.versions[fragment.version].dependencies,
-                    testCookie: fragment.testCookie
+                    testCookie: fragment.testCookie,
                 };
 
                 this.fragments[fragment.name] = new FragmentBFF(fragment);

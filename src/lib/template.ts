@@ -5,6 +5,8 @@ import {HTML_FRAGMENT_NAME_ATTRIBUTE} from "./config";
 import {IPageDependentGateways} from "../types/page";
 import async from "async";
 import {HTML_GATEWAY_ATTRIBUTE} from "./config";
+import {IReplaceItem} from "../types/template";
+import {REPLACE_ITEM_TYPE} from "./enums";
 
 export class TemplateClass {
     onCreate: Function | undefined;
@@ -45,6 +47,8 @@ export class Template {
             this.dom = cheerio.load(templateMatch[1], {
                 normalizeWhitespace: true,
                 recognizeSelfClosing: true,
+                xmlMode: true,
+                lowerCaseAttributeNames: true,
             });
         } else {
             throw new Error('Template not found in html file');
@@ -72,7 +76,7 @@ export class Template {
             }
 
             if (!dependencyList.fragments[fragment.attribs.name]) {
-                this.fragments[fragment.attribs.name] = new FragmentStorefront(fragment.attribs.name);
+                this.fragments[fragment.attribs.name] = new FragmentStorefront(fragment.attribs);
                 dependencyList.fragments[fragment.attribs.name] = {
                     gateway: fragment.attribs.from,
                     instance: this.fragments[fragment.attribs.name]
@@ -81,7 +85,7 @@ export class Template {
 
             if (this.fragments[fragment.attribs.name].primary === false) {
                 if (typeof fragment.attribs.primary !== 'undefined') {
-                    if(primaryName != null && primaryName !== fragment.attribs.name) throw new Error('Multiple primary fragments are not allowed');
+                    if (primaryName != null && primaryName !== fragment.attribs.name) throw new Error('Multiple primary fragments are not allowed');
                     primaryName = fragment.attribs.name;
                     this.fragments[fragment.attribs.name].primary = true;
                     this.fragments[fragment.attribs.name].shouldWait = true;
@@ -89,7 +93,7 @@ export class Template {
             }
 
             if (this.fragments[fragment.attribs.name].shouldWait === false) {
-                this.fragments[fragment.attribs.name].shouldWait = typeof fragment.attribs.shouldwait !== 'undefined' || (fragment.parent && fragment.parent.prev && fragment.parent.prev.name === 'head') || false;
+                this.fragments[fragment.attribs.name].shouldWait = typeof fragment.attribs.shouldwait !== 'undefined' || (fragment.parent && fragment.parent.name === 'head') || false;
             }
 
 
@@ -100,35 +104,74 @@ export class Template {
         });
     }
 
+    //todo fragmentConfigleri versiyon bilgileriyle inmis olmali ki assetleri versionlara gore compile edebilelim. ayni not gatewayde de var.
     async compile(testCookies: { [cookieName: string]: string }) {
-        const fragments = this.dom('fragment');
         let firstFlushHandler: Function;
         const chunkHandlers: Function[] = [];
+        const waitedHandlers: Function[] = [];
+        const fragmentsShouldBeWaited = Object.values(this.fragments).filter(fragment => fragment.shouldWait);
+        const chunkedFragments = Object.values(this.fragments).filter(fragment => !fragment.shouldWait);
 
-        if (fragments.length === 0) {
-            firstFlushHandler = TemplateCompiler.compile(this.dom('body').html() as string).bind(this.pageClass);
-        } else {
-            //bu anda gateway configi cekilmis olmali
-            fragments.each((i, fragmentNode) => {
-                //this.fragments[fragmentNode.attribs.name] = new Fragment()
-                const $ = cheerio.load(`<div id="${fragmentNode.attribs.name}" ${HTML_GATEWAY_ATTRIBUTE}="${fragmentNode.attribs.from}" ${HTML_FRAGMENT_NAME_ATTRIBUTE}="${fragmentNode.attribs.name}"></div>`);
-                const fragmentItem = $('#' + fragmentNode.attribs.name);
-                // fragmentItem.append('<script></script>'); // varsa start script
-                // fragmentItem.append('<div></div>'); // Asil contentler, varsa icinde placeholder olmali
-                // fragmentItem.append('<script></script>'); // varsa content end script, sarilmis olmali
-                this.dom(fragmentNode).replaceWith($.html());
-            });
-            firstFlushHandler = () => '';
+        // 0 fragments
+        if (Object.keys(this.fragments).length === 0) {
+            firstFlushHandler = TemplateCompiler.compile(this.clearHtmlContent(this.dom.html()));
+            return this.buildHandler(firstFlushHandler, chunkHandlers);
         }
 
-        return this.buildHandler(firstFlushHandler, chunkHandlers);
+        fragmentsShouldBeWaited.forEach(fragment => {
+            let replaceItems: IReplaceItem[] = [];
+            this.dom(`fragment[from="${fragment.attribs.from}"][name="${fragment.attribs.name}"]${fragment.attribs.partial ? '[partial="' + fragment.attribs.from + '"]' : ''}`)
+                .each((i, element) => {
+                    let replaceKey = `{fragment|${element.attribs.name}_${element.attribs.from}_${element.attribs.partial || 'main'}}`;
+                    replaceItems.push({
+                        type: REPLACE_ITEM_TYPE.CONTENT,
+                        key: replaceKey,
+                        partial: element.attribs.partial || 'main',
+                    });
+                    this.dom(element).replaceWith(`<div puzzle-fragment="${element.attribs.name}" puzzle-gateway="${element.attribs.from}" ${element.attribs.partial ? 'fragment-partial="' + element.attribs.partial + '"' : ''}>${replaceKey}</div>`);
+                });
+
+            //asset lokasyonlari burada belirlenmeli
+
+            waitedHandlers.push(this.waitedFragmentHandler(fragment, replaceItems));
+        });
+
+
+        return this.buildHandler(TemplateCompiler.compile(this.clearHtmlContent(this.dom.html())), chunkHandlers, waitedHandlers);
     }
 
+    private waitedFragmentHandler(fragment: FragmentStorefront, replaceItems: IReplaceItem[]) {
+        return async (req: object, template: string) => {
+            //todo async handle here always return changing the template
+            const fragmentContent = await fragment.getContent();
+            console.log(fragment.name,replaceItems);
+            replaceItems.filter(item => item.type === REPLACE_ITEM_TYPE.CONTENT).forEach(replaceItem => {
+                template = template.replace(replaceItem.key, fragmentContent[replaceItem.partial] || 'No content');
+            });
 
-    private buildHandler(firstFlushHandler: Function, chunkHandlers: Function[]) {
+            return template;
+        };
+    }
+
+    private buildHandler(firstFlushHandler: Function, chunkHandlers: Function[], waitedFragments: Function[] = []) {
         if (chunkHandlers.length === 0) {
             return (req: any, res: any) => {
-                res.end(firstFlushHandler.call(this.pageClass, req));
+                if (waitedFragments.length > 0) {
+                    let output = firstFlushHandler.call(this.pageClass, req);
+                    async.forEach(waitedFragments, (handler, cb) => {
+                        handler(req, output).then((replacedContent: string) => {
+                            output = replacedContent;
+                            //todo output fixle...
+                            cb();
+                        });
+                    }, err => {
+                        console.log(err);
+                        res.end(output, req);
+                    });
+                } else {
+                    res.end(firstFlushHandler.call(this.pageClass, req));
+                }
+
                 this.pageClass._onResponseEnd();
             };
         } else {
@@ -146,5 +189,9 @@ export class Template {
                 });
             };
         }
+    }
+
+    private clearHtmlContent(str: string) {
+        return str.replace(/>\s+</g, "><").trim();
     }
 }

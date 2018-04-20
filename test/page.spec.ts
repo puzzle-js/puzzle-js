@@ -40,7 +40,11 @@ describe('Page', () => {
                     instance: {
                         name: 'header',
                         primary: false,
-                        shouldWait: false
+                        shouldWait: false,
+                        attribs: {
+                            from: "Browsing",
+                            name: "header",
+                        }
                     }
                 },
                 content: {
@@ -48,7 +52,11 @@ describe('Page', () => {
                     instance: {
                         name: 'content',
                         primary: false,
-                        shouldWait: false
+                        shouldWait: false,
+                        attribs: {
+                            from: "Browsing",
+                            name: "content",
+                        }
                     }
                 },
                 footer: {
@@ -56,7 +64,11 @@ describe('Page', () => {
                     instance: {
                         name: 'footer',
                         primary: false,
-                        shouldWait: false
+                        shouldWait: false,
+                        attribs: {
+                            from: "Browsing",
+                            name: "footer",
+                        }
                     }
                 }
             },
