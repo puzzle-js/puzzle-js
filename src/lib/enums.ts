@@ -33,4 +33,4 @@ export enum REPLACE_ITEM_TYPE {
     CHUNKED_CONTENT
 }
 
-export const CONTENT_REPLACE_SCRIPT = `<script>function $p(p,c){var z = document.querySelector(c),r = z.innerHTML;z.parentNode.removeChild(z);document.querySelector(p).innerHTML=r}function $pr(p){var z = document.querySelector(p);z.parentNode.removeChild(z)}</script>`;
+export const CONTENT_REPLACE_SCRIPT = `<script>function $p(p,c){var z = document.querySelector(c),r = z.innerHTML;z.parentNode.removeChild(z);document.querySelector(p).innerHTML=r}</script>`;

@@ -230,11 +230,11 @@ export class Template {
         let output = `<div style="display: none;" puzzle-fragment="${fragment.name}" puzzle-chunk-key="${replaceItem.key}">${content}</div>`;
 
         if (!(replaceItem.key === 'main' && fragment.config.render.selfReplace)) {
-            //todo buraya adamin content end scriptlerini koyabiliriz.
             output += `<script>$p('[puzzle-chunk="${replaceItem.key}"]','[puzzle-chunk-key="${replaceItem.key}"]');</script>`;
-        } else {
-            //todo content end scriptleri
         }
+
+        //todo buraya adamin content end scriptlerini koyabiliriz.
+
 
         resWrite(output);
     }
