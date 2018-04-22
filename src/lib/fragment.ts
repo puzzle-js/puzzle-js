@@ -68,8 +68,11 @@ export class FragmentStorefront extends Fragment {
             });
     }
 
-    async getContent(): Promise<{[name:string]: string}> {
-        if (!this.config) return {};
+    async getContent(): Promise<{ [name: string]: string }> {
+        if (!this.config) {
+            console.error(`No config provided for fragment: ${this.name}`);
+            return {};
+        }
         return fetch(`${this.fragmentUrl}${this.config.render.url}?__renderMode=${FRAGMENT_RENDER_MODES.STREAM}`)
             .then(res => res.json())
             .then(fragmentStreamJson => {

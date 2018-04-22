@@ -1,7 +1,7 @@
 import {FragmentStorefront} from "./fragment";
 import cheerio from "cheerio";
 import {TemplateCompiler} from "./templateCompiler";
-import {HTML_FRAGMENT_NAME_ATTRIBUTE} from "./config";
+import {CONTENT_NOT_FOUND_ERROR, HTML_FRAGMENT_NAME_ATTRIBUTE} from "./config";
 import {IPageDependentGateways} from "../types/page";
 import async from "async";
 import {HTML_GATEWAY_ATTRIBUTE} from "./config";
@@ -108,7 +108,7 @@ export class Template {
     async compile(testCookies: { [cookieName: string]: string }) {
         let firstFlushHandler: Function;
         const chunkHandlers: Function[] = [];
-        const waitedHandlers: Function[] = [];
+        const waitedFragmentReplacements: { fragment: FragmentStorefront, replaceItems: IReplaceItem[] }[] = [];
         const fragmentsShouldBeWaited = Object.values(this.fragments).filter(fragment => fragment.shouldWait);
         const chunkedFragments = Object.values(this.fragments).filter(fragment => !fragment.shouldWait);
 
@@ -133,46 +133,41 @@ export class Template {
 
             //asset lokasyonlari burada belirlenmeli
 
-            waitedHandlers.push(this.waitedFragmentHandler(fragment, replaceItems));
+            waitedFragmentReplacements.push({
+                fragment,
+                replaceItems
+            });
         });
 
 
-        return this.buildHandler(TemplateCompiler.compile(this.clearHtmlContent(this.dom.html())), chunkHandlers, waitedHandlers);
+        return this.buildHandler(TemplateCompiler.compile(this.clearHtmlContent(this.dom.html())), chunkHandlers, waitedFragmentReplacements);
     }
 
-    private waitedFragmentHandler(fragment: FragmentStorefront, replaceItems: IReplaceItem[]) {
-        return async (req: object, template: string) => {
-            //todo async handle here always return changing the template
-            const fragmentContent = await fragment.getContent();
-            console.log(fragment.name,replaceItems);
-            replaceItems.filter(item => item.type === REPLACE_ITEM_TYPE.CONTENT).forEach(replaceItem => {
-                template = template.replace(replaceItem.key, fragmentContent[replaceItem.partial] || 'No content');
-            });
-
-            return template;
-        };
+    private replaceWaitedFragments(waitedFragments: { fragment: FragmentStorefront, replaceItems: IReplaceItem[] }[], output: string, cb: Function) {
+        async.forEach(waitedFragments, async (waitedFragmentReplacement, cb) => {
+            const fragmentContent = await waitedFragmentReplacement.fragment.getContent();
+            waitedFragmentReplacement.replaceItems
+                .forEach(replaceItem => {
+                    if (replaceItem.type === REPLACE_ITEM_TYPE.CONTENT) {
+                        output = output.replace(replaceItem.key, fragmentContent[replaceItem.partial] || CONTENT_NOT_FOUND_ERROR);
+                    }
+                });
+            cb();
+        }, err => {
+            //if (err) //todo handle
+            cb(output);
+        });
     }
 
-    private buildHandler(firstFlushHandler: Function, chunkHandlers: Function[], waitedFragments: Function[] = []) {
+    private buildHandler(firstFlushHandler: Function, chunkHandlers: Function[], waitedFragments: { fragment: FragmentStorefront, replaceItems: IReplaceItem[] }[] = []) {
         if (chunkHandlers.length === 0) {
             return (req: any, res: any) => {
-                if (waitedFragments.length > 0) {
-                    let output = firstFlushHandler.call(this.pageClass, req);
-                    async.forEach(waitedFragments, (handler, cb) => {
-                        handler(req, output).then((replacedContent: string) => {
-                            output = replacedContent;
-                            //todo output fixle...
-                            cb();
-                        });
-                    }, err => {
-                        console.log(err);
-                        res.end(output, req);
-                    });
-                } else {
-                    res.end(firstFlushHandler.call(this.pageClass, req));
-                }
-
-                this.pageClass._onResponseEnd();
+                this.pageClass._onRequest(req);
+                let fragmentedHtml = firstFlushHandler.call(this.pageClass, req);
+                this.replaceWaitedFragments(waitedFragments, fragmentedHtml, (output: string) => {
+                    res.end(output);
+                    this.pageClass._onResponseEnd();
+                });
             };
         } else {
             return (req: any, res: any) => {

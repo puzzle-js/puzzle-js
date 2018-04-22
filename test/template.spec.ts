@@ -277,8 +277,36 @@ describe('Template', () => {
     });
 
     describe('Output', () => {
+        it('should respond in single chunk when there is no fragments', (done) => {
+            const template = new Template(`
+                <template>
+                    <div>
+                        <span>Trendyol is the best!</span>
+                    </div>
+                </template>
+            `);
 
-        it('should respond with single flush, shouldwait without partial - 1', (done) => {
+            template.getDependencies();
+
+
+            template.compile({}).then(handler => {
+                handler({}, {
+                    write(str: string) {
+
+                    },
+                    end(str: string) {
+                        try {
+                            expect(str).to.eq(`<div><span>Trendyol is the best!</span></div>`);
+                            done();
+                        } catch (e) {
+                            done(e);
+                        }
+                    }
+                });
+            });
+        });
+
+        it('should respond with single flush, shouldwait without partial', (done) => {
             let scope = nock('http://my-test-gateway.com')
                 .get('/product/')
                 .query({
@@ -328,7 +356,7 @@ describe('Template', () => {
 
         });
 
-        it('should respond with single flush, shouldwait with partial - 2', (done) => {
+        it('should respond with single flush, shouldwait with partial', (done) => {
             let scope = nock('http://my-test-gateway.com')
                 .get('/product/')
                 .query({
@@ -381,7 +409,7 @@ describe('Template', () => {
             });
         });
 
-        it('should respond with single flush, multiple shouldwaits with partial - 3', (done) => {
+        it('should respond with single flush, multiple shouldwaits with partial', (done) => {
             let scope = nock('http://my-test-gateway.com')
                 .get('/product/')
                 .query({
@@ -422,6 +450,16 @@ describe('Template', () => {
                 version: '1.0.0'
             }, 'http://my-test-gateway.com');
 
+            template.fragments.product2.update({
+                render: {
+                    url: '/'
+                },
+                dependencies: [],
+                assets: [],
+                testCookie: 'test',
+                version: '1.0.0'
+            }, 'http://my-test-gateway.com');
+
 
             template.compile({}).then(handler => {
                 handler({}, {
@@ -431,6 +469,129 @@ describe('Template', () => {
                     end(str: string) {
                         try {
                             expect(str).to.eq(`<div><div puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div></div><div><div puzzle-fragment="product2" puzzle-gateway="Browsing">List of great products</div></div>`);
+                            done();
+                        } catch (e) {
+                            done(e);
+                        }
+                    }
+                });
+            });
+        });
+
+        it('should print default content not found error if partial is not being served', done => {
+            let scope = nock('http://my-test-gateway.com')
+                .get('/product/')
+                .query({
+                    __renderMode: FRAGMENT_RENDER_MODES.STREAM
+                })
+                .reply(200, {
+                    main: 'Trendyol',
+                });
+
+
+            const template = new Template(`
+                <template>
+                    <div>
+                        <fragment from="Browsing" name="product" shouldWait></fragment>
+                    </div>
+                    <div>
+                        <fragment from="Browsing" name="product2" shouldWait></fragment>
+                    </div>
+                </template>
+            `);
+
+            template.getDependencies();
+
+            template.fragments.product.update({
+                render: {
+                    url: '/'
+                },
+                dependencies: [],
+                assets: [],
+                testCookie: 'test',
+                version: '1.0.0'
+            }, 'http://my-test-gateway.com');
+
+
+            template.compile({}).then(handler => {
+                handler({}, {
+                    write(str: string) {
+
+                    },
+                    end(str: string) {
+                        try {
+                            expect(str).to.eq(`<div><div puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div></div><div><div puzzle-fragment="product2" puzzle-gateway="Browsing"><script>console.log('Fragment Part does not exists')</script></div></div>`);
+                            done();
+                        } catch (e) {
+                            done(e);
+                        }
+                    }
+                });
+            });
+        });
+
+        it('should respond correctly when multiple gateways and single fragment from each', done => {
+            let scope = nock('http://my-test-gateway.com')
+                .get('/product/')
+                .query({
+                    __renderMode: FRAGMENT_RENDER_MODES.STREAM
+                })
+                .reply(200, {
+                    main: 'Trendyol',
+                });
+
+            let scope2 = nock('http://my-test-gateway2.com')
+                .get('/header/')
+                .query({
+                    __renderMode: FRAGMENT_RENDER_MODES.STREAM
+                })
+                .reply(200, {
+                    main: 'Header Content',
+                });
+
+
+            const template = new Template(`
+                <template>
+                    <div>
+                        <fragment from="Browsing" name="product" shouldWait></fragment>
+                    </div>
+                    <div>
+                        <fragment from="Common" name="header" shouldWait></fragment>
+                    </div>
+                </template>
+            `);
+
+            template.getDependencies();
+
+            template.fragments.product.update({
+                render: {
+                    url: '/'
+                },
+                dependencies: [],
+                assets: [],
+                testCookie: 'test',
+                version: '1.0.0'
+            }, 'http://my-test-gateway.com');
+
+            template.fragments.header.update({
+                render: {
+                    url: '/'
+                },
+                dependencies: [],
+                assets: [],
+                testCookie: 'test',
+                version: '1.0.0'
+            }, 'http://my-test-gateway2.com');
+
+
+            template.compile({}).then(handler => {
+                handler({}, {
+                    write(str: string) {
+
+                    },
+                    end(str: string) {
+                        try {
+                            expect(str).to.eq(`<div><div puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div></div><div><div puzzle-fragment="header" puzzle-gateway="Common">Header Content</div></div>`);
                             done();
                         } catch (e) {
                             done(e);
