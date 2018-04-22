@@ -655,12 +655,11 @@ describe('Template', () => {
                             chunks.push(str);
                             try {
                                 expect(chunks[0]).to.eq(`<html><head>${CONTENT_REPLACE_SCRIPT}</head><body><div><div puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_0">placeholder</div></div>`);
-                                expect(chunks[1]).to.eq(`<div puzzle-fragment="product" puzzle-chunk-key="product_0">Trendyol</div><script>$p('[puzzle-chunk="product_0"]','[puzzle-chunk-key="product_0"]');</script>`);
+                                expect(chunks[1]).to.eq(`<div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_0">Trendyol</div><script>$p('[puzzle-chunk="product_0"]','[puzzle-chunk-key="product_0"]');</script>`);
                                 expect(str).to.eq(`</body></html>`);
                             } catch (e) {
                                 err = e;
                             }
-                            console.log(chunks.join(''));
                             done(err);
                         },
                         set(headerName: string, value: string) {

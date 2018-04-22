@@ -227,7 +227,7 @@ export class Template {
 
     private flushChunk(fragment: FragmentStorefront, content: string, replaceItem: IReplaceItem, resWrite: Function) {
         if (!fragment.config) return; //todo handle error
-        let output = `<div puzzle-fragment="${fragment.name}" puzzle-chunk-key="${replaceItem.key}">${content}</div>`;
+        let output = `<div style="display: none;" puzzle-fragment="${fragment.name}" puzzle-chunk-key="${replaceItem.key}">${content}</div>`;
 
         if (!(replaceItem.key === 'main' && fragment.config.render.selfReplace)) {
             //todo buraya adamin content end scriptlerini koyabiliriz.
