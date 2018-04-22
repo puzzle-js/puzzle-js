@@ -309,7 +309,8 @@ describe('Page', () => {
                 }
             }, {
                 write: () => '',
-                end: () => ''
+                end: () => '',
+                set: () => ''
             });
             expect(newPage.responseHandlers).to.haveOwnProperty('{test_1_special}');
             done();
@@ -349,11 +350,11 @@ describe('Page', () => {
                 }
             }, {
                 write: () => '',
-                end: () => ''
+                end: () => '',
+                set: () => ''
             });
             expect(newPage.responseHandlers).to.haveOwnProperty('{test_1_1.0.0}');
             done();
         });
     });
-
 });

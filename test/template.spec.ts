@@ -2,7 +2,7 @@ import "mocha";
 import {expect} from "chai";
 import {Template} from "../src/lib/template";
 import nock = require("nock");
-import {FRAGMENT_RENDER_MODES} from "../src/lib/enums";
+import {CONTENT_REPLACE_SCRIPT, FRAGMENT_RENDER_MODES} from "../src/lib/enums";
 
 describe('Template', () => {
     it('should create a new Template instance', () => {
@@ -277,8 +277,9 @@ describe('Template', () => {
     });
 
     describe('Output', () => {
-        it('should respond in single chunk when there is no fragments', (done) => {
-            const template = new Template(`
+        describe('Without Chunks', () => {
+            it('should respond in single chunk when there is no fragments', (done) => {
+                const template = new Template(`
                 <template>
                     <div>
                         <span>Trendyol is the best!</span>
@@ -286,38 +287,38 @@ describe('Template', () => {
                 </template>
             `);
 
-            template.getDependencies();
+                template.getDependencies();
 
 
-            template.compile({}).then(handler => {
-                handler({}, {
-                    write(str: string) {
+                template.compile({}).then(handler => {
+                    handler({}, {
+                        write(str: string) {
 
-                    },
-                    end(str: string) {
-                        try {
-                            expect(str).to.eq(`<div><span>Trendyol is the best!</span></div>`);
-                            done();
-                        } catch (e) {
-                            done(e);
+                        },
+                        end(str: string) {
+                            try {
+                                expect(str).to.eq(`<div><span>Trendyol is the best!</span></div>`);
+                                done();
+                            } catch (e) {
+                                done(e);
+                            }
                         }
-                    }
+                    });
                 });
             });
-        });
 
-        it('should respond with single flush, shouldwait without partial', (done) => {
-            let scope = nock('http://my-test-gateway.com')
-                .get('/product/')
-                .query({
-                    __renderMode: FRAGMENT_RENDER_MODES.STREAM
-                })
-                .reply(200, {
-                    main: 'Trendyol'
-                });
+            it('should respond with single flush, shouldwait without partial', (done) => {
+                let scope = nock('http://my-test-gateway.com')
+                    .get('/product/')
+                    .query({
+                        __renderMode: FRAGMENT_RENDER_MODES.STREAM
+                    })
+                    .reply(200, {
+                        main: 'Trendyol'
+                    });
 
 
-            const template = new Template(`
+                const template = new Template(`
                 <template>
                     <div>
                         <fragment from="Browsing" name="product" shouldWait></fragment>
@@ -325,171 +326,109 @@ describe('Template', () => {
                 </template>
             `);
 
-            template.getDependencies();
+                template.getDependencies();
 
-            template.fragments.product.update({
-                render: {
-                    url: '/'
-                },
-                dependencies: [],
-                assets: [],
-                testCookie: 'test',
-                version: '1.0.0'
-            }, 'http://my-test-gateway.com');
-
-
-            template.compile({}).then(handler => {
-                handler({}, {
-                    write(str: string) {
-
+                template.fragments.product.update({
+                    render: {
+                        url: '/'
                     },
-                    end(str: string) {
-                        try {
-                            expect(str).to.eq(`<div><div puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div></div>`);
-                            done();
-                        } catch (e) {
-                            done(e);
+                    dependencies: [],
+                    assets: [],
+                    testCookie: 'test',
+                    version: '1.0.0'
+                }, 'http://my-test-gateway.com');
+
+
+                template.compile({}).then(handler => {
+                    handler({}, {
+                        write(str: string) {
+
+                        },
+                        end(str: string) {
+                            try {
+                                expect(str).to.eq(`<div><div puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div></div>`);
+                                done();
+                            } catch (e) {
+                                done(e);
+                            }
                         }
-                    }
+                    });
+                });
+
+            });
+
+            it('should respond with single flush, shouldwait with partial', (done) => {
+                let scope = nock('http://my-test-gateway.com')
+                    .get('/product/')
+                    .query({
+                        __renderMode: FRAGMENT_RENDER_MODES.STREAM
+                    })
+                    .reply(200, {
+                        main: 'Trendyol',
+                        gallery: 'List of great products'
+                    });
+
+
+                const template = new Template(`
+                    <template>
+                        <div>
+                            <fragment from="Browsing" name="product" shouldWait></fragment>
+                        </div>
+                        <div>
+                            <fragment from="Browsing" name="product" partial="gallery"></fragment>
+                        </div>
+                    </template>
+                `);
+
+                template.getDependencies();
+
+                template.fragments.product.update({
+                    render: {
+                        url: '/'
+                    },
+                    dependencies: [],
+                    assets: [],
+                    testCookie: 'test',
+                    version: '1.0.0'
+                }, 'http://my-test-gateway.com');
+
+
+                template.compile({}).then(handler => {
+                    handler({}, {
+                        write(str: string) {
+
+                        },
+                        end(str: string) {
+                            try {
+                                expect(str).to.eq(`<div><div puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div></div><div><div puzzle-fragment="product" puzzle-gateway="Browsing" fragment-partial="gallery">List of great products</div></div>`);
+                                done();
+                            } catch (e) {
+                                done(e);
+                            }
+                        }
+                    });
                 });
             });
 
-        });
-
-        it('should respond with single flush, shouldwait with partial', (done) => {
-            let scope = nock('http://my-test-gateway.com')
-                .get('/product/')
-                .query({
-                    __renderMode: FRAGMENT_RENDER_MODES.STREAM
-                })
-                .reply(200, {
-                    main: 'Trendyol',
-                    gallery: 'List of great products'
-                });
-
-
-            const template = new Template(`
-                <template>
-                    <div>
-                        <fragment from="Browsing" name="product" shouldWait></fragment>
-                    </div>
-                    <div>
-                        <fragment from="Browsing" name="product" partial="gallery"></fragment>
-                    </div>
-                </template>
-            `);
-
-            template.getDependencies();
-
-            template.fragments.product.update({
-                render: {
-                    url: '/'
-                },
-                dependencies: [],
-                assets: [],
-                testCookie: 'test',
-                version: '1.0.0'
-            }, 'http://my-test-gateway.com');
+            it('should respond with single flush, multiple shouldwaits with partial', (done) => {
+                let scope = nock('http://my-test-gateway.com')
+                    .get('/product/')
+                    .query({
+                        __renderMode: FRAGMENT_RENDER_MODES.STREAM
+                    })
+                    .reply(200, {
+                        main: 'Trendyol',
+                    })
+                    .get('/product2/')
+                    .query({
+                        __renderMode: FRAGMENT_RENDER_MODES.STREAM
+                    })
+                    .reply(200, {
+                        main: 'List of great products',
+                    });
 
 
-            template.compile({}).then(handler => {
-                handler({}, {
-                    write(str: string) {
-
-                    },
-                    end(str: string) {
-                        try {
-                            expect(str).to.eq(`<div><div puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div></div><div><div puzzle-fragment="product" puzzle-gateway="Browsing" fragment-partial="gallery">List of great products</div></div>`);
-                            done();
-                        } catch (e) {
-                            done(e);
-                        }
-                    }
-                });
-            });
-        });
-
-        it('should respond with single flush, multiple shouldwaits with partial', (done) => {
-            let scope = nock('http://my-test-gateway.com')
-                .get('/product/')
-                .query({
-                    __renderMode: FRAGMENT_RENDER_MODES.STREAM
-                })
-                .reply(200, {
-                    main: 'Trendyol',
-                })
-                .get('/product2/')
-                .query({
-                    __renderMode: FRAGMENT_RENDER_MODES.STREAM
-                })
-                .reply(200, {
-                    main: 'List of great products',
-                });
-
-
-            const template = new Template(`
-                <template>
-                    <div>
-                        <fragment from="Browsing" name="product" shouldWait></fragment>
-                    </div>
-                    <div>
-                        <fragment from="Browsing" name="product2" shouldWait></fragment>
-                    </div>
-                </template>
-            `);
-
-            template.getDependencies();
-
-            template.fragments.product.update({
-                render: {
-                    url: '/'
-                },
-                dependencies: [],
-                assets: [],
-                testCookie: 'test',
-                version: '1.0.0'
-            }, 'http://my-test-gateway.com');
-
-            template.fragments.product2.update({
-                render: {
-                    url: '/'
-                },
-                dependencies: [],
-                assets: [],
-                testCookie: 'test',
-                version: '1.0.0'
-            }, 'http://my-test-gateway.com');
-
-
-            template.compile({}).then(handler => {
-                handler({}, {
-                    write(str: string) {
-
-                    },
-                    end(str: string) {
-                        try {
-                            expect(str).to.eq(`<div><div puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div></div><div><div puzzle-fragment="product2" puzzle-gateway="Browsing">List of great products</div></div>`);
-                            done();
-                        } catch (e) {
-                            done(e);
-                        }
-                    }
-                });
-            });
-        });
-
-        it('should print default content not found error if partial is not being served', done => {
-            let scope = nock('http://my-test-gateway.com')
-                .get('/product/')
-                .query({
-                    __renderMode: FRAGMENT_RENDER_MODES.STREAM
-                })
-                .reply(200, {
-                    main: 'Trendyol',
-                });
-
-
-            const template = new Template(`
+                const template = new Template(`
                 <template>
                     <div>
                         <fragment from="Browsing" name="product" shouldWait></fragment>
@@ -500,57 +439,119 @@ describe('Template', () => {
                 </template>
             `);
 
-            template.getDependencies();
+                template.getDependencies();
 
-            template.fragments.product.update({
-                render: {
-                    url: '/'
-                },
-                dependencies: [],
-                assets: [],
-                testCookie: 'test',
-                version: '1.0.0'
-            }, 'http://my-test-gateway.com');
-
-
-            template.compile({}).then(handler => {
-                handler({}, {
-                    write(str: string) {
-
+                template.fragments.product.update({
+                    render: {
+                        url: '/'
                     },
-                    end(str: string) {
-                        try {
-                            expect(str).to.eq(`<div><div puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div></div><div><div puzzle-fragment="product2" puzzle-gateway="Browsing"><script>console.log('Fragment Part does not exists')</script></div></div>`);
-                            done();
-                        } catch (e) {
-                            done(e);
+                    dependencies: [],
+                    assets: [],
+                    testCookie: 'test',
+                    version: '1.0.0'
+                }, 'http://my-test-gateway.com');
+
+                template.fragments.product2.update({
+                    render: {
+                        url: '/'
+                    },
+                    dependencies: [],
+                    assets: [],
+                    testCookie: 'test',
+                    version: '1.0.0'
+                }, 'http://my-test-gateway.com');
+
+
+                template.compile({}).then(handler => {
+                    handler({}, {
+                        write(str: string) {
+
+                        },
+                        end(str: string) {
+                            try {
+                                expect(str).to.eq(`<div><div puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div></div><div><div puzzle-fragment="product2" puzzle-gateway="Browsing">List of great products</div></div>`);
+                                done();
+                            } catch (e) {
+                                done(e);
+                            }
                         }
-                    }
+                    });
                 });
             });
-        });
 
-        it('should respond correctly when multiple gateways and single fragment from each', done => {
-            let scope = nock('http://my-test-gateway.com')
-                .get('/product/')
-                .query({
-                    __renderMode: FRAGMENT_RENDER_MODES.STREAM
-                })
-                .reply(200, {
-                    main: 'Trendyol',
+            it('should print default content not found error if partial is not being served', done => {
+                let scope = nock('http://my-test-gateway.com')
+                    .get('/product/')
+                    .query({
+                        __renderMode: FRAGMENT_RENDER_MODES.STREAM
+                    })
+                    .reply(200, {
+                        main: 'Trendyol',
+                    });
+
+
+                const template = new Template(`
+                <template>
+                    <div>
+                        <fragment from="Browsing" name="product" shouldWait></fragment>
+                    </div>
+                    <div>
+                        <fragment from="Browsing" name="product2" shouldWait></fragment>
+                    </div>
+                </template>
+            `);
+
+                template.getDependencies();
+
+                template.fragments.product.update({
+                    render: {
+                        url: '/'
+                    },
+                    dependencies: [],
+                    assets: [],
+                    testCookie: 'test',
+                    version: '1.0.0'
+                }, 'http://my-test-gateway.com');
+
+
+                template.compile({}).then(handler => {
+                    handler({}, {
+                        write(str: string) {
+
+                        },
+                        end(str: string) {
+                            try {
+                                expect(str).to.eq(`<div><div puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div></div><div><div puzzle-fragment="product2" puzzle-gateway="Browsing"><script>console.log('Fragment Part does not exists')</script></div></div>`);
+                                done();
+                            } catch (e) {
+                                done(e);
+                            }
+                        }
+                    });
                 });
+            });
 
-            let scope2 = nock('http://my-test-gateway2.com')
-                .get('/header/')
-                .query({
-                    __renderMode: FRAGMENT_RENDER_MODES.STREAM
-                })
-                .reply(200, {
-                    main: 'Header Content',
-                });
+            it('should respond correctly when multiple gateways and single fragment from each', done => {
+                let scope = nock('http://my-test-gateway.com')
+                    .get('/product/')
+                    .query({
+                        __renderMode: FRAGMENT_RENDER_MODES.STREAM
+                    })
+                    .reply(200, {
+                        main: 'Trendyol',
+                    });
+
+                let scope2 = nock('http://my-test-gateway2.com')
+                    .get('/header/')
+                    .query({
+                        __renderMode: FRAGMENT_RENDER_MODES.STREAM
+                    })
+                    .reply(200, {
+                        main: 'Header Content',
+                    });
 
 
-            const template = new Template(`
+                const template = new Template(`
                 <template>
                     <div>
                         <fragment from="Browsing" name="product" shouldWait></fragment>
@@ -561,42 +562,111 @@ describe('Template', () => {
                 </template>
             `);
 
-            template.getDependencies();
+                template.getDependencies();
 
-            template.fragments.product.update({
-                render: {
-                    url: '/'
-                },
-                dependencies: [],
-                assets: [],
-                testCookie: 'test',
-                version: '1.0.0'
-            }, 'http://my-test-gateway.com');
-
-            template.fragments.header.update({
-                render: {
-                    url: '/'
-                },
-                dependencies: [],
-                assets: [],
-                testCookie: 'test',
-                version: '1.0.0'
-            }, 'http://my-test-gateway2.com');
-
-
-            template.compile({}).then(handler => {
-                handler({}, {
-                    write(str: string) {
-
+                template.fragments.product.update({
+                    render: {
+                        url: '/'
                     },
-                    end(str: string) {
-                        try {
-                            expect(str).to.eq(`<div><div puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div></div><div><div puzzle-fragment="header" puzzle-gateway="Common">Header Content</div></div>`);
-                            done();
-                        } catch (e) {
-                            done(e);
+                    dependencies: [],
+                    assets: [],
+                    testCookie: 'test',
+                    version: '1.0.0'
+                }, 'http://my-test-gateway.com');
+
+                template.fragments.header.update({
+                    render: {
+                        url: '/'
+                    },
+                    dependencies: [],
+                    assets: [],
+                    testCookie: 'test',
+                    version: '1.0.0'
+                }, 'http://my-test-gateway2.com');
+
+
+                template.compile({}).then(handler => {
+                    handler({}, {
+                        write(str: string) {
+
+                        },
+                        end(str: string) {
+                            try {
+                                expect(str).to.eq(`<div><div puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div></div><div><div puzzle-fragment="header" puzzle-gateway="Common">Header Content</div></div>`);
+                                done();
+                            } catch (e) {
+                                done(e);
+                            }
                         }
-                    }
+                    });
+                });
+            });
+        });
+
+        describe('With Chunks', () => {
+            it('should respond chunked correctly without placeholders', done => {
+                let scope = nock('http://my-test-gateway-chunked.com')
+                    .get('/product/')
+                    .query({
+                        __renderMode: FRAGMENT_RENDER_MODES.STREAM
+                    })
+                    .reply(200, {
+                        main: 'Trendyol',
+                    });
+
+
+                const template = new Template(`
+                    <template>
+                        <html>
+                            <head>
+                            
+                            </head>
+                            <body>
+                            <div>
+                                <fragment from="Browsing" name="product"></fragment>
+                            </div>
+                            </body>
+                        </html>
+                    </template>
+                `);
+
+                template.getDependencies();
+
+                template.fragments.product.update({
+                    render: {
+                        url: '/',
+                        placeholder: false
+                    },
+                    dependencies: [],
+                    assets: [],
+                    testCookie: 'test',
+                    version: '1.0.0'
+                }, 'http://my-test-gateway-chunked.com');
+
+                let err: boolean | null = null;
+                let chunks: string[] = [];
+
+                template.compile({}).then(handler => {
+                    handler({}, {
+                        write(str: string) {
+                            chunks.push(str);
+                        },
+                        end(str: string) {
+                            chunks.push(str);
+                            try {
+                                expect(chunks[0]).to.eq(`<html><head>${CONTENT_REPLACE_SCRIPT}</head><body><div><div puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_0">placeholder</div></div>`);
+                                expect(chunks[1]).to.eq(`<div puzzle-fragment="product" puzzle-chunk-key="product_0">Trendyol</div><script>$p('[puzzle-chunk="product_0"]','[puzzle-chunk-key="product_0"]');</script>`);
+                                expect(str).to.eq(`</body></html>`);
+                            } catch (e) {
+                                err = e;
+                            }
+                            console.log(chunks.join(''));
+                            done(err);
+                        },
+                        set(headerName: string, value: string) {
+
+                        }
+                    });
                 });
             });
         });

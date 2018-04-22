@@ -44,7 +44,10 @@ export class GatewayStorefrontInstance extends Gateway {
         fetch(this.url)
             .then(res => res.json())
             .then(this.update.bind(this))
-            .catch(e => console.log(e));
+            .catch(e => {
+                //todo error handling
+                //console.error(e)
+            });
     }
 
     private update(data: IExposeConfig) {
@@ -83,7 +86,7 @@ export class GatewayBFF extends Gateway {
 
                 return fragmentList;
             }, {}),
-            hash: uuidv1(),
+            hash: uuidv1(), //todo scale edildidiginde degisir
         };
     }
 

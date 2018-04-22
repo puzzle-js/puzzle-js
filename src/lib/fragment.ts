@@ -70,6 +70,7 @@ export class FragmentStorefront extends Fragment {
 
     async getContent(): Promise<{ [name: string]: string }> {
         if (!this.config) {
+            //todo error handling
             console.error(`No config provided for fragment: ${this.name}`);
             return {};
         }
@@ -79,7 +80,8 @@ export class FragmentStorefront extends Fragment {
                 return fragmentStreamJson;
             })
             .catch(err => {
-                console.error(err);
+                //todo error handling
+                //console.error(err);
                 return {};
             });
     }
