@@ -56,5 +56,14 @@ export interface IFragmentStorefrontAttributes {
     from: string;
     partial?: string;
     primary?: string;
-    shouldWait?: string;
+    shouldwait?: string;
+
+    [name: string]: string | undefined;
+}
+
+export interface IfragmentContentResponse {
+    status: number;
+    html: {
+        [name: string]: string;
+    };
 }

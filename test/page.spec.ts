@@ -4,7 +4,7 @@ import {expect} from "chai";
 import * as fs from "fs";
 import * as path from "path";
 import {GatewayStorefrontInstance} from "../src/lib/gateway";
-import {createGateway} from "./mock/mock";
+import {createExpressMock, createGateway} from "./mock/mock";
 import {EVENTS} from "../src/lib/enums";
 
 describe('Page', () => {
@@ -41,10 +41,7 @@ describe('Page', () => {
                         name: 'header',
                         primary: false,
                         shouldWait: false,
-                        attribs: {
-                            from: "Browsing",
-                            name: "header",
-                        }
+                        from: "Browsing"
                     }
                 },
                 content: {
@@ -53,10 +50,7 @@ describe('Page', () => {
                         name: 'content',
                         primary: false,
                         shouldWait: false,
-                        attribs: {
-                            from: "Browsing",
-                            name: "content",
-                        }
+                        from: "Browsing"
                     }
                 },
                 footer: {
@@ -65,10 +59,7 @@ describe('Page', () => {
                         name: 'footer',
                         primary: false,
                         shouldWait: false,
-                        attribs: {
-                            from: "Browsing",
-                            name: "footer",
-                        }
+                        from: "Browsing"
                     }
                 }
             },
@@ -307,11 +298,7 @@ describe('Page', () => {
                     a: 'acg was here',
                     test_1: 'special'
                 }
-            }, {
-                write: () => '',
-                end: () => '',
-                set: () => ''
-            });
+            }, createExpressMock());
             expect(newPage.responseHandlers).to.haveOwnProperty('{test_1_special}');
             done();
         });
@@ -348,11 +335,7 @@ describe('Page', () => {
                 cookies: {
                     a: 'acg was here',
                 }
-            }, {
-                write: () => '',
-                end: () => '',
-                set: () => ''
-            });
+            }, createExpressMock());
             expect(newPage.responseHandlers).to.haveOwnProperty('{test_1_1.0.0}');
             done();
         });

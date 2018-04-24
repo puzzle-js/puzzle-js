@@ -3,10 +3,11 @@ import cheerio from "cheerio";
 import {TemplateCompiler} from "./templateCompiler";
 import {CONTENT_NOT_FOUND_ERROR, HTML_FRAGMENT_NAME_ATTRIBUTE} from "./config";
 import {IPageDependentGateways} from "../types/page";
-import async from "async";
+import async, {reject} from "async";
 import {HTML_GATEWAY_ATTRIBUTE} from "./config";
-import {IReplaceItem} from "../types/template";
+import {IReplaceItem, IReplaceSet} from "../types/template";
 import {CONTENT_REPLACE_SCRIPT, REPLACE_ITEM_TYPE} from "./enums";
+import {IFragmentStorefrontAttributes} from "../types/fragment";
 
 export class TemplateClass {
     onCreate: Function | undefined;
@@ -76,7 +77,7 @@ export class Template {
             }
 
             if (!dependencyList.fragments[fragment.attribs.name]) {
-                this.fragments[fragment.attribs.name] = new FragmentStorefront(fragment.attribs);
+                this.fragments[fragment.attribs.name] = new FragmentStorefront(fragment.attribs.name, fragment.attribs.from);
                 dependencyList.fragments[fragment.attribs.name] = {
                     gateway: fragment.attribs.from,
                     instance: this.fragments[fragment.attribs.name]
@@ -107,10 +108,11 @@ export class Template {
     //todo fragmentConfigleri versiyon bilgileriyle inmis olmali ki assetleri versionlara gore compile edebilelim. ayni not gatewayde de var.
     async compile(testCookies: { [cookieName: string]: string }) {
         let firstFlushHandler: Function;
-        const waitedFragmentReplacements: { fragment: FragmentStorefront, replaceItems: IReplaceItem[] }[] = [];
+        const waitedFragmentReplacements: IReplaceSet[] = [];
         const fragmentsShouldBeWaited = Object.values(this.fragments).filter(fragment => fragment.shouldWait);
         const chunkedFragments = Object.values(this.fragments).filter(fragment => !fragment.shouldWait);
-        const chunkedReplacements: { fragment: FragmentStorefront, replaceItems: IReplaceItem[] }[] = [];
+        const chunkedReplacements: IReplaceSet[] = [];
+
 
         // 0 fragments
         if (Object.keys(this.fragments).length === 0) {
@@ -120,26 +122,38 @@ export class Template {
 
         //todo statik fragmentlar burada cekilip eklenmeli
 
+
         fragmentsShouldBeWaited.forEach(fragment => {
             let replaceItems: IReplaceItem[] = [];
-            this.dom(`fragment[from="${fragment.attribs.from}"][name="${fragment.attribs.name}"]${fragment.attribs.partial ? '[partial="' + fragment.attribs.from + '"]' : ''}`)
+            let fragmentAttributes = {};
+            this.dom(`fragment[from="${fragment.from}"][name="${fragment.name}"]`)
                 .each((i, element) => {
                     let replaceKey = `{fragment|${element.attribs.name}_${element.attribs.from}_${element.attribs.partial || 'main'}}`;
+                    const partial = element.attribs.partial || 'main';
                     replaceItems.push({
                         type: REPLACE_ITEM_TYPE.CONTENT,
                         key: replaceKey,
-                        partial: element.attribs.partial || 'main',
+                        partial: partial,
                     });
-                    this.dom(element).replaceWith(`<div puzzle-fragment="${element.attribs.name}" puzzle-gateway="${element.attribs.from}" ${element.attribs.partial ? 'fragment-partial="' + element.attribs.partial + '"' : ''}>${replaceKey}</div>`);
+                    if (partial === 'main') {
+                        fragmentAttributes = element.attribs;
+                    }
+                    if (element.parentNode.name !== 'head') {
+                        this.dom(element).replaceWith(`<div puzzle-fragment="${element.attribs.name}" puzzle-gateway="${element.attribs.from}" ${element.attribs.partial ? 'fragment-partial="' + element.attribs.partial + '"' : ''}>${replaceKey}</div>`);
+                    } else {
+                        this.dom(element).replaceWith(replaceKey);
+                    }
                 });
 
             //todo asset lokasyonlari burada belirlenmeli
 
             waitedFragmentReplacements.push({
                 fragment,
-                replaceItems
+                replaceItems,
+                fragmentAttributes
             });
         });
+
 
         if (chunkedFragments.length > 0) {
             this.dom('head').append(CONTENT_REPLACE_SCRIPT);
@@ -147,50 +161,86 @@ export class Template {
 
         chunkedFragments.forEach(fragment => {
             let replaceItems: IReplaceItem[] = [];
-            this.dom(`fragment[from="${fragment.attribs.from}"][name="${fragment.attribs.name}"]${fragment.attribs.partial ? '[partial="' + fragment.attribs.from + '"]' : ''}`)
+            let fragmentAttributes = {};
+            this.dom(`fragment[from="${fragment.from}"][name="${fragment.name}"]`)
                 .each((i, element) => {
-                    let contentKey = fragment.name + '_' + i;
-                    replaceItems.push({
+                    const partial = element.attribs.partial || 'main';
+                    const contentKey = fragment.name + '_' + partial;
+                    let replaceItem = {
                         type: REPLACE_ITEM_TYPE.CHUNKED_CONTENT,
-                        partial: element.attribs.partial || 'main',
-                        key: contentKey
-                    });
-                    this.dom(element).replaceWith(`<div puzzle-fragment="${element.attribs.name}" puzzle-gateway="${element.attribs.from}" ${element.attribs.partial ? 'fragment-partial="' + element.attribs.partial + '"' : ''} puzzle-chunk="${contentKey}">placeholder</div>`);
+                        partial: partial,
+                        key: contentKey,
+                    };
+                    if (partial === 'main') {
+                        fragmentAttributes = element.attribs;
+                    }
+                    replaceItems.push(replaceItem);
+                    if (fragment.config && fragment.config.render.placeholder && replaceItem.partial === 'main') {
+                        let placeholderContentKey = contentKey + '_placeholder';
+                        replaceItems.push({
+                            type: REPLACE_ITEM_TYPE.PLACEHOLDER,
+                            partial: partial,
+                            key: placeholderContentKey
+                        });
+                        this.dom(element).replaceWith(`<div puzzle-fragment="${element.attribs.name}" puzzle-gateway="${element.attribs.from}" ${element.attribs.partial ? 'fragment-partial="' + element.attribs.partial + '"' : ''} puzzle-chunk="${contentKey}" puzzle-placeholder="${placeholderContentKey}"></div>`);
+                    } else {
+                        this.dom(element).replaceWith(`<div puzzle-fragment="${element.attribs.name}" puzzle-gateway="${element.attribs.from}" ${element.attribs.partial ? 'fragment-partial="' + element.attribs.partial + '"' : ''} puzzle-chunk="${contentKey}"> </div>`);
+                    }
                 });
 
             chunkedReplacements.push({
                 fragment,
-                replaceItems
+                replaceItems,
+                fragmentAttributes
             });
         });
+
+        await this.appendPlaceholders(chunkedReplacements);
 
         return this.buildHandler(TemplateCompiler.compile(this.clearHtmlContent(this.dom.html())), chunkedReplacements, waitedFragmentReplacements);
     }
 
-    private replaceWaitedFragments(waitedFragments: { fragment: FragmentStorefront, replaceItems: IReplaceItem[] }[], output: string, cb: Function) {
+    private appendPlaceholders(chunkedReplacements: { fragment: FragmentStorefront, replaceItems: IReplaceItem[] }[]) {
+        return new Promise((resolve, reject) => {
+            async.each(chunkedReplacements, async (replacement, cb) => {
+                const placeholders = replacement.replaceItems.filter(item => item.type === REPLACE_ITEM_TYPE.PLACEHOLDER);
+                async.each(placeholders, async (placeholderReplacement, rpCb) => {
+                    const placeholderContent = await replacement.fragment.getPlaceholder();
+                    this.dom(`[puzzle-placeholder="${placeholderReplacement.key}"]`).append(placeholderContent);
+                    rpCb();
+                }, cb);
+            }, resolve);
+        });
+    }
+
+    private replaceWaitedFragments(waitedFragments: IReplaceSet[], output: string, cb: Function) {
+        let statusCode = 200;
         async.each(waitedFragments, async (waitedFragmentReplacement, cb) => {
-            const fragmentContent = await waitedFragmentReplacement.fragment.getContent();
+            const fragmentContent = await waitedFragmentReplacement.fragment.getContent(waitedFragmentReplacement.fragmentAttributes);
+            if (waitedFragmentReplacement.fragment.primary) {
+                statusCode = fragmentContent.status;
+            }
             waitedFragmentReplacement.replaceItems
                 .forEach(replaceItem => {
                     if (replaceItem.type === REPLACE_ITEM_TYPE.CONTENT) {
-                        output = output.replace(replaceItem.key, fragmentContent[replaceItem.partial] || CONTENT_NOT_FOUND_ERROR);
+                        output = output.replace(replaceItem.key, fragmentContent.html[replaceItem.partial] || CONTENT_NOT_FOUND_ERROR);
                     }
                 });
             cb();
         }, err => {
             //if (err) //todo handle error
-            cb(output);
+            cb({output, status: statusCode});
         });
     }
 
-    private buildHandler(firstFlushHandler: Function, chunkedFragmentReplacements: { fragment: FragmentStorefront, replaceItems: IReplaceItem[] }[], waitedFragments: { fragment: FragmentStorefront, replaceItems: IReplaceItem[] }[] = []) {
-        //todo primary fragmentleri duzelt
+    private buildHandler(firstFlushHandler: Function, chunkedFragmentReplacements: IReplaceSet[], waitedFragments: IReplaceSet[] = []) {
+        //todo primary fragment test et
         if (chunkedFragmentReplacements.length === 0) {
             return (req: any, res: any) => {
                 this.pageClass._onRequest(req);
                 let fragmentedHtml = firstFlushHandler.call(this.pageClass, req);
-                this.replaceWaitedFragments(waitedFragments, fragmentedHtml, (output: string) => {
-                    res.end(output);
+                this.replaceWaitedFragments(waitedFragments, fragmentedHtml, (flush: { output: string, status: number }) => {
+                    res.status(flush.status).end(flush.output);
                     this.pageClass._onResponseEnd();
                 });
             };
@@ -200,14 +250,15 @@ export class Template {
                 let fragmentedHtml = firstFlushHandler.call(this.pageClass, req).replace('</body>', '').replace('</html>', '');
                 res.set('transfer-encoding', 'chunked');
                 res.set('content-type', 'text/html; charset=UTF-8');
-                this.replaceWaitedFragments(waitedFragments, fragmentedHtml, (output: string) => {
-                    res.write(output);
+                this.replaceWaitedFragments(waitedFragments, fragmentedHtml, (firstFlush: { output: string, status: number }) => {
+                    res.status(firstFlush.status).write(firstFlush.output);
                     async.each(chunkedFragmentReplacements, async (chunkedReplacement, cb) => {
-                        const fragmentContent = await chunkedReplacement.fragment.getContent();
+                        const fragmentContent = await chunkedReplacement.fragment.getContent(chunkedReplacement.fragmentAttributes);
+
                         chunkedReplacement.replaceItems
                             .forEach(replaceItem => {
                                 if (replaceItem.type === REPLACE_ITEM_TYPE.CHUNKED_CONTENT) {
-                                    this.flushChunk(chunkedReplacement.fragment, fragmentContent[replaceItem.partial] || CONTENT_NOT_FOUND_ERROR, replaceItem, res.write);
+                                    this.flushChunk(chunkedReplacement.fragment, fragmentContent.html[replaceItem.partial] || CONTENT_NOT_FOUND_ERROR, replaceItem, res.write);
                                     this.pageClass._onChunk();
                                 }
                             });

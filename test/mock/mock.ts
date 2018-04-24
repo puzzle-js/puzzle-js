@@ -14,3 +14,20 @@ export const createGateway = (gatewayName: string, gatewayUrl: string, config: I
 
     return scope;
 };
+
+
+export const createExpressMock = (extendable?: {write?: Function, end?: Function, set?: Function, status?: Function}) => {
+    let expressMock = {
+        write: extendable && extendable.write || (()  => ''),
+        end: extendable && extendable.end || (()  => ''),
+        set: extendable && extendable.set || (()  => ''),
+        status: () => {
+            if(extendable && extendable.status){
+                extendable.status();
+            }
+            return expressMock;
+        }
+    };
+
+    return expressMock;
+};

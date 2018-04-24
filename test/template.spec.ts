@@ -3,6 +3,7 @@ import {expect} from "chai";
 import {Template} from "../src/lib/template";
 import nock = require("nock");
 import {CONTENT_REPLACE_SCRIPT, FRAGMENT_RENDER_MODES} from "../src/lib/enums";
+import {createExpressMock} from "./mock/mock";
 
 describe('Template', () => {
     it('should create a new Template instance', () => {
@@ -42,10 +43,7 @@ describe('Template', () => {
                         name: 'product',
                         primary: false,
                         shouldWait: false,
-                        attribs: {
-                            from: "Browsing",
-                            name: "product",
-                        }
+                        from: "Browsing"
                     }
                 }
             }
@@ -56,28 +54,28 @@ describe('Template', () => {
         const template = new Template('<template><div><span>Puzzle</span></div></template>');
         const handler = await template.compile({});
 
-        handler({}, {
+        handler({}, createExpressMock({
             write(str: string) {
                 throw new Error('Wrong express method, it should be end for single fragments');
             },
             end(str: string) {
                 expect(str).to.eq('<div><span>Puzzle</span></div>');
             }
-        });
+        }));
     });
 
     it('should compile page with script without fragments', async () => {
         const template = new Template('<script>module.exports = {onCreate(){this.title = "Puzzle"}}</script><template><div><span>${this.title}</span></div></template>');
         const handler = await template.compile({});
 
-        handler({}, {
+        handler({}, createExpressMock({
             write(str: string) {
                 throw new Error('Wrong express method, it should be end for single fragments');
             },
             end(str: string) {
                 expect(str).to.eq('<div><span>Puzzle</span></div>');
             }
-        });
+        }));
     });
 
     it('should parse fragment attribute primary', () => {
@@ -98,11 +96,7 @@ describe('Template', () => {
                         name: 'product',
                         primary: true,
                         shouldWait: true,
-                        attribs: {
-                            from: "Browsing",
-                            name: "product",
-                            primary: ""
-                        }
+                        from: "Browsing"
                     }
                 }
             }
@@ -151,11 +145,7 @@ describe('Template', () => {
                         name: 'product',
                         primary: true,
                         shouldWait: true,
-                        attribs: {
-                            from: "Browsing",
-                            name: "product",
-                            partial: "notification"
-                        }
+                        from: "Browsing"
                     }
                 }
             }
@@ -186,11 +176,7 @@ describe('Template', () => {
                         name: 'product',
                         primary: false,
                         shouldWait: true,
-                        attribs: {
-                            from: "Browsing",
-                            name: "product",
-                            shouldwait: ""
-                        }
+                        from: "Browsing"
                     }
                 }
             }
@@ -223,11 +209,8 @@ describe('Template', () => {
                         name: 'product',
                         primary: false,
                         shouldWait: true,
-                        attribs: {
-                            from: "Browsing",
-                            name: "product",
-                            partial: "a"
-                        }
+                        from: "Browsing"
+
                     }
                 }
             }
@@ -265,11 +248,7 @@ describe('Template', () => {
                         name: 'product',
                         primary: false,
                         shouldWait: true,
-                        attribs: {
-                            from: "Browsing",
-                            name: "product",
-                            partial: "meta"
-                        }
+                        from: "Browsing"
                     }
                 }
             }
@@ -291,7 +270,7 @@ describe('Template', () => {
 
 
                 template.compile({}).then(handler => {
-                    handler({}, {
+                    handler({}, createExpressMock({
                         write(str: string) {
 
                         },
@@ -302,8 +281,9 @@ describe('Template', () => {
                             } catch (e) {
                                 done(e);
                             }
-                        }
-                    });
+                        },
+                        status: () => ''
+                    }));
                 });
             });
 
@@ -340,7 +320,7 @@ describe('Template', () => {
 
 
                 template.compile({}).then(handler => {
-                    handler({}, {
+                    handler({}, createExpressMock({
                         write(str: string) {
 
                         },
@@ -351,8 +331,9 @@ describe('Template', () => {
                             } catch (e) {
                                 done(e);
                             }
-                        }
-                    });
+                        },
+                        status: () => ''
+                    }));
                 });
 
             });
@@ -394,7 +375,7 @@ describe('Template', () => {
 
 
                 template.compile({}).then(handler => {
-                    handler({}, {
+                    handler({}, createExpressMock({
                         write(str: string) {
 
                         },
@@ -405,8 +386,9 @@ describe('Template', () => {
                             } catch (e) {
                                 done(e);
                             }
-                        }
-                    });
+                        },
+                        status: () => ''
+                    }));
                 });
             });
 
@@ -463,7 +445,7 @@ describe('Template', () => {
 
 
                 template.compile({}).then(handler => {
-                    handler({}, {
+                    handler({}, createExpressMock({
                         write(str: string) {
 
                         },
@@ -474,8 +456,9 @@ describe('Template', () => {
                             } catch (e) {
                                 done(e);
                             }
-                        }
-                    });
+                        },
+                        status: () => ''
+                    }));
                 });
             });
 
@@ -515,7 +498,7 @@ describe('Template', () => {
 
 
                 template.compile({}).then(handler => {
-                    handler({}, {
+                    handler({}, createExpressMock({
                         write(str: string) {
 
                         },
@@ -526,8 +509,9 @@ describe('Template', () => {
                             } catch (e) {
                                 done(e);
                             }
-                        }
-                    });
+                        },
+                        status: () => ''
+                    }));
                 });
             });
 
@@ -586,7 +570,7 @@ describe('Template', () => {
 
 
                 template.compile({}).then(handler => {
-                    handler({}, {
+                    handler({}, createExpressMock({
                         write(str: string) {
 
                         },
@@ -597,8 +581,9 @@ describe('Template', () => {
                             } catch (e) {
                                 done(e);
                             }
-                        }
-                    });
+                        },
+                        status: () => ''
+                    }));
                 });
             });
         });
@@ -647,16 +632,16 @@ describe('Template', () => {
                 let chunks: string[] = [];
 
                 template.compile({}).then(handler => {
-                    handler({}, {
+                    handler({}, createExpressMock({
                         write(str: string) {
                             chunks.push(str);
                         },
                         end(str: string) {
                             chunks.push(str);
                             try {
-                                expect(chunks[0]).to.eq(`<html><head>${CONTENT_REPLACE_SCRIPT}</head><body><div><div puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_0">placeholder</div></div>`);
-                                expect(chunks[1]).to.eq(`<div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_0">Trendyol</div><script>$p('[puzzle-chunk="product_0"]','[puzzle-chunk-key="product_0"]');</script>`);
-                                expect(str).to.eq(`</body></html>`);
+                                expect(chunks[0]).to.eq(`<html><head>${CONTENT_REPLACE_SCRIPT}</head><body><div><div puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main"></div></div>`);
+                                expect(chunks[1]).to.eq(`<div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Trendyol</div><script>$p('[puzzle-chunk="product_main"]','[puzzle-chunk-key="product_main"]');</script>`);
+                                expect(chunks[2]).to.eq(`</body></html>`);
                             } catch (e) {
                                 err = e;
                             }
@@ -665,7 +650,257 @@ describe('Template', () => {
                         set(headerName: string, value: string) {
 
                         }
+                    }));
+                });
+            });
+
+            it('should respond chunked correctly with placeholders', done => {
+                let scope = nock('http://my-test-gateway-chunked.com')
+                    .get('/product/')
+                    .query({
+                        __renderMode: FRAGMENT_RENDER_MODES.STREAM
+                    })
+                    .reply(200, {
+                        main: 'Trendyol',
+                    })
+                    .get('/product/placeholder')
+                    .reply(200, 'placeholder');
+
+
+                const template = new Template(`
+                    <template>
+                        <html>
+                            <head>
+                            
+                            </head>
+                            <body>
+                            <div>
+                                <fragment from="Browsing" name="product"></fragment>
+                            </div>
+                            </body>
+                        </html>
+                    </template>
+                `);
+
+                template.getDependencies();
+
+                template.fragments.product.update({
+                    render: {
+                        url: '/',
+                        placeholder: true
+                    },
+                    dependencies: [],
+                    assets: [],
+                    testCookie: 'test',
+                    version: '1.0.0'
+                }, 'http://my-test-gateway-chunked.com');
+
+                let err: boolean | null = null;
+                let chunks: string[] = [];
+
+                template.compile({}).then(handler => {
+                    handler({}, createExpressMock({
+                        write(str: string) {
+                            chunks.push(str);
+                        },
+                        end(str: string) {
+                            chunks.push(str);
+                            try {
+                                expect(chunks[0]).to.eq(`<html><head>${CONTENT_REPLACE_SCRIPT}</head><body><div><div puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main" puzzle-placeholder="product_main_placeholder">placeholder</div></div>`);
+                                expect(chunks[1]).to.eq(`<div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Trendyol</div><script>$p('[puzzle-chunk="product_main"]','[puzzle-chunk-key="product_main"]');</script>`);
+                                expect(chunks[2]).to.eq(`</body></html>`);
+                            } catch (e) {
+                                err = e;
+                            }
+                            done(err);
+                        },
+                        set(headerName: string, value: string) {
+
+                        },
+                        status: () => ''
+                    }));
+                });
+            });
+
+            it('should respond one single wait one chunked fragment', done => {
+                let scope = nock('http://my-test-gateway-chunked-2.com')
+                    .get('/product/')
+                    .query({
+                        __renderMode: FRAGMENT_RENDER_MODES.STREAM
+                    })
+                    .reply(200, {
+                        main: 'Trendyol Product Content',
+                        meta: '<meta product="bag"/>'
+                    })
+                    .get('/header/')
+                    .query({
+                        __renderMode: FRAGMENT_RENDER_MODES.STREAM
+                    })
+                    .reply(200, {
+                        main: 'Header Content',
+                    })
+                    .get('/footer/')
+                    .query({
+                        __renderMode: FRAGMENT_RENDER_MODES.STREAM
+                    })
+                    .reply(200, {
+                        main: 'Footer Content',
                     });
+
+
+                const template = new Template(`
+                    <template>
+                        <html>
+                            <head>
+                                <fragment from="Browsing" name="product" partial="meta"></fragment>
+                            </head>
+                            <body>
+                                <fragment from="Browsing" name="header" shouldwait></fragment>
+                                <div>
+                                    <fragment from="Browsing" name="product"></fragment>
+                                </div>
+                                <fragment from="Browsing" name="footer"></fragment>
+                            </body>
+                        </html>
+                    </template>
+                `);
+
+                template.getDependencies();
+
+                template.fragments.product.update({
+                    render: {
+                        url: '/',
+                    },
+                    dependencies: [],
+                    assets: [],
+                    testCookie: 'test',
+                    version: '1.0.0'
+                }, 'http://my-test-gateway-chunked-2.com');
+
+                template.fragments.header.update({
+                    render: {
+                        url: '/',
+                    },
+                    dependencies: [],
+                    assets: [],
+                    testCookie: 'test',
+                    version: '1.0.0'
+                }, 'http://my-test-gateway-chunked-2.com');
+
+                template.fragments.footer.update({
+                    render: {
+                        url: '/',
+                    },
+                    dependencies: [],
+                    assets: [],
+                    testCookie: 'test',
+                    version: '1.0.0'
+                }, 'http://my-test-gateway-chunked-2.com');
+
+                let err: boolean | null = null;
+                let chunks: string[] = [];
+
+                template.compile({}).then(handler => {
+                    handler({}, createExpressMock({
+                        write(str: string) {
+                            chunks.push(str);
+                        },
+                        end(str: string) {
+                            chunks.push(str);
+                            try {
+                                expect(chunks[0]).to.eq(`<html><head> <meta product="bag"/> ${CONTENT_REPLACE_SCRIPT}</head><body><div puzzle-fragment="header" puzzle-gateway="Browsing">Header Content</div><div><div puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol Product Content</div></div><div puzzle-fragment="footer" puzzle-gateway="Browsing" puzzle-chunk="footer_main"></div>`);
+                                expect(chunks[1]).to.eq(`<div style="display: none;" puzzle-fragment="footer" puzzle-chunk-key="footer_main">Footer Content</div><script>$p('[puzzle-chunk="footer_main"]','[puzzle-chunk-key="footer_main"]');</script>`);
+                                expect(chunks[2]).to.eq(`</body></html>`);
+                            } catch (e) {
+                                err = e;
+                            }
+                            done(err);
+                        },
+                        set(headerName: string, value: string) {
+
+                        },
+                        status: () => ''
+                    }));
+                });
+            });
+
+            it('should respond same fragment multiple chunked partial', done => {
+                let scope = nock('http://my-test-gateway-chunked-3.com')
+                    .get('/product/')
+                    .query({
+                        __renderMode: FRAGMENT_RENDER_MODES.STREAM
+                    })
+                    .reply(200, {
+                        main: 'Trendyol Product Content',
+                        footer: 'Footer Content',
+                        header: 'Header Content',
+                        side: 'Side Content'
+                    })
+                    .get('/product/placeholder')
+                    .reply(200, 'product content placeholder');
+
+
+                const template = new Template(`
+                    <template>
+                        <html>
+                            <head>
+                                
+                            </head>
+                            <body>
+                                <fragment from="Browsing" name="product" partial="header"></fragment>
+                                <fragment from="Browsing" name="product"></fragment>
+                                <div>
+                                    <fragment from="Browsing" name="product" partial="side"></fragment>
+                                </div>
+                                <fragment from="Browsing" name="product" partial="footer"></fragment>
+                            </body>
+                        </html>
+                    </template>
+                `);
+
+                template.getDependencies();
+
+                template.fragments.product.update({
+                    render: {
+                        url: '/',
+                        placeholder: true
+                    },
+                    dependencies: [],
+                    assets: [],
+                    testCookie: 'test',
+                    version: '1.0.0'
+                }, 'http://my-test-gateway-chunked-3.com');
+
+
+                let err: boolean | null = null;
+                let chunks: string[] = [];
+
+                template.compile({}).then(handler => {
+                    handler({}, createExpressMock({
+                        write(str: string) {
+                            chunks.push(str);
+                        },
+                        end(str: string) {
+                            chunks.push(str);
+                            try {
+                                expect(chunks[0]).to.eq(`<html><head><script>function $p(p,c){var z = document.querySelector(c),r = z.innerHTML;z.parentNode.removeChild(z);document.querySelector(p).innerHTML=r}</script></head><body><div puzzle-fragment="product" puzzle-gateway="Browsing" fragment-partial="header" puzzle-chunk="product_header"></div><div puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main" puzzle-placeholder="product_main_placeholder">product content placeholder</div><div><div puzzle-fragment="product" puzzle-gateway="Browsing" fragment-partial="side" puzzle-chunk="product_side"></div></div><div puzzle-fragment="product" puzzle-gateway="Browsing" fragment-partial="footer" puzzle-chunk="product_footer"></div>`);
+
+                                expect(chunks).to.include(`<div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_header">Header Content</div><script>$p('[puzzle-chunk="product_header"]','[puzzle-chunk-key="product_header"]');</script>`);
+                                expect(chunks).to.include(`<div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_side">Side Content</div><script>$p('[puzzle-chunk="product_side"]','[puzzle-chunk-key="product_side"]');</script>`);
+                                expect(chunks).to.include(`<div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_footer">Footer Content</div><script>$p('[puzzle-chunk="product_footer"]','[puzzle-chunk-key="product_footer"]');</script>`);
+
+                                expect(str).to.eq('</body></html>');
+                                console.log(chunks.join(''));
+                            } catch (e) {
+                                err = e;
+                            }
+                            done(err);
+                        },
+                        set(headerName: string, value: string) {
+
+                        },
+                        status: () => ''
+                    }));
                 });
             });
         });

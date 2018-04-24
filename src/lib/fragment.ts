@@ -1,7 +1,8 @@
 import fetch from "node-fetch";
-import {IExposeFragment, IFragmentStorefrontAttributes} from "../types/fragment";
+import {IExposeFragment, IfragmentContentResponse, IFragmentStorefrontAttributes} from "../types/fragment";
 import {IFragment, IFragmentBFF} from "../types/fragment";
 import {FRAGMENT_RENDER_MODES} from "./enums";
+import * as querystring from "querystring";
 
 export class Fragment {
     name: string;
@@ -40,15 +41,15 @@ export class FragmentBFF extends Fragment {
 
 export class FragmentStorefront extends Fragment {
     config: IExposeFragment | undefined;
-    attribs: IFragmentStorefrontAttributes;
     primary = false;
     shouldWait = false;
+    from: string;
     private fragmentUrl: string | undefined;
 
-    constructor(attribs: IFragmentStorefrontAttributes) {
-        super({name: attribs.name});
+    constructor(name: string, from: string) {
+        super({name});
 
-        this.attribs = attribs;
+        this.from = from;
     }
 
     update(config: IExposeFragment, gatewayUrl: string) {
@@ -57,7 +58,10 @@ export class FragmentStorefront extends Fragment {
     }
 
     async getPlaceholder() {
-        if (!this.fragmentUrl || !this.config || !this.config.render.placeholder) return '';
+        if (!this.fragmentUrl || !this.config || !this.config.render.placeholder) {
+            console.error('No render, or placeholder enabled');
+            return '';
+        }
         return fetch(`${this.fragmentUrl}/placeholder`)
             .then(res => res.text())
             .then(html => {
@@ -68,21 +72,41 @@ export class FragmentStorefront extends Fragment {
             });
     }
 
-    async getContent(): Promise<{ [name: string]: string }> {
+    async getContent(attribs: any = {}): Promise<IfragmentContentResponse> {
         if (!this.config) {
             //todo error handling
             console.error(`No config provided for fragment: ${this.name}`);
-            return {};
+            return {
+                status: 500,
+                html: {}
+            };
         }
-        return fetch(`${this.fragmentUrl}${this.config.render.url}?__renderMode=${FRAGMENT_RENDER_MODES.STREAM}`)
-            .then(res => res.json())
-            .then(fragmentStreamJson => {
-                return fragmentStreamJson;
+
+        const query = {
+            ...attribs,
+            __renderMode: FRAGMENT_RENDER_MODES.STREAM
+        };
+
+        delete query.from;
+        delete query.name;
+        delete query.partial;
+        delete query.primary;
+        delete query.shouldwait;
+
+        return fetch(`${this.fragmentUrl}${this.config.render.url}?${querystring.stringify(query)}`)
+            .then(async res => {
+                return {
+                    status: res.status,
+                    html: await res.json()
+                };
             })
             .catch(err => {
                 //todo error handling
                 //console.error(err);
-                return {};
+                return {
+                    status: 500,
+                    html: {}
+                };
             });
     }
 }
