@@ -21,9 +21,9 @@ export const createExpressMock = (extendable?: {write?: Function, end?: Function
         write: extendable && extendable.write || (()  => ''),
         end: extendable && extendable.end || (()  => ''),
         set: extendable && extendable.set || (()  => ''),
-        status: () => {
+        status: (statusCode: number) => {
             if(extendable && extendable.status){
-                extendable.status();
+                extendable.status(statusCode);
             }
             return expressMock;
         }

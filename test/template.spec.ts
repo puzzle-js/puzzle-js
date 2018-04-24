@@ -890,7 +890,6 @@ describe('Template', () => {
                                 expect(chunks).to.include(`<div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_footer">Footer Content</div><script>$p('[puzzle-chunk="product_footer"]','[puzzle-chunk-key="product_footer"]');</script>`);
 
                                 expect(str).to.eq('</body></html>');
-                                console.log(chunks.join(''));
                             } catch (e) {
                                 err = e;
                             }
@@ -900,6 +899,69 @@ describe('Template', () => {
 
                         },
                         status: () => ''
+                    }));
+                });
+            });
+
+            it('should respond without primary content statuscode', done => {
+                let scope = nock('http://my-test-gateway-chunked.com')
+                    .get('/product-not-exists/')
+                    .query({
+                        __renderMode: FRAGMENT_RENDER_MODES.STREAM
+                    })
+                    .reply(404, {
+                        main: 'Trendyol',
+                    });
+
+
+                const template = new Template(`
+                    <template>
+                        <html>
+                            <head>
+                            
+                            </head>
+                            <body>
+                            <div>
+                                <fragment from="Browsing" name="product-not-exists" primary></fragment>
+                            </div>
+                            </body>
+                        </html>
+                    </template>
+                `);
+
+                template.getDependencies();
+
+                template.fragments['product-not-exists'].update({
+                    render: {
+                        url: '/',
+                        placeholder: false
+                    },
+                    dependencies: [],
+                    assets: [],
+                    testCookie: 'test',
+                    version: '1.0.0'
+                }, 'http://my-test-gateway-chunked.com');
+
+                let err: boolean | null = null;
+                let chunks: string[] = [];
+
+                template.compile({}).then(handler => {
+                    handler({}, createExpressMock({
+                        write(str: string) {
+                            chunks.push(str);
+                        },
+                        end(str: string) {
+                            chunks.push(str);
+                            try {
+                                expect(str).to.eq(`<html><head></head><body><div><div puzzle-fragment="product-not-exists" puzzle-gateway="Browsing">Trendyol</div></div></body></html>`);
+                            } catch (e) {
+                                err = e;
+                            }
+                            done(err);
+                        },
+                        status(statusCode: number){
+                            expect(statusCode).to.eq(404);
+                        }
                     }));
                 });
             });
