@@ -13,6 +13,7 @@ export interface IFragmentBFFRender {
     middlewares?: [Function[]];
     cacheControl?: string;
     placeholder?: boolean;
+    timeout?: number;
 }
 
 export interface IFragmentHandler {

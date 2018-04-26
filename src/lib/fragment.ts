@@ -3,6 +3,7 @@ import {IExposeFragment, IfragmentContentResponse, IFragmentStorefrontAttributes
 import {IFragment, IFragmentBFF} from "../types/fragment";
 import {FRAGMENT_RENDER_MODES} from "./enums";
 import * as querystring from "querystring";
+import {DEFAULT_CONTENT_TIMEOUT} from "./config";
 
 export class Fragment {
     name: string;
@@ -93,7 +94,10 @@ export class FragmentStorefront extends Fragment {
         delete query.primary;
         delete query.shouldwait;
 
-        return fetch(`${this.fragmentUrl}${this.config.render.url}?${querystring.stringify(query)}`)
+        return fetch(`${this.fragmentUrl}${this.config.render.url}?${querystring.stringify(query)}`
+            , {
+                timeout: this.config.render.timeout || DEFAULT_CONTENT_TIMEOUT
+            })
             .then(async res => {
                 return {
                     status: res.status,
