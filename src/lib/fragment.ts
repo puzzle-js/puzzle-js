@@ -94,6 +94,7 @@ export class FragmentStorefront extends Fragment {
         delete query.primary;
         delete query.shouldwait;
 
+        //todo pass cookies too
         return fetch(`${this.fragmentUrl}${this.config.render.url}?${querystring.stringify(query)}`
             , {
                 timeout: this.config.render.timeout || DEFAULT_CONTENT_TIMEOUT

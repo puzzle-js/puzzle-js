@@ -255,6 +255,53 @@ describe('Template', () => {
         });
     });
 
+    it('should parse static config fragments and inject them into first flush', () => {
+        let scope = nock('http://my-test-gateway-static.com')
+            .get('/product/')
+            .query({
+                __renderMode: FRAGMENT_RENDER_MODES.STREAM
+            })
+            .reply(200, {
+                main: '<div>Static Fragment</div>',
+            });
+
+
+        const template = new Template(`
+            <template>
+                <div>
+                    <fragment from="Browsing" name="product"></fragment>
+                </div>
+            </template>
+        `);
+
+        template.getDependencies();
+
+        template.fragments.product.update({
+            render: {
+                url: '/',
+                static: true
+            },
+            dependencies: [],
+            assets: [],
+            testCookie: 'test',
+            version: '1.0.0'
+        }, 'http://my-test-gateway-static.com');
+
+
+
+        template.compile({}).then(handler => {
+            handler({}, createExpressMock({
+                write(str: string) {
+                    console.log(str);
+                },
+                end(str: string) {
+                    console.log(str);
+                },
+                status: () => ''
+            }));
+        });
+    });
+
     describe('Output', () => {
         describe('Without Chunks', () => {
             it('should respond in single chunk when there is no fragments', (done) => {
@@ -959,7 +1006,7 @@ describe('Template', () => {
                             }
                             done(err);
                         },
-                        status(statusCode: number){
+                        status(statusCode: number) {
                             expect(statusCode).to.eq(404);
                         }
                     }));

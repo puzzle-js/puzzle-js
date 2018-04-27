@@ -109,12 +109,13 @@ export class Template {
     async compile(testCookies: { [cookieName: string]: string }) {
         let firstFlushHandler: Function;
         const waitedFragmentReplacements: IReplaceSet[] = [];
-        const fragmentsShouldBeWaited = Object.values(this.fragments).filter(fragment => fragment.shouldWait);
-        const chunkedFragments = Object.values(this.fragments).filter(fragment => !fragment.shouldWait);
+
+        const fragmentsShouldBeWaited = Object.values(this.fragments).filter(fragment => fragment.config && fragment.shouldWait);
+        const chunkedFragments = Object.values(this.fragments).filter(fragment => fragment.config && !fragment.shouldWait);
         const chunkedReplacements: IReplaceSet[] = [];
+        const staticFragments = Object.values(this.fragments).filter(fragment => fragment.config && fragment.config.render.static);
 
 
-        // 0 fragments
         if (Object.keys(this.fragments).length === 0) {
             firstFlushHandler = TemplateCompiler.compile(this.clearHtmlContent(this.dom.html()));
             return this.buildHandler(firstFlushHandler, chunkedReplacements);
@@ -195,6 +196,8 @@ export class Template {
             });
         });
 
+        this.replaceUnfetchedFragments(Object.values(this.fragments).filter(fragment => !fragment.config));
+        await this.replaceStaticFragments(staticFragments);
         await this.appendPlaceholders(chunkedReplacements);
 
         return this.buildHandler(TemplateCompiler.compile(this.clearHtmlContent(this.dom.html())), chunkedReplacements, waitedFragmentReplacements);
@@ -288,5 +291,17 @@ export class Template {
 
 
         resWrite(output);
+    }
+
+    private replaceUnfetchedFragments(fragments: FragmentStorefront[]) {
+        fragments.forEach(fragment => {
+            this.dom(`fragment[from="${fragment.from}"][name="${fragment.name}"]`).replaceWith(`<div puzzle-fragment="${fragment.name}" puzzle-gateway="${fragment.from}">${CONTENT_NOT_FOUND_ERROR}</div>`);
+        });
+    }
+
+    private replaceStaticFragments(fragments: FragmentStorefront[]) {
+        fragments.forEach(fragment => {
+            console.log(fragment);
+        });
     }
 }
