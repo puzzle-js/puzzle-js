@@ -7,7 +7,7 @@ import async, {reject} from "async";
 import {HTML_GATEWAY_ATTRIBUTE} from "./config";
 import {IReplaceItem, IReplaceSet} from "../types/template";
 import {CONTENT_REPLACE_SCRIPT, REPLACE_ITEM_TYPE} from "./enums";
-import {IFragmentStorefrontAttributes} from "../types/fragment";
+import {IfragmentContentResponse, IFragmentStorefrontAttributes} from "../types/fragment";
 
 export class TemplateClass {
     onCreate: Function | undefined;
@@ -111,10 +111,10 @@ export class Template {
         const waitedFragmentReplacements: IReplaceSet[] = [];
 
         const fragmentsShouldBeWaited = Object.values(this.fragments).filter(fragment => fragment.config && fragment.shouldWait);
-        const chunkedFragments = Object.values(this.fragments).filter(fragment => fragment.config && !fragment.shouldWait);
+
+        const chunkedFragments = Object.values(this.fragments).filter(fragment => fragment.config && !fragment.shouldWait && !fragment.config.render.static);
         const chunkedReplacements: IReplaceSet[] = [];
         const staticFragments = Object.values(this.fragments).filter(fragment => fragment.config && fragment.config.render.static);
-
 
         if (Object.keys(this.fragments).length === 0) {
             firstFlushHandler = TemplateCompiler.compile(this.clearHtmlContent(this.dom.html()));
@@ -216,6 +216,23 @@ export class Template {
         });
     }
 
+    private replaceStaticFragments(fragments: FragmentStorefront[]) {
+        return new Promise((resolve, reject) => {
+            async.each(fragments, async (fragment: FragmentStorefront, cb) => {
+                const fragmentContent: IfragmentContentResponse = await fragment.getContent();
+                this.dom(`fragment[name="${fragment.name}"][from="${fragment.from}"]`).each((i, element) => {
+                    const partial = this.dom(element).attr('partial') || 'main';
+                    this.dom(element).replaceWith(`<div puzzle-fragment="${fragment.name}" puzzle-gateway="${fragment.from}" fragment-partial="${element.attribs.partial || 'main'}">${fragmentContent.html[partial] || CONTENT_NOT_FOUND_ERROR}</div>`);
+                });
+                cb();
+            }, err => {
+                if (err) {
+                } //handle
+                resolve();
+            });
+        });
+    }
+
     private replaceWaitedFragments(waitedFragments: IReplaceSet[], output: string, cb: Function) {
         let statusCode = 200;
         async.each(waitedFragments, async (waitedFragmentReplacement, cb) => {
@@ -299,9 +316,5 @@ export class Template {
         });
     }
 
-    private replaceStaticFragments(fragments: FragmentStorefront[]) {
-        fragments.forEach(fragment => {
-            console.log(fragment);
-        });
-    }
+
 }

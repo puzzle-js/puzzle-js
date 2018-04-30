@@ -255,7 +255,7 @@ describe('Template', () => {
         });
     });
 
-    it('should parse static config fragments and inject them into first flush', () => {
+    it('should parse static config fragments and inject them into first flush', (done) => {
         let scope = nock('http://my-test-gateway-static.com')
             .get('/product/')
             .query({
@@ -287,15 +287,60 @@ describe('Template', () => {
             version: '1.0.0'
         }, 'http://my-test-gateway-static.com');
 
+        template.compile({}).then(handler => {
+            handler({}, createExpressMock({
+                write(str: string) {
+                    expect(str).to.eq(null);
+                },
+                end(str: string) {
+                    expect(str).to.eq(`<div><div puzzle-fragment="product" puzzle-gateway="Browsing" fragment-partial="main"><div>Static Fragment</div></div></div>`);
+                    done();
+                },
+                status: () => ''
+            }));
+        });
+    });
 
+    it('should render content not found static fragment that doesnt exists', (done) => {
+        let scope = nock('http://my-test-gateway-static-2.com')
+            .get('/product/')
+            .query({
+                __renderMode: FRAGMENT_RENDER_MODES.STREAM
+            })
+            .reply(200, {
+                nope: '<div>Nope Fragment</div>',
+            });
+
+
+        const template = new Template(`
+            <template>
+                <div>
+                    <fragment from="Browsing" name="product"></fragment>
+                </div>
+            </template>
+        `);
+
+        template.getDependencies();
+
+        template.fragments.product.update({
+            render: {
+                url: '/',
+                static: true
+            },
+            dependencies: [],
+            assets: [],
+            testCookie: 'test',
+            version: '1.0.0'
+        }, 'http://my-test-gateway-static-2.com');
 
         template.compile({}).then(handler => {
             handler({}, createExpressMock({
                 write(str: string) {
-                    console.log(str);
+                    expect(str).to.eq(null);
                 },
                 end(str: string) {
-                    console.log(str);
+                    expect(str).to.eq(`<div><div puzzle-fragment="product" puzzle-gateway="Browsing" fragment-partial="main"><script>console.log('Fragment Part does not exists')</script></div></div>`);
+                    done();
                 },
                 status: () => ''
             }));
