@@ -4,18 +4,18 @@ import ResourceFactory from "../src/lib/resourceFactory";
 import {RESOURCE_TYPE} from "../src/lib/enums";
 
 describe('Resource Factory', () => {
-    it('should create a new resource factory instance', function () {
+    it('should create a new resource factory instance', () => {
         expect(ResourceFactory.instance).to.be.instanceOf(ResourceFactory);
     });
 
-    it('should return same instance', function () {
+    it('should return same instance', () => {
         const rFac = ResourceFactory.instance as any;
         rFac.test = true;
 
         expect(ResourceFactory.instance).to.haveOwnProperty('test');
     });
 
-    it('should throw error when registering new dependency, content or link required', function () {
+    it('should throw error when registering new dependency, content or link required', () => {
         const test = () => {
             ResourceFactory.instance.registerDependencies({
                 type: RESOURCE_TYPE.JS,
@@ -25,8 +25,7 @@ describe('Resource Factory', () => {
         expect(test).to.throw();
     });
 
-
-    it('should register new dependency', function () {
+    it('should register new dependency', () => {
         const dependency = {
             type: RESOURCE_TYPE.JS,
             name: 'ty-library',
@@ -38,11 +37,11 @@ describe('Resource Factory', () => {
         expect(ResourceFactory.instance.get('ty-library')).to.deep.eq(dependency);
     });
 
-    it('should wrap dependency and give contents for injecting html - JS', function () {
+    it('should wrap dependency and give contents for injecting html - JS', () => {
         expect(ResourceFactory.instance.getDependencyContent('ty-library')).to.eq(`<script puzzle-dependency="ty-library" src="http://ty-gateway.com/assets/lib.min.js" type="text/javascript"></script>`);
     });
 
-    it('should wrap dependency when content provided - JS', function () {
+    it('should wrap dependency when content provided - JS', () => {
         const dependency = {
             type: RESOURCE_TYPE.JS,
             name: 'ty-library2',
@@ -54,7 +53,7 @@ describe('Resource Factory', () => {
         expect(ResourceFactory.instance.getDependencyContent('ty-library2')).to.eq(`<script puzzle-dependency="${dependency.name}" type="text/javascript">${dependency.content}</script>`);
     });
 
-    it('should wrap dependency when content provided - CSS', function () {
+    it('should wrap dependency when content provided - CSS', () => {
         const dependency = {
             type: RESOURCE_TYPE.CSS,
             name: 'ty-library3',
@@ -66,7 +65,7 @@ describe('Resource Factory', () => {
         expect(ResourceFactory.instance.getDependencyContent('ty-library3')).to.eq(`<style puzzle-dependency="${dependency.name}" type="text/css">${dependency.content}</style>`);
     });
 
-    it('should wrap dependency when link provided - CSS', function () {
+    it('should wrap dependency when link provided - CSS', () => {
         const dependency = {
             type: RESOURCE_TYPE.CSS,
             name: 'ty-library4',
