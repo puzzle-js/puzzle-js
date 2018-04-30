@@ -3,8 +3,7 @@ import cheerio from "cheerio";
 import {TemplateCompiler} from "./templateCompiler";
 import {CONTENT_NOT_FOUND_ERROR, HTML_FRAGMENT_NAME_ATTRIBUTE} from "./config";
 import {IPageDependentGateways} from "../types/page";
-import async, {reject} from "async";
-import {HTML_GATEWAY_ATTRIBUTE} from "./config";
+import async from "async";
 import {IReplaceItem, IReplaceSet} from "../types/template";
 import {CONTENT_REPLACE_SCRIPT, REPLACE_ITEM_TYPE} from "./enums";
 import {IfragmentContentResponse, IFragmentStorefrontAttributes} from "../types/fragment";
@@ -130,9 +129,6 @@ export class Template {
             return this.buildHandler(firstFlushHandler, chunkedReplacements);
         }
 
-        //todo statik fragmentlar burada cekilip eklenmeli
-
-
         fragmentsShouldBeWaited.forEach(fragment => {
             let replaceItems: IReplaceItem[] = [];
             let fragmentAttributes = {};
@@ -206,6 +202,7 @@ export class Template {
         });
 
         this.replaceUnfetchedFragments(Object.values(this.fragments).filter(fragment => !fragment.config));
+        this.addDependencies();
         await this.replaceStaticFragments(staticFragments);
         await this.appendPlaceholders(chunkedReplacements);
 
@@ -362,5 +359,16 @@ export class Template {
         fragments.forEach(fragment => {
             this.dom(`fragment[from="${fragment.from}"][name="${fragment.name}"]`).replaceWith(`<div puzzle-fragment="${fragment.name}" puzzle-gateway="${fragment.from}">${CONTENT_NOT_FOUND_ERROR}</div>`);
         });
+    }
+
+    /**
+     * Adds required dependencies
+     */
+    private addDependencies() {
+        Object.values(this.fragments).forEach(fragment => {
+            if(fragment.config){
+                console.log(fragment.config.dependencies);
+            }
+        })
     }
 }
