@@ -86,7 +86,7 @@ export class GatewayBFF extends Gateway {
 
                 return fragmentList;
             }, {}),
-            hash: '', //todo scale edildidiginde degisir
+            hash: '',
         };
 
         this.exposedConfig.hash = md5(JSON.stringify(this.exposedConfig));
