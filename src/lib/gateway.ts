@@ -1,4 +1,4 @@
-import uuidv1 from "uuid/v1";
+import md5 from "md5";
 import {EventEmitter} from "events";
 import {FragmentBFF} from "./fragment";
 import {EVENTS, FRAGMENT_RENDER_MODES} from "./enums";
@@ -86,8 +86,10 @@ export class GatewayBFF extends Gateway {
 
                 return fragmentList;
             }, {}),
-            hash: uuidv1(), //todo scale edildidiginde degisir
+            hash: '', //todo scale edildidiginde degisir
         };
+
+        this.exposedConfig.hash = md5(JSON.stringify(this.exposedConfig));
     }
 
     async renderFragment(fragmentName: string, renderMode: FRAGMENT_RENDER_MODES = FRAGMENT_RENDER_MODES.PREVIEW, cookieValue?: string) {

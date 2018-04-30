@@ -28,11 +28,13 @@
   },
   "dependencies": {
     "@types/async": "^2.0.49",
+    "@types/md5": "^2.1.32",
     "@types/nock": "^9.1.3",
     "@types/node-fetch": "^1.6.8",
     "@types/uuid": "^3.4.3",
     "async": "^2.6.0",
     "cheerio": "^1.0.0-rc.2",
+    "md5": "^2.2.1",
     "node-fetch": "^2.1.2",
     "uuid": "^3.2.1"
   },
