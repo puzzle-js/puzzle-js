@@ -3,10 +3,20 @@ export class TemplateCompiler {
     static TEMPLATE_REGEX: RegExp = /(\${.*?}?})/;
     static EXPRESSION_REGEX: RegExp = /^\${(.*?)}$/;
 
+    /**
+     * Checks if there is any string interpolation.
+     * @param {string} template
+     * @returns {boolean}
+     */
     static isExpression(template: string) {
         return template.indexOf('${') > -1;
     }
 
+    /**
+     * Compiles given html string into function that acceps req as an argument.
+     * @param {string} template
+     * @returns {Function}
+     */
     static compile(template: string): Function {
         if (!this.isExpression(template)) return () => template;
         let generatedFn = `let out = '';`;

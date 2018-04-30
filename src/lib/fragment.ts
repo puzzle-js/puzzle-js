@@ -5,6 +5,7 @@ import {FRAGMENT_RENDER_MODES} from "./enums";
 import * as querystring from "querystring";
 import {DEFAULT_CONTENT_TIMEOUT} from "./config";
 
+
 export class Fragment {
     name: string;
 
@@ -21,6 +22,12 @@ export class FragmentBFF extends Fragment {
         this.config = config;
     }
 
+    /**
+     * Renders fragment: data -> content
+     * @param {object} req
+     * @param {string} version
+     * @returns {Promise<{main: string; [p: string]: string}>}
+     */
     async render(req: object, version?: string) {
         const fragmentVersion = this.config.versions[version || this.config.version];
         if (fragmentVersion) {
@@ -53,12 +60,21 @@ export class FragmentStorefront extends Fragment {
         this.from = from;
     }
 
+    /**
+     * Updates fragment configuration
+     * @param {IExposeFragment} config
+     * @param {string} gatewayUrl
+     */
     update(config: IExposeFragment, gatewayUrl: string) {
         this.fragmentUrl = `${gatewayUrl}/${this.name}`;
         this.config = config;
     }
 
-    async getPlaceholder() {
+    /**
+     * Returns fragment placeholder as promise, fetches from gateway
+     * @returns {Promise<string>}
+     */
+    async getPlaceholder(): Promise<string> {
         if (!this.fragmentUrl || !this.config || !this.config.render.placeholder) {
             console.error('No render, or placeholder enabled');
             return '';
@@ -73,6 +89,17 @@ export class FragmentStorefront extends Fragment {
             });
     }
 
+    /**
+     * Fetches fragment content as promise, fetches from gateway
+     * Returns {
+     *  html: {
+     *    Partials
+     *  },
+     *  status: gateway status response code
+     * }
+     * @param attribs
+     * @returns {Promise<IfragmentContentResponse>}
+     */
     async getContent(attribs: any = {}): Promise<IfragmentContentResponse> {
         if (!this.config) {
             //todo error handling

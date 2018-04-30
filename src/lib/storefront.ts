@@ -8,6 +8,10 @@ export class Storefront {
     pages: IPageMap = {};
     gateways: IGatewayMap = {};
 
+    /**
+     * Start point for Storefront. Creates pages, gateways.
+     * @param {IStorefrontConfig} storefrontConfig
+     */
     constructor(storefrontConfig: IStorefrontConfig) {
         storefrontConfig.gateways.forEach(gatewayConfiguration => {
             this.gateways[gatewayConfiguration.name] = new GatewayStorefrontInstance(gatewayConfiguration);

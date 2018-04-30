@@ -30,16 +30,26 @@ export class GatewayStorefrontInstance extends Gateway {
         this.fetch();
     }
 
+    /**
+     * Starts updating gateway by polling with the provided miliseconds
+     * @param {number} pollingInterval
+     */
     startUpdating(pollingInterval: number = DEFAULT_POLLING_INTERVAL) {
         this.intervalId = setInterval(this.fetch.bind(this), pollingInterval);
     }
 
+    /**
+     * Stops udpating gateway
+     */
     stopUpdating() {
         if (this.intervalId) {
             clearInterval(this.intervalId);
         }
     }
 
+    /**
+     * Fetches gateway condifuration and calls this.bind
+     */
     private fetch() {
         fetch(this.url)
             .then(res => res.json())
@@ -50,6 +60,10 @@ export class GatewayStorefrontInstance extends Gateway {
             });
     }
 
+    /**
+     * Updates gateway configuration and if hash changed emits GATEWAY_UPDATED event
+     * @param {IExposeConfig} data
+     */
     private update(data: IExposeConfig) {
         if (!this.config) {
             this.config = data;
@@ -92,6 +106,13 @@ export class GatewayBFF extends Gateway {
         this.exposedConfig.hash = md5(JSON.stringify(this.exposedConfig));
     }
 
+    /**
+     * Renders a fragment with desired version and renderMode
+     * @param {string} fragmentName
+     * @param {FRAGMENT_RENDER_MODES} renderMode
+     * @param {string} cookieValue
+     * @returns {Promise<string>}
+     */
     async renderFragment(fragmentName: string, renderMode: FRAGMENT_RENDER_MODES = FRAGMENT_RENDER_MODES.PREVIEW, cookieValue?: string) {
         if (this.fragments[fragmentName]) {
             const fragmentContent = await this.fragments[fragmentName].render({}, cookieValue);
@@ -108,6 +129,12 @@ export class GatewayBFF extends Gateway {
         }
     }
 
+    /**
+     * Wraps with html template for preview mode
+     * @param {string} htmlContent
+     * @param {string} fragmentName
+     * @returns {string}
+     */
     private wrapFragmentContent(htmlContent: string, fragmentName: string) {
         return `<html><head><title>${this.config.name} - ${fragmentName}</title>${this.config.isMobile && '<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />'}</head><body>${htmlContent}</body></html>`;
     }

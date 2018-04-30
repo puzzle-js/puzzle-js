@@ -65,6 +65,10 @@ export class Template {
         this.pageClass._onCreate();
     }
 
+    /**
+     * Returns fragment dependencies
+     * @returns {IPageDependentGateways}
+     */
     getDependencies() {
         let primaryName: string | null = null;
 
@@ -106,6 +110,11 @@ export class Template {
     }
 
     //todo fragmentConfigleri versiyon bilgileriyle inmis olmali ki assetleri versionlara gore compile edebilelim. ayni not gatewayde de var.
+    /**
+     * Compiles template and returns a function that can handle the request.
+     * @param {{[p: string]: string}} testCookies
+     * @returns {Promise<(req: any, res: any) => void | (req: any, res: any) => void>}
+     */
     async compile(testCookies: { [cookieName: string]: string }) {
         let firstFlushHandler: Function;
         const waitedFragmentReplacements: IReplaceSet[] = [];
@@ -203,6 +212,11 @@ export class Template {
         return this.buildHandler(TemplateCompiler.compile(this.clearHtmlContent(this.dom.html())), chunkedReplacements, waitedFragmentReplacements);
     }
 
+    /**
+     * Appends placeholders to fragment contents on vDOM
+     * @param {{fragment: FragmentStorefront; replaceItems: IReplaceItem[]}[]} chunkedReplacements
+     * @returns {Promise<any>}
+     */
     private appendPlaceholders(chunkedReplacements: { fragment: FragmentStorefront, replaceItems: IReplaceItem[] }[]) {
         return new Promise((resolve, reject) => {
             async.each(chunkedReplacements, async (replacement, cb) => {
@@ -216,6 +230,11 @@ export class Template {
         });
     }
 
+    /**
+     * Replaces static fragments with their content on vDOM
+     * @param {FragmentStorefront[]} fragments
+     * @returns {Promise<any>}
+     */
     private replaceStaticFragments(fragments: FragmentStorefront[]) {
         return new Promise((resolve, reject) => {
             async.each(fragments, async (fragment: FragmentStorefront, cb) => {
@@ -233,6 +252,12 @@ export class Template {
         });
     }
 
+    /**
+     * Replaces waited fragments with their content on first flush string.
+     * @param {IReplaceSet[]} waitedFragments
+     * @param {string} output
+     * @param {Function} cb
+     */
     private replaceWaitedFragments(waitedFragments: IReplaceSet[], output: string, cb: Function) {
         let statusCode = 200;
         async.each(waitedFragments, async (waitedFragmentReplacement, cb) => {
@@ -253,6 +278,13 @@ export class Template {
         });
     }
 
+    /**
+     * Creates a request handler from the compilation output. Express requests drops to return of this method
+     * @param {Function} firstFlushHandler
+     * @param {IReplaceSet[]} chunkedFragmentReplacements
+     * @param {IReplaceSet[]} waitedFragments
+     * @returns {(req: any, res: any) => void}
+     */
     private buildHandler(firstFlushHandler: Function, chunkedFragmentReplacements: IReplaceSet[], waitedFragments: IReplaceSet[] = []) {
         //todo primary fragment test et
         if (chunkedFragmentReplacements.length === 0) {
@@ -292,10 +324,22 @@ export class Template {
         }
     }
 
+    /**
+     * Clears html content from empty spaces
+     * @param {string} str
+     * @returns {string}
+     */
     private clearHtmlContent(str: string) {
         return str.replace(/>\s+</g, "><").trim();
     }
 
+    /**
+     * Flushes a fragment with its content by appending replace scripts and wrapping.
+     * @param {FragmentStorefront} fragment
+     * @param {string} content
+     * @param {IReplaceItem} replaceItem
+     * @param {Function} resWrite
+     */
     private flushChunk(fragment: FragmentStorefront, content: string, replaceItem: IReplaceItem, resWrite: Function) {
         if (!fragment.config) return; //todo handle error
         let output = `<div style="display: none;" puzzle-fragment="${fragment.name}" puzzle-chunk-key="${replaceItem.key}">${content}</div>`;
@@ -310,11 +354,13 @@ export class Template {
         resWrite(output);
     }
 
+    /**
+     * Replaces unfetched fragments with empty div error
+     * @param {FragmentStorefront[]} fragments
+     */
     private replaceUnfetchedFragments(fragments: FragmentStorefront[]) {
         fragments.forEach(fragment => {
             this.dom(`fragment[from="${fragment.from}"][name="${fragment.name}"]`).replaceWith(`<div puzzle-fragment="${fragment.name}" puzzle-gateway="${fragment.from}">${CONTENT_NOT_FOUND_ERROR}</div>`);
         });
     }
-
-
 }

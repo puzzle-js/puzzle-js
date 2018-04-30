@@ -18,15 +18,29 @@ class ResourceFactory {
         return this.singleton as ResourceFactory;
     }
 
+    /**
+     * Registers new dependency
+     * @param {IFileResourceStorefrontDependency} dependency
+     */
     registerDependencies(dependency: IFileResourceStorefrontDependency) {
         this.validateDependency(dependency);
         this.resources[dependency.name] = dependency;
     }
 
+    /**
+     * Returns dependency object
+     * @param {string} dependencyName
+     * @returns {IFileResourceStorefrontDependency | null}
+     */
     get(dependencyName: string){
         return this.resources[dependencyName] || null;
     }
 
+    /**
+     * Returns dependency content
+     * @param {string} dependencyName
+     * @returns {string}
+     */
     getDependencyContent(dependencyName: string) {
         if (this.resources[dependencyName]) {
             return this.wrapDependency(this.resources[dependencyName]);
@@ -36,6 +50,11 @@ class ResourceFactory {
         }
     }
 
+    /**
+     * Wraps dependency based on its configuration. JS, CSS and content, link.
+     * @param {IFileResourceStorefrontDependency} dependency
+     * @returns {string}
+     */
     private wrapDependency(dependency: IFileResourceStorefrontDependency) {
         if (dependency.type === RESOURCE_TYPE.JS) {
             if (dependency.link){
@@ -52,6 +71,10 @@ class ResourceFactory {
         }
     }
 
+    /**
+     * Checks if dependency is valid for registration
+     * @param {IFileResourceStorefrontDependency} dependency
+     */
     private validateDependency(dependency: IFileResourceStorefrontDependency) {
         if(!dependency.content && !dependency.link){
             throw new Error('Content or link is required for dependency');
