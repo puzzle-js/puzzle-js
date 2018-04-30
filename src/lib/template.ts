@@ -7,6 +7,7 @@ import async from "async";
 import {IReplaceItem, IReplaceSet} from "../types/template";
 import {CONTENT_REPLACE_SCRIPT, REPLACE_ITEM_TYPE} from "./enums";
 import {IfragmentContentResponse, IFragmentStorefrontAttributes} from "../types/fragment";
+import ResourceFactory from "./resourceFactory";
 
 export class TemplateClass {
     onCreate: Function | undefined;
@@ -365,9 +366,15 @@ export class Template {
      * Adds required dependencies
      */
     private addDependencies() {
+        let injectesDependencies: string[] = [];
         Object.values(this.fragments).forEach(fragment => {
             if(fragment.config){
-                console.log(fragment.config.dependencies);
+                fragment.config.dependencies.forEach(dependency => {
+                    if(injectesDependencies.indexOf(dependency.name) == -1){
+                        injectesDependencies.push(dependency.name);
+                        this.dom('head').append(ResourceFactory.instance.getDependencyContent(dependency.name));
+                    }
+                });
             }
         })
     }

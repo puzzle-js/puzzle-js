@@ -2,8 +2,9 @@ import "mocha";
 import {expect} from "chai";
 import {Template} from "../src/lib/template";
 import nock = require("nock");
-import {CONTENT_REPLACE_SCRIPT, FRAGMENT_RENDER_MODES} from "../src/lib/enums";
+import {CONTENT_REPLACE_SCRIPT, FRAGMENT_RENDER_MODES, RESOURCE_INJECT_TYPE, RESOURCE_TYPE} from "../src/lib/enums";
 import {createExpressMock} from "./mock/mock";
+import ResourceFactory from "../src/lib/resourceFactory";
 
 describe('Template', () => {
     it('should create a new Template instance', () => {
@@ -341,6 +342,75 @@ describe('Template', () => {
                 end(str: string) {
                     expect(str).to.eq(`<div><div puzzle-fragment="product" puzzle-gateway="Browsing" fragment-partial="main"><script>console.log('Fragment Part does not exists')</script></div></div>`);
                     done();
+                },
+                status: () => ''
+            }));
+        });
+    });
+
+    it('should inject fragment dependencies succesfully', (done) => {
+        let randomDependency = `dep_${Math.random()}`;
+        ResourceFactory.instance.registerDependencies({
+            name: randomDependency,
+            content: `console.log('5')`,
+            type: RESOURCE_TYPE.JS
+        });
+
+        let scope = nock('http://my-test-gateway.com')
+            .get('/product/')
+            .query({
+                __renderMode: FRAGMENT_RENDER_MODES.STREAM
+            })
+            .reply(200, {
+                main: 'Trendyol'
+            });
+
+
+        const template = new Template(`
+                <template>
+                    <html>
+                        <head>
+                        
+                        </head>
+                        <body>
+                        <div>
+                            <fragment from="Browsing" name="product" shouldWait></fragment>
+                        </div>
+                        </body>
+                    </html>
+                </template>
+            `);
+
+        template.getDependencies();
+
+        template.fragments.product.update({
+            render: {
+                url: '/'
+            },
+            dependencies: [
+                {
+                    name: randomDependency,
+                    injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
+                }
+            ],
+            assets: [],
+            testCookie: 'test',
+            version: '1.0.0'
+        }, 'http://my-test-gateway.com');
+
+
+        template.compile({}).then(handler => {
+            handler({}, createExpressMock({
+                write(str: string) {
+
+                },
+                end(str: string) {
+                    try {
+                        expect(str).to.eq(`<html><head><script puzzle-dependency="${randomDependency}" type="text/javascript">console.log('5')</script></head><body><div><div puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div></div></body></html>`);
+                        done();
+                    } catch (e) {
+                        done(e);
+                    }
                 },
                 status: () => ''
             }));

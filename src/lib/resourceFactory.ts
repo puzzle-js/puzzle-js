@@ -11,7 +11,7 @@ class ResourceFactory {
         if (enforcer !== singletonSymbol) throw new Error("Cannot construct singleton, use .singleton");
     }
 
-    static get instance() : ResourceFactory {
+    static get instance(): ResourceFactory {
         if (!this.singleton) {
             this.singleton = new ResourceFactory(singletonSymbol);
         }
@@ -32,7 +32,7 @@ class ResourceFactory {
      * @param {string} dependencyName
      * @returns {IFileResourceStorefrontDependency | null}
      */
-    get(dependencyName: string){
+    get(dependencyName: string) {
         return this.resources[dependencyName] || null;
     }
 
@@ -41,12 +41,12 @@ class ResourceFactory {
      * @param {string} dependencyName
      * @returns {string}
      */
-    getDependencyContent(dependencyName: string) {
+    getDependencyContent(dependencyName: string): string {
         if (this.resources[dependencyName]) {
             return this.wrapDependency(this.resources[dependencyName]);
         } else {
             //todo error handling
-            return '';
+            return `<!-- Puzzle dependency: ${dependencyName} not found -->`;
         }
     }
 
@@ -55,20 +55,21 @@ class ResourceFactory {
      * @param {IFileResourceStorefrontDependency} dependency
      * @returns {string}
      */
-    private wrapDependency(dependency: IFileResourceStorefrontDependency) {
+    private wrapDependency(dependency: IFileResourceStorefrontDependency): string {
         if (dependency.type === RESOURCE_TYPE.JS) {
-            if (dependency.link){
+            if (dependency.link) {
                 return `<script puzzle-dependency="${dependency.name}" src="${dependency.link}" type="text/javascript"></script>`;
-            }else if (dependency.content){
+            } else if (dependency.content) {
                 return `<script puzzle-dependency="${dependency.name}" type="text/javascript">${dependency.content}</script>`;
             }
         } else if (dependency.type === RESOURCE_TYPE.CSS) {
-            if (dependency.link){
+            if (dependency.link) {
                 return `<link puzzle-dependency="${dependency.name}" rel="stylesheet" href="${dependency.link}" />`;
-            }else if (dependency.content){
+            } else if (dependency.content) {
                 return `<style puzzle-dependency="${dependency.name}" type="text/css">${dependency.content}</style>`;
             }
         }
+        return '';
     }
 
     /**
@@ -76,7 +77,7 @@ class ResourceFactory {
      * @param {IFileResourceStorefrontDependency} dependency
      */
     private validateDependency(dependency: IFileResourceStorefrontDependency) {
-        if(!dependency.content && !dependency.link){
+        if (!dependency.content && !dependency.link) {
             throw new Error('Content or link is required for dependency');
         }
     }
