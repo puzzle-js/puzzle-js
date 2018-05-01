@@ -390,7 +390,6 @@ describe('Template', () => {
             dependencies: [
                 {
                     name: randomDependency,
-                    injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
                 }
             ],
             assets: [],

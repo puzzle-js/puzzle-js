@@ -45,7 +45,6 @@ class ResourceFactory {
         if (this.resources[dependencyName]) {
             return this.wrapDependency(this.resources[dependencyName]);
         } else {
-            //todo error handling
             return `<!-- Puzzle dependency: ${dependencyName} not found -->`;
         }
     }

@@ -2,7 +2,6 @@ import {RESOURCE_LOCATION, RESOURCE_TYPE} from "../lib/enums";
 import {RESOURCE_INJECT_TYPE} from "../lib/enums";
 
 export interface IFileResource {
-    injectType: RESOURCE_INJECT_TYPE;
     name: string;
 }
 
@@ -12,6 +11,7 @@ export interface IFileResourceDependency extends IFileResource {
 }
 
 export interface IFileResourceAsset extends IFileResource {
+    injectType: RESOURCE_INJECT_TYPE;
     fileName: string;
     location: RESOURCE_LOCATION;
 }

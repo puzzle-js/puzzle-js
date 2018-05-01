@@ -77,4 +77,8 @@ describe('Resource Factory', () => {
         expect(ResourceFactory.instance.getDependencyContent('ty-library4')).to.eq(`<link puzzle-dependency="${dependency.name}" rel="stylesheet" href="${dependency.link}" />`);
     });
 
+    it('should use html comments for resource that doesnt exist', () => {
+
+    });
+
 });
