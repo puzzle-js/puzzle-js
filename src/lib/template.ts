@@ -117,97 +117,24 @@ export class Template {
      */
     async compile(testCookies: { [cookieName: string]: string }) {
         let firstFlushHandler: Function;
-        const waitedFragmentReplacements: IReplaceSet[] = [];
 
         const fragmentsShouldBeWaited = Object.values(this.fragments).filter(fragment => fragment.config && fragment.shouldWait);
-
         const chunkedFragments = Object.values(this.fragments).filter(fragment => fragment.config && !fragment.shouldWait && !fragment.config.render.static);
-        const chunkedReplacements: IReplaceSet[] = [];
         const staticFragments = Object.values(this.fragments).filter(fragment => fragment.config && fragment.config.render.static);
 
         if (Object.keys(this.fragments).length === 0) {
             firstFlushHandler = TemplateCompiler.compile(this.clearHtmlContent(this.dom.html()));
-            return this.buildHandler(firstFlushHandler, chunkedReplacements);
+            return this.buildHandler(firstFlushHandler, []);
         }
 
-        fragmentsShouldBeWaited.forEach(fragment => {
-            let replaceItems: IReplaceItem[] = [];
-            let fragmentAttributes = {};
-            this.dom(`fragment[from="${fragment.from}"][name="${fragment.name}"]`)
-                .each((i, element) => {
-                    let replaceKey = `{fragment|${element.attribs.name}_${element.attribs.from}_${element.attribs.partial || 'main'}}`;
-                    const partial = element.attribs.partial || 'main';
-                    replaceItems.push({
-                        type: REPLACE_ITEM_TYPE.CONTENT,
-                        key: replaceKey,
-                        partial: partial,
-                    });
-                    if (partial === 'main') {
-                        fragmentAttributes = element.attribs;
-                    }
-                    if (element.parentNode.name !== 'head') {
-                        this.dom(element).replaceWith(`<div puzzle-fragment="${element.attribs.name}" puzzle-gateway="${element.attribs.from}" ${element.attribs.partial ? 'fragment-partial="' + element.attribs.partial + '"' : ''}>${replaceKey}</div>`);
-                    } else {
-                        this.dom(element).replaceWith(replaceKey);
-                    }
-                });
-
-            //todo asset lokasyonlari burada belirlenmeli
-
-            waitedFragmentReplacements.push({
-                fragment,
-                replaceItems,
-                fragmentAttributes
-            });
-        });
-
-
-        if (chunkedFragments.length > 0) {
-            this.dom('head').append(CONTENT_REPLACE_SCRIPT);
-        }
-
-        chunkedFragments.forEach(fragment => {
-            let replaceItems: IReplaceItem[] = [];
-            let fragmentAttributes = {};
-            this.dom(`fragment[from="${fragment.from}"][name="${fragment.name}"]`)
-                .each((i, element) => {
-                    const partial = element.attribs.partial || 'main';
-                    const contentKey = fragment.name + '_' + partial;
-                    let replaceItem = {
-                        type: REPLACE_ITEM_TYPE.CHUNKED_CONTENT,
-                        partial: partial,
-                        key: contentKey,
-                    };
-                    if (partial === 'main') {
-                        fragmentAttributes = element.attribs;
-                    }
-                    replaceItems.push(replaceItem);
-                    if (fragment.config && fragment.config.render.placeholder && replaceItem.partial === 'main') {
-                        let placeholderContentKey = contentKey + '_placeholder';
-                        replaceItems.push({
-                            type: REPLACE_ITEM_TYPE.PLACEHOLDER,
-                            partial: partial,
-                            key: placeholderContentKey
-                        });
-                        this.dom(element).replaceWith(`<div puzzle-fragment="${element.attribs.name}" puzzle-gateway="${element.attribs.from}" ${element.attribs.partial ? 'fragment-partial="' + element.attribs.partial + '"' : ''} puzzle-chunk="${contentKey}" puzzle-placeholder="${placeholderContentKey}"></div>`);
-                    } else {
-                        this.dom(element).replaceWith(`<div puzzle-fragment="${element.attribs.name}" puzzle-gateway="${element.attribs.from}" ${element.attribs.partial ? 'fragment-partial="' + element.attribs.partial + '"' : ''} puzzle-chunk="${contentKey}"> </div>`);
-                    }
-                });
-
-            chunkedReplacements.push({
-                fragment,
-                replaceItems,
-                fragmentAttributes
-            });
-        });
-
+        const waitedFragmentReplacements: IReplaceSet[] = this.replaceWaitedFragmentContainers(fragmentsShouldBeWaited);
+        const chunkReplacements: IReplaceSet[] = this.replaceChunkedFragmentContainers(chunkedFragments);
         this.replaceUnfetchedFragments(Object.values(this.fragments).filter(fragment => !fragment.config));
         this.addDependencies();
         await this.replaceStaticFragments(staticFragments);
-        await this.appendPlaceholders(chunkedReplacements);
+        await this.appendPlaceholders(chunkReplacements);
 
-        return this.buildHandler(TemplateCompiler.compile(this.clearHtmlContent(this.dom.html())), chunkedReplacements, waitedFragmentReplacements);
+        return this.buildHandler(TemplateCompiler.compile(this.clearHtmlContent(this.dom.html())), chunkReplacements, waitedFragmentReplacements);
     }
 
     /**
@@ -366,16 +293,109 @@ export class Template {
      * Adds required dependencies
      */
     private addDependencies() {
-        let injectesDependencies: string[] = [];
+        let injectedDependencies: string[] = [];
         Object.values(this.fragments).forEach(fragment => {
-            if(fragment.config){
+            if (fragment.config) {
                 fragment.config.dependencies.forEach(dependency => {
-                    if(injectesDependencies.indexOf(dependency.name) == -1){
-                        injectesDependencies.push(dependency.name);
+                    if (injectedDependencies.indexOf(dependency.name) == -1) {
+                        injectedDependencies.push(dependency.name);
                         this.dom('head').append(ResourceFactory.instance.getDependencyContent(dependency.name));
                     }
                 });
             }
-        })
+        });
+    }
+
+    /**
+     * Creates chunked fragment containers
+     * @param {FragmentStorefront[]} chunkedFragments
+     * @returns {IReplaceSet[]}
+     */
+    private replaceChunkedFragmentContainers(chunkedFragments: FragmentStorefront[]) {
+        const chunkReplacements: IReplaceSet[] = [];
+
+        if (chunkedFragments.length > 0) {
+            this.dom('head').append(CONTENT_REPLACE_SCRIPT);
+        }
+
+        chunkedFragments.forEach(fragment => {
+            let replaceItems: IReplaceItem[] = [];
+            let fragmentAttributes = {};
+            this.dom(`fragment[from="${fragment.from}"][name="${fragment.name}"]`)
+                .each((i, element) => {
+                    const partial = element.attribs.partial || 'main';
+                    const contentKey = fragment.name + '_' + partial;
+                    let replaceItem = {
+                        type: REPLACE_ITEM_TYPE.CHUNKED_CONTENT,
+                        partial: partial,
+                        key: contentKey,
+                    };
+                    if (partial === 'main') {
+                        fragmentAttributes = element.attribs;
+                    }
+                    replaceItems.push(replaceItem);
+                    if (fragment.config && fragment.config.render.placeholder && replaceItem.partial === 'main') {
+                        let placeholderContentKey = contentKey + '_placeholder';
+                        replaceItems.push({
+                            type: REPLACE_ITEM_TYPE.PLACEHOLDER,
+                            partial: partial,
+                            key: placeholderContentKey
+                        });
+                        this.dom(element).replaceWith(`<div puzzle-fragment="${element.attribs.name}" puzzle-gateway="${element.attribs.from}" ${element.attribs.partial ? 'fragment-partial="' + element.attribs.partial + '"' : ''} puzzle-chunk="${contentKey}" puzzle-placeholder="${placeholderContentKey}"></div>`);
+                    } else {
+                        this.dom(element).replaceWith(`<div puzzle-fragment="${element.attribs.name}" puzzle-gateway="${element.attribs.from}" ${element.attribs.partial ? 'fragment-partial="' + element.attribs.partial + '"' : ''} puzzle-chunk="${contentKey}"> </div>`);
+                    }
+                });
+
+            chunkReplacements.push({
+                fragment,
+                replaceItems,
+                fragmentAttributes
+            });
+        });
+
+        return chunkReplacements;
+    }
+
+    /**
+     * Creates containers for fragments should be waited
+     * @param {FragmentStorefront[]} fragmentsShouldBeWaited
+     * @returns {IReplaceSet[]}
+     */
+    private replaceWaitedFragmentContainers(fragmentsShouldBeWaited: FragmentStorefront[]) {
+        const waitedFragmentReplacements: IReplaceSet[] = [];
+
+        fragmentsShouldBeWaited.forEach(fragment => {
+            let replaceItems: IReplaceItem[] = [];
+            let fragmentAttributes = {};
+            this.dom(`fragment[from="${fragment.from}"][name="${fragment.name}"]`)
+                .each((i, element) => {
+                    let replaceKey = `{fragment|${element.attribs.name}_${element.attribs.from}_${element.attribs.partial || 'main'}}`;
+                    const partial = element.attribs.partial || 'main';
+                    replaceItems.push({
+                        type: REPLACE_ITEM_TYPE.CONTENT,
+                        key: replaceKey,
+                        partial: partial,
+                    });
+                    if (partial === 'main') {
+                        fragmentAttributes = element.attribs;
+                    }
+                    if (element.parentNode.name !== 'head') {
+                        this.dom(element).replaceWith(`<div puzzle-fragment="${element.attribs.name}" puzzle-gateway="${element.attribs.from}" ${element.attribs.partial ? 'fragment-partial="' + element.attribs.partial + '"' : ''}>${replaceKey}</div>`);
+                    } else {
+                        this.dom(element).replaceWith(replaceKey);
+                    }
+                });
+
+            //todo asset lokasyonlari burada belirlenmeli
+
+            waitedFragmentReplacements.push({
+                fragment,
+                replaceItems,
+                fragmentAttributes
+            });
+        });
+
+        return waitedFragmentReplacements;
     }
 }
