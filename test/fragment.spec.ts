@@ -1,9 +1,9 @@
 import "mocha";
 import {expect} from "chai";
 import {FragmentBFF, FragmentStorefront} from "../src/lib/fragment";
-import {IFragmentBFF} from "../src/types/fragment";
+import {IExposeFragment, IFragmentBFF} from "../src/types/fragment";
 import nock from "nock";
-import {FRAGMENT_RENDER_MODES} from "../src/lib/enums";
+import {FRAGMENT_RENDER_MODES, RESOURCE_INJECT_TYPE, RESOURCE_LOCATION} from "../src/lib/enums";
 import {deepEqual} from "assert";
 
 
@@ -81,7 +81,7 @@ describe('Fragment', () => {
     });
 
     describe('Storefront', () => {
-        const commonFragmentConfig = {
+        const commonFragmentConfig: IExposeFragment = {
             version: '',
             testCookie: 'test',
             assets: [],
@@ -155,6 +155,35 @@ describe('Fragment', () => {
             const content = await fragment.getContent({ custom: 'Trendyol'});
 
             expect(content.html).to.deep.eq(fragmentContent);
+        });
+
+        it('should fetch the asset with the desired name', async () => {
+            const productScript = `<script>console.log('Product Script')</script>`;
+
+            const scope = nock('http://asset-serving-test.com')
+                .get('/product/static/bundle.min.js')
+                .reply(200, productScript);
+
+            const fragment = new FragmentStorefront('product', 'test');
+
+            let fragmentContent = {
+                ...commonFragmentConfig
+            };
+            fragmentContent.assets = [
+                {
+                    fileName: 'bundle.min.js',
+                    location: RESOURCE_LOCATION.HEAD,
+                    name: 'product-bundle',
+                    injectType: RESOURCE_INJECT_TYPE.EXTERNAL
+                }
+            ];
+
+            fragment.update(fragmentContent, 'http://asset-serving-test.com');
+
+            const scriptContent = await fragment.getAsset('product-bundle');
+
+            expect(scriptContent).to.eq(productScript);
+
         });
     });
 });

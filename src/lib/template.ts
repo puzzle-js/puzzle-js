@@ -4,10 +4,11 @@ import {TemplateCompiler} from "./templateCompiler";
 import {CONTENT_NOT_FOUND_ERROR, HTML_FRAGMENT_NAME_ATTRIBUTE} from "./config";
 import {IPageDependentGateways} from "../types/page";
 import async from "async";
-import {IReplaceItem, IReplaceSet} from "../types/template";
-import {CONTENT_REPLACE_SCRIPT, REPLACE_ITEM_TYPE} from "./enums";
+import {IReplaceAsset, IReplaceItem, IReplaceSet, IReplaceAssetSet} from "../types/template";
+import {CONTENT_REPLACE_SCRIPT, REPLACE_ITEM_TYPE, RESOURCE_INJECT_TYPE, RESOURCE_LOCATION} from "./enums";
 import {IfragmentContentResponse, IFragmentStorefrontAttributes} from "../types/fragment";
 import ResourceFactory from "./resourceFactory";
+import {IFileResourceAsset} from "../types/resource";
 
 export class TemplateClass {
     onCreate: Function | undefined;
@@ -133,6 +134,9 @@ export class Template {
         this.addDependencies();
         await this.replaceStaticFragments(staticFragments);
         await this.appendPlaceholders(chunkReplacements);
+        const replaceScripts = await this.prepareJsAssetLocations();
+        // await this.mergeStyleSheets();
+
 
         return this.buildHandler(TemplateCompiler.compile(this.clearHtmlContent(this.dom.html())), chunkReplacements, waitedFragmentReplacements);
     }
@@ -397,5 +401,65 @@ export class Template {
         });
 
         return waitedFragmentReplacements;
+    }
+
+    private prepareJsAssetLocations(): Promise<IReplaceAsset[]> {
+        const replaceScripts: IReplaceAsset[] = [];
+
+        return new Promise((resolve, reject) => {
+            async.each(Object.keys(this.fragments), (fragmentName, cb) => {
+                const fragment = this.fragments[fragmentName];
+                if (fragment.config) {
+                    const replaceItems: IReplaceAssetSet[] = [];
+                    async.each(fragment.config.assets, async (asset: IFileResourceAsset, cba) => {
+                        if (asset.injectType === RESOURCE_INJECT_TYPE.INLINE) {
+                            const assetContent = await fragment.getAsset(asset.name);
+                            switch (asset.location) {
+                                case RESOURCE_LOCATION.HEAD:
+
+                                    break;
+                                case RESOURCE_LOCATION.BODY_START:
+                                    break;
+                                case RESOURCE_LOCATION.CONTENT_START:
+                                    break;
+                                case RESOURCE_LOCATION.CONTENT_END:
+                                    break;
+                                case RESOURCE_LOCATION.BODY_END:
+                                    break;
+                            }
+                            if (asset.location === RESOURCE_LOCATION.HEAD || asset.location === RESOURCE_LOCATION.BODY_START || asset.location === RESOURCE_LOCATION.CONTENT_START) {
+                                //direct append contents
+                            } else {
+                                replaceItems.push({
+                                    content: assetContent,
+                                    key: 'replace key'
+                                });
+                            }
+                        }
+                        cba();
+                    }, () => {
+                        replaceScripts.push({
+                            fragment,
+                            replaceItems
+                        });
+                        cb();
+                    });
+                } else {
+                    cb();
+                }
+            }, () => {
+                return resolve(replaceScripts);
+            });
+        });
+
+
+    }
+
+    private async mergeStyleSheets() {
+
+    }
+
+    private injectAsset(location: RESOURCE_LOCATION, asset: { name: string, link?: string, content?: string }) {
+
     }
 }

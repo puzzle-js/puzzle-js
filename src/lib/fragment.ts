@@ -141,4 +141,25 @@ export class FragmentStorefront extends Fragment {
                 };
             });
     }
+
+    async getAsset(name: string){
+        if (!this.config){
+            //console.log('No config found')
+            return '';
+            //todo handle error
+        }
+
+        console.log(name, this.config.assets);
+        const asset = this.config.assets.find(asset => asset.name === name);
+        if(!asset){
+            //console.log('Name not found');
+            return '';
+
+            //todo handle named asset not found
+        }
+
+        return fetch(`${this.fragmentUrl}/static/${asset.fileName}`).then(async res => {
+           return await res.text();
+        });
+    }
 }

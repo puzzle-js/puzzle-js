@@ -8,8 +8,18 @@ export interface IReplaceItem {
 }
 
 export interface IReplaceSet {
-    fragment: FragmentStorefront,
-    replaceItems: IReplaceItem[],
-    fragmentAttributes: { [name: string]: string }
+    fragment: FragmentStorefront;
+    replaceItems: IReplaceItem[];
+    fragmentAttributes: { [name: string]: string };
 }
 
+export interface IReplaceAssetSet {
+    key: string;
+    link?: string;
+    content?: string;
+}
+
+export interface IReplaceAsset {
+    fragment: FragmentStorefront,
+    replaceItems:  IReplaceAssetSet[]
+}
