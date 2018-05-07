@@ -41,12 +41,24 @@ export class Template {
     pageClass: TemplateClass = new TemplateClass();
 
     constructor(rawHtml: string) {
-        const pageClassScriptRegex = /<script>(.*?)<\/script>(.*)<template>/mis;
+        this.dom = this.loadRawHtml(rawHtml);
+
+        this.bindPageClass(rawHtml);
+
+        this.pageClass._onCreate();
+    }
+
+    /**
+     * Loads html template into Cheerio instance
+     * @param {string} rawHtml
+     * @returns {CheerioStatic}
+     */
+    private loadRawHtml(rawHtml: string) {
         const templateRegex = /<template>(.*?)<\/template>/mis;
 
         const templateMatch = templateRegex.exec(rawHtml);
         if (templateMatch) {
-            this.dom = cheerio.load(templateMatch[1], {
+            return cheerio.load(templateMatch[1], {
                 normalizeWhitespace: true,
                 recognizeSelfClosing: true,
                 xmlMode: true,
@@ -55,15 +67,20 @@ export class Template {
         } else {
             throw new Error('Template not found in html file');
         }
+    }
 
+    /**
+     * Bind user class to page
+     * @param {string} rawHtml
+     */
+    private bindPageClass(rawHtml: string) {
+        const pageClassScriptRegex = /<script>(.*?)<\/script>(.*)<template>/mis;
         const scriptMatch = pageClassScriptRegex.exec(rawHtml);
         if (scriptMatch) {
             const pageClass = eval(scriptMatch[1]);
             pageClass.__proto__ = new TemplateClass();
             this.pageClass = pageClass;
         }
-
-        this.pageClass._onCreate();
     }
 
     /**
@@ -140,6 +157,7 @@ export class Template {
 
         return this.buildHandler(TemplateCompiler.compile(this.clearHtmlContent(this.dom.html())), chunkReplacements, waitedFragmentReplacements);
     }
+
 
     /**
      * Appends placeholders to fragment contents on vDOM
@@ -412,29 +430,41 @@ export class Template {
                 if (fragment.config) {
                     const replaceItems: IReplaceAssetSet[] = [];
                     async.each(fragment.config.assets, async (asset: IFileResourceAsset, cba) => {
+                        let assetContent = null;
                         if (asset.injectType === RESOURCE_INJECT_TYPE.INLINE) {
-                            const assetContent = await fragment.getAsset(asset.name);
-                            switch (asset.location) {
-                                case RESOURCE_LOCATION.HEAD:
-
-                                    break;
-                                case RESOURCE_LOCATION.BODY_START:
-                                    break;
-                                case RESOURCE_LOCATION.CONTENT_START:
-                                    break;
-                                case RESOURCE_LOCATION.CONTENT_END:
-                                    break;
-                                case RESOURCE_LOCATION.BODY_END:
-                                    break;
-                            }
-                            if (asset.location === RESOURCE_LOCATION.HEAD || asset.location === RESOURCE_LOCATION.BODY_START || asset.location === RESOURCE_LOCATION.CONTENT_START) {
-                                //direct append contents
-                            } else {
-                                replaceItems.push({
-                                    content: assetContent,
-                                    key: 'replace key'
-                                });
-                            }
+                            assetContent = await fragment.getAsset(asset.name);
+                        }
+                        switch (asset.location) {
+                            case RESOURCE_LOCATION.HEAD:
+                                this.dom('head').append(Template.wrapJsAsset({
+                                    name: asset.name,
+                                    injectType: asset.injectType,
+                                    link: fragment.getAssetPath(asset.name),
+                                    content: assetContent
+                                }));
+                                break;
+                            case RESOURCE_LOCATION.BODY_START:
+                                this.dom('body').prepend(Template.wrapJsAsset({
+                                    name: asset.name,
+                                    injectType: asset.injectType,
+                                    link: fragment.getAssetPath(asset.name),
+                                    content: assetContent
+                                }));
+                                break;
+                            case RESOURCE_LOCATION.CONTENT_START:
+                                break;
+                            case RESOURCE_LOCATION.CONTENT_END:
+                                // replaceItems.push({
+                                //     content: assetContent,
+                                //     key: 'replace key'
+                                // });
+                                break;
+                            case RESOURCE_LOCATION.BODY_END:
+                                // replaceItems.push({
+                                //     content: assetContent,
+                                //     key: 'replace key'
+                                // });
+                                break;
                         }
                         cba();
                     }, () => {
@@ -451,15 +481,20 @@ export class Template {
                 return resolve(replaceScripts);
             });
         });
+    }
 
-
+    static wrapJsAsset(asset: { injectType: RESOURCE_INJECT_TYPE; name: string; link: string | null | undefined; content: string | null | undefined }) {
+        if (asset.injectType === RESOURCE_INJECT_TYPE.EXTERNAL && asset.link) {
+            return `<script puzzle-dependency="${asset.name}" src="${asset.link}" type="text/javascript"/>`;
+        } else if (asset.injectType === RESOURCE_INJECT_TYPE.INLINE && asset.content) {
+            return `<script puzzle-dependency="${asset.name}" type="text/javascript">${asset.content}</script>`;
+        } else {
+            //todo handle error
+            return `<!-- Failed to inject asset: ${asset.name} -->`;
+        }
     }
 
     private async mergeStyleSheets() {
-
-    }
-
-    private injectAsset(location: RESOURCE_LOCATION, asset: { name: string, link?: string, content?: string }) {
 
     }
 }

@@ -1,5 +1,5 @@
 import {IFileResourceAsset, IFileResourceStorefrontDependency} from "../types/resource";
-import {RESOURCE_TYPE} from "./enums";
+import {RESOURCE_INJECT_TYPE, RESOURCE_TYPE} from "./enums";
 
 const singletonSymbol = Symbol();
 

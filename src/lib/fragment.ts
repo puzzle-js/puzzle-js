@@ -52,7 +52,7 @@ export class FragmentStorefront extends Fragment {
     primary = false;
     shouldWait = false;
     from: string;
-    private fragmentUrl: string | undefined;
+    public fragmentUrl: string | undefined;
 
     constructor(name: string, from: string) {
         super({name});
@@ -145,21 +145,42 @@ export class FragmentStorefront extends Fragment {
     async getAsset(name: string){
         if (!this.config){
             //console.log('No config found')
-            return '';
+            return null;
             //todo handle error
         }
 
-        console.log(name, this.config.assets);
         const asset = this.config.assets.find(asset => asset.name === name);
         if(!asset){
             //console.log('Name not found');
-            return '';
+            return null;
 
             //todo handle named asset not found
         }
 
         return fetch(`${this.fragmentUrl}/static/${asset.fileName}`).then(async res => {
            return await res.text();
-        });
+        }).catch(e => {
+            //todo handle request error
+            return null;
+        })
+    }
+
+    getAssetPath(name: string){
+        if (!this.config){
+            //console.log('No config found')
+            return null;
+            //todo handle error
+        }
+
+        const asset = this.config.assets.find(asset => asset.name === name);
+
+        if(!asset){
+            //console.log('Name not found');
+            return null;
+
+            //todo handle named asset not found
+        }
+
+        return `${this.fragmentUrl}/static/${asset.fileName}`;
     }
 }
