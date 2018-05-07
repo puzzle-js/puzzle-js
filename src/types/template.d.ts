@@ -1,4 +1,4 @@
-import {REPLACE_ITEM_TYPE} from "../lib/enums";
+import {REPLACE_ITEM_TYPE, RESOURCE_INJECT_TYPE, RESOURCE_LOCATION} from "../lib/enums";
 import {FragmentStorefront} from "../lib/fragment";
 
 export interface IReplaceItem {
@@ -14,9 +14,11 @@ export interface IReplaceSet {
 }
 
 export interface IReplaceAssetSet {
-    key: string;
-    link?: string;
-    content?: string;
+    link: string | undefined | null;
+    content: string | undefined | null;
+    name: string;
+    location: RESOURCE_LOCATION,
+    injectType: RESOURCE_INJECT_TYPE
 }
 
 export interface IReplaceAsset {
