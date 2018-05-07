@@ -1047,12 +1047,8 @@ describe('Template', () => {
                         end(str: string) {
                             chunks.push(str);
                             try {
-                                expect(chunks[0]).to.eq(`<html><head><script>function $p(p,c){var z = document.querySelector(c),r = z.innerHTML;z.parentNode.removeChild(z);document.querySelector(p).innerHTML=r}</script></head><body><div puzzle-fragment="product" puzzle-gateway="Browsing" fragment-partial="header" puzzle-chunk="product_header"></div><div puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main" puzzle-placeholder="product_main_placeholder">product content placeholder</div><div><div puzzle-fragment="product" puzzle-gateway="Browsing" fragment-partial="side" puzzle-chunk="product_side"></div></div><div puzzle-fragment="product" puzzle-gateway="Browsing" fragment-partial="footer" puzzle-chunk="product_footer"></div>`);
-
-                                expect(chunks).to.include(`<div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_header">Header Content</div><script>$p('[puzzle-chunk="product_header"]','[puzzle-chunk-key="product_header"]');</script>`);
-                                expect(chunks).to.include(`<div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_side">Side Content</div><script>$p('[puzzle-chunk="product_side"]','[puzzle-chunk-key="product_side"]');</script>`);
-                                expect(chunks).to.include(`<div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_footer">Footer Content</div><script>$p('[puzzle-chunk="product_footer"]','[puzzle-chunk-key="product_footer"]');</script>`);
-
+                                expect(chunks[0]).to.eq(`<html><head>${CONTENT_REPLACE_SCRIPT}</head><body><div puzzle-fragment="product" puzzle-gateway="Browsing" fragment-partial="header" puzzle-chunk="product_header"></div><div puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main" puzzle-placeholder="product_main_placeholder">product content placeholder</div><div><div puzzle-fragment="product" puzzle-gateway="Browsing" fragment-partial="side" puzzle-chunk="product_side"></div></div><div puzzle-fragment="product" puzzle-gateway="Browsing" fragment-partial="footer" puzzle-chunk="product_footer"></div>`);
+                                expect(chunks[1]).to.eq(`<div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_header">Header Content</div><script>$p('[puzzle-chunk="product_header"]','[puzzle-chunk-key="product_header"]');</script><div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Trendyol Product Content</div><script>$p('[puzzle-chunk="product_main"]','[puzzle-chunk-key="product_main"]');</script><div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_side">Side Content</div><script>$p('[puzzle-chunk="product_side"]','[puzzle-chunk-key="product_side"]');</script><div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_footer">Footer Content</div><script>$p('[puzzle-chunk="product_footer"]','[puzzle-chunk-key="product_footer"]');</script>`);
                                 expect(str).to.eq('</body></html>');
                             } catch (e) {
                                 err = e;
@@ -1160,7 +1156,7 @@ describe('Template', () => {
                     <template>
                         <html>
                             <head>
-                            
+
                             </head>
                             <body>
                             <div>
@@ -1236,7 +1232,7 @@ describe('Template', () => {
                     <template>
                         <html>
                             <head>
-                            
+
                             </head>
                             <body>
                             <div>
@@ -1315,7 +1311,7 @@ describe('Template', () => {
                     <template>
                         <html>
                             <head>
-                            
+
                             </head>
                             <body>
                             <div>
@@ -1396,7 +1392,7 @@ describe('Template', () => {
                     <template>
                         <html>
                             <head>
-                            
+
                             </head>
                             <body>
                             <div>
@@ -1462,7 +1458,7 @@ describe('Template', () => {
                     <template>
                         <html>
                             <head>
-                            
+
                             </head>
                             <body>
                             <div>
@@ -1538,7 +1534,7 @@ describe('Template', () => {
                     <template>
                         <html>
                             <head>
-                            
+
                             </head>
                             <body>
                             <div>
@@ -1586,6 +1582,7 @@ describe('Template', () => {
                             } catch (e) {
                                 err = e;
                             }
+                            console.log(chunks.join(''));
                             done(err);
                         },
                         set(headerName: string, value: string) {
@@ -1614,7 +1611,7 @@ describe('Template', () => {
                     <template>
                         <html>
                             <head>
-                            
+
                             </head>
                             <body>
                             <div>
@@ -1693,7 +1690,7 @@ describe('Template', () => {
                     <template>
                         <html>
                             <head>
-                            
+
                             </head>
                             <body>
                             <div>
@@ -1774,7 +1771,7 @@ describe('Template', () => {
                     <template>
                         <html>
                             <head>
-                            
+
                             </head>
                             <body>
                             <div>
@@ -1845,7 +1842,7 @@ describe('Template', () => {
                     <template>
                         <html>
                             <head>
-                            
+
                             </head>
                             <body>
                             <div>
@@ -1916,7 +1913,7 @@ describe('Template', () => {
                     <template>
                         <html>
                             <head>
-                            
+
                             </head>
                             <body>
                             <div>
@@ -1992,7 +1989,7 @@ describe('Template', () => {
                     <template>
                         <html>
                             <head>
-                            
+
                             </head>
                             <body>
                             <div>
@@ -2071,7 +2068,7 @@ describe('Template', () => {
                     <template>
                         <html>
                             <head>
-                            
+
                             </head>
                             <body>
                             <div>
@@ -2121,6 +2118,78 @@ describe('Template', () => {
                             try {
                                 expect(chunks[1]).to.include(`<script puzzle-dependency="Tracking" src="http://my-test-gateway-chunked.com/product/static/tracker.min.js" type="text/javascript"/>`);
                                 expect(chunks[1]).to.include(`<script puzzle-dependency="Product Bundle" type="text/javascript">${productScript}</script>`);
+                            } catch (e) {
+                                err = e;
+                            }
+                            done(err);
+                        },
+                        set(headerName: string, value: string) {
+
+                        }
+                    }));
+                });
+            });
+
+            it('should append asset location for shouldwait fragment, CONTENT_END - Inline', (done) => {
+                const productScript = `console.log('Product Script')`;
+
+                const scope = nock('http://my-test-gateway-chunked.com')
+                    .get('/product/')
+                    .query({
+                        __renderMode: FRAGMENT_RENDER_MODES.STREAM
+                    })
+                    .reply(200, {
+                        main: 'Trendyol',
+                    })
+                    .get('/product/static/bundle.min.js')
+                    .reply(200, productScript);
+
+
+                const template = new Template(`
+                    <template>
+                        <html>
+                            <head>
+
+                            </head>
+                            <body>
+                            <div>
+                                <fragment from="Browsing" name="product" shouldwait></fragment>
+                            </div>
+                            </body>
+                        </html>
+                    </template>
+                `);
+
+                template.getDependencies();
+
+                template.fragments.product.update({
+                    render: {
+                        url: '/',
+                        placeholder: false
+                    },
+                    dependencies: [],
+                    assets: [
+                        {
+                            name: 'Product Bundle',
+                            fileName: 'bundle.min.js',
+                            injectType: RESOURCE_INJECT_TYPE.INLINE,
+                            location: RESOURCE_LOCATION.CONTENT_END
+                        }
+                    ],
+                    testCookie: 'test',
+                    version: '1.0.0'
+                }, 'http://my-test-gateway-chunked.com');
+
+                let err: boolean | null = null;
+
+                template.compile({}).then(handler => {
+                    handler({}, createExpressMock({
+                        write(str: string) {
+
+                        },
+                        end(str: string) {
+                            try {
+                                expect(str).to.eq('');
                             } catch (e) {
                                 err = e;
                             }

@@ -146,13 +146,15 @@ export class Template {
             return this.buildHandler(firstFlushHandler, []);
         }
 
-        const waitedFragmentReplacements: IReplaceSet[] = this.replaceWaitedFragmentContainers(fragmentsShouldBeWaited);
+
+        const replaceScripts = await this.prepareJsAssetLocations();
+        const waitedFragmentReplacements: IReplaceSet[] = this.replaceWaitedFragmentContainers(fragmentsShouldBeWaited, replaceScripts);
         const chunkReplacements: IReplaceSet[] = this.replaceChunkedFragmentContainers(chunkedFragments);
         this.replaceUnfetchedFragments(Object.values(this.fragments).filter(fragment => !fragment.config));
         this.addDependencies();
+
         await this.replaceStaticFragments(staticFragments);
         await this.appendPlaceholders(chunkReplacements);
-        const replaceScripts = await this.prepareJsAssetLocations();
         // await this.mergeStyleSheets();
 
 
@@ -206,7 +208,7 @@ export class Template {
      * @param {string} output
      * @param {Function} cb
      */
-    private replaceWaitedFragments(waitedFragments: IReplaceSet[], output: string, jsReplacements: IReplaceAsset[], cb: Function) {
+    private replaceWaitedFragments(waitedFragments: IReplaceSet[], output: string, cb: Function) {
         let statusCode = 200;
         async.each(waitedFragments, async (waitedFragmentReplacement, cb) => {
             const fragmentContent = await waitedFragmentReplacement.fragment.getContent(waitedFragmentReplacement.fragmentAttributes);
@@ -217,19 +219,19 @@ export class Template {
                 .forEach(replaceItem => {
                     if (replaceItem.type === REPLACE_ITEM_TYPE.CONTENT) {
                         let fragmentInject = ``;
-                        const fragmentReplacements = jsReplacements.find(replacement => replacement.fragment.name === waitedFragmentReplacement.fragment.name);
+                        // const fragmentReplacements = jsReplacements.find(replacement => replacement.fragment.name === waitedFragmentReplacement.fragment.name);
 
-                        fragmentReplacements && fragmentReplacements.replaceItems.filter(item => item.location === RESOURCE_LOCATION.CONTENT_START).forEach(replaceItem => {
-                            fragmentInject += Template.wrapJsAsset(replaceItem);
-                        });
+                        //todo fragment replace error selfReplace patlar cok cok onemli
+                        // fragmentReplacements && fragmentReplacements.replaceItems.filter(item => item.location === RESOURCE_LOCATION.CONTENT_START).forEach(replaceItem => {
+                        //     fragmentInject += Template.wrapJsAsset(replaceItem);
+                        // });
 
                         fragmentInject += fragmentContent.html[replaceItem.partial] || CONTENT_NOT_FOUND_ERROR;
 
-                        fragmentReplacements && fragmentReplacements.replaceItems.filter(item => item.location === RESOURCE_LOCATION.CONTENT_END).forEach(replaceItem => {
-                            fragmentInject += Template.wrapJsAsset(replaceItem);
-                        });
+                        // fragmentReplacements && fragmentReplacements.replaceItems.filter(item => item.location === RESOURCE_LOCATION.CONTENT_END).forEach(replaceItem => {
+                        //     fragmentInject += Template.wrapJsAsset(replaceItem);
+                        // });
 
-                        //todo added assets of waited fragments contentstart, contentend
                         output = output.replace(replaceItem.key, fragmentInject);
                     }
                 });
@@ -253,7 +255,7 @@ export class Template {
             return (req: any, res: any) => {
                 this.pageClass._onRequest(req);
                 let fragmentedHtml = firstFlushHandler.call(this.pageClass, req);
-                this.replaceWaitedFragments(waitedFragments, fragmentedHtml, jsReplacements, (flush: { output: string, status: number }) => {
+                this.replaceWaitedFragments(waitedFragments, fragmentedHtml, (flush: { output: string, status: number }) => {
                     res.status(flush.status).end(flush.output);
                     this.pageClass._onResponseEnd();
                 });
@@ -264,19 +266,38 @@ export class Template {
                 let fragmentedHtml = firstFlushHandler.call(this.pageClass, req).replace('</body>', '').replace('</html>', '');
                 res.set('transfer-encoding', 'chunked');
                 res.set('content-type', 'text/html; charset=UTF-8');
-                this.replaceWaitedFragments(waitedFragments, fragmentedHtml, jsReplacements,(firstFlush: { output: string, status: number }) => {
+                this.replaceWaitedFragments(waitedFragments, fragmentedHtml, (firstFlush: { output: string, status: number }) => {
                     res.status(firstFlush.status).write(firstFlush.output);
                     async.each(chunkedFragmentReplacements, async (chunkedReplacement, cb) => {
-                        const fragmentContent = await chunkedReplacement.fragment.getContent(chunkedReplacement.fragmentAttributes);
+                        if (chunkedReplacement.fragment.config) {
+                            const fragmentContent = await chunkedReplacement.fragment.getContent(chunkedReplacement.fragmentAttributes);
+                            const fragmentJsReplacements = jsReplacements.find(jsReplacement => jsReplacement.fragment.name === chunkedReplacement.fragment.name);
+                            const selfReplacing = chunkedReplacement.fragment.config.render.selfReplace;
 
-                        chunkedReplacement.replaceItems
-                            .forEach(replaceItem => {
-                                if (replaceItem.type === REPLACE_ITEM_TYPE.CHUNKED_CONTENT) {
-                                    const fragmentJsReplacements = jsReplacements.find(jsReplacement => jsReplacement.fragment.name === chunkedReplacement.fragment.name);
-                                    this.flushChunk(chunkedReplacement.fragment, fragmentContent.html[replaceItem.partial] || CONTENT_NOT_FOUND_ERROR, replaceItem, res.write, fragmentJsReplacements ? fragmentJsReplacements.replaceItems : []);
-                                    this.pageClass._onChunk();
-                                }
+                            let output = ``;
+
+                            fragmentJsReplacements && fragmentJsReplacements.replaceItems.filter(item => item.location === RESOURCE_LOCATION.CONTENT_START).forEach(replaceItem => {
+                                output += Template.wrapJsAsset(replaceItem);
                             });
+
+                            chunkedReplacement.replaceItems
+                                .forEach(replaceItem => {
+                                    if (replaceItem.type === REPLACE_ITEM_TYPE.CHUNKED_CONTENT) {
+                                        output += `<div style="display: none;" puzzle-fragment="${chunkedReplacement.fragment.name}" puzzle-chunk-key="${replaceItem.key}">${fragmentContent.html[replaceItem.partial] || CONTENT_NOT_FOUND_ERROR}</div>`;
+                                        if (!(replaceItem.key === 'main' && selfReplacing)) {
+                                            output += `<script>$p('[puzzle-chunk="${replaceItem.key}"]','[puzzle-chunk-key="${replaceItem.key}"]');</script>`;
+                                        }
+                                    }
+                                });
+
+                            fragmentJsReplacements && fragmentJsReplacements.replaceItems.filter(item => item.location === RESOURCE_LOCATION.CONTENT_END).forEach(replaceItem => {
+                                output += Template.wrapJsAsset(replaceItem);
+                            });
+
+
+                            this.pageClass._onChunk(output);
+                            res.write(output);
+                        }
                         cb();
                     }, (err) => {
                         res.end('</body></html>');
@@ -305,11 +326,11 @@ export class Template {
      */
     private flushChunk(fragment: FragmentStorefront, content: string, replaceItem: IReplaceItem, resWrite: Function, jsReplacements: IReplaceAssetSet[]) {
         if (!fragment.config) return; //todo handle error
-
+        //todo assetler son partialdan sonra gelmeli content end
         let output = ``;
 
         jsReplacements.filter(item => item.location === RESOURCE_LOCATION.CONTENT_START).forEach(replaceItem => {
-           output += Template.wrapJsAsset(replaceItem);
+            output += Template.wrapJsAsset(replaceItem);
         });
 
         output += `<div style="display: none;" puzzle-fragment="${fragment.name}" puzzle-chunk-key="${replaceItem.key}">${content}</div>`;
@@ -408,7 +429,7 @@ export class Template {
      * @param {FragmentStorefront[]} fragmentsShouldBeWaited
      * @returns {IReplaceSet[]}
      */
-    private replaceWaitedFragmentContainers(fragmentsShouldBeWaited: FragmentStorefront[]) {
+    private replaceWaitedFragmentContainers(fragmentsShouldBeWaited: FragmentStorefront[], replaceJsAssets: IReplaceAsset[]) {
         const waitedFragmentReplacements: IReplaceSet[] = [];
 
         fragmentsShouldBeWaited.forEach(fragment => {
@@ -433,6 +454,7 @@ export class Template {
                     }
                 });
 
+            //todo waited buraya tasinmali son partial neyse onun altina gitmeli
             //todo asset lokasyonlari burada belirlenmeli
 
             waitedFragmentReplacements.push({
