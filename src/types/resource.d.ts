@@ -13,8 +13,8 @@ export interface IFileResourceDependency extends IFileResource {
 export interface IFileResourceAsset extends IFileResource {
     injectType: RESOURCE_INJECT_TYPE;
     fileName: string;
-    location: RESOURCE_LOCATION;
-    type: RESOURCE_TYPE;
+    location: RESOURCE_LOCATION; //Not important for css
+    type: RESOURCE_TYPE; //Not important for css
 }
 
 export interface IFileResourceStorefrontDependency {

@@ -2536,7 +2536,7 @@ describe('Template', () => {
                         main: 'Trendyol',
                     })
                     .get('/product/static/bundle.min.css')
-                    .reply(200, '.hover{background-color:red;}.valid{color:green;}.test:{color:red;}')
+                    .reply(200, '.hover{background-color:red;}.valid{color:green;}.test{color:red;}')
                     .get('/footer/')
                     .query({
                         __renderMode: FRAGMENT_RENDER_MODES.STREAM
@@ -2596,8 +2596,8 @@ describe('Template', () => {
                             name: 'Footer Bundle',
                             fileName: 'bundle.min.css',
                             type: RESOURCE_TYPE.CSS,
-                            injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
-                            location: RESOURCE_LOCATION.HEAD
+                            injectType: RESOURCE_INJECT_TYPE.INLINE,
+                            location: RESOURCE_LOCATION.BODY_END
                         }
                     ],
                     testCookie: 'test',
@@ -2615,7 +2615,7 @@ describe('Template', () => {
                         end(str: string) {
                             chunks.push(str);
                             try {
-                                expect(chunks[0]).to.eq(`<html><head>${CONTENT_REPLACE_SCRIPT}<style>.hover{background-color:red}.valid{color:green;text-align:center}.test:{color:red}</style></head><body><div><div puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main"></div></div><div puzzle-fragment="footer" puzzle-gateway="Browsing" puzzle-chunk="footer_main"></div>`);
+                                expect(chunks[0]).to.eq(`<html><head>${CONTENT_REPLACE_SCRIPT}<style>.hover{background-color:red}.valid{color:green;text-align:center}.test{color:red}</style></head><body><div><div puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main"></div></div><div puzzle-fragment="footer" puzzle-gateway="Browsing" puzzle-chunk="footer_main"></div>`);
                             } catch (e) {
                                 err = e;
                             }
