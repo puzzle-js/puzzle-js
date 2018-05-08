@@ -37,8 +37,8 @@
   "scripts": {
     "prepublish": "yarn build",
     "build": "tsc",
-    "test": "nyc --check-coverage --lines=90 mocha -r ts-node/register test/*.spec.ts",
-    "test:watch": "mocha --watch --require ts-node/register --watch-extensions ts,tsx \"test/**/*.{ts,tsx}\""
+    "test": "nyc --check-coverage --lines=90 mocha -r ts-node/register test/root.spec.ts",
+    "test:watch": "mocha --watch --require ts-node/register --watch-extensions ts,tsx test/root.spec.ts"
   },
   "dependencies": {
     "async": "^2.6.0",

@@ -7,6 +7,7 @@ import fetch from "node-fetch";
 import {IExposeFragment} from "../types/fragment";
 import Timer = NodeJS.Timer;
 import {DEFAULT_POLLING_INTERVAL} from "./config";
+import async from "async";
 
 export class Gateway {
     name: string;
@@ -84,9 +85,22 @@ export class GatewayBFF extends Gateway {
     constructor(gatewayConfig: IGatewayBFFConfiguration) {
         super(gatewayConfig);
         this.config = gatewayConfig;
-        this.exposedConfig = {
+        this.exposedConfig = this.createExposeConfig();
+        this.exposedConfig.hash = md5(JSON.stringify(this.exposedConfig));
+    }
+
+    public init(){
+        async.parallel([
+            () => this.addFragmentRoutes.bind(this)
+        ], err => {
+            console.log('gateway ready to start');
+        });
+    }
+
+    private createExposeConfig() {
+        return {
             fragments: this.config.fragments.reduce((fragmentList: { [name: string]: IExposeFragment }, fragment) => {
-                //todo test cookieler calismiyor
+                //todo test cookieler calismiyor, versiyonlara gore build edilmeli asset ve dependency configleri
                 fragmentList[fragment.name] = {
                     version: fragment.version,
                     render: fragment.render,
@@ -101,8 +115,6 @@ export class GatewayBFF extends Gateway {
             }, {}),
             hash: '',
         };
-
-        this.exposedConfig.hash = md5(JSON.stringify(this.exposedConfig));
     }
 
     /**
@@ -136,5 +148,9 @@ export class GatewayBFF extends Gateway {
      */
     private wrapFragmentContent(htmlContent: string, fragmentName: string) {
         return `<html><head><title>${this.config.name} - ${fragmentName}</title>${this.config.isMobile && '<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />'}</head><body>${htmlContent}</body></html>`;
+    }
+
+    private addFragmentRoutes() {
+
     }
 }
