@@ -435,6 +435,22 @@ export class Template {
         fragmentsShouldBeWaited.forEach(fragment => {
             let replaceItems: IReplaceItem[] = [];
             let fragmentAttributes = {};
+
+            const jsReplacements = replaceJsAssets.find(jsReplacement => jsReplacement.fragment.name === fragment.name);
+            let contentStart = ``;
+            let contentEnd = ``;
+
+            jsReplacements && jsReplacements.replaceItems.filter(item => item.location === RESOURCE_LOCATION.CONTENT_START).forEach(replaceItem => {
+                contentStart += Template.wrapJsAsset(replaceItem);
+            });
+
+            jsReplacements && jsReplacements.replaceItems.filter(item => item.location === RESOURCE_LOCATION.CONTENT_END).forEach(replaceItem => {
+                contentEnd += Template.wrapJsAsset(replaceItem);
+            });
+
+            this.dom(contentStart).insertBefore(this.dom(`fragment[from="${fragment.from}"][name="${fragment.name}"]`).first());
+            this.dom(contentEnd).insertAfter(this.dom(`fragment[from="${fragment.from}"][name="${fragment.name}"]`).last());
+
             this.dom(`fragment[from="${fragment.from}"][name="${fragment.name}"]`)
                 .each((i, element) => {
                     let replaceKey = `{fragment|${element.attribs.name}_${element.attribs.from}_${element.attribs.partial || 'main'}}`;
@@ -454,8 +470,6 @@ export class Template {
                     }
                 });
 
-            //todo waited buraya tasinmali son partial neyse onun altina gitmeli
-            //todo asset lokasyonlari burada belirlenmeli
 
             waitedFragmentReplacements.push({
                 fragment,

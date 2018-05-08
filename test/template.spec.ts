@@ -1198,7 +1198,7 @@ describe('Template', () => {
                         end(str: string) {
                             chunks.push(str);
                             try {
-                                expect(chunks[0]).to.eq(`<html><head>${CONTENT_REPLACE_SCRIPT}<script puzzle-dependency="Product Bundle" src="http://my-test-gateway-chunked.com/product/static/bundle.min.js" type="text/javascript"/></head><body><div><div puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main"></div></div>`);
+                                expect(chunks[0]).to.eq(`<html><head><script puzzle-dependency="Product Bundle" src="http://my-test-gateway-chunked.com/product/static/bundle.min.js" type="text/javascript"/>${CONTENT_REPLACE_SCRIPT}</head><body><div><div puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main"></div></div>`);
                                 expect(chunks[1]).to.eq(`<div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Trendyol</div><script>$p('[puzzle-chunk="product_main"]','[puzzle-chunk-key="product_main"]');</script>`);
                                 expect(chunks[2]).to.eq(`</body></html>`);
                             } catch (e) {
@@ -1274,7 +1274,7 @@ describe('Template', () => {
                         end(str: string) {
                             chunks.push(str);
                             try {
-                                expect(chunks[0]).to.eq(`<html><head>${CONTENT_REPLACE_SCRIPT}<script puzzle-dependency="Product Bundle" type="text/javascript">${productScript}</script></head><body><div><div puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main"></div></div>`);
+                                expect(chunks[0]).to.eq(`<html><head><script puzzle-dependency="Product Bundle" type="text/javascript">${productScript}</script>${CONTENT_REPLACE_SCRIPT}</head><body><div><div puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main"></div></div>`);
                                 expect(chunks[1]).to.eq(`<div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Trendyol</div><script>$p('[puzzle-chunk="product_main"]','[puzzle-chunk-key="product_main"]');</script>`);
                                 expect(chunks[2]).to.eq(`</body></html>`);
                             } catch (e) {
@@ -1582,7 +1582,6 @@ describe('Template', () => {
                             } catch (e) {
                                 err = e;
                             }
-                            console.log(chunks.join(''));
                             done(err);
                         },
                         set(headerName: string, value: string) {
@@ -1881,7 +1880,7 @@ describe('Template', () => {
                         },
                         end(str: string) {
                             try {
-                                expect(str).to.eq(`<html><head></head><body><div><div puzzle-fragment="product" puzzle-gateway="Browsing"><script puzzle-dependency="Product Bundle" src="http://my-test-gateway-chunked.com/product/static/bundle.min.js" type="text/javascript"/>Trendyol</div></div></body></html>`);
+                                expect(str).to.eq(`<html><head></head><body><div><script puzzle-dependency="Product Bundle" src="http://my-test-gateway-chunked.com/product/static/bundle.min.js" type="text/javascript"/><div puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div></div></body></html>`);
                             } catch (e) {
                                 err = e;
                             }
@@ -2189,7 +2188,7 @@ describe('Template', () => {
                         },
                         end(str: string) {
                             try {
-                                expect(str).to.eq('');
+                                expect(str).to.eq(`<html><head></head><body><div><div puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div><script puzzle-dependency="Product Bundle" type="text/javascript">console.log('Product Script')</script></div></body></html>`);
                             } catch (e) {
                                 err = e;
                             }
