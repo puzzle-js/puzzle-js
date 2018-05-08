@@ -169,7 +169,6 @@ export class Template {
         return this.buildHandler(TemplateCompiler.compile(this.clearHtmlContent(this.dom.html())), chunkReplacements, waitedFragmentReplacements, replaceScripts);
     }
 
-
     /**
      * Appends placeholders to fragment contents on vDOM
      * @param {{fragment: FragmentStorefront; replaceItems: IReplaceItem[]}[]} chunkedReplacements
@@ -468,6 +467,10 @@ export class Template {
         return waitedFragmentReplacements;
     }
 
+    /**
+     * Prepares JS asset replacements and replaces HEAD, BODY_START
+     * @returns {Promise<IReplaceAsset[]>}
+     */
     private prepareJsAssetLocations(): Promise<IReplaceAsset[]> {
         const replaceScripts: IReplaceAsset[] = [];
 
@@ -527,6 +530,11 @@ export class Template {
         });
     }
 
+    /**
+     * Wraps js asset based on its configuration
+     * @param {{injectType: RESOURCE_INJECT_TYPE; name: string; link: string | null | undefined; content: string | null | undefined}} asset
+     * @returns {string}
+     */
     static wrapJsAsset(asset: { injectType: RESOURCE_INJECT_TYPE; name: string; link: string | null | undefined; content: string | null | undefined }) {
         if (asset.injectType === RESOURCE_INJECT_TYPE.EXTERNAL && asset.link) {
             return `<script puzzle-dependency="${asset.name}" src="${asset.link}" type="text/javascript"/>`;
@@ -538,6 +546,10 @@ export class Template {
         }
     }
 
+    /**
+     * Merges, minifies stylesheets and inject them into a page
+     * @returns {Promise<any>}
+     */
     private async buildStyleSheets() {
         const _CleanCss = new CleanCSS({
             level: {
