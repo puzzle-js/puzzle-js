@@ -318,35 +318,6 @@ export class Template {
     }
 
     /**
-     * Flushes a fragment with its content by appending replace scripts and wrapping.
-     * @param {FragmentStorefront} fragment
-     * @param {string} content
-     * @param {IReplaceItem} replaceItem
-     * @param {Function} resWrite
-     */
-    private flushChunk(fragment: FragmentStorefront, content: string, replaceItem: IReplaceItem, resWrite: Function, jsReplacements: IReplaceAssetSet[]) {
-        if (!fragment.config) return; //todo handle error
-        //todo assetler son partialdan sonra gelmeli content end
-        let output = ``;
-
-        jsReplacements.filter(item => item.location === RESOURCE_LOCATION.CONTENT_START).forEach(replaceItem => {
-            output += Template.wrapJsAsset(replaceItem);
-        });
-
-        output += `<div style="display: none;" puzzle-fragment="${fragment.name}" puzzle-chunk-key="${replaceItem.key}">${content}</div>`;
-
-        if (!(replaceItem.key === 'main' && fragment.config.render.selfReplace)) {
-            output += `<script>$p('[puzzle-chunk="${replaceItem.key}"]','[puzzle-chunk-key="${replaceItem.key}"]');</script>`;
-        }
-
-        jsReplacements.filter(item => item.location === RESOURCE_LOCATION.CONTENT_END).forEach(replaceItem => {
-            output += Template.wrapJsAsset(replaceItem);
-        });
-
-        resWrite(output);
-    }
-
-    /**
      * Replaces unfetched fragments with empty div error
      * @param {FragmentStorefront[]} fragments
      */

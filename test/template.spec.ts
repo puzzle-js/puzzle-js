@@ -2200,6 +2200,82 @@ describe('Template', () => {
                     }));
                 });
             });
+
+            it('should append asset location for fragment, BODY_END - External', (done) => {
+                const productScript = `console.log('Product Script')`;
+
+                const scope = nock('http://my-test-gateway-chunked.com')
+                    .get('/product/')
+                    .query({
+                        __renderMode: FRAGMENT_RENDER_MODES.STREAM
+                    })
+                    .reply(200, {
+                        main: 'Trendyol',
+                    })
+                    .get('/product/static/bundle.min.js')
+                    .reply(200, productScript);
+
+
+                const template = new Template(`
+                    <template>
+                        <html>
+                            <head>
+
+                            </head>
+                            <body>
+                            <div>
+                                <fragment from="Browsing" name="product"></fragment>
+                            </div>
+                            </body>
+                        </html>
+                    </template>
+                `);
+
+                template.getDependencies();
+
+                template.fragments.product.update({
+                    render: {
+                        url: '/',
+                        placeholder: false
+                    },
+                    dependencies: [],
+                    assets: [
+                        {
+                            name: 'Product Bundle',
+                            fileName: 'bundle.min.js',
+                            injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
+                            location: RESOURCE_LOCATION.BODY_END
+                        }
+                    ],
+                    testCookie: 'test',
+                    version: '1.0.0'
+                }, 'http://my-test-gateway-chunked.com');
+
+                let err: boolean | null = null;
+                let chunks: string[] = [];
+
+                template.compile({}).then(handler => {
+                    handler({}, createExpressMock({
+                        write(str: string) {
+                            chunks.push(str);
+                        },
+                        end(str: string) {
+                            chunks.push(str);
+                            try {
+                                expect(chunks[0]).to.eq(`<html><head>${CONTENT_REPLACE_SCRIPT}</head><body><div><div puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main"></div></div>`);
+                                expect(chunks[1]).to.eq(`<div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Trendyol</div><script>$p('[puzzle-chunk="product_main"]','[puzzle-chunk-key="product_main"]');</script>`);
+                                expect(chunks[2]).to.eq(`<script puzzle-dependency="Product Bundle" src="http://my-test-gateway-chunked.com/product/static/bundle.min.js" type="text/javascript"/></body></html>`);
+                            } catch (e) {
+                                err = e;
+                            }
+                            done(err);
+                        },
+                        set(headerName: string, value: string) {
+
+                        }
+                    }));
+                });
+            });
         });
     });
 });
