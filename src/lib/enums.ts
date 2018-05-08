@@ -33,4 +33,9 @@ export enum REPLACE_ITEM_TYPE {
     CHUNKED_CONTENT
 }
 
+export enum HTTP_METHODS {
+    GET = 'get',
+    POST = 'post'
+}
+
 export const CONTENT_REPLACE_SCRIPT = `<script>function $p(p,c){var z = document.querySelector(c),r = z.innerHTML;z.parentNode.removeChild(z);document.querySelector(p).innerHTML=r}</script>`;

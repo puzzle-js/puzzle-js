@@ -13,6 +13,11 @@ export class Storefront {
      * @param {IStorefrontConfig} storefrontConfig
      */
     constructor(storefrontConfig: IStorefrontConfig) {
+        this.createStorefrontPagesandGateways(storefrontConfig);
+    }
+
+
+    private createStorefrontPagesandGateways(storefrontConfig: IStorefrontConfig) {
         storefrontConfig.gateways.forEach(gatewayConfiguration => {
             this.gateways[gatewayConfiguration.name] = new GatewayStorefrontInstance(gatewayConfiguration);
             this.gateways[gatewayConfiguration.name].startUpdating();

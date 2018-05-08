@@ -18,7 +18,6 @@ export class Gateway {
     }
 }
 
-
 export class GatewayStorefrontInstance extends Gateway {
     events: EventEmitter = new EventEmitter();
     config: IExposeConfig | undefined;

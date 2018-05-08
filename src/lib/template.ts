@@ -48,7 +48,6 @@ export class Template {
     fragments: { [name: string]: FragmentStorefront } = {};
     pageClass: TemplateClass = new TemplateClass();
 
-
     constructor(rawHtml: string) {
         this.dom = this.loadRawHtml(rawHtml);
 
