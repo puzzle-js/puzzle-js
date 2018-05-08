@@ -1,7 +1,7 @@
 import "mocha";
 import {expect} from "chai";
 import {Gateway, GatewayBFF, GatewayStorefrontInstance} from "../src/lib/gateway";
-import {EVENTS, FRAGMENT_RENDER_MODES} from "../src/lib/enums";
+import {DEFAULT_MAIN_PARTIAL, EVENTS, FRAGMENT_RENDER_MODES} from "../src/lib/enums";
 import {IGatewayBFFConfiguration} from "../src/types/gateway";
 import nock from "nock";
 import {createGateway} from "./mock/mock";
@@ -128,7 +128,7 @@ export default () => {
                 };
 
                 const bffGw = new GatewayBFF(gatewayConfiguration);
-                const gwResponse = await bffGw.renderFragment('boutique-list', FRAGMENT_RENDER_MODES.STREAM);
+                const gwResponse = await bffGw.renderFragment('boutique-list', FRAGMENT_RENDER_MODES.STREAM, DEFAULT_MAIN_PARTIAL);
                 if (!gwResponse) throw new Error('No response from gateway');
                 expect(JSON.parse(gwResponse).main).to.eq('test');
             });
@@ -156,7 +156,7 @@ export default () => {
                 };
 
                 const bffGw = new GatewayBFF(gatewayConfiguration);
-                const gwResponse = await bffGw.renderFragment('boutique-list', FRAGMENT_RENDER_MODES.PREVIEW);
+                const gwResponse = await bffGw.renderFragment('boutique-list', FRAGMENT_RENDER_MODES.PREVIEW, DEFAULT_MAIN_PARTIAL);
                 if (!gwResponse) throw new Error('No response from gateway');
                 expect(gwResponse).to.eq(`<html><head><title>Browsing - boutique-list</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" /></head><body>test</body></html>`);
             });
@@ -184,7 +184,7 @@ export default () => {
                 };
 
                 const bffGw = new GatewayBFF(gatewayConfiguration);
-                bffGw.renderFragment('not_exists').then(data => done(data)).catch((e) => {
+                bffGw.renderFragment('not_exists', FRAGMENT_RENDER_MODES.STREAM, DEFAULT_MAIN_PARTIAL).then(data => done(data)).catch((e) => {
                     expect(e.message).to.include('Failed to find fragment');
                     done();
                 });
@@ -254,7 +254,7 @@ export default () => {
                     } else {
                         done('config is not defined');
                     }
-                })
+                });
             });
         });
     });

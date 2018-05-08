@@ -4,8 +4,8 @@ export enum EVENTS {
 }
 
 export enum FRAGMENT_RENDER_MODES {
-    PREVIEW,
-    STREAM
+    PREVIEW = 'preview',
+    STREAM = 'stream'
 }
 
 export enum RESOURCE_INJECT_TYPE {
@@ -39,3 +39,4 @@ export enum HTTP_METHODS {
 }
 
 export const CONTENT_REPLACE_SCRIPT = `<script>function $p(p,c){var z = document.querySelector(c),r = z.innerHTML;z.parentNode.removeChild(z);document.querySelector(p).innerHTML=r}</script>`;
+export const DEFAULT_MAIN_PARTIAL = `main`;

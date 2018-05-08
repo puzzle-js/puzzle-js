@@ -1,17 +1,19 @@
 import md5 from "md5";
 import {EventEmitter} from "events";
 import {FragmentBFF} from "./fragment";
-import {EVENTS, FRAGMENT_RENDER_MODES} from "./enums";
+import {DEFAULT_MAIN_PARTIAL, EVENTS, FRAGMENT_RENDER_MODES, HTTP_METHODS} from "./enums";
 import {IExposeConfig, IGatewayBFFConfiguration, IGatewayConfiguration} from "../types/gateway";
 import fetch from "node-fetch";
 import {IExposeFragment} from "../types/fragment";
 import Timer = NodeJS.Timer;
-import {DEFAULT_POLLING_INTERVAL} from "./config";
+import {DEFAULT_POLLING_INTERVAL, PREVIEW_PARTIAL_QUERY_NAME, RENDER_MODE_QUERY_NAME} from "./config";
 import async from "async";
+import {Server} from "./server";
 
 export class Gateway {
     name: string;
     url: string;
+    server: Server = new Server();
 
     constructor(gatewayConfig: IGatewayConfiguration) {
         this.name = gatewayConfig.name;
@@ -89,11 +91,17 @@ export class GatewayBFF extends Gateway {
         this.exposedConfig.hash = md5(JSON.stringify(this.exposedConfig));
     }
 
-    public init(){
-        async.parallel([
-            () => this.addFragmentRoutes.bind(this)
+    public init(cb?: Function) {
+        async.series([
+            this.addFragmentRoutes.bind(this),
+            this.addConfigurationRoute.bind(this),
+            this.addHealtcheckRoute.bind(this)
         ], err => {
-            console.log('gateway ready to start');
+            if (!err) {
+                this.server.listen(this.config.port, cb);
+            } else {
+                throw err;
+            }
         });
     }
 
@@ -124,14 +132,14 @@ export class GatewayBFF extends Gateway {
      * @param {string} cookieValue
      * @returns {Promise<string>}
      */
-    async renderFragment(fragmentName: string, renderMode: FRAGMENT_RENDER_MODES = FRAGMENT_RENDER_MODES.PREVIEW, cookieValue?: string) {
+    async renderFragment(fragmentName: string, renderMode: FRAGMENT_RENDER_MODES = FRAGMENT_RENDER_MODES.PREVIEW, partial: string, cookieValue?: string): Promise<string> {
         if (this.fragments[fragmentName]) {
             const fragmentContent = await this.fragments[fragmentName].render({}, cookieValue);
             switch (renderMode) {
                 case FRAGMENT_RENDER_MODES.STREAM:
                     return JSON.stringify(fragmentContent);
                 case FRAGMENT_RENDER_MODES.PREVIEW:
-                    return this.wrapFragmentContent(fragmentContent.main, fragmentName);
+                    return this.wrapFragmentContent(fragmentContent[partial], fragmentName);
                 default:
                     return JSON.stringify(fragmentContent);
             }
@@ -147,10 +155,38 @@ export class GatewayBFF extends Gateway {
      * @returns {string}
      */
     private wrapFragmentContent(htmlContent: string, fragmentName: string) {
-        return `<html><head><title>${this.config.name} - ${fragmentName}</title>${this.config.isMobile && '<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />'}</head><body>${htmlContent}</body></html>`;
+        return `<html><head><title>${this.config.name} - ${fragmentName}</title>${this.config.isMobile ? '<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />' : ''}</head><body>${htmlContent}</body></html>`;
     }
 
-    private addFragmentRoutes() {
+    private addFragmentRoutes(cb: Function) {
+        this.config.fragments.forEach(fragmentConfig => {
+            this.server.addRoute(`/${fragmentConfig.name}${fragmentConfig.render.url}`, HTTP_METHODS.GET, async (req, res) => {
+                const renderMode = req.query[RENDER_MODE_QUERY_NAME] === FRAGMENT_RENDER_MODES.STREAM ? FRAGMENT_RENDER_MODES.STREAM : FRAGMENT_RENDER_MODES.PREVIEW;
+                const gatewayContent = await this.renderFragment(fragmentConfig.name, renderMode, req.query[PREVIEW_PARTIAL_QUERY_NAME] || DEFAULT_MAIN_PARTIAL, req.cookies[fragmentConfig.testCookie]);
 
+                if (renderMode === FRAGMENT_RENDER_MODES.STREAM) {
+                    res.set('content-type', 'application/json');
+                    res.status(200).end(gatewayContent);
+                }else{
+                    res.status(200).end(gatewayContent);
+                }
+            });
+        });
+
+        cb();
+    }
+
+    private addHealtcheckRoute(cb: Function) {
+        this.server.addRoute('/healthcheck', HTTP_METHODS.GET, (req, res) => {
+            res.status(200).end();
+        });
+        cb();
+    }
+
+    private addConfigurationRoute(cb: Function) {
+        this.server.addRoute('/', HTTP_METHODS.GET, (req, res) => {
+            res.status(200).json(this.exposedConfig);
+        });
+        cb();
     }
 }
