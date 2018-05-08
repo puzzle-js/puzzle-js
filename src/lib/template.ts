@@ -1,15 +1,22 @@
 import {FragmentStorefront} from "./fragment";
 import cheerio from "cheerio";
 import {TemplateCompiler} from "./templateCompiler";
-import {CONTENT_NOT_FOUND_ERROR, HTML_FRAGMENT_NAME_ATTRIBUTE} from "./config";
+import {CONTENT_NOT_FOUND_ERROR} from "./config";
 import {IPageDependentGateways} from "../types/page";
 import async from "async";
 import {IReplaceAsset, IReplaceItem, IReplaceSet, IReplaceAssetSet} from "../types/template";
-import {CONTENT_REPLACE_SCRIPT, REPLACE_ITEM_TYPE, RESOURCE_INJECT_TYPE, RESOURCE_LOCATION} from "./enums";
-import {IfragmentContentResponse, IFragmentStorefrontAttributes} from "../types/fragment";
+import {
+    CONTENT_REPLACE_SCRIPT,
+    REPLACE_ITEM_TYPE,
+    RESOURCE_INJECT_TYPE,
+    RESOURCE_LOCATION,
+    RESOURCE_TYPE
+} from "./enums";
+import {IfragmentContentResponse} from "../types/fragment";
 import ResourceFactory from "./resourceFactory";
 import {IFileResourceAsset} from "../types/resource";
-import {performance} from "perf_hooks";
+import CleanCSS from "clean-css";
+
 
 export class TemplateClass {
     onCreate: Function | undefined;
@@ -40,6 +47,7 @@ export class Template {
     dom: CheerioStatic;
     fragments: { [name: string]: FragmentStorefront } = {};
     pageClass: TemplateClass = new TemplateClass();
+
 
     constructor(rawHtml: string) {
         this.dom = this.loadRawHtml(rawHtml);
@@ -155,7 +163,7 @@ export class Template {
 
         await this.replaceStaticFragments(staticFragments);
         await this.appendPlaceholders(chunkReplacements);
-        // await this.mergeStyleSheets();
+        await this.buildStyleSheets();
 
 
         return this.buildHandler(TemplateCompiler.compile(this.clearHtmlContent(this.dom.html())), chunkReplacements, waitedFragmentReplacements, replaceScripts);
@@ -300,7 +308,15 @@ export class Template {
                         }
                         cb();
                     }, (err) => {
-                        res.end('</body></html>');
+                        let bodyAndAssets = ``;
+
+                        jsReplacements.forEach(replacement => {
+                            replacement.replaceItems.filter(item => item.location === RESOURCE_LOCATION.BODY_END).forEach(replaceItem => {
+                                bodyAndAssets += Template.wrapJsAsset(replaceItem);
+                            });
+                        });
+
+                        res.end(`${bodyAndAssets}</body></html>`);
                         this.pageClass._onResponseEnd();
                     });
                 });
@@ -460,7 +476,7 @@ export class Template {
                 const fragment = this.fragments[fragmentName];
                 if (fragment.config) {
                     const replaceItems: IReplaceAssetSet[] = [];
-                    async.each(fragment.config.assets, async (asset: IFileResourceAsset, cba) => {
+                    async.each(fragment.config.assets.filter(asset => asset.type === RESOURCE_TYPE.JS), async (asset: IFileResourceAsset, cba) => {
                         let assetContent = null;
                         if (asset.injectType === RESOURCE_INJECT_TYPE.INLINE) {
                             assetContent = await fragment.getAsset(asset.name);
@@ -522,7 +538,39 @@ export class Template {
         }
     }
 
-    private async mergeStyleSheets() {
+    private async buildStyleSheets() {
+        const _CleanCss = new CleanCSS({
+            level: {
+                2: {
+                    all: true
+                }
+            }
+        } as any);
 
+        let styleSheets: string[] = [];
+
+        return new Promise((resolve, reject) => {
+            async.each(Object.values(this.fragments), async (fragment, cb) => {
+                if (!fragment.config) return cb();
+                const cssAssets = fragment.config.assets.filter(asset => asset.type === RESOURCE_TYPE.CSS);
+
+                for (let x = 0, len = cssAssets.length; x < len; x++) {
+                    const assetContent = await fragment.getAsset(cssAssets[x].name);
+                    if (assetContent) {
+                        styleSheets.push(assetContent);
+                    }
+                }
+
+                cb();
+            }, err => {
+                if (!err) {
+                    let output = _CleanCss.minify(styleSheets.join(''));
+                    if (output.styles.length > 0) {
+                        this.dom('head').append(`<style>${output.styles}</style>`);
+                    }
+                }
+                resolve();
+            });
+        });
     }
 }

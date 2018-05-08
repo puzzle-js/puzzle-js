@@ -14,6 +14,7 @@ export interface IFileResourceAsset extends IFileResource {
     injectType: RESOURCE_INJECT_TYPE;
     fileName: string;
     location: RESOURCE_LOCATION;
+    type: RESOURCE_TYPE;
 }
 
 export interface IFileResourceStorefrontDependency {

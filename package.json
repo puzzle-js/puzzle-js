@@ -7,6 +7,7 @@
   "devDependencies": {
     "@types/chai": "^4.1.2",
     "@types/cheerio": "^0.22.7",
+    "@types/clean-css": "^3.4.30",
     "@types/mocha": "^5.0.0",
     "chai": "^4.1.2",
     "mocha": "^5.0.5",
@@ -34,6 +35,7 @@
     "@types/uuid": "^3.4.3",
     "async": "^2.6.0",
     "cheerio": "^1.0.0-rc.2",
+    "clean-css": "^4.1.11",
     "md5": "^2.2.1",
     "node-fetch": "^2.1.2",
     "uuid": "^3.2.1"

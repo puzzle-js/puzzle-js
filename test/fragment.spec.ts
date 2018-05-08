@@ -3,7 +3,7 @@ import {expect} from "chai";
 import {FragmentBFF, FragmentStorefront} from "../src/lib/fragment";
 import {IExposeFragment, IFragmentBFF} from "../src/types/fragment";
 import nock from "nock";
-import {FRAGMENT_RENDER_MODES, RESOURCE_INJECT_TYPE, RESOURCE_LOCATION} from "../src/lib/enums";
+import {FRAGMENT_RENDER_MODES, RESOURCE_INJECT_TYPE, RESOURCE_LOCATION, RESOURCE_TYPE} from "../src/lib/enums";
 import {deepEqual} from "assert";
 
 
@@ -174,7 +174,8 @@ describe('Fragment', () => {
                     fileName: 'bundle.min.js',
                     location: RESOURCE_LOCATION.HEAD,
                     name: 'product-bundle',
-                    injectType: RESOURCE_INJECT_TYPE.EXTERNAL
+                    injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
+                    type: RESOURCE_TYPE.JS
                 }
             ];
 

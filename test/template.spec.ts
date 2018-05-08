@@ -1127,14 +1127,14 @@ describe('Template', () => {
             });
         });
 
-        describe('Asset locations', () => {
+        describe('JS Asset locations', () => {
             it('should return html comment not existing asset', () => {
                 expect(Template.wrapJsAsset({
                     link: null,
                     injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
                     name: 'Nope',
                     content: null
-                })).to.eq(`<!-- Failed to inject asset: Nope -->`)
+                })).to.eq(`<!-- Failed to inject asset: Nope -->`);
             });
 
             it('should append asset locations for normal fragment, HEAD - External', (done) => {
@@ -1179,6 +1179,7 @@ describe('Template', () => {
                         {
                             name: 'Product Bundle',
                             fileName: 'bundle.min.js',
+                            type: RESOURCE_TYPE.JS,
                             injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
                             location: RESOURCE_LOCATION.HEAD
                         }
@@ -1255,6 +1256,7 @@ describe('Template', () => {
                         {
                             name: 'Product Bundle',
                             fileName: 'bundle.min.js',
+                            type: RESOURCE_TYPE.JS,
                             injectType: RESOURCE_INJECT_TYPE.INLINE,
                             location: RESOURCE_LOCATION.HEAD
                         }
@@ -1334,12 +1336,14 @@ describe('Template', () => {
                         {
                             name: 'Product Bundle',
                             fileName: 'bundle.min.js',
+                            type: RESOURCE_TYPE.JS,
                             injectType: RESOURCE_INJECT_TYPE.INLINE,
                             location: RESOURCE_LOCATION.HEAD
                         },
                         {
                             name: 'Tracking',
                             fileName: 'tracker.min.js',
+                            type: RESOURCE_TYPE.JS,
                             injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
                             location: RESOURCE_LOCATION.HEAD
                         }
@@ -1415,6 +1419,7 @@ describe('Template', () => {
                         {
                             name: 'Product Bundle',
                             fileName: 'bundle.min.js',
+                            type: RESOURCE_TYPE.JS,
                             injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
                             location: RESOURCE_LOCATION.HEAD
                         }
@@ -1427,7 +1432,8 @@ describe('Template', () => {
 
                 template.compile({}).then(handler => {
                     handler({}, createExpressMock({
-                        write(str: string) {},
+                        write(str: string) {
+                        },
                         end(str: string) {
                             expect(str).to.include(`<script puzzle-dependency="Product Bundle" src="http://my-test-gateway-chunked.com/product/static/bundle.min.js" type="text/javascript"/>`);
                             done(err);
@@ -1481,6 +1487,7 @@ describe('Template', () => {
                         {
                             name: 'Product Bundle',
                             fileName: 'bundle.min.js',
+                            type: RESOURCE_TYPE.JS,
                             injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
                             location: RESOURCE_LOCATION.CONTENT_START
                         }
@@ -1557,6 +1564,7 @@ describe('Template', () => {
                         {
                             name: 'Product Bundle',
                             fileName: 'bundle.min.js',
+                            type: RESOURCE_TYPE.JS,
                             injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
                             location: RESOURCE_LOCATION.CONTENT_START
                         }
@@ -1633,6 +1641,7 @@ describe('Template', () => {
                         {
                             name: 'Product Bundle',
                             fileName: 'bundle.min.js',
+                            type: RESOURCE_TYPE.JS,
                             injectType: RESOURCE_INJECT_TYPE.INLINE,
                             location: RESOURCE_LOCATION.CONTENT_START
                         }
@@ -1712,12 +1721,14 @@ describe('Template', () => {
                         {
                             name: 'Product Bundle',
                             fileName: 'bundle.min.js',
+                            type: RESOURCE_TYPE.JS,
                             injectType: RESOURCE_INJECT_TYPE.INLINE,
                             location: RESOURCE_LOCATION.CONTENT_START
                         },
                         {
                             name: 'Tracking',
                             fileName: 'tracker.min.js',
+                            type: RESOURCE_TYPE.JS,
                             injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
                             location: RESOURCE_LOCATION.CONTENT_START
                         }
@@ -1793,6 +1804,7 @@ describe('Template', () => {
                         {
                             name: 'Product Bundle',
                             fileName: 'bundle.min.js',
+                            type: RESOURCE_TYPE.JS,
                             injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
                             location: RESOURCE_LOCATION.CONTENT_START
                         }
@@ -1864,6 +1876,7 @@ describe('Template', () => {
                         {
                             name: 'Product Bundle',
                             fileName: 'bundle.min.js',
+                            type: RESOURCE_TYPE.JS,
                             injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
                             location: RESOURCE_LOCATION.CONTENT_START
                         }
@@ -1935,6 +1948,7 @@ describe('Template', () => {
                         {
                             name: 'Product Bundle',
                             fileName: 'bundle.min.js',
+                            type: RESOURCE_TYPE.JS,
                             injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
                             location: RESOURCE_LOCATION.CONTENT_END
                         }
@@ -2011,6 +2025,7 @@ describe('Template', () => {
                         {
                             name: 'Product Bundle',
                             fileName: 'bundle.min.js',
+                            type: RESOURCE_TYPE.JS,
                             injectType: RESOURCE_INJECT_TYPE.INLINE,
                             location: RESOURCE_LOCATION.CONTENT_END
                         }
@@ -2090,12 +2105,14 @@ describe('Template', () => {
                         {
                             name: 'Product Bundle',
                             fileName: 'bundle.min.js',
+                            type: RESOURCE_TYPE.JS,
                             injectType: RESOURCE_INJECT_TYPE.INLINE,
                             location: RESOURCE_LOCATION.CONTENT_END
                         },
                         {
                             name: 'Tracking',
                             fileName: 'tracker.min.js',
+                            type: RESOURCE_TYPE.JS,
                             injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
                             location: RESOURCE_LOCATION.CONTENT_END
                         }
@@ -2171,6 +2188,7 @@ describe('Template', () => {
                         {
                             name: 'Product Bundle',
                             fileName: 'bundle.min.js',
+                            type: RESOURCE_TYPE.JS,
                             injectType: RESOURCE_INJECT_TYPE.INLINE,
                             location: RESOURCE_LOCATION.CONTENT_END
                         }
@@ -2243,6 +2261,7 @@ describe('Template', () => {
                         {
                             name: 'Product Bundle',
                             fileName: 'bundle.min.js',
+                            type: RESOURCE_TYPE.JS,
                             injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
                             location: RESOURCE_LOCATION.BODY_END
                         }
@@ -2276,6 +2295,338 @@ describe('Template', () => {
                     }));
                 });
             });
+
+            it('should append asset location for fragment main in HEAD, CONTENT_END - External', (done) => {
+                const productScript = `console.log('Product Script')`;
+
+                const scope = nock('http://my-test-gateway-chunked.com')
+                    .get('/product/')
+                    .query({
+                        __renderMode: FRAGMENT_RENDER_MODES.STREAM
+                    })
+                    .reply(200, {
+                        main: '<meta name="product" id="1235">',
+                    })
+                    .get('/product/static/bundle.min.js')
+                    .reply(200, productScript);
+
+
+                const template = new Template(`
+                    <template>
+                        <html>
+                            <head>
+                                <fragment from="Browsing" name="product"></fragment>
+                            </head>
+                            <body>
+                            <div>
+                                
+                            </div>
+                            </body>
+                        </html>
+                    </template>
+                `);
+
+                template.getDependencies();
+
+                template.fragments.product.update({
+                    render: {
+                        url: '/',
+                        placeholder: false
+                    },
+                    dependencies: [],
+                    assets: [
+                        {
+                            name: 'Product Bundle',
+                            fileName: 'bundle.min.js',
+                            type: RESOURCE_TYPE.JS,
+                            injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
+                            location: RESOURCE_LOCATION.CONTENT_END
+                        }
+                    ],
+                    testCookie: 'test',
+                    version: '1.0.0'
+                }, 'http://my-test-gateway-chunked.com');
+
+                let err: boolean | null = null;
+
+                template.compile({}).then(handler => {
+                    handler({}, createExpressMock({
+                        write(str: string) {
+                        },
+                        end(str: string) {
+                            try {
+                                expect(str).to.eq(`<html><head> <meta name="product" id="1235"><script puzzle-dependency="Product Bundle" src="http://my-test-gateway-chunked.com/product/static/bundle.min.js" type="text/javascript"/></head><body><div></div></body></html>`);
+                            } catch (e) {
+                                err = e;
+                            }
+                            done(err);
+                        },
+                        set(headerName: string, value: string) {
+
+                        }
+                    }));
+                });
+            });
+
+            it('should append asset location for fragment with multiple partial, CONTENT_END - External', (done) => {
+                const productScript = `console.log('Product Script')`;
+
+                const scope = nock('http://my-test-gateway-chunked.com')
+                    .get('/product/')
+                    .query({
+                        __renderMode: FRAGMENT_RENDER_MODES.STREAM
+                    })
+                    .reply(200, {
+                        main: 'Trendyol',
+                        footer: 'Footer Content'
+                    })
+                    .get('/product/static/bundle.min.js')
+                    .reply(200, productScript);
+
+
+                const template = new Template(`
+                    <template>
+                        <html>
+                            <head>
+
+                            </head>
+                            <body>
+                            <div>
+                                <fragment from="Browsing" name="product"></fragment>
+                            </div>
+                            <fragment from="Browsing" name="product" partial="footer"></fragment>
+                            </body>
+                        </html>
+                    </template>
+                `);
+
+                template.getDependencies();
+
+                template.fragments.product.update({
+                    render: {
+                        url: '/',
+                        placeholder: false
+                    },
+                    dependencies: [],
+                    assets: [
+                        {
+                            name: 'Product Bundle',
+                            fileName: 'bundle.min.js',
+                            type: RESOURCE_TYPE.JS,
+                            injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
+                            location: RESOURCE_LOCATION.CONTENT_END
+                        }
+                    ],
+                    testCookie: 'test',
+                    version: '1.0.0'
+                }, 'http://my-test-gateway-chunked.com');
+
+                let err: boolean | null = null;
+                let chunks: string[] = [];
+
+                template.compile({}).then(handler => {
+                    handler({}, createExpressMock({
+                        write(str: string) {
+                            chunks.push(str);
+                        },
+                        end(str: string) {
+                            chunks.push(str);
+                            try {
+                                expect(chunks[0]).to.eq(`<html><head>${CONTENT_REPLACE_SCRIPT}</head><body><div><div puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main"></div></div><div puzzle-fragment="product" puzzle-gateway="Browsing" fragment-partial="footer" puzzle-chunk="product_footer"></div>`);
+                                expect(chunks[1]).to.eq(`<div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Trendyol</div><script>$p('[puzzle-chunk="product_main"]','[puzzle-chunk-key="product_main"]');</script><div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_footer">Footer Content</div><script>$p('[puzzle-chunk="product_footer"]','[puzzle-chunk-key="product_footer"]');</script><script puzzle-dependency="Product Bundle" src="http://my-test-gateway-chunked.com/product/static/bundle.min.js" type="text/javascript"/>`);
+                                expect(chunks[2]).to.eq(`</body></html>`);
+                            } catch (e) {
+                                err = e;
+                            }
+                            done(err);
+                        },
+                        set(headerName: string, value: string) {
+
+                        }
+                    }));
+                });
+            });
         });
-    });
+
+        describe('CSS Asset locations', () => {
+            it('should inject style into head for normal fragment', done => {
+                const productScript = `.test{color:red;}   .test{background-color:blue;}`;
+
+                const scope = nock('http://my-test-gateway-chunked.com')
+                    .get('/product/')
+                    .query({
+                        __renderMode: FRAGMENT_RENDER_MODES.STREAM
+                    })
+                    .reply(200, {
+                        main: 'Trendyol',
+                    })
+                    .get('/product/static/bundle.min.css')
+                    .reply(200, productScript);
+
+
+                const template = new Template(`
+                    <template>
+                        <html>
+                            <head>
+
+                            </head>
+                            <body>
+                            <div>
+                                <fragment from="Browsing" name="product"></fragment>
+                            </div>
+                            </body>
+                        </html>
+                    </template>
+                `);
+
+                template.getDependencies();
+
+                template.fragments.product.update({
+                    render: {
+                        url: '/',
+                        placeholder: false
+                    },
+                    dependencies: [],
+                    assets: [
+                        {
+                            name: 'Product Bundle',
+                            fileName: 'bundle.min.css',
+                            type: RESOURCE_TYPE.CSS,
+                            injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
+                            location: RESOURCE_LOCATION.HEAD
+                        }
+                    ],
+                    testCookie: 'test',
+                    version: '1.0.0'
+                }, 'http://my-test-gateway-chunked.com');
+
+                let err: boolean | null = null;
+                let chunks: string[] = [];
+
+                template.compile({}).then(handler => {
+                    handler({}, createExpressMock({
+                        write(str: string) {
+                            chunks.push(str);
+                        },
+                        end(str: string) {
+                            chunks.push(str);
+                            try {
+                                expect(chunks[0]).to.eq(`<html><head>${CONTENT_REPLACE_SCRIPT}<style>.test{color:red;background-color:#00f}</style></head><body><div><div puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main"></div></div>`);
+                                expect(chunks[1]).to.eq(`<div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Trendyol</div><script>$p('[puzzle-chunk="product_main"]','[puzzle-chunk-key="product_main"]');</script>`);
+                                expect(chunks[2]).to.eq(`</body></html>`);
+                            } catch (e) {
+                                err = e;
+                            }
+                            done(err);
+                        },
+                        set(headerName: string, value: string) {
+
+                        }
+                    }));
+                });
+            });
+
+            it('should inject style into head for multiple fragment styles', done => {
+                const scope = nock('http://my-test-gateway-chunked.com')
+                    .get('/product/')
+                    .query({
+                        __renderMode: FRAGMENT_RENDER_MODES.STREAM
+                    })
+                    .reply(200, {
+                        main: 'Trendyol',
+                    })
+                    .get('/product/static/bundle.min.css')
+                    .reply(200, '.hover{background-color:red;}.valid{color:green;}.test:{color:red;}')
+                    .get('/footer/')
+                    .query({
+                        __renderMode: FRAGMENT_RENDER_MODES.STREAM
+                    })
+                    .reply(200, {
+                        main: 'Footer',
+                    })
+                    .get('/footer/static/bundle.min.css')
+                    .reply(200, '.valid{text-align: center;}');
+
+
+                const template = new Template(`
+                    <template>
+                        <html>
+                            <head>
+
+                            </head>
+                            <body>
+                            <div>
+                                <fragment from="Browsing" name="product"></fragment>
+                            </div>
+                            <fragment from="Browsing" name="footer"></fragment>
+                            </body>
+                        </html>
+                    </template>
+                `);
+
+                template.getDependencies();
+
+                template.fragments.product.update({
+                    render: {
+                        url: '/',
+                        placeholder: false
+                    },
+                    dependencies: [],
+                    assets: [
+                        {
+                            name: 'Product Bundle',
+                            fileName: 'bundle.min.css',
+                            type: RESOURCE_TYPE.CSS,
+                            injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
+                            location: RESOURCE_LOCATION.HEAD
+                        }
+                    ],
+                    testCookie: 'test',
+                    version: '1.0.0'
+                }, 'http://my-test-gateway-chunked.com');
+
+                template.fragments.footer.update({
+                    render: {
+                        url: '/',
+                        placeholder: false
+                    },
+                    dependencies: [],
+                    assets: [
+                        {
+                            name: 'Footer Bundle',
+                            fileName: 'bundle.min.css',
+                            type: RESOURCE_TYPE.CSS,
+                            injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
+                            location: RESOURCE_LOCATION.HEAD
+                        }
+                    ],
+                    testCookie: 'test',
+                    version: '1.0.0'
+                }, 'http://my-test-gateway-chunked.com');
+
+                let err: boolean | null = null;
+                let chunks: string[] = [];
+
+                template.compile({}).then(handler => {
+                    handler({}, createExpressMock({
+                        write(str: string) {
+                            chunks.push(str);
+                        },
+                        end(str: string) {
+                            chunks.push(str);
+                            try {
+                                expect(chunks[0]).to.eq(`<html><head>${CONTENT_REPLACE_SCRIPT}<style>.hover{background-color:red}.valid{color:green;text-align:center}.test:{color:red}</style></head><body><div><div puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main"></div></div><div puzzle-fragment="footer" puzzle-gateway="Browsing" puzzle-chunk="footer_main"></div>`);
+                            } catch (e) {
+                                err = e;
+                            }
+                            done(err);
+                        },
+                        set(headerName: string, value: string) {
+
+                        }
+                    }));
+                });
+            });
+        });
+     });
 });
