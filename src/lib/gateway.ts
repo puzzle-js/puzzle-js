@@ -11,11 +11,12 @@ import async from "async";
 import {Server} from "./server";
 import * as path from "path";
 import express from "express";
+import {Api} from "./api";
 
 export class Gateway {
     name: string;
     url: string;
-    server: Server = new Server();
+
 
     constructor(gatewayConfig: IGatewayConfiguration) {
         this.name = gatewayConfig.name;
@@ -83,8 +84,11 @@ export class GatewayStorefrontInstance extends Gateway {
 
 export class GatewayBFF extends Gateway {
     exposedConfig: IExposeConfig;
+    server: Server = new Server();
     private config: IGatewayBFFConfiguration;
     private fragments: { [name: string]: FragmentBFF } = {};
+    private apis: { [name: string]: Api } = {};
+
 
     constructor(gatewayConfig: IGatewayBFFConfiguration) {
         super(gatewayConfig);
@@ -95,6 +99,8 @@ export class GatewayBFF extends Gateway {
 
     public init(cb?: Function) {
         async.series([
+            this.addPlaceholderRoutes.bind(this),
+            this.addApiRoutes.bind(this),
             this.addStaticRoutes.bind(this),
             this.addFragmentRoutes.bind(this),
             this.addConfigurationRoute.bind(this),
@@ -106,6 +112,14 @@ export class GatewayBFF extends Gateway {
                 throw err;
             }
         });
+    }
+
+    private addApiRoutes(cb: Function) {
+        this.config.api.forEach(apiConfig => {
+            this.apis[apiConfig.name] = new Api(apiConfig);
+            this.apis[apiConfig.name].registerEndpoints(this.server);
+        });
+        cb();
     }
 
     private createExposeConfig() {
@@ -173,6 +187,16 @@ export class GatewayBFF extends Gateway {
                 } else {
                     res.status(200).end(gatewayContent);
                 }
+            });
+        });
+
+        cb();
+    }
+
+    private addPlaceholderRoutes(cb: Function) {
+        this.config.fragments.forEach(fragment => {
+            this.server.addRoute(`/${fragment.name}/placeholder`, HTTP_METHODS.GET, (req, res, next) => {
+                res.end(this.fragments[fragment.name].placeholder(req, req.cookies[fragment.testCookie]));
             });
         });
 

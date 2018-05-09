@@ -5,7 +5,13 @@ import request from "supertest";
 import {IGatewayBFFConfiguration} from "../../src/types/gateway";
 import {render} from "typings/dist/support/cli";
 import {RENDER_MODE_QUERY_NAME} from "../../src/lib/config";
-import {FRAGMENT_RENDER_MODES, RESOURCE_INJECT_TYPE, RESOURCE_LOCATION, RESOURCE_TYPE} from "../../src/lib/enums";
+import {
+    FRAGMENT_RENDER_MODES,
+    HTTP_METHODS,
+    RESOURCE_INJECT_TYPE,
+    RESOURCE_LOCATION,
+    RESOURCE_TYPE
+} from "../../src/lib/enums";
 import * as path from "path";
 
 const commonGatewayConfiguration: IGatewayBFFConfiguration = {
@@ -293,8 +299,89 @@ export default () => {
             });
         });
 
-        it('should export api endpoints', () => {
+        it('should export api endpoints', (done) => {
+            const bff = new GatewayBFF({
+                ...commonGatewayConfiguration,
+                api: [
+                    {
+                        name: 'test',
+                        liveVersion: '1.0.0',
+                        testCookie: 'test_v',
+                        versions: {
+                            '1.0.0': [
+                                {
+                                    middlewares: [],
+                                    method: HTTP_METHODS.GET,
+                                    path: '/',
+                                    handler: (req: object, res: any) => {
+                                        res.end('working');
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            });
 
+            bff.init(() => {
+                request(commonGatewayConfiguration.url)
+                    .get('/api/test/')
+                    .expect(200)
+                    .end((err, res) => {
+                        bff.server.close();
+                        expect(res.text).to.eq('working');
+                        done(err);
+                    });
+            });
+        });
+
+        it('should respond with placeholder', (done) => {
+            const bff = new GatewayBFF({
+                ...commonGatewayConfiguration,
+                fragments: [
+                    {
+                        name: 'product',
+                        render: {
+                            url: '/',
+                            placeholder: true
+                        },
+                        testCookie: 'product-cookie',
+                        version: '1.0.0',
+                        versions: {
+                            '1.0.0': {
+                                assets: [],
+                                dependencies: [],
+                                handler: {
+                                    content(req, data) {
+                                        return {
+                                            main: `<div>Rendered Fragment ${data.username}</div>`
+                                        };
+                                    },
+                                    data(req) {
+                                        return {
+                                            username: 'ACG'
+                                        };
+                                    },
+                                    placeholder() {
+                                        return 'placeholder';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ]
+            });
+
+            bff.init(() => {
+                request(commonGatewayConfiguration.url)
+                    .get('/product/placeholder')
+                    .expect(200)
+                    .end((err, res) => {
+                        bff.server.close();
+                        expect(res.text).to.eq(`placeholder`);
+                        done(err);
+                    });
+            });
         });
     });
 }

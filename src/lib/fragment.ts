@@ -45,6 +45,15 @@ export class FragmentBFF extends Fragment {
             throw new Error(`Failed to find fragment version. Fragment: ${this.config.name}, Version: ${version || this.config.version}`);
         }
     }
+
+    placeholder(req: object, version?: string) {
+        const fragmentVersion = version && this.config.versions[version] ? this.config.versions[version] : this.config.versions[this.config.version];
+        if (fragmentVersion) {
+            return fragmentVersion.handler.placeholder();
+        } else {
+            throw new Error(`Failed to find fragment version. Fragment: ${this.config.name}, Version: ${version || this.config.version}`);
+        }
+    }
 }
 
 export class FragmentStorefront extends Fragment {
@@ -142,15 +151,15 @@ export class FragmentStorefront extends Fragment {
             });
     }
 
-    async getAsset(name: string){
-        if (!this.config){
+    async getAsset(name: string) {
+        if (!this.config) {
             //console.log('No config found')
             return null;
             //todo handle error
         }
 
         const asset = this.config.assets.find(asset => asset.name === name);
-        if(!asset){
+        if (!asset) {
             //console.log('Name not found');
             return null;
 
@@ -158,15 +167,15 @@ export class FragmentStorefront extends Fragment {
         }
 
         return fetch(`${this.fragmentUrl}/static/${asset.fileName}`).then(async res => {
-           return await res.text();
+            return await res.text();
         }).catch(e => {
             //todo handle request error
             return null;
-        })
+        });
     }
 
-    getAssetPath(name: string){
-        if (!this.config){
+    getAssetPath(name: string) {
+        if (!this.config) {
             //console.log('No config found')
             return null;
             //todo handle error
@@ -174,7 +183,7 @@ export class FragmentStorefront extends Fragment {
 
         const asset = this.config.assets.find(asset => asset.name === name);
 
-        if(!asset){
+        if (!asset) {
             //console.log('Name not found');
             return null;
 
