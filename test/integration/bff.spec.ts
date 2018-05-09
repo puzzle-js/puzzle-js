@@ -3,7 +3,6 @@ import {expect} from "chai";
 import {GatewayBFF} from "../../src/lib/gateway";
 import request from "supertest";
 import {IGatewayBFFConfiguration} from "../../src/types/gateway";
-import {render} from "typings/dist/support/cli";
 import {RENDER_MODE_QUERY_NAME} from "../../src/lib/config";
 import {
     FRAGMENT_RENDER_MODES,

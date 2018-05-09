@@ -23,9 +23,5 @@ export class Api {
                 app.addRoute(`/${API_ROUTE_PREFIX}/${this.config.name}/${version}${endpoint.path}`, endpoint.method, endpoint.handler, endpoint.middlewares);
             });
         });
-
-        app.addUse(null, (req, res) => {
-            console.log(req.url);
-        });
     }
 }
