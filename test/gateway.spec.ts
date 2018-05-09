@@ -15,7 +15,8 @@ export default () => {
                 fragments: [],
                 isMobile: true,
                 port: 4446,
-                url: 'http://localhost:4446/'
+                url: 'http://localhost:4446/',
+                fragmentsFolder: ''
             };
 
             it('should create new gateway', () => {

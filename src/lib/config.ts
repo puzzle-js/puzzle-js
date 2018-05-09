@@ -6,3 +6,4 @@ export const CONTENT_NOT_FOUND_ERROR = `<script>console.log('Fragment Part does 
 export const DEFAULT_CONTENT_TIMEOUT = 15000;
 export const RENDER_MODE_QUERY_NAME = '__renderMode';
 export const PREVIEW_PARTIAL_QUERY_NAME = '__renderMode';
+export const API_ROUTE_PREFIX = 'api';

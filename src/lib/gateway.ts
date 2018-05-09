@@ -9,6 +9,8 @@ import Timer = NodeJS.Timer;
 import {DEFAULT_POLLING_INTERVAL, PREVIEW_PARTIAL_QUERY_NAME, RENDER_MODE_QUERY_NAME} from "./config";
 import async from "async";
 import {Server} from "./server";
+import * as path from "path";
+import express from "express";
 
 export class Gateway {
     name: string;
@@ -93,9 +95,10 @@ export class GatewayBFF extends Gateway {
 
     public init(cb?: Function) {
         async.series([
+            this.addStaticRoutes.bind(this),
             this.addFragmentRoutes.bind(this),
             this.addConfigurationRoute.bind(this),
-            this.addHealtcheckRoute.bind(this)
+            this.addHealthCheckRoute.bind(this)
         ], err => {
             if (!err) {
                 this.server.listen(this.config.port, cb);
@@ -167,7 +170,7 @@ export class GatewayBFF extends Gateway {
                 if (renderMode === FRAGMENT_RENDER_MODES.STREAM) {
                     res.set('content-type', 'application/json');
                     res.status(200).end(gatewayContent);
-                }else{
+                } else {
                     res.status(200).end(gatewayContent);
                 }
             });
@@ -176,10 +179,27 @@ export class GatewayBFF extends Gateway {
         cb();
     }
 
-    private addHealtcheckRoute(cb: Function) {
+    private addStaticRoutes(cb: Function) {
+        this.config.fragments.forEach(fragment => {
+            this.server.addRoute(`/${fragment.name}/static/:staticName`, HTTP_METHODS.GET, (req, res, next) => {
+                req.url = path.join('/', fragment.name, req.cookies[fragment.testCookie] || fragment.version, '/static/', req.params.staticName);
+                next();
+            });
+
+            Object.keys(fragment.versions).forEach(version => {
+                const staticPath = path.join(this.config.fragmentsFolder, fragment.name, version, '/assets');
+                this.server.addUse(`/${fragment.name}/${version}/static/`, express.static(staticPath));
+            });
+        });
+
+        cb();
+    }
+
+    private addHealthCheckRoute(cb: Function) {
         this.server.addRoute('/healthcheck', HTTP_METHODS.GET, (req, res) => {
             res.status(200).end();
         });
+
         cb();
     }
 
@@ -187,6 +207,7 @@ export class GatewayBFF extends Gateway {
         this.server.addRoute('/', HTTP_METHODS.GET, (req, res) => {
             res.status(200).json(this.exposedConfig);
         });
+
         cb();
     }
 }

@@ -1,5 +1,6 @@
 import {IExposeFragment, IFragmentBFF} from "./fragment";
 import {GatewayStorefrontInstance} from "../lib/gateway";
+import {IApiHandler} from "../lib/api";
 
 export interface IGatewayMap {
     [name: string]: GatewayStorefrontInstance;
@@ -12,9 +13,10 @@ export interface IGatewayConfiguration {
 
 export interface IGatewayBFFConfiguration extends IGatewayConfiguration {
     fragments: IFragmentBFF[];
-    api: any[];
+    api: IApiHandler[];
     port: number;
     isMobile?: boolean;
+    fragmentsFolder: string;
 }
 
 export interface IExposeConfig {
