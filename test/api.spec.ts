@@ -1,7 +1,7 @@
-import {Api} from "../src/lib/api";
+import {Api} from "../src/api";
 import {expect} from "chai";
-import {HTTP_METHODS} from "../src/lib/enums";
-import {Server} from "../src/lib/server";
+import {HTTP_METHODS} from "../src/enums";
+import {Server} from "../src/server";
 import supertest from "supertest";
 
 

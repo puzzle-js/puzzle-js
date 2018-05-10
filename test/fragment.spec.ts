@@ -1,10 +1,11 @@
 import "mocha";
 import {expect} from "chai";
-import {FragmentBFF, FragmentStorefront} from "../src/lib/fragment";
-import {IExposeFragment, IFragmentBFF} from "../src/types/fragment";
+import {FragmentBFF, FragmentStorefront} from "../src/fragment";
+import {IExposeFragment} from "../src/gateway";
 import nock from "nock";
-import {FRAGMENT_RENDER_MODES, RESOURCE_INJECT_TYPE, RESOURCE_LOCATION, RESOURCE_TYPE} from "../src/lib/enums";
+import {FRAGMENT_RENDER_MODES, RESOURCE_INJECT_TYPE, RESOURCE_LOCATION, RESOURCE_TYPE} from "../src/enums";
 import {deepEqual} from "assert";
+import {IFragmentBFF} from "../src/fragment";
 
 export default () => {
     describe('Fragment', () => {

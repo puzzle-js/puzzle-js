@@ -1,5 +1,5 @@
 import nock from "nock";
-import {IExposeConfig} from "../../src/types/gateway";
+import {IExposeConfig} from "../../src/gateway";
 
 export const createGateway = (gatewayName: string, gatewayUrl: string, config: IExposeConfig, persist = false) => {
     let scope = nock(gatewayUrl);

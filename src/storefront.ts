@@ -1,8 +1,13 @@
-import {GatewayStorefrontInstance} from "./gateway";
-import {Page} from "./page";
-import {IGatewayMap} from "../types/gateway";
-import {IPageMap} from "../types/page";
-import {IStorefrontConfig} from "../types/storefront";
+import {GatewayStorefrontInstance, IGatewayConfiguration, IGatewayMap} from "./gateway";
+import {IPageConfiguration, Page} from "./page";
+import {IPageMap} from "./page";
+
+export interface IStorefrontConfig {
+    gateways: IGatewayConfiguration[];
+    port: number;
+    pages: IPageConfiguration[];
+    pollInterval?: number;
+}
 
 export class Storefront {
     pages: IPageMap = {};

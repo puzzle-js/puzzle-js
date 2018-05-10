@@ -1,7 +1,29 @@
-import {IFileResourceAsset, IFileResourceStorefrontDependency} from "../types/resource";
-import {RESOURCE_INJECT_TYPE, RESOURCE_TYPE} from "./enums";
+import {RESOURCE_INJECT_TYPE, RESOURCE_LOCATION, RESOURCE_TYPE} from "./enums";
 
 const singletonSymbol = Symbol();
+
+export interface IFileResource {
+    name: string;
+}
+
+export interface IFileResourceDependency extends IFileResource {
+    link?: string;
+    preview?: string;
+}
+
+export interface IFileResourceAsset extends IFileResource {
+    injectType: RESOURCE_INJECT_TYPE;
+    fileName: string;
+    location: RESOURCE_LOCATION; //Not important for css
+    type: RESOURCE_TYPE; //Not important for css
+}
+
+export interface IFileResourceStorefrontDependency {
+    name: string;
+    type: RESOURCE_TYPE;
+    content?: string;
+    link?: string;
+}
 
 class ResourceFactory {
     static singleton: boolean | ResourceFactory = false;

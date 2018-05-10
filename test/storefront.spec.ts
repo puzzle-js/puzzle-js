@@ -1,8 +1,8 @@
 import "mocha";
 import {expect} from "chai";
-import {Storefront} from "../src/lib/storefront";
-import {Page} from "../src/lib/page";
-import {GatewayStorefrontInstance} from "../src/lib/gateway";
+import {Storefront} from "../src/storefront";
+import {Page} from "../src/page";
+import {GatewayStorefrontInstance} from "../src/gateway";
 import * as fs from "fs";
 import * as path from "path";
 

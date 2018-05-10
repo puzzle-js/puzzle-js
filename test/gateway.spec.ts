@@ -1,11 +1,11 @@
 import "mocha";
 import {expect} from "chai";
-import {Gateway, GatewayBFF, GatewayStorefrontInstance} from "../src/lib/gateway";
-import {DEFAULT_MAIN_PARTIAL, EVENTS, FRAGMENT_RENDER_MODES, RESOURCE_LOCATION, RESOURCE_TYPE} from "../src/lib/enums";
-import {IGatewayBFFConfiguration} from "../src/types/gateway";
+import {Gateway, GatewayBFF, GatewayStorefrontInstance} from "../src/gateway";
+import {DEFAULT_MAIN_PARTIAL, EVENTS, FRAGMENT_RENDER_MODES, RESOURCE_LOCATION, RESOURCE_TYPE} from "../src/enums";
+import {IGatewayBFFConfiguration} from "../src/gateway";
 import nock from "nock";
 import {createGateway} from "./mock/mock";
-import {IFileResourceAsset} from "../src/types/resource";
+import {IFileResourceAsset} from "../src/resourceFactory";
 
 export default () => {
     describe('Gateway', () => {

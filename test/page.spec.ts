@@ -1,11 +1,11 @@
 import "mocha";
-import {Page} from "../src/lib/page";
+import {Page} from "../src/page";
 import {expect} from "chai";
 import * as fs from "fs";
 import * as path from "path";
-import {GatewayStorefrontInstance} from "../src/lib/gateway";
+import {GatewayStorefrontInstance} from "../src/gateway";
 import {createExpressMock, createGateway} from "./mock/mock";
-import {EVENTS} from "../src/lib/enums";
+import {EVENTS} from "../src/enums";
 
 export default () => {
     describe('Page', () => {

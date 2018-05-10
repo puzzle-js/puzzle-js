@@ -2,9 +2,8 @@ import {FragmentStorefront} from "./fragment";
 import cheerio from "cheerio";
 import {TemplateCompiler} from "./templateCompiler";
 import {CONTENT_NOT_FOUND_ERROR} from "./config";
-import {IPageDependentGateways} from "../types/page";
+import {IPageDependentGateways} from "./page";
 import async from "async";
-import {IReplaceAsset, IReplaceItem, IReplaceSet, IReplaceAssetSet} from "../types/template";
 import {
     CONTENT_REPLACE_SCRIPT,
     REPLACE_ITEM_TYPE,
@@ -12,35 +11,34 @@ import {
     RESOURCE_LOCATION,
     RESOURCE_TYPE
 } from "./enums";
-import {IfragmentContentResponse} from "../types/fragment";
-import ResourceFactory from "./resourceFactory";
-import {IFileResourceAsset} from "../types/resource";
+import ResourceFactory, {IFileResourceAsset} from "./resourceFactory";
 import CleanCSS from "clean-css";
+import {IFragmentContentResponse} from "./page";
 
 
-export class TemplateClass {
-    onCreate: Function | undefined;
-    onRequest: Function | undefined;
-    onChunk: Function | undefined;
-    onResponseEnd: Function | undefined;
+export interface IReplaceItem {
+    key: string;
+    type: REPLACE_ITEM_TYPE;
+    partial: string;
+}
 
-    _onCreate(...args: any[]) {
-        this.onCreate && this.onCreate(...args);
-    }
+export interface IReplaceSet {
+    fragment: FragmentStorefront;
+    replaceItems: IReplaceItem[];
+    fragmentAttributes: { [name: string]: string };
+}
 
-    _onRequest(...args: any[]) {
-        this.onRequest && this.onRequest(...args);
-    }
+export interface IReplaceAssetSet {
+    link: string | undefined | null;
+    content: string | undefined | null;
+    name: string;
+    location: RESOURCE_LOCATION,
+    injectType: RESOURCE_INJECT_TYPE
+}
 
-    _onChunk(...args: any[]) {
-        this.onChunk && this.onChunk(...args);
-    }
-
-    _onResponseEnd(...args: any[]) {
-        this.onResponseEnd && this.onResponseEnd(...args);
-    }
-
-    [name: string]: any;
+export interface IReplaceAsset {
+    fragment: FragmentStorefront,
+    replaceItems: IReplaceAssetSet[]
 }
 
 export class Template {
@@ -194,7 +192,7 @@ export class Template {
     private replaceStaticFragments(fragments: FragmentStorefront[]) {
         return new Promise((resolve, reject) => {
             async.each(fragments, async (fragment: FragmentStorefront, cb) => {
-                const fragmentContent: IfragmentContentResponse = await fragment.getContent();
+                const fragmentContent: IFragmentContentResponse = await fragment.getContent();
                 this.dom(`fragment[name="${fragment.name}"][from="${fragment.from}"]`).each((i, element) => {
                     const partial = this.dom(element).attr('partial') || 'main';
                     this.dom(element).replaceWith(`<div puzzle-fragment="${fragment.name}" puzzle-gateway="${fragment.from}" fragment-partial="${element.attribs.partial || 'main'}">${fragmentContent.html[partial] || CONTENT_NOT_FOUND_ERROR}</div>`);
@@ -585,3 +583,29 @@ export class Template {
         });
     }
 }
+
+export class TemplateClass {
+    onCreate: Function | undefined;
+    onRequest: Function | undefined;
+    onChunk: Function | undefined;
+    onResponseEnd: Function | undefined;
+
+    _onCreate(...args: any[]) {
+        this.onCreate && this.onCreate(...args);
+    }
+
+    _onRequest(...args: any[]) {
+        this.onRequest && this.onRequest(...args);
+    }
+
+    _onChunk(...args: any[]) {
+        this.onChunk && this.onChunk(...args);
+    }
+
+    _onResponseEnd(...args: any[]) {
+        this.onResponseEnd && this.onResponseEnd(...args);
+    }
+
+    [name: string]: any;
+}
+

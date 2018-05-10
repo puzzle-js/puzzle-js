@@ -1,13 +1,13 @@
 import "mocha";
 import {expect} from "chai";
-import {Template} from "../src/lib/template";
+import {Template} from "../src/template";
 import nock = require("nock");
 import {
     CONTENT_REPLACE_SCRIPT, FRAGMENT_RENDER_MODES, RESOURCE_INJECT_TYPE, RESOURCE_LOCATION,
     RESOURCE_TYPE
-} from "../src/lib/enums";
+} from "../src/enums";
 import {createExpressMock} from "./mock/mock";
-import ResourceFactory from "../src/lib/resourceFactory";
+import ResourceFactory from "../src/resourceFactory";
 
 export default () => {
     describe('Template', () => {

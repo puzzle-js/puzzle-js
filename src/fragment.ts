@@ -1,10 +1,58 @@
 import fetch from "node-fetch";
-import {IExposeFragment, IfragmentContentResponse, IFragmentStorefrontAttributes} from "../types/fragment";
-import {IFragment, IFragmentBFF} from "../types/fragment";
+import {IFragmentContentResponse} from "./page";
 import {FRAGMENT_RENDER_MODES} from "./enums";
 import * as querystring from "querystring";
 import {DEFAULT_CONTENT_TIMEOUT} from "./config";
+import {IFileResourceAsset, IFileResourceDependency} from "./resourceFactory";
+import {IExposeFragment} from "./gateway";
 
+export interface IFragmentCookieMap {
+    name: string;
+    live: string;
+}
+
+export interface IFragment {
+    name: string;
+}
+
+export interface IFragmentBFFRender {
+    static?: boolean;
+    url: string;
+    routeCache?: number;
+    selfReplace?: boolean;
+    middlewares?: [Function[]];
+    cacheControl?: string;
+    placeholder?: boolean;
+    timeout?: number;
+}
+
+export interface IFragmentHandler {
+    content: (req: object, data?: any) => {
+        main: string;
+        [name: string]: string;
+    };
+    placeholder: () => string;
+    data: (req: object) => any;
+}
+
+export interface IFragmentBFFVersion {
+    assets: IFileResourceAsset[];
+    dependencies: IFileResourceDependency[];
+    handler: IFragmentHandler;
+}
+
+export interface IFragmentBFF extends IFragment {
+    versions: {
+        [version: string]: IFragmentBFFVersion
+    };
+    version: string;
+    testCookie: string;
+    render: IFragmentBFFRender;
+}
+
+export interface IFragmentMap {
+    [name: string]: Fragment;
+}
 
 export class Fragment {
     name: string;
@@ -107,9 +155,9 @@ export class FragmentStorefront extends Fragment {
      *  status: gateway status response code
      * }
      * @param attribs
-     * @returns {Promise<IfragmentContentResponse>}
+     * @returns {Promise<IFragmentContentResponse>}
      */
-    async getContent(attribs: any = {}): Promise<IfragmentContentResponse> {
+    async getContent(attribs: any = {}): Promise<IFragmentContentResponse> {
         if (!this.config) {
             //todo error handling
             console.error(`No config provided for fragment: ${this.name}`);
@@ -193,3 +241,4 @@ export class FragmentStorefront extends Fragment {
         return `${this.fragmentUrl}/static/${asset.fileName}`;
     }
 }
+

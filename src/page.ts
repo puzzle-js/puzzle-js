@@ -1,16 +1,53 @@
 import {Template} from "./template";
-import {GatewayStorefrontInstance} from "./gateway";
+import {GatewayStorefrontInstance, IGatewayMap} from "./gateway";
 import {EVENTS} from "./enums";
-import {IGatewayMap} from "../types/gateway";
-import {IfragmentCookieMap, IPageDependentGateways, IResponseHandlers} from "../types/page";
-import {ICookieObject} from "../types/common";
+import {FragmentStorefront, IFragmentCookieMap} from "./fragment";
+
+export interface ICookieObject {
+    [name: string]: string;
+}
+
+export interface IFragmentContentResponse {
+    status: number;
+    html: {
+        [name: string]: string;
+    };
+}
+
+export interface IPageDependentGateways {
+    gateways: {
+        [name: string]: {
+            gateway: GatewayStorefrontInstance | null,
+            ready: boolean
+        }
+    },
+    fragments: {
+        [name: string]: {
+            instance: FragmentStorefront,
+            gateway: string
+        }
+    }
+}
+
+export interface IPageConfiguration {
+    html: string;
+    url: string;
+}
+
+export interface IPageMap {
+    [url: string]: Page;
+}
+
+export interface IResponseHandlers {
+    [versionsHash: string]: (req: object, res: object) => void;
+}
 
 export class Page {
     ready = false;
     gatewayDependencies: IPageDependentGateways;
     responseHandlers: IResponseHandlers = {};
     private template: Template;
-    private fragmentCookieList: IfragmentCookieMap[] = [];
+    private fragmentCookieList: IFragmentCookieMap[] = [];
 
     constructor(html: string, gatewayMap: IGatewayMap) {
         this.template = new Template(html);
@@ -69,10 +106,10 @@ export class Page {
 
     /**
      * Fragments test cookie list
-     * @returns {IfragmentCookieMap[]}
+     * @returns {IFragmentCookieMap[]}
      */
     private getFragmentTestCookieList() {
-        const cookieList: IfragmentCookieMap[] = [];
+        const cookieList: IFragmentCookieMap[] = [];
         Object.values(this.gatewayDependencies.fragments).forEach(fragment => {
             if (fragment.instance.config) {
                 cookieList.push({

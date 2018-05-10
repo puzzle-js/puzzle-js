@@ -1,18 +1,18 @@
 import "mocha";
 import {expect} from "chai";
-import {GatewayBFF} from "../../src/lib/gateway";
+import {GatewayBFF} from "../../src/gateway";
 import request from "supertest";
-import {IGatewayBFFConfiguration} from "../../src/types/gateway";
-import {PREVIEW_PARTIAL_QUERY_NAME, RENDER_MODE_QUERY_NAME} from "../../src/lib/config";
+import {IGatewayBFFConfiguration} from "../../src/gateway";
+import {PREVIEW_PARTIAL_QUERY_NAME, RENDER_MODE_QUERY_NAME} from "../../src/config";
 import {
     FRAGMENT_RENDER_MODES,
     HTTP_METHODS,
     RESOURCE_INJECT_TYPE,
     RESOURCE_LOCATION,
     RESOURCE_TYPE
-} from "../../src/lib/enums";
+} from "../../src/enums";
 import * as path from "path";
-import {IFileResourceAsset} from "../../src/types/resource";
+import {IFileResourceAsset} from "../../src/resourceFactory";
 
 const commonGatewayConfiguration: IGatewayBFFConfiguration = {
     api: [],

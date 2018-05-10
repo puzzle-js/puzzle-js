@@ -1,9 +1,9 @@
 import "mocha";
 import {expect} from "chai";
-import {Server} from "../src/lib/server";
+import {Server} from "../src/server";
 import request from "supertest";
 import * as path from "path";
-import {HTTP_METHODS} from "../src/lib/enums";
+import {HTTP_METHODS} from "../src/enums";
 import * as fs from "fs";
 
 const TEST_CONFIG = {

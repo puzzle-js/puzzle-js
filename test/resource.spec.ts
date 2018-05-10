@@ -1,7 +1,7 @@
 import "mocha";
 import {expect} from "chai";
-import ResourceFactory from "../src/lib/resourceFactory";
-import {RESOURCE_TYPE} from "../src/lib/enums";
+import ResourceFactory from "../src/resourceFactory";
+import {RESOURCE_TYPE} from "../src/enums";
 
 export default () => {
     describe('Resource Factory', () => {

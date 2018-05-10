@@ -1,6 +1,6 @@
 import md5 from "md5";
 import {EventEmitter} from "events";
-import {FragmentBFF} from "./fragment";
+import {FragmentBFF, IFragmentBFF, IFragmentBFFRender} from "./fragment";
 import {
     DEFAULT_MAIN_PARTIAL,
     EVENTS,
@@ -9,17 +9,48 @@ import {
     RESOURCE_LOCATION,
     RESOURCE_TYPE
 } from "./enums";
-import {IExposeConfig, IGatewayBFFConfiguration, IGatewayConfiguration} from "../types/gateway";
 import fetch from "node-fetch";
-import {IExposeFragment} from "../types/fragment";
-import Timer = NodeJS.Timer;
 import {DEFAULT_POLLING_INTERVAL, PREVIEW_PARTIAL_QUERY_NAME, RENDER_MODE_QUERY_NAME} from "./config";
 import async from "async";
 import {Server} from "./server";
 import * as path from "path";
 import express from "express";
-import {Api} from "./api";
+import {Api, IApiConfig} from "./api";
 import cheerio from "cheerio";
+import {IFileResourceAsset, IFileResourceDependency} from "./resourceFactory";
+import Timer = NodeJS.Timer;
+
+export interface IExposeFragment {
+    version: string;
+    testCookie: string;
+    render: IFragmentBFFRender;
+    assets: IFileResourceAsset[];
+    dependencies: IFileResourceDependency[];
+}
+
+export interface IGatewayMap {
+    [name: string]: GatewayStorefrontInstance;
+}
+
+export interface IGatewayConfiguration {
+    name: string;
+    url: string;
+}
+
+export interface IGatewayBFFConfiguration extends IGatewayConfiguration {
+    fragments: IFragmentBFF[];
+    api: IApiConfig[];
+    port: number;
+    isMobile?: boolean;
+    fragmentsFolder: string;
+}
+
+export interface IExposeConfig {
+    hash: string;
+    fragments: {
+        [name: string]: IExposeFragment
+    };
+}
 
 export class Gateway {
     name: string;
@@ -35,7 +66,7 @@ export class Gateway {
 export class GatewayStorefrontInstance extends Gateway {
     events: EventEmitter = new EventEmitter();
     config: IExposeConfig | undefined;
-    private intervalId: Timer | null = null;
+    private intervalId: Timer | null | number= null;
 
     constructor(gatewayConfig: IGatewayConfiguration) {
         super(gatewayConfig);
@@ -56,7 +87,7 @@ export class GatewayStorefrontInstance extends Gateway {
      */
     stopUpdating() {
         if (this.intervalId) {
-            clearInterval(this.intervalId);
+            clearInterval(this.intervalId as Timer);
         }
     }
 
@@ -271,3 +302,4 @@ export class GatewayBFF extends Gateway {
         cb();
     }
 }
+

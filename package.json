@@ -1,8 +1,8 @@
 {
   "name": "ty-puzzlejs",
-  "version": "1.0.0",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "version": "2.1.4",
+  "main": "./dist/index.js",
+  "types": "./dist/types.d.ts",
   "license": "MIT",
   "devDependencies": {
     "@types/async": "^2.0.49",
@@ -35,10 +35,11 @@
     "email": "ahmetcanguven44@gmail.com"
   },
   "scripts": {
-    "prepublish": "yarn build",
+    "prepublish": "yarn build & yarn test",
     "build": "tsc",
     "test": "nyc --check-coverage --lines=90 mocha -r ts-node/register test/root.spec.ts",
-    "test:watch": "mocha --watch --require ts-node/register --watch-extensions ts,tsx test/root.spec.ts"
+    "test:watch": "mocha --watch --require ts-node/register --watch-extensions ts,tsx test/root.spec.ts",
+    "publish:beta": "yarn publish --tag=beta"
   },
   "dependencies": {
     "async": "^2.6.0",
@@ -63,7 +64,9 @@
       "**/*.d.ts",
       "test/**",
       "dist/**",
-      "coverage/**"
+      "coverage/**",
+      "demo",
+      "src/types"
     ],
     "reporter": [
       "text"
