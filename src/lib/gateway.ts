@@ -1,7 +1,14 @@
 import md5 from "md5";
 import {EventEmitter} from "events";
 import {FragmentBFF} from "./fragment";
-import {DEFAULT_MAIN_PARTIAL, EVENTS, FRAGMENT_RENDER_MODES, HTTP_METHODS} from "./enums";
+import {
+    DEFAULT_MAIN_PARTIAL,
+    EVENTS,
+    FRAGMENT_RENDER_MODES,
+    HTTP_METHODS,
+    RESOURCE_LOCATION,
+    RESOURCE_TYPE
+} from "./enums";
 import {IExposeConfig, IGatewayBFFConfiguration, IGatewayConfiguration} from "../types/gateway";
 import fetch from "node-fetch";
 import {IExposeFragment} from "../types/fragment";
@@ -12,6 +19,7 @@ import {Server} from "./server";
 import * as path from "path";
 import express from "express";
 import {Api} from "./api";
+import cheerio from "cheerio";
 
 export class Gateway {
     name: string;
@@ -156,7 +164,7 @@ export class GatewayBFF extends Gateway {
                 case FRAGMENT_RENDER_MODES.STREAM:
                     return JSON.stringify(fragmentContent);
                 case FRAGMENT_RENDER_MODES.PREVIEW:
-                    return this.wrapFragmentContent(fragmentContent[partial], fragmentName);
+                    return this.wrapFragmentContent(fragmentContent[partial], this.fragments[fragmentName], cookieValue);
                 default:
                     return JSON.stringify(fragmentContent);
             }
@@ -171,8 +179,36 @@ export class GatewayBFF extends Gateway {
      * @param {string} fragmentName
      * @returns {string}
      */
-    private wrapFragmentContent(htmlContent: string, fragmentName: string) {
-        return `<html><head><title>${this.config.name} - ${fragmentName}</title>${this.config.isMobile ? '<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />' : ''}</head><body>${htmlContent}</body></html>`;
+    private wrapFragmentContent(htmlContent: string, fragment: FragmentBFF, cookieValue: string | undefined) {
+        const dom = cheerio.load(`<html><head><title>${this.config.name} - ${fragment.name}</title>${this.config.isMobile ? '<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />' : ''}</head><body><div id="${fragment.name}">${htmlContent}</div></body></html>`);
+
+        const fragmentVersion = cookieValue && fragment.config.versions[cookieValue] ? fragment.config.versions[cookieValue] : fragment.config.versions[fragment.config.version];
+
+        fragmentVersion.assets.forEach(asset => {
+            if (asset.type === RESOURCE_TYPE.JS) {
+                switch (asset.location) {
+                    case RESOURCE_LOCATION.HEAD:
+                        dom('head').append(`<script puzzle-asset="${asset.name}" src="/${fragment.name}/static/${asset.fileName}" type="text/javascript"></script>`);
+                        break;
+                    case RESOURCE_LOCATION.CONTENT_START:
+                        dom('body').prepend(`<script puzzle-asset="${asset.name}" src="/${fragment.name}/static/${asset.fileName}" type="text/javascript"></script>`);
+                        break;
+                    case RESOURCE_LOCATION.BODY_START:
+                        dom('body').prepend(`<script puzzle-asset="${asset.name}" src="/${fragment.name}/static/${asset.fileName}" type="text/javascript"></script>`);
+                        break;
+                    case RESOURCE_LOCATION.CONTENT_END:
+                        dom('body').append(`<script puzzle-asset="${asset.name}" src="/${fragment.name}/static/${asset.fileName}" type="text/javascript"></script>`);
+                        break;
+                    case RESOURCE_LOCATION.BODY_END:
+                        dom('body').append(`<script puzzle-asset="${asset.name}" src="/${fragment.name}/static/${asset.fileName}" type="text/javascript"></script>`);
+                        break;
+                }
+            } else if (asset.type === RESOURCE_TYPE.CSS) {
+                dom('head').append(`<link puzzle-asset="${asset.name}" rel="stylesheet" href="/${fragment.name}/static/${asset.fileName}" />`);
+            }
+        });
+
+        return dom.html();
     }
 
     private addFragmentRoutes(cb: Function) {

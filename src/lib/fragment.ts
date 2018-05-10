@@ -15,7 +15,7 @@ export class Fragment {
 }
 
 export class FragmentBFF extends Fragment {
-    private config: IFragmentBFF;
+    public config: IFragmentBFF;
 
     constructor(config: IFragmentBFF) {
         super({name: config.name});

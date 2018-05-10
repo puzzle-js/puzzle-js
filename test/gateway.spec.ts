@@ -1,10 +1,11 @@
 import "mocha";
 import {expect} from "chai";
 import {Gateway, GatewayBFF, GatewayStorefrontInstance} from "../src/lib/gateway";
-import {DEFAULT_MAIN_PARTIAL, EVENTS, FRAGMENT_RENDER_MODES} from "../src/lib/enums";
+import {DEFAULT_MAIN_PARTIAL, EVENTS, FRAGMENT_RENDER_MODES, RESOURCE_LOCATION, RESOURCE_TYPE} from "../src/lib/enums";
 import {IGatewayBFFConfiguration} from "../src/types/gateway";
 import nock from "nock";
 import {createGateway} from "./mock/mock";
+import {IFileResourceAsset} from "../src/types/resource";
 
 export default () => {
     describe('Gateway', () => {
@@ -159,7 +160,72 @@ export default () => {
                 const bffGw = new GatewayBFF(gatewayConfiguration);
                 const gwResponse = await bffGw.renderFragment('boutique-list', FRAGMENT_RENDER_MODES.PREVIEW, DEFAULT_MAIN_PARTIAL);
                 if (!gwResponse) throw new Error('No response from gateway');
-                expect(gwResponse).to.eq(`<html><head><title>Browsing - boutique-list</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" /></head><body>test</body></html>`);
+                expect(gwResponse).to.eq(`<html><head><title>Browsing - boutique-list</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"></head><body><div id="boutique-list">test</div></body></html>`);
+            });
+
+            it('should render fragment in preview mode with all assets', async () => {
+                const gatewayConfiguration: IGatewayBFFConfiguration = {
+                    ...commonGatewayConfiguration,
+                    fragments: [
+                        {
+                            name: 'boutique-list',
+                            version: 'test',
+                            render: {
+                                url: '/'
+                            },
+                            testCookie: 'fragment_test',
+                            versions: {
+                                'test': {
+                                    assets: [
+                                        {
+                                            fileName: 'head.min.js',
+                                            type: RESOURCE_TYPE.JS,
+                                            location: RESOURCE_LOCATION.HEAD,
+                                            name: 'head'
+                                        },
+                                        {
+                                            fileName: 'bundle.min.js',
+                                            type: RESOURCE_TYPE.JS,
+                                            location: RESOURCE_LOCATION.CONTENT_START,
+                                            name: 'cs'
+                                        },
+                                        {
+                                            fileName: 'bundle.min.js',
+                                            type: RESOURCE_TYPE.JS,
+                                            location: RESOURCE_LOCATION.BODY_START,
+                                            name: 'bs'
+                                        },
+                                        {
+                                            fileName: 'bundle.min.js',
+                                            type: RESOURCE_TYPE.JS,
+                                            location: RESOURCE_LOCATION.CONTENT_END,
+                                            name: 'ce'
+                                        },
+                                        {
+                                            fileName: 'bundle.min.js',
+                                            type: RESOURCE_TYPE.JS,
+                                            location: RESOURCE_LOCATION.BODY_END,
+                                            name: 'be'
+                                        }
+                                        ,{
+                                            fileName: 'bundle.min.css',
+                                            type: RESOURCE_TYPE.CSS,
+                                            location: RESOURCE_LOCATION.HEAD,
+                                            name: 'headcss'
+                                        },
+                                    ] as IFileResourceAsset[],
+                                    dependencies: [],
+                                    handler: require('./fragments/boutique-list/test')
+                                }
+                            }
+                        }
+                    ]
+                };
+
+                const bffGw = new GatewayBFF(gatewayConfiguration);
+                const gwResponse = await bffGw.renderFragment('boutique-list', FRAGMENT_RENDER_MODES.PREVIEW, DEFAULT_MAIN_PARTIAL);
+                if (!gwResponse) throw new Error('No response from gateway');
+                expect(gwResponse).to.eq(`<html><head><title>Browsing - boutique-list</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><script puzzle-asset="head" src="/boutique-list/static/head.min.js" type="text/javascript"></script><link puzzle-asset="headcss" rel="stylesheet" href="/boutique-list/static/bundle.min.css"></head><body><script puzzle-asset="bs" src="/boutique-list/static/bundle.min.js" type="text/javascript"></script><script puzzle-asset="cs" src="/boutique-list/static/bundle.min.js" type="text/javascript"></script><div id="boutique-list">test</div><script puzzle-asset="ce" src="/boutique-list/static/bundle.min.js" type="text/javascript"></script><script puzzle-asset="be" src="/boutique-list/static/bundle.min.js" type="text/javascript"></script></body></html>`);
             });
 
             it('should throw error at render when fragment name not found', done => {

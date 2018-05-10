@@ -3,7 +3,7 @@ import {expect} from "chai";
 import {GatewayBFF} from "../../src/lib/gateway";
 import request from "supertest";
 import {IGatewayBFFConfiguration} from "../../src/types/gateway";
-import {RENDER_MODE_QUERY_NAME} from "../../src/lib/config";
+import {PREVIEW_PARTIAL_QUERY_NAME, RENDER_MODE_QUERY_NAME} from "../../src/lib/config";
 import {
     FRAGMENT_RENDER_MODES,
     HTTP_METHODS,
@@ -12,6 +12,7 @@ import {
     RESOURCE_TYPE
 } from "../../src/lib/enums";
 import * as path from "path";
+import {IFileResourceAsset} from "../../src/types/resource";
 
 const commonGatewayConfiguration: IGatewayBFFConfiguration = {
     api: [],
@@ -70,7 +71,15 @@ export default () => {
                         version: '1.0.0',
                         versions: {
                             '1.0.0': {
-                                assets: [],
+                                assets: [
+                                    {
+                                        name: 'bundle',
+                                        location: RESOURCE_LOCATION.CONTENT_END,
+                                        type: RESOURCE_TYPE.JS,
+                                        fileName: 'bundle.min.js',
+                                        injectType: RESOURCE_INJECT_TYPE.EXTERNAL
+                                    }
+                                ] as IFileResourceAsset[],
                                 dependencies: [],
                                 handler: {
                                     content(req, data) {
@@ -99,7 +108,65 @@ export default () => {
                     .expect(200)
                     .end((err, res) => {
                         bff.server.close();
-                        expect(res.text).to.eq(`<html><head><title>Browsing - product</title></head><body><div>Rendered Fragment ACG</div></body></html>`);
+                        expect(res.text).to.eq(`<html><head><title>Browsing - product</title></head><body><div id="product"><div>Rendered Fragment ACG</div></div><script puzzle-asset="bundle" src="/product/static/bundle.min.js" type="text/javascript"></script></body></html>`);
+                        done(err);
+                    });
+            });
+        });
+
+        it('should export fragment content in preview mode with desired partial', (done) => {
+            const bff = new GatewayBFF({
+                ...commonGatewayConfiguration,
+                fragments: [
+                    {
+                        name: 'product',
+                        render: {
+                            url: '/'
+                        },
+                        testCookie: 'product-cookie',
+                        version: '1.0.0',
+                        versions: {
+                            '1.0.0': {
+                                assets: [
+                                    {
+                                        name: 'bundle',
+                                        location: RESOURCE_LOCATION.CONTENT_END,
+                                        type: RESOURCE_TYPE.JS,
+                                        fileName: 'bundle.min.js',
+                                        injectType: RESOURCE_INJECT_TYPE.EXTERNAL
+                                    }
+                                ] as IFileResourceAsset[],
+                                dependencies: [],
+                                handler: {
+                                    content(req, data) {
+                                        return {
+                                            main: `<div>Rendered Fragment ${data.username}</div>`,
+                                            another: `<div>another partial</div>`
+                                        };
+                                    },
+                                    data(req) {
+                                        return {
+                                            username: 'ACG'
+                                        };
+                                    },
+                                    placeholder() {
+                                        return '';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ]
+            });
+
+            bff.init(() => {
+                request(commonGatewayConfiguration.url)
+                    .get('/product/')
+                    .query({[PREVIEW_PARTIAL_QUERY_NAME]: 'another'})
+                    .expect(200)
+                    .end((err, res) => {
+                        bff.server.close();
+                        expect(res.text).to.eq(`<html><head><title>Browsing - product</title></head><body><div id="product"><div>another partial</div></div><script puzzle-asset="bundle" src="/product/static/bundle.min.js" type="text/javascript"></script></body></html>`);
                         done(err);
                     });
             });
@@ -329,6 +396,53 @@ export default () => {
                     .end((err, res) => {
                         bff.server.close();
                         expect(res.text).to.eq('working');
+                        done(err);
+                    });
+            });
+        });
+
+        it('should export api endpoints with test cookie', (done) => {
+            const bff = new GatewayBFF({
+                ...commonGatewayConfiguration,
+                api: [
+                    {
+                        name: 'test',
+                        liveVersion: '1.0.0',
+                        testCookie: 'test_v',
+                        versions: {
+                            '1.0.0': [
+                                {
+                                    middlewares: [],
+                                    method: HTTP_METHODS.GET,
+                                    path: '/',
+                                    handler: (req: object, res: any) => {
+                                        res.end('working');
+                                    }
+                                }
+                            ],
+                            '1.0.1': [
+                                {
+                                    middlewares: [],
+                                    method: HTTP_METHODS.GET,
+                                    path: '/',
+                                    handler: (req: object, res: any) => {
+                                        res.end('working1.0.1');
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            });
+
+            bff.init(() => {
+                request(commonGatewayConfiguration.url)
+                    .get('/api/test/')
+                    .set('Cookie', `test_v=1.0.1`)
+                    .expect(200)
+                    .end((err, res) => {
+                        bff.server.close();
+                        expect(res.text).to.eq('working1.0.1');
                         done(err);
                     });
             });
