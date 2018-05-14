@@ -252,7 +252,7 @@ export class GatewayBFF extends Gateway {
                     res.set('content-type', 'application/json');
                     res.status(200).end(gatewayContent);
                 } else {
-                    res.status(200).end(gatewayContent);
+                    res.status(200).send(gatewayContent);
                 }
             });
         });
