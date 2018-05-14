@@ -45,13 +45,21 @@ export class Template {
     dom: CheerioStatic;
     fragments: { [name: string]: FragmentStorefront } = {};
     pageClass: TemplateClass = new TemplateClass();
+    private rawHtml: string;
 
     constructor(rawHtml: string) {
+        this.rawHtml = rawHtml;
         this.dom = this.loadRawHtml(rawHtml);
 
         this.bindPageClass(rawHtml);
 
         this.pageClass._onCreate();
+    }
+
+    public reload() {
+        this.dom = this.loadRawHtml(this.rawHtml);
+
+
     }
 
     /**
@@ -95,6 +103,7 @@ export class Template {
      */
     getDependencies() {
         let primaryName: string | null = null;
+        this.dom = this.loadRawHtml(this.rawHtml);
 
         return this.dom('fragment').toArray().reduce((dependencyList: IPageDependentGateways, fragment: any) => {
             if (!dependencyList.gateways[fragment.attribs.from]) {
@@ -260,7 +269,7 @@ export class Template {
                 this.pageClass._onRequest(req);
                 let fragmentedHtml = firstFlushHandler.call(this.pageClass, req);
                 this.replaceWaitedFragments(waitedFragments, fragmentedHtml, (flush: { output: string, status: number }) => {
-                    res.status(flush.status).end(flush.output);
+                    res.status(flush.status).send(flush.output);
                     this.pageClass._onResponseEnd();
                 });
             };
@@ -270,6 +279,7 @@ export class Template {
                 let fragmentedHtml = firstFlushHandler.call(this.pageClass, req).replace('</body>', '').replace('</html>', '');
                 res.set('transfer-encoding', 'chunked');
                 res.set('content-type', 'text/html; charset=UTF-8');
+
                 this.replaceWaitedFragments(waitedFragments, fragmentedHtml, (firstFlush: { output: string, status: number }) => {
                     res.status(firstFlush.status).write(firstFlush.output);
                     async.each(chunkedFragmentReplacements, async (chunkedReplacement, cb) => {

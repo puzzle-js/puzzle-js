@@ -99,6 +99,7 @@ export class GatewayStorefrontInstance extends Gateway {
             .then(res => res.json())
             .then(this.update.bind(this))
             .catch(e => {
+                console.error(`Failed to fetch gateway configuration: ${this.name}`);
                 //todo error handling
                 //console.error(e)
             });
@@ -110,10 +111,12 @@ export class GatewayStorefrontInstance extends Gateway {
      */
     private update(data: IExposeConfig) {
         if (!this.config) {
+            console.log(`Gateway is ready: ${this.name}`);
             this.config = data;
             this.events.emit(EVENTS.GATEWAY_READY, this);
         } else {
             if (data.hash !== this.config.hash) {
+                console.log(`Gateway is updated: ${this.name}`);
                 this.config = data;
                 this.events.emit(EVENTS.GATEWAY_UPDATED, this);
             }
@@ -146,6 +149,7 @@ export class GatewayBFF extends Gateway {
             this.addHealthCheckRoute.bind(this)
         ], err => {
             if (!err) {
+                console.log(`Gateway is listening on port ${this.config.port}`);
                 this.server.listen(this.config.port, cb);
             } else {
                 throw err;
@@ -247,7 +251,7 @@ export class GatewayBFF extends Gateway {
             this.server.addRoute(`/${fragmentConfig.name}${fragmentConfig.render.url}`, HTTP_METHODS.GET, async (req, res) => {
                 const renderMode = req.query[RENDER_MODE_QUERY_NAME] === FRAGMENT_RENDER_MODES.STREAM ? FRAGMENT_RENDER_MODES.STREAM : FRAGMENT_RENDER_MODES.PREVIEW;
                 const gatewayContent = await this.renderFragment(fragmentConfig.name, renderMode, req.query[PREVIEW_PARTIAL_QUERY_NAME] || DEFAULT_MAIN_PARTIAL, req.cookies[fragmentConfig.testCookie]);
-
+                //todo gatewayden donen headera gore yonelndirme yapilmasi gerekiyor yani res bilmesi gerekiyor gateway yazanin cozum bul
                 if (renderMode === FRAGMENT_RENDER_MODES.STREAM) {
                     res.set('content-type', 'application/json');
                     res.status(200).end(gatewayContent);

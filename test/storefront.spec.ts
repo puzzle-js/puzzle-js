@@ -12,7 +12,8 @@ export default () => {
             const storefrontConfiguration = new Storefront({
                 pages: [],
                 port: 4444,
-                gateways: []
+                gateways: [],
+                url: 'http://localhost:4444'
             });
 
             expect(storefrontConfiguration).to.be.instanceOf(Storefront);
@@ -29,7 +30,8 @@ export default () => {
                     pageConfiguration
                 ],
                 port: 4444,
-                gateways: []
+                gateways: [],
+                url: 'http://localhost:4444'
             });
 
 
@@ -46,7 +48,8 @@ export default () => {
                 port: 4444,
                 gateways: [
                     gateway
-                ]
+                ],
+                url: 'http://localhost:4444'
             });
 
             expect(storefrontInstance.gateways[gateway.name]).to.be.instanceOf(GatewayStorefrontInstance);

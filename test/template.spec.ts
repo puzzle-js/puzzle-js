@@ -79,6 +79,9 @@ export default () => {
                 },
                 end(str: string) {
                     expect(str).to.eq('<div><span>Puzzle</span></div>');
+                },
+                send(str: string){
+                    expect(str).to.eq('<div><span>Puzzle</span></div>');
                 }
             }));
         });

@@ -11,6 +11,7 @@ import apiTest from "./api.spec";
 
 //Integration Tests
 import bffIntegrationTests from "./integration/bff.spec";
+import storefrontIntegrationTests from "./integration/sf.spec";
 
 
 describe('Unit Tests', () => {
@@ -26,4 +27,5 @@ describe('Unit Tests', () => {
 
 describe('Integration', () => {
     bffIntegrationTests();
+    storefrontIntegrationTests();
 });
