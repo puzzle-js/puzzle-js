@@ -231,20 +231,7 @@ export class Template {
             waitedFragmentReplacement.replaceItems
                 .forEach(replaceItem => {
                     if (replaceItem.type === REPLACE_ITEM_TYPE.CONTENT) {
-                        let fragmentInject = ``;
-                        // const fragmentReplacements = jsReplacements.find(replacement => replacement.fragment.name === waitedFragmentReplacement.fragment.name);
-
-                        //todo fragment replace error selfReplace patlar cok cok onemli
-                        // fragmentReplacements && fragmentReplacements.replaceItems.filter(item => item.location === RESOURCE_LOCATION.CONTENT_START).forEach(replaceItem => {
-                        //     fragmentInject += Template.wrapJsAsset(replaceItem);
-                        // });
-
-                        fragmentInject += fragmentContent.html[replaceItem.partial] || CONTENT_NOT_FOUND_ERROR;
-
-                        // fragmentReplacements && fragmentReplacements.replaceItems.filter(item => item.location === RESOURCE_LOCATION.CONTENT_END).forEach(replaceItem => {
-                        //     fragmentInject += Template.wrapJsAsset(replaceItem);
-                        // });
-
+                        let fragmentInject = fragmentContent.html[replaceItem.partial] || CONTENT_NOT_FOUND_ERROR;
                         output = output.replace(replaceItem.key, fragmentInject);
                     }
                 });
