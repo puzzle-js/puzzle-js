@@ -80,7 +80,7 @@ export default () => {
                 end(str: string) {
                     expect(str).to.eq('<div><span>Puzzle</span></div>');
                 },
-                send(str: string){
+                send(str: string) {
                     expect(str).to.eq('<div><span>Puzzle</span></div>');
                 }
             }));
@@ -397,6 +397,7 @@ export default () => {
                 dependencies: [
                     {
                         name: randomDependency,
+                        type: RESOURCE_TYPE.JS
                     }
                 ],
                 assets: [],
@@ -467,12 +468,12 @@ export default () => {
 
 
                     const template = new Template(`
-                <template>
-                    <div>
-                        <fragment from="Browsing" name="product" shouldWait></fragment>
-                    </div>
-                </template>
-            `);
+                        <template>
+                            <div>
+                                <fragment from="Browsing" name="product" shouldWait></fragment>
+                            </div>
+                        </template>
+                    `);
 
                     template.getDependencies();
 

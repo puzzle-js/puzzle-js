@@ -79,13 +79,15 @@ Object.keys(logLevels).forEach(level => {
 /**
  * Register to error events
  */
-process
-    .on('unhandledRejection', (reason, p) => {
-        logger.error('UN_HANDLED_REJECTION', reason, p);
-    })
-    .on('uncaughtException', err => {
-        logger.error('UN_CAUGHT_EXCEPTION', err);
-    });
+if (process.env.production) {
+    process
+        .on('unhandledRejection', (reason, p) => {
+            logger.error('UN_HANDLED_REJECTION', reason, p);
+        })
+        .on('uncaughtException', err => {
+            logger.error('UN_CAUGHT_EXCEPTION', err);
+        });
+}
 /**
  * Export logger and stream
  * @type {{logger: *, stream: {write: module.exports.stream.write}}}

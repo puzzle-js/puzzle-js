@@ -162,7 +162,7 @@ export class FragmentStorefront extends Fragment {
      * @param attribs
      * @returns {Promise<IFragmentContentResponse>}
      */
-    async getContent(attribs: any = {}): Promise<IFragmentContentResponse> {
+    async getContent(attribs: any = {}, req?: { url: string, headers: { [name: string]: string } }): Promise<IFragmentContentResponse> {
         if (!this.config) {
             logger.error(new Error(`No config provided for fragment: ${this.name}`));
             return {
@@ -171,10 +171,29 @@ export class FragmentStorefront extends Fragment {
             };
         }
 
-        const query = {
+        let query = {
             ...attribs,
             __renderMode: FRAGMENT_RENDER_MODES.STREAM
         };
+
+        let parsedRequest;
+        let requestConfiguration: any = {
+            timeout: this.config.render.timeout || DEFAULT_CONTENT_TIMEOUT,
+
+        };
+
+        if (req) {
+            if (req.url) {
+                parsedRequest = url.parse(req.url, true) as { pathname: string, query: object };
+                query = {
+                    ...query,
+                    ...parsedRequest.query,
+                };
+            }
+            if (req.headers) {
+                requestConfiguration.headers = req.headers;
+            }
+        }
 
         delete query.from;
         delete query.name;
@@ -182,10 +201,10 @@ export class FragmentStorefront extends Fragment {
         delete query.primary;
         delete query.shouldwait;
 
+        const routeRequest = req && parsedRequest ? `${parsedRequest.pathname.replace('/' + this.name, '')}?${querystring.stringify(query)}` : `/?${querystring.stringify(query)}`;
+
         //todo pass cookies too
-        return fetch(`${this.fragmentUrl}${this.config.render.url}?${querystring.stringify(query)}`, {
-            timeout: this.config.render.timeout || DEFAULT_CONTENT_TIMEOUT
-        })
+        return fetch(`${this.fragmentUrl}${routeRequest}`, requestConfiguration)
             .then(async res => {
                 return {
                     status: res.status,

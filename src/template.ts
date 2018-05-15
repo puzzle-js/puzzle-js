@@ -221,10 +221,10 @@ export class Template {
      * @param {string} output
      * @param {Function} cb
      */
-    private replaceWaitedFragments(waitedFragments: IReplaceSet[], output: string, cb: Function) {
+    private replaceWaitedFragments(waitedFragments: IReplaceSet[], output: string, req: any, cb: Function) {
         let statusCode = 200;
         async.each(waitedFragments, async (waitedFragmentReplacement, cb) => {
-            const fragmentContent = await waitedFragmentReplacement.fragment.getContent(waitedFragmentReplacement.fragmentAttributes);
+            const fragmentContent = await waitedFragmentReplacement.fragment.getContent(waitedFragmentReplacement.fragmentAttributes, req);
             if (waitedFragmentReplacement.fragment.primary) {
                 statusCode = fragmentContent.status;
             }
@@ -255,7 +255,7 @@ export class Template {
             return (req: any, res: any) => {
                 this.pageClass._onRequest(req);
                 let fragmentedHtml = firstFlushHandler.call(this.pageClass, req);
-                this.replaceWaitedFragments(waitedFragments, fragmentedHtml, (flush: { output: string, status: number }) => {
+                this.replaceWaitedFragments(waitedFragments, fragmentedHtml, req, (flush: { output: string, status: number }) => {
                     res.status(flush.status).send(flush.output);
                     this.pageClass._onResponseEnd();
                 });
@@ -267,11 +267,11 @@ export class Template {
                 res.set('transfer-encoding', 'chunked');
                 res.set('content-type', 'text/html; charset=UTF-8');
 
-                this.replaceWaitedFragments(waitedFragments, fragmentedHtml, (firstFlush: { output: string, status: number }) => {
+                this.replaceWaitedFragments(waitedFragments, fragmentedHtml, req, (firstFlush: { output: string, status: number }) => {
                     res.status(firstFlush.status).write(firstFlush.output);
                     async.each(chunkedFragmentReplacements, async (chunkedReplacement, cb) => {
                         if (chunkedReplacement.fragment.config) {
-                            const fragmentContent = await chunkedReplacement.fragment.getContent(chunkedReplacement.fragmentAttributes);
+                            const fragmentContent = await chunkedReplacement.fragment.getContent(chunkedReplacement.fragmentAttributes, req);
                             const fragmentJsReplacements = jsReplacements.find(jsReplacement => jsReplacement.fragment.name === chunkedReplacement.fragment.name);
                             const selfReplacing = chunkedReplacement.fragment.config.render.selfReplace;
 

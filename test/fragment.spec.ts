@@ -131,6 +131,7 @@ export default () => {
                     main: '<div>fragment</div>'
                 };
                 const scope = nock('http://local.gatewaysimulator.com')
+                    .log(console.log)
                     .get('/product/')
                     .query({__renderMode: FRAGMENT_RENDER_MODES.STREAM})
                     .reply(200, fragmentContent);

@@ -27,7 +27,7 @@ export default () => {
             const sf = new Storefront(commonStorefrontConfiguration);
 
             sf.init(() => {
-                request(commonStorefrontConfiguration.url)
+                request('http://localhost:4448')
                     .get('/healthcheck')
                     .expect(200).end((err) => {
                     sf.server.close();
@@ -52,6 +52,7 @@ export default () => {
                 },
                 hash: '12345'
             }, false)
+                .log(console.log)
                 .get('/product/')
                 .query({[RENDER_MODE_QUERY_NAME]: FRAGMENT_RENDER_MODES.STREAM})
                 .reply(200, {
@@ -75,7 +76,7 @@ export default () => {
             });
 
             sf.init(() => {
-                request(commonStorefrontConfiguration.url)
+                request('http://localhost:4448')
                     .get('/')
                     .expect(200)
                     .end((err, res) => {
@@ -140,7 +141,7 @@ export default () => {
             });
 
             sf.init(() => {
-                request(commonStorefrontConfiguration.url)
+                request('http://localhost:4448')
                     .get('/')
                     .expect(200)
                     .end((err, res) => {
@@ -149,7 +150,7 @@ export default () => {
                         hash_nock(true, 'enabled');
 
                         sf.gateways['Browsing'].events.once(EVENTS.GATEWAY_UPDATED, () => {
-                            request(commonStorefrontConfiguration.url)
+                            request('http://localhost:4448')
                                 .get('/')
                                 .expect(200)
                                 .end((err, res) => {
@@ -208,7 +209,7 @@ export default () => {
             });
 
             sf.init(() => {
-                request(commonStorefrontConfiguration.url)
+                request('http://localhost:4448')
                     .get('/')
                     .expect(404)
                     .end((err, res) => {
