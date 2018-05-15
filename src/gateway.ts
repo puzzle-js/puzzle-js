@@ -193,9 +193,9 @@ export class GatewayBFF extends Gateway {
      * @param {string} cookieValue
      * @returns {Promise<string>}
      */
-    async renderFragment(fragmentName: string, renderMode: FRAGMENT_RENDER_MODES = FRAGMENT_RENDER_MODES.PREVIEW, partial: string, cookieValue?: string): Promise<string> {
+    async renderFragment(req: { [name: string]: any }, fragmentName: string, renderMode: FRAGMENT_RENDER_MODES = FRAGMENT_RENDER_MODES.PREVIEW, partial: string, cookieValue?: string): Promise<string> {
         if (this.fragments[fragmentName]) {
-            const fragmentContent = await this.fragments[fragmentName].render({}, cookieValue);
+            const fragmentContent = await this.fragments[fragmentName].render(req, cookieValue);
             switch (renderMode) {
                 case FRAGMENT_RENDER_MODES.STREAM:
                     return JSON.stringify(fragmentContent);
@@ -259,7 +259,7 @@ export class GatewayBFF extends Gateway {
         this.config.fragments.forEach(fragmentConfig => {
             this.server.addRoute(`/${fragmentConfig.name}${fragmentConfig.render.url}`, HTTP_METHODS.GET, async (req, res) => {
                 const renderMode = req.query[RENDER_MODE_QUERY_NAME] === FRAGMENT_RENDER_MODES.STREAM ? FRAGMENT_RENDER_MODES.STREAM : FRAGMENT_RENDER_MODES.PREVIEW;
-                const gatewayContent = await this.renderFragment(fragmentConfig.name, renderMode, req.query[PREVIEW_PARTIAL_QUERY_NAME] || DEFAULT_MAIN_PARTIAL, req.cookies[fragmentConfig.testCookie]);
+                const gatewayContent = await this.renderFragment(req, fragmentConfig.name, renderMode, req.query[PREVIEW_PARTIAL_QUERY_NAME] || DEFAULT_MAIN_PARTIAL, req.cookies[fragmentConfig.testCookie]);
                 //todo gatewayden donen headera gore yonelndirme yapilmasi gerekiyor yani res bilmesi gerekiyor gateway yazanin cozum bul
                 if (renderMode === FRAGMENT_RENDER_MODES.STREAM) {
                     res.set('content-type', 'application/json');
