@@ -163,6 +163,46 @@ export default () => {
                 expect(gwResponse).to.eq(`<html><head><title>Browsing - boutique-list</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"></head><body><div id="boutique-list">test</div></body></html>`);
             });
 
+            it('should render fragment in preview mode with data passing', async () => {
+                const gatewayConfiguration: IGatewayBFFConfiguration = {
+                    ...commonGatewayConfiguration,
+                    fragments: [
+                        {
+                            name: 'boutique-list',
+                            version: 'test',
+                            render: {
+                                url: '/'
+                            },
+                            testCookie: 'fragment_test',
+                            versions: {
+                                'test': {
+                                    assets: [],
+                                    dependencies: [],
+                                    handler: {
+                                        content(req, data) {
+                                            return {
+                                                main: `Requested:${data}`
+                                            };
+                                        },
+                                        data(req: any) {
+                                            return `Url:${req.url}`;
+                                        },
+                                        placeholder() {
+                                            return "Placeholder";
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                };
+
+                const bffGw = new GatewayBFF(gatewayConfiguration);
+                const gwResponse = await bffGw.renderFragment({url: 'test'}, 'boutique-list', FRAGMENT_RENDER_MODES.PREVIEW, DEFAULT_MAIN_PARTIAL);
+                if (!gwResponse) throw new Error('No response from gateway');
+                expect(gwResponse).to.eq(`<html><head><title>Browsing - boutique-list</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"></head><body><div id="boutique-list">Requested:Url:test</div></body></html>`);
+            });
+
             it('should render fragment in preview mode with all assets', async () => {
                 const gatewayConfiguration: IGatewayBFFConfiguration = {
                     ...commonGatewayConfiguration,
