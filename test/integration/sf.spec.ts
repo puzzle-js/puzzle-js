@@ -11,7 +11,8 @@ const commonStorefrontConfiguration = {
     gateways: [],
     port: 4448,
     pages: [],
-    url: 'http://localhost:4448'
+    url: 'http://localhost:4448',
+    dependencies: []
 } as IStorefrontConfig;
 
 

@@ -14,6 +14,7 @@ export default () => {
                 pages: [],
                 port: 4444,
                 gateways: [],
+                dependencies: []
             });
 
             expect(storefrontConfiguration).to.be.instanceOf(Storefront);
@@ -31,6 +32,7 @@ export default () => {
                 ],
                 port: 4444,
                 gateways: [],
+                dependencies: []
             });
 
 
@@ -48,6 +50,7 @@ export default () => {
                 gateways: [
                     gateway
                 ],
+                dependencies: []
             });
 
             expect(storefrontInstance.gateways[gateway.name]).to.be.instanceOf(GatewayStorefrontInstance);
@@ -66,6 +69,7 @@ export default () => {
                 gateways: [
                     gateway
                 ],
+                dependencies: []
             });
 
             storefrontInstance.init(() => {

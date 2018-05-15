@@ -6,12 +6,14 @@ import async from "async";
 import {EVENTS, HTTP_METHODS} from "./enums";
 import {wait} from "./util";
 import {logger} from "./logger";
+import {IFileResourceStorefrontDependency, default as ResourceFactory} from "./resourceFactory";
 
 export interface IStorefrontConfig {
     gateways: IGatewayConfiguration[];
     port: number;
     pages: IPageConfiguration[];
     pollInterval?: number;
+    dependencies: IFileResourceStorefrontDependency[];
 }
 
 export class Storefront {
@@ -53,6 +55,7 @@ export class Storefront {
 
     public init(cb?: Function) {
         async.series([
+            this.registerDependencies.bind(this),
             async (cb: any) => {
                 while (Object.keys(this.gateways).length != this.gatewaysReady) {
                     await wait(200);
@@ -70,6 +73,14 @@ export class Storefront {
                 throw err;
             }
         });
+    }
+
+    private registerDependencies(cb: Function){
+        this.config.dependencies.forEach(dependency => {
+            ResourceFactory.instance.registerDependencies(dependency);
+        });
+
+        cb();
     }
 
     private addHealthCheckRoute(cb: Function) {
