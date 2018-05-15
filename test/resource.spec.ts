@@ -39,7 +39,7 @@ export default () => {
         });
 
         it('should wrap dependency and give contents for injecting html - JS', () => {
-            expect(ResourceFactory.instance.getDependencyContent('ty-library')).to.eq(`<script puzzle-dependency="ty-library" src="http://ty-gateway.com/assets/lib.min.js" type="text/javascript"></script>`);
+            expect(ResourceFactory.instance.getDependencyContent('ty-library')).to.eq(`<script puzzle-dependency="ty-library" src="http://ty-gateway.com/assets/lib.min.js" type="text/javascript"> </script>`);
         });
 
         it('should wrap dependency when content provided - JS', () => {

@@ -531,7 +531,7 @@ export class Template {
      */
     static wrapJsAsset(asset: { injectType: RESOURCE_INJECT_TYPE; name: string; link: string | null | undefined; content: string | null | undefined }) {
         if (asset.injectType === RESOURCE_INJECT_TYPE.EXTERNAL && asset.link) {
-            return `<script puzzle-dependency="${asset.name}" src="${asset.link}" type="text/javascript"/>`;
+            return `<script puzzle-dependency="${asset.name}" src="${asset.link}" type="text/javascript"> </script>`;
         } else if (asset.injectType === RESOURCE_INJECT_TYPE.INLINE && asset.content) {
             return `<script puzzle-dependency="${asset.name}" type="text/javascript">${asset.content}</script>`;
         } else {

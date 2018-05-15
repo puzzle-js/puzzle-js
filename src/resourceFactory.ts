@@ -77,7 +77,7 @@ class ResourceFactory {
     private wrapDependency(dependency: IFileResourceStorefrontDependency): string {
         if (dependency.type === RESOURCE_TYPE.JS) {
             if (dependency.link) {
-                return `<script puzzle-dependency="${dependency.name}" src="${dependency.link}" type="text/javascript"></script>`;
+                return `<script puzzle-dependency="${dependency.name}" src="${dependency.link}" type="text/javascript"> </script>`;
             } else if (dependency.content) {
                 return `<script puzzle-dependency="${dependency.name}" type="text/javascript">${dependency.content}</script>`;
             }

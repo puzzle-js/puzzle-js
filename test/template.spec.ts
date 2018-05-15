@@ -1204,7 +1204,7 @@ export default () => {
                             end(str: string) {
                                 chunks.push(str);
                                 try {
-                                    expect(chunks[0]).to.eq(`<html><head><script puzzle-dependency="Product Bundle" src="http://my-test-gateway-chunked.com/product/static/bundle.min.js" type="text/javascript"/>${CONTENT_REPLACE_SCRIPT}</head><body><div><div puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main"></div></div>`);
+                                    expect(chunks[0]).to.eq(`<html><head><script puzzle-dependency="Product Bundle" src="http://my-test-gateway-chunked.com/product/static/bundle.min.js" type="text/javascript"></script>${CONTENT_REPLACE_SCRIPT}</head><body><div><div puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main"></div></div>`);
                                     expect(chunks[1]).to.eq(`<div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Trendyol</div><script>$p('[puzzle-chunk="product_main"]','[puzzle-chunk-key="product_main"]');</script>`);
                                     expect(chunks[2]).to.eq(`</body></html>`);
                                 } catch (e) {
@@ -1368,7 +1368,7 @@ export default () => {
                             end(str: string) {
                                 chunks.push(str);
                                 try {
-                                    expect(chunks[0]).to.include(`<script puzzle-dependency="Tracking" src="http://my-test-gateway-chunked.com/product/static/tracker.min.js" type="text/javascript"/>`);
+                                    expect(chunks[0]).to.include(`<script puzzle-dependency="Tracking" src="http://my-test-gateway-chunked.com/product/static/tracker.min.js" type="text/javascript"></script>`);
                                     expect(chunks[0]).to.include(`<script puzzle-dependency="Product Bundle" type="text/javascript">${productScript}</script>`);
                                 } catch (e) {
                                     err = e;
@@ -1440,7 +1440,7 @@ export default () => {
                             write(str: string) {
                             },
                             end(str: string) {
-                                expect(str).to.include(`<script puzzle-dependency="Product Bundle" src="http://my-test-gateway-chunked.com/product/static/bundle.min.js" type="text/javascript"/>`);
+                                expect(str).to.include(`<script puzzle-dependency="Product Bundle" src="http://my-test-gateway-chunked.com/product/static/bundle.min.js" type="text/javascript"></script>`);
                                 done(err);
                             },
                             set(headerName: string, value: string) {
@@ -1513,7 +1513,7 @@ export default () => {
                                 chunks.push(str);
                                 try {
                                     expect(chunks[0]).to.eq(`<html><head>${CONTENT_REPLACE_SCRIPT}</head><body><div><div puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main"></div></div>`);
-                                    expect(chunks[1]).to.eq(`<script puzzle-dependency="Product Bundle" src="http://my-test-gateway-chunked.com/product/static/bundle.min.js" type="text/javascript"/><div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Trendyol</div><script>$p('[puzzle-chunk="product_main"]','[puzzle-chunk-key="product_main"]');</script>`);
+                                    expect(chunks[1]).to.eq(`<script puzzle-dependency="Product Bundle" src="http://my-test-gateway-chunked.com/product/static/bundle.min.js" type="text/javascript"> </script><div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Trendyol</div><script>$p('[puzzle-chunk="product_main"]','[puzzle-chunk-key="product_main"]');</script>`);
                                     expect(chunks[2]).to.eq(`</body></html>`);
                                 } catch (e) {
                                     err = e;
@@ -1590,7 +1590,7 @@ export default () => {
                                 chunks.push(str);
                                 try {
                                     expect(chunks[0]).to.eq(`<html><head>${CONTENT_REPLACE_SCRIPT}</head><body><div><div puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main"></div></div>`);
-                                    expect(chunks[1]).to.eq(`<script puzzle-dependency="Product Bundle" src="http://my-test-gateway-chunked.com/product/static/bundle.min.js" type="text/javascript"/><div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Trendyol</div><script>$p('[puzzle-chunk="product_main"]','[puzzle-chunk-key="product_main"]');</script>`);
+                                    expect(chunks[1]).to.eq(`<script puzzle-dependency="Product Bundle" src="http://my-test-gateway-chunked.com/product/static/bundle.min.js" type="text/javascript"> </script><div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Trendyol</div><script>$p('[puzzle-chunk="product_main"]','[puzzle-chunk-key="product_main"]');</script>`);
                                     expect(chunks[2]).to.eq(`</body></html>`);
                                 } catch (e) {
                                     err = e;
@@ -1753,7 +1753,7 @@ export default () => {
                             end(str: string) {
                                 chunks.push(str);
                                 try {
-                                    expect(chunks[1]).to.include(`<script puzzle-dependency="Tracking" src="http://my-test-gateway-chunked.com/product/static/tracker.min.js" type="text/javascript"/>`);
+                                    expect(chunks[1]).to.include(`<script puzzle-dependency="Tracking" src="http://my-test-gateway-chunked.com/product/static/tracker.min.js" type="text/javascript"> </script>`);
                                     expect(chunks[1]).to.include(`<script puzzle-dependency="Product Bundle" type="text/javascript">${productScript}</script>`);
                                 } catch (e) {
                                     err = e;
@@ -1826,7 +1826,7 @@ export default () => {
                             },
                             end(str: string) {
                                 try {
-                                    expect(str).to.include(`<script puzzle-dependency="Product Bundle" src="http://my-test-gateway-chunked.com/product/static/bundle.min.js" type="text/javascript"/>`);
+                                    expect(str).to.include(`<script puzzle-dependency="Product Bundle" src="http://my-test-gateway-chunked.com/product/static/bundle.min.js" type="text/javascript"></script>`);
                                 } catch (e) {
                                     err = e;
                                 }
@@ -1898,7 +1898,7 @@ export default () => {
                             },
                             end(str: string) {
                                 try {
-                                    expect(str).to.eq(`<html><head></head><body><div><script puzzle-dependency="Product Bundle" src="http://my-test-gateway-chunked.com/product/static/bundle.min.js" type="text/javascript"/><div puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div></div></body></html>`);
+                                    expect(str).to.eq(`<html><head></head><body><div><script puzzle-dependency="Product Bundle" src="http://my-test-gateway-chunked.com/product/static/bundle.min.js" type="text/javascript"></script><div puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div></div></body></html>`);
                                 } catch (e) {
                                     err = e;
                                 }
@@ -1974,7 +1974,7 @@ export default () => {
                                 chunks.push(str);
                                 try {
                                     expect(chunks[0]).to.eq(`<html><head>${CONTENT_REPLACE_SCRIPT}</head><body><div><div puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main"></div></div>`);
-                                    expect(chunks[1]).to.eq(`<div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Trendyol</div><script>$p('[puzzle-chunk="product_main"]','[puzzle-chunk-key="product_main"]');</script><script puzzle-dependency="Product Bundle" src="http://my-test-gateway-chunked.com/product/static/bundle.min.js" type="text/javascript"/>`);
+                                    expect(chunks[1]).to.eq(`<div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Trendyol</div><script>$p('[puzzle-chunk="product_main"]','[puzzle-chunk-key="product_main"]');</script><script puzzle-dependency="Product Bundle" src="http://my-test-gateway-chunked.com/product/static/bundle.min.js" type="text/javascript"> </script>`);
                                     expect(chunks[2]).to.eq(`</body></html>`);
                                 } catch (e) {
                                     err = e;
@@ -2137,7 +2137,7 @@ export default () => {
                             end(str: string) {
                                 chunks.push(str);
                                 try {
-                                    expect(chunks[1]).to.include(`<script puzzle-dependency="Tracking" src="http://my-test-gateway-chunked.com/product/static/tracker.min.js" type="text/javascript"/>`);
+                                    expect(chunks[1]).to.include(`<script puzzle-dependency="Tracking" src="http://my-test-gateway-chunked.com/product/static/tracker.min.js" type="text/javascript"> </script>`);
                                     expect(chunks[1]).to.include(`<script puzzle-dependency="Product Bundle" type="text/javascript">${productScript}</script>`);
                                 } catch (e) {
                                     err = e;
@@ -2286,7 +2286,7 @@ export default () => {
                             end(str: string) {
                                 chunks.push(str);
                                 try {
-                                    expect(chunks[0]).to.eq(`<html><head>${CONTENT_REPLACE_SCRIPT}</head><body><script puzzle-dependency="Product Bundle" src="http://my-test-gateway-chunked.com/product/static/bundle.min.js" type="text/javascript"/><div><div puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main"></div></div>`);
+                                    expect(chunks[0]).to.eq(`<html><head>${CONTENT_REPLACE_SCRIPT}</head><body><script puzzle-dependency="Product Bundle" src="http://my-test-gateway-chunked.com/product/static/bundle.min.js" type="text/javascript"></script><div><div puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main"></div></div>`);
                                     expect(chunks[1]).to.eq(`<div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Trendyol</div><script>$p('[puzzle-chunk="product_main"]','[puzzle-chunk-key="product_main"]');</script>`);
                                     expect(chunks[2]).to.eq(`</body></html>`);
                                 } catch (e) {
@@ -2365,7 +2365,7 @@ export default () => {
                                 try {
                                     expect(chunks[0]).to.eq(`<html><head>${CONTENT_REPLACE_SCRIPT}</head><body><div><div puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main"></div></div>`);
                                     expect(chunks[1]).to.eq(`<div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Trendyol</div><script>$p('[puzzle-chunk="product_main"]','[puzzle-chunk-key="product_main"]');</script>`);
-                                    expect(chunks[2]).to.eq(`<script puzzle-dependency="Product Bundle" src="http://my-test-gateway-chunked.com/product/static/bundle.min.js" type="text/javascript"/></body></html>`);
+                                    expect(chunks[2]).to.eq(`<script puzzle-dependency="Product Bundle" src="http://my-test-gateway-chunked.com/product/static/bundle.min.js" type="text/javascript"> </script></body></html>`);
                                 } catch (e) {
                                     err = e;
                                 }
@@ -2437,7 +2437,7 @@ export default () => {
                             },
                             end(str: string) {
                                 try {
-                                    expect(str).to.eq(`<html><head> <meta name="product" id="1235"><script puzzle-dependency="Product Bundle" src="http://my-test-gateway-chunked.com/product/static/bundle.min.js" type="text/javascript"/></head><body><div></div></body></html>`);
+                                    expect(str).to.eq(`<html><head> <meta name="product" id="1235"><script puzzle-dependency="Product Bundle" src="http://my-test-gateway-chunked.com/product/static/bundle.min.js" type="text/javascript"></script></head><body><div></div></body></html>`);
                                 } catch (e) {
                                     err = e;
                                 }
@@ -2515,7 +2515,7 @@ export default () => {
                                 chunks.push(str);
                                 try {
                                     expect(chunks[0]).to.eq(`<html><head>${CONTENT_REPLACE_SCRIPT}</head><body><div><div puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main"></div></div><div puzzle-fragment="product" puzzle-gateway="Browsing" fragment-partial="footer" puzzle-chunk="product_footer"></div>`);
-                                    expect(chunks[1]).to.eq(`<div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Trendyol</div><script>$p('[puzzle-chunk="product_main"]','[puzzle-chunk-key="product_main"]');</script><div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_footer">Footer Content</div><script>$p('[puzzle-chunk="product_footer"]','[puzzle-chunk-key="product_footer"]');</script><script puzzle-dependency="Product Bundle" src="http://my-test-gateway-chunked.com/product/static/bundle.min.js" type="text/javascript"/>`);
+                                    expect(chunks[1]).to.eq(`<div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Trendyol</div><script>$p('[puzzle-chunk="product_main"]','[puzzle-chunk-key="product_main"]');</script><div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_footer">Footer Content</div><script>$p('[puzzle-chunk="product_footer"]','[puzzle-chunk-key="product_footer"]');</script><script puzzle-dependency="Product Bundle" src="http://my-test-gateway-chunked.com/product/static/bundle.min.js" type="text/javascript"> </script>`);
                                     expect(chunks[2]).to.eq(`</body></html>`);
                                 } catch (e) {
                                     err = e;
