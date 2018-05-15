@@ -4,6 +4,7 @@ const singletonSymbol = Symbol();
 
 export interface IFileResource {
     name: string;
+    type: RESOURCE_TYPE;
 }
 
 export interface IFileResourceDependency extends IFileResource {
@@ -14,13 +15,10 @@ export interface IFileResourceDependency extends IFileResource {
 export interface IFileResourceAsset extends IFileResource {
     injectType: RESOURCE_INJECT_TYPE;
     fileName: string;
-    location: RESOURCE_LOCATION; //Not important for css
-    type: RESOURCE_TYPE; //Not important for css
+    location: RESOURCE_LOCATION;
 }
 
-export interface IFileResourceStorefrontDependency {
-    name: string;
-    type: RESOURCE_TYPE;
+export interface IFileResourceStorefrontDependency extends IFileResource {
     content?: string;
     link?: string;
 }

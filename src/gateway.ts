@@ -244,6 +244,14 @@ export class GatewayBFF extends Gateway {
             }
         });
 
+        fragmentVersion.dependencies.forEach(dependency => {
+            if (dependency.type === RESOURCE_TYPE.JS) {
+                dom('head').append(`<script puzzle-asset="${dependency.name}" src="${dependency.preview}" type="text/javascript"></script>`);
+            } else if (dependency.type === RESOURCE_TYPE.CSS) {
+                dom('head').append(`<link puzzle-asset="${dependency.name}" rel="stylesheet" href="${dependency.preview}" />`);
+            }
+        });
+
         return dom.html();
     }
 
