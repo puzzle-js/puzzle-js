@@ -9,6 +9,8 @@ import * as Http from "http";
 import {NextFunction, Request, RequestHandlerParams, Response} from "express-serve-static-core";
 import {ServeStaticOptions} from "serve-static";
 import {HTTP_METHODS} from "./enums";
+import {stream} from "./logger";
+
 //todo connect morgan
 const morganLoggingLevels = [
     'Date: [:date[clf]]',
@@ -65,7 +67,7 @@ export class Server {
     }
 
     private addMiddlewares() {
-        //this.app.use(morgan(morganLoggingLevels.join('||'), {stream: require('./logger').stream}));
+        this.app.use(morgan(morganLoggingLevels.join('||'), {stream}));
         this.app.use(helmet());
         this.app.use(bodyParser.urlencoded({extended: false}));
         this.app.use(cookieParser());

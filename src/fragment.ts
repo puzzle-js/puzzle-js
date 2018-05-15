@@ -5,6 +5,7 @@ import * as querystring from "querystring";
 import {DEFAULT_CONTENT_TIMEOUT} from "./config";
 import {IFileResourceAsset, IFileResourceDependency} from "./resourceFactory";
 import {IExposeFragment} from "./gateway";
+import {logger} from "./logger";
 
 export interface IFragmentCookieMap {
     name: string;
@@ -48,10 +49,6 @@ export interface IFragmentBFF extends IFragment {
     version: string;
     testCookie: string;
     render: IFragmentBFFRender;
-}
-
-export interface IFragmentMap {
-    [name: string]: Fragment;
 }
 
 export class Fragment {
@@ -132,16 +129,23 @@ export class FragmentStorefront extends Fragment {
      * @returns {Promise<string>}
      */
     async getPlaceholder(): Promise<string> {
-        if (!this.fragmentUrl || !this.config || !this.config.render.placeholder) {
-            console.error('No render, or placeholder enabled');
+        if (!this.config) {
+            logger.error(new Error(`No config provided for fragment: ${this.name}`));
             return '';
         }
+
+        if (!this.config.render.placeholder) {
+            logger.error(new Error('Placeholder is not enabled for fragment'));
+            return '';
+        }
+
         return fetch(`${this.fragmentUrl}/placeholder`)
             .then(res => res.text())
             .then(html => {
                 return html;
             })
             .catch(err => {
+                logger.error(`Failed to fetch placeholder for fragment: ${this.fragmentUrl}/placeholder`, err);
                 return '';
             });
     }
@@ -159,8 +163,7 @@ export class FragmentStorefront extends Fragment {
      */
     async getContent(attribs: any = {}): Promise<IFragmentContentResponse> {
         if (!this.config) {
-            //todo error handling
-            console.error(`No config provided for fragment: ${this.name}`);
+            logger.error(new Error(`No config provided for fragment: ${this.name}`));
             return {
                 status: 500,
                 html: {}
@@ -179,10 +182,9 @@ export class FragmentStorefront extends Fragment {
         delete query.shouldwait;
 
         //todo pass cookies too
-        return fetch(`${this.fragmentUrl}${this.config.render.url}?${querystring.stringify(query)}`
-            , {
-                timeout: this.config.render.timeout || DEFAULT_CONTENT_TIMEOUT
-            })
+        return fetch(`${this.fragmentUrl}${this.config.render.url}?${querystring.stringify(query)}`, {
+            timeout: this.config.render.timeout || DEFAULT_CONTENT_TIMEOUT
+        })
             .then(async res => {
                 return {
                     status: res.status,
@@ -190,8 +192,7 @@ export class FragmentStorefront extends Fragment {
                 };
             })
             .catch(err => {
-                //todo error handling
-                //console.error(err);
+                logger.error(`Failed to get contents for fragment: ${this.name}`, err);
                 return {
                     status: 500,
                     html: {}
@@ -201,41 +202,35 @@ export class FragmentStorefront extends Fragment {
 
     async getAsset(name: string) {
         if (!this.config) {
-            //console.log('No config found')
+            logger.error(new Error(`No config provided for fragment: ${this.name}`));
             return null;
-            //todo handle error
         }
 
         const asset = this.config.assets.find(asset => asset.name === name);
         if (!asset) {
-            //console.log('Name not found');
+            logger.error(new Error(`Asset not declared in fragments asset list: ${name}`));
             return null;
-
-            //todo handle named asset not found
         }
 
         return fetch(`${this.fragmentUrl}/static/${asset.fileName}`).then(async res => {
             return await res.text();
         }).catch(e => {
-            //todo handle request error
+            logger.error(new Error(`Failed to fetch asset from gateway: ${this.fragmentUrl}/static/${asset.fileName}`));
             return null;
         });
     }
 
     getAssetPath(name: string) {
         if (!this.config) {
-            //console.log('No config found')
+            logger.error(new Error(`No config provided for fragment: ${this.name}`));
             return null;
-            //todo handle error
         }
 
         const asset = this.config.assets.find(asset => asset.name === name);
 
         if (!asset) {
-            //console.log('Name not found');
+            logger.error(new Error(`Asset not declared in fragments asset list: ${name}`));
             return null;
-
-            //todo handle named asset not found
         }
 
         return `${this.fragmentUrl}/static/${asset.fileName}`;

@@ -19,6 +19,7 @@ import {Api, IApiConfig} from "./api";
 import cheerio from "cheerio";
 import {IFileResourceAsset, IFileResourceDependency} from "./resourceFactory";
 import Timer = NodeJS.Timer;
+import {logger} from "./logger";
 
 export interface IExposeFragment {
     version: string;
@@ -66,7 +67,7 @@ export class Gateway {
 export class GatewayStorefrontInstance extends Gateway {
     events: EventEmitter = new EventEmitter();
     config: IExposeConfig | undefined;
-    private intervalId: Timer | null | number= null;
+    private intervalId: Timer | null | number = null;
 
     constructor(gatewayConfig: IGatewayConfiguration) {
         super(gatewayConfig);
@@ -111,12 +112,12 @@ export class GatewayStorefrontInstance extends Gateway {
      */
     private update(data: IExposeConfig) {
         if (!this.config) {
-            console.log(`Gateway is ready: ${this.name}`);
+            logger.info(`Gateway is ready: ${this.name}`);
             this.config = data;
             this.events.emit(EVENTS.GATEWAY_READY, this);
         } else {
             if (data.hash !== this.config.hash) {
-                console.log(`Gateway is updated: ${this.name}`);
+                logger.info(`Gateway is updated: ${this.name}`);
                 this.config = data;
                 this.events.emit(EVENTS.GATEWAY_UPDATED, this);
             }
@@ -149,7 +150,7 @@ export class GatewayBFF extends Gateway {
             this.addHealthCheckRoute.bind(this)
         ], err => {
             if (!err) {
-                console.log(`Gateway is listening on port ${this.config.port}`);
+                logger.info(`Gateway is listening on port ${this.config.port}`);
                 this.server.listen(this.config.port, cb);
             } else {
                 throw err;

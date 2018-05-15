@@ -7,6 +7,7 @@ import storefrontTests from "./storefront.spec";
 import templateTests from "./template.spec";
 import serverTests from "./server.spec";
 import apiTest from "./api.spec";
+import loggerTest from "./logger.spec";
 
 
 //Integration Tests
@@ -23,6 +24,7 @@ describe('Unit Tests', () => {
     templateTests();
     serverTests();
     apiTest();
+    loggerTest();
 });
 
 describe('Integration', () => {

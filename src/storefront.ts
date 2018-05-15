@@ -5,6 +5,7 @@ import {Server} from "./server";
 import async from "async";
 import {EVENTS, HTTP_METHODS} from "./enums";
 import {wait} from "./util";
+import {logger} from "./logger";
 
 export interface IStorefrontConfig {
     gateways: IGatewayConfiguration[];
@@ -54,7 +55,7 @@ export class Storefront {
     public init(cb?: Function) {
         async.series([
             async (cb: any) => {
-                while(Object.keys(this.gateways).length != this.gatewaysReady){
+                while (Object.keys(this.gateways).length != this.gatewaysReady) {
                     await wait(200);
                 }
 
@@ -64,7 +65,7 @@ export class Storefront {
             this.addHealthCheckRoute.bind(this)
         ], err => {
             if (!err) {
-                console.log(`Storefront is listening on port ${this.config.port}`);
+                logger.info(`Storefront is listening on port ${this.config.port}`);
                 this.server.listen(this.config.port, cb);
             } else {
                 throw err;

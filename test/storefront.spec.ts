@@ -5,6 +5,7 @@ import {Page} from "../src/page";
 import {GatewayStorefrontInstance} from "../src/gateway";
 import * as fs from "fs";
 import * as path from "path";
+import request from "supertest";
 
 export default () => {
     describe('Storefront', () => {
@@ -54,6 +55,35 @@ export default () => {
 
             expect(storefrontInstance.gateways[gateway.name]).to.be.instanceOf(GatewayStorefrontInstance);
             storefrontInstance.gateways['Browsing'].stopUpdating();
+        });
+
+        it('should add health check route', done => {
+            const gateway = {
+                name: 'Browsing',
+                url: 'http://browsing-gw.com'
+            };
+
+            const storefrontInstance = new Storefront({
+                pages: [],
+                port: 4444,
+                gateways: [
+                    gateway
+                ],
+                url: 'http://localhost:4444'
+            });
+
+            storefrontInstance.init(() => {
+
+                request(storefrontInstance.server.app)
+                    .get('/healthcheck')
+                    .expect(200)
+                    .end(err => {
+                        storefrontInstance.server.close();
+                        storefrontInstance.gateways['Browsing'].stopUpdating();
+                        done(err);
+                    });
+
+            });
         });
     });
 }

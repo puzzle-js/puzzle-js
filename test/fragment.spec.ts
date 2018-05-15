@@ -187,6 +187,126 @@ export default () => {
                 expect(scriptContent).to.eq(productScript);
 
             });
+
+            it('should log and return empty placeholder when no fragment config exists', (done) => {
+                const fragment = new FragmentStorefront('product', 'test');
+
+                fragment.getPlaceholder().then(placeholder => {
+                    try {
+                        expect(placeholder).to.eq('');
+                        done();
+                    } catch (e) {
+                        done(e);
+                    }
+                });
+            });
+
+            it('should log and return empty placeholder when no placeholder is not enabled', (done) => {
+                const fragment = new FragmentStorefront('product', 'test');
+
+                fragment.update({
+                    render: {
+                        placeholder: false,
+                        url: '/'
+                    },
+                    version: '1.0.0',
+                    testCookie: 'fragment',
+                    dependencies: [],
+                    assets: []
+                }, '');
+
+                fragment.getPlaceholder().then(placeholder => {
+                    try {
+                        expect(placeholder).to.eq('');
+                        done();
+                    } catch (e) {
+                        done(e);
+                    }
+                });
+            });
+
+            it('should log and return empty content when no fragment config exists', (done) => {
+                const fragment = new FragmentStorefront('product', 'test');
+
+                fragment.getContent().then(content => {
+                    try {
+                        expect(content).to.deep.eq({
+                            status: 500,
+                            html: {}
+                        });
+                        done();
+                    } catch (e) {
+                        done(e);
+                    }
+                });
+            });
+
+            it('should log and return null asset when no fragment config exists', (done) => {
+                const fragment = new FragmentStorefront('product', 'test');
+
+                fragment.getAsset('nope').then(asset => {
+                    try {
+                        expect(asset).to.eq(null);
+                        done();
+                    } catch (e) {
+                        done(e);
+                    }
+                });
+            });
+
+            it('should log and return null asset path when no fragment config exists', () => {
+                const fragment = new FragmentStorefront('product', 'test');
+
+                const assetPath = fragment.getAssetPath('nope');
+
+                expect(assetPath).to.eq(null);
+            });
+
+            it('should log and return null asset path when requested asset not found', () => {
+                const fragment = new FragmentStorefront('product', 'test');
+
+                fragment.update({
+                    render: {
+                        placeholder: false,
+                        url: '/'
+                    },
+                    version: '1.0.0',
+                    testCookie: 'fragment',
+                    dependencies: [],
+                    assets: []
+                }, '');
+
+
+                const assetPath = fragment.getAssetPath('nope');
+
+                expect(assetPath).to.eq(null);
+            });
+
+            it('should log and return null asset path when requested asset not found', (done) => {
+                const fragment = new FragmentStorefront('product', 'test');
+
+                fragment.update({
+                    render: {
+                        placeholder: false,
+                        url: '/'
+                    },
+                    version: '1.0.0',
+                    testCookie: 'fragment',
+                    dependencies: [],
+                    assets: []
+                }, '');
+
+
+                fragment.getAsset('nope').then(asset => {
+                    try {
+                        expect(asset).to.eq(null);
+                        done();
+                    } catch (e) {
+                        done(e);
+                    }
+                });
+            });
         });
     });
 }
+
