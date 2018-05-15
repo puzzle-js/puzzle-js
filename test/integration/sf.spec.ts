@@ -86,7 +86,7 @@ export default () => {
                             gateway.stopUpdating();
                         });
 
-                        expect(res.text).to.eq(`<div><html><head>${CONTENT_REPLACE_SCRIPT}</head><body><div puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main"></div></div><div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Product Content</div><script>$p('[puzzle-chunk="product_main"]','[puzzle-chunk-key="product_main"]');</script></body></html>`);
+                        expect(res.text).to.eq(`<div><html><head>${CONTENT_REPLACE_SCRIPT}</head><body><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main"></div></div><div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Product Content</div><script>$p('[puzzle-chunk="product_main"]','[puzzle-chunk-key="product_main"]');</script></body></html>`);
                         done(err);
                     });
             });
@@ -145,7 +145,7 @@ export default () => {
                     .get('/')
                     .expect(200)
                     .end((err, res) => {
-                        expect(res.text).to.eq(`<div><html><head>${CONTENT_REPLACE_SCRIPT}</head><body><div puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main"></div></div><div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Product Content</div><script>$p('[puzzle-chunk="product_main"]','[puzzle-chunk-key="product_main"]');</script></body></html>`);
+                        expect(res.text).to.eq(`<div><html><head>${CONTENT_REPLACE_SCRIPT}</head><body><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main"></div></div><div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Product Content</div><script>$p('[puzzle-chunk="product_main"]','[puzzle-chunk-key="product_main"]');</script></body></html>`);
                         nock.cleanAll();
                         hash_nock(true, 'enabled');
 
@@ -160,7 +160,7 @@ export default () => {
                                     });
                                     nock.cleanAll();
 
-                                    expect(res.text).to.eq(`<div><html><head>${CONTENT_REPLACE_SCRIPT}</head><body><div puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main" puzzle-placeholder="product_main_placeholder">Product Placeholder</div></div><div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Product Content</div><script>$p('[puzzle-chunk="product_main"]','[puzzle-chunk-key="product_main"]');</script></body></html>`);
+                                    expect(res.text).to.eq(`<div><html><head>${CONTENT_REPLACE_SCRIPT}</head><body><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main" puzzle-placeholder="product_main_placeholder">Product Placeholder</div></div><div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Product Content</div><script>$p('[puzzle-chunk="product_main"]','[puzzle-chunk-key="product_main"]');</script></body></html>`);
 
                                     done();
                                 });
@@ -219,7 +219,7 @@ export default () => {
                             gateway.stopUpdating();
                         });
 
-                        expect(res.text).to.eq(`<div><html><head/><body><div puzzle-fragment="product" puzzle-gateway="Browsing">Product Content Not Found</div></body></html></div>`);
+                        expect(res.text).to.eq(`<div><html><head/><body><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing">Product Content Not Found</div></body></html></div>`);
                         done(err);
                     });
             });

@@ -1,6 +1,6 @@
 {
   "name": "ty-puzzlejs",
-  "version": "2.1.14",
+  "version": "2.1.16",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "license": "MIT",
