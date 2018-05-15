@@ -39,7 +39,7 @@
     "build": "tsc",
     "test": "nyc --check-coverage --lines=90 mocha -r ts-node/register test/root.spec.ts",
     "test:watch": "mocha --watch --require ts-node/register --watch-extensions ts,tsx test/root.spec.ts",
-    "publish:beta": "yarn build && yarn publish --tag=beta"
+    "publish:beta": "yarn publish --tag=beta"
   },
   "dependencies": {
     "async": "^2.6.0",
