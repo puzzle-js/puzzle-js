@@ -12,7 +12,6 @@ export interface IStorefrontConfig {
     port: number;
     pages: IPageConfiguration[];
     pollInterval?: number;
-    url: string;
 }
 
 export class Storefront {

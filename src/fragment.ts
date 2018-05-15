@@ -6,6 +6,7 @@ import {DEFAULT_CONTENT_TIMEOUT} from "./config";
 import {IFileResourceAsset, IFileResourceDependency} from "./resourceFactory";
 import {IExposeFragment} from "./gateway";
 import {logger} from "./logger";
+import url from "url";
 
 export interface IFragmentCookieMap {
     name: string;
@@ -120,7 +121,7 @@ export class FragmentStorefront extends Fragment {
      * @param {string} gatewayUrl
      */
     update(config: IExposeFragment, gatewayUrl: string) {
-        this.fragmentUrl = `${gatewayUrl}/${this.name}`;
+        this.fragmentUrl = url.resolve(gatewayUrl, this.name);
         this.config = config;
     }
 
