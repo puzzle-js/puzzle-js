@@ -52,7 +52,6 @@ export default () => {
                 },
                 hash: '12345'
             }, false)
-                .log(console.log)
                 .get('/product/')
                 .query({[RENDER_MODE_QUERY_NAME]: FRAGMENT_RENDER_MODES.STREAM})
                 .reply(200, {
