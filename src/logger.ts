@@ -93,8 +93,9 @@ if (process.env.production) {
  * @type {{logger: *, stream: {write: module.exports.stream.write}}}
  */
 export const stream = {
-    write: (message: any) => {
-        logger.info(message);
+    write: (message: string) => {
+        const level = message.match(/RES: [4|5]/) ? 'error' : 'info';
+        logger[level](message);
     }
 };
 
