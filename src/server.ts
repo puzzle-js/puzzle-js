@@ -8,8 +8,10 @@ import compression from "compression";
 import * as Http from "http";
 import {NextFunction, Request, RequestHandlerParams, Response} from "express-serve-static-core";
 import {ServeStaticOptions} from "serve-static";
-import {HTTP_METHODS} from "./enums";
+import {EVENTS, HTTP_METHODS} from "./enums";
 import {stream} from "./logger";
+import {pubsub} from "./util";
+
 
 //todo connect morgan
 const morganLoggingLevels = [
@@ -28,6 +30,15 @@ export class Server {
         this.app = express();
         this.server = null;
         this.addMiddlewares();
+
+
+        pubsub.on(EVENTS.ADD_ROUTE, (e: { path: string, method: HTTP_METHODS, handler: (req: Request, res: Response, next: NextFunction) => any }) => {
+            this.addRoute(
+                e.path,
+                e.method,
+                e.handler
+            );
+        });
     }
 
     public addUse(path: string | null, handler: (req: Request, res: Response, next: NextFunction) => any) {

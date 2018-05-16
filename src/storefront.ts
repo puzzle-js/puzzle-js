@@ -7,6 +7,7 @@ import {EVENTS, HTTP_METHODS} from "./enums";
 import {wait} from "./util";
 import {logger} from "./logger";
 import {IFileResourceStorefrontDependency, default as ResourceFactory} from "./resourceFactory";
+import {EventEmitter} from "events";
 
 export interface IStorefrontConfig {
     gateways: IGatewayConfiguration[];
@@ -18,6 +19,7 @@ export interface IStorefrontConfig {
 
 export class Storefront {
     server: Server = new Server();
+    events: EventEmitter = new EventEmitter();
     config: IStorefrontConfig;
     pages: IPageMap = {};
     gateways: IGatewayMap = {};

@@ -36,6 +36,7 @@ export interface IGatewayMap {
 export interface IGatewayConfiguration {
     name: string;
     url: string;
+    assetUrl?: string;
 }
 
 export interface IGatewayBFFConfiguration extends IGatewayConfiguration {
@@ -61,16 +62,20 @@ export class Gateway {
     constructor(gatewayConfig: IGatewayConfiguration) {
         this.name = gatewayConfig.name;
         this.url = gatewayConfig.url;
+
     }
 }
 
 export class GatewayStorefrontInstance extends Gateway {
     events: EventEmitter = new EventEmitter();
     config: IExposeConfig | undefined;
+    assetUrl: string | undefined;
     private intervalId: Timer | null | number = null;
 
     constructor(gatewayConfig: IGatewayConfiguration) {
         super(gatewayConfig);
+
+        this.assetUrl = gatewayConfig.assetUrl;
 
         this.fetch();
     }

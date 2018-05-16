@@ -120,8 +120,13 @@ export class FragmentStorefront extends Fragment {
      * @param {IExposeFragment} config
      * @param {string} gatewayUrl
      */
-    update(config: IExposeFragment, gatewayUrl: string) {
-        this.fragmentUrl = url.resolve(gatewayUrl, this.name);
+    update(config: IExposeFragment, gatewayUrl: string, assetUrl?: string | undefined) {
+        if (assetUrl) {
+            this.fragmentUrl = url.resolve(assetUrl, this.name);
+        } else {
+            this.fragmentUrl = url.resolve(gatewayUrl, this.name);
+        }
+
         this.config = config;
     }
 

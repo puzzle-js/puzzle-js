@@ -3,8 +3,9 @@ import {expect} from "chai";
 import {Server} from "../src/server";
 import request from "supertest";
 import * as path from "path";
-import {HTTP_METHODS} from "../src/enums";
+import {EVENTS, HTTP_METHODS} from "../src/enums";
 import * as fs from "fs";
+import {pubsub} from "../src/util";
 
 const TEST_CONFIG = {
     TEST_PORT: 3242,
@@ -14,7 +15,7 @@ const TEST_CONFIG = {
 const server: Server = new Server();
 
 export default () => {
-    describe('Server', function () {
+    describe('Server', () => {
         beforeEach(() => {
             const cache = require.cache;
             for (let moduleId in cache) {
@@ -26,19 +27,19 @@ export default () => {
             server.close();
         });
 
-        it('should export server module', function () {
+        it('should export server module', () => {
             expect(server).to.be.an('object');
         });
 
-        it('should has a listen method for listening port', function () {
+        it('should has a listen method for listening port', () => {
             expect(server.listen).to.be.a('function');
         });
 
-        it('should has a method for adding new route', function () {
+        it('should has a method for adding new route', () => {
             expect(server.addRoute).to.be.a('function');
         });
 
-        it('should start listening port', function (done) {
+        it('should start listening port', done => {
             const listenHandler = (e: Error) => {
                 expect(e).to.eq(undefined);
                 done();
@@ -47,7 +48,7 @@ export default () => {
             server.listen(TEST_CONFIG.TEST_PORT, listenHandler);
         });
 
-        it('should add route', function (done) {
+        it('should add route', done => {
             server.addRoute('/test', HTTP_METHODS.GET, (req, res, next) => {
                 res.end('OK');
             });
@@ -60,7 +61,24 @@ export default () => {
             });
         });
 
-        it('should add uses', function (done) {
+        it('should add route by event', (done) => {
+            pubsub.emit(EVENTS.ADD_ROUTE, {
+                path: '/test',
+                method: HTTP_METHODS.GET,
+                handler: (req: any, res: any, next: any) => {
+                    res.end('OK');
+                }
+            });
+
+            server.listen(TEST_CONFIG.TEST_PORT, () => {
+                request(TEST_CONFIG.TEST_URL).get('/test').expect(200).end((err, res) => {
+                    expect(res.text).to.eq('OK');
+                    done();
+                });
+            });
+        });
+
+        it('should add uses', done => {
             let doneCount = 0;
             server.addUse('/test2', (req, res, next) => {
                 res.status(404).end();
@@ -80,11 +98,11 @@ export default () => {
             });
         });
 
-        it('should has a method for serving static files', function () {
+        it('should has a method for serving static files', () => {
             expect(server.setStatic).to.be.a('function');
         });
 
-        it('should serve static files from path', function (done) {
+        it('should serve static files from path', done => {
             const testFileContents = fs.readFileSync(path.join(TEST_CONFIG.TEST_STATIC_FOLDER, './test.js'), 'utf8');
             server.setStatic('/s', TEST_CONFIG.TEST_STATIC_FOLDER);
 
@@ -96,7 +114,7 @@ export default () => {
             });
         });
 
-        it('should serve static files from path globally', function (done) {
+        it('should serve static files from path globally', done => {
             const testFileContents = fs.readFileSync(path.join(TEST_CONFIG.TEST_STATIC_FOLDER, './test.js'), 'utf8');
             server.setStatic(null, TEST_CONFIG.TEST_STATIC_FOLDER);
 
@@ -108,7 +126,7 @@ export default () => {
             });
         });
 
-        it('should respond with 200', function (done) {
+        it('should respond with 200', done => {
             server.addRoute('/healthcheck', HTTP_METHODS.GET, (req, res) => {
                 res.status(200).end();
             });
@@ -121,7 +139,7 @@ export default () => {
             });
         });
 
-        it('should add middlewares', function (done) {
+        it('should add middlewares', done => {
 
             server.addRoute('/healthcheck', HTTP_METHODS.GET, (req, res) => {
                 res.status(200).end('No it is not working');
@@ -137,7 +155,7 @@ export default () => {
             });
         });
 
-        it('should create another server', function (done) {
+        it('should create another server', done => {
             const anotherServer = new Server();
 
             anotherServer.addRoute('/', HTTP_METHODS.GET, (req, res) => {

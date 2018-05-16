@@ -5,7 +5,7 @@ import {CONTENT_NOT_FOUND_ERROR} from "./config";
 import {IPageDependentGateways} from "./page";
 import async from "async";
 import {
-    CONTENT_REPLACE_SCRIPT,
+    CONTENT_REPLACE_SCRIPT, EVENTS, HTTP_METHODS,
     REPLACE_ITEM_TYPE,
     RESOURCE_INJECT_TYPE,
     RESOURCE_LOCATION,
@@ -14,6 +14,8 @@ import {
 import ResourceFactory, {IFileResourceAsset} from "./resourceFactory";
 import CleanCSS from "clean-css";
 import {IFragmentContentResponse} from "./page";
+import md5 from "md5";
+import {pubsub} from "./util";
 
 
 export interface IReplaceItem {
@@ -572,7 +574,18 @@ export class Template {
                 if (!err) {
                     let output = _CleanCss.minify(styleSheets.join(''));
                     if (output.styles.length > 0) {
-                        this.dom('head').append(`<style>${output.styles}</style>`);
+                        const styleHash = md5(output.styles);
+                        const path = `/static/${styleHash}.min.css`;
+                        pubsub.emit(EVENTS.ADD_ROUTE, {
+                            path: path,
+                            method: HTTP_METHODS.GET,
+                            handler(req: any, res: any) {
+                                res.set('content-type', 'text/css');
+                                res.send(output.styles);
+                            }
+                        });
+
+                        this.dom('head').append(`<link puzzle-dependency="dynamic" rel="stylesheet" href="${path}" />`);
                     }
                 }
                 resolve();
