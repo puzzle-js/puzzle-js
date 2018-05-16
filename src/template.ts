@@ -167,7 +167,7 @@ export class Template {
         const waitedFragmentReplacements: IReplaceSet[] = this.replaceWaitedFragmentContainers(fragmentsShouldBeWaited, replaceScripts);
         const chunkReplacements: IReplaceSet[] = this.replaceChunkedFragmentContainers(chunkedFragments);
         this.replaceUnfetchedFragments(Object.values(this.fragments).filter(fragment => !fragment.config));
-        this.addDependencies();
+        await this.addDependencies();
 
         await this.replaceStaticFragments(staticFragments);
         await this.appendPlaceholders(chunkReplacements);
@@ -343,15 +343,21 @@ export class Template {
      */
     private addDependencies() {
         let injectedDependencies: string[] = [];
-        Object.values(this.fragments).forEach(fragment => {
-            if (fragment.config) {
-                fragment.config.dependencies.forEach(dependency => {
-                    if (injectedDependencies.indexOf(dependency.name) == -1) {
-                        injectedDependencies.push(dependency.name);
-                        this.dom('head').append(ResourceFactory.instance.getDependencyContent(dependency.name));
-                    }
-                });
-            }
+
+        return new Promise((resolve, reject) => {
+            async.each(Object.values(this.fragments), (fragment, cb) => {
+                if(fragment.config){
+                    async.each(fragment.config.dependencies, async (dependency, cb1) => {
+                        if (injectedDependencies.indexOf(dependency.name) == -1) {
+                            injectedDependencies.push(dependency.name);
+                            this.dom('head').append(await ResourceFactory.instance.getDependencyContent(dependency.name, dependency.injectType));
+                        }
+                        cb1();
+                    }, cb);
+                }else{
+                    cb();
+                }
+            },resolve);
         });
     }
 
