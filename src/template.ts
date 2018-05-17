@@ -555,7 +555,7 @@ export class Template {
     private async buildStyleSheets() {
         const _CleanCss = new CleanCSS({
             level: {
-                2: {
+                1: {
                     all: true
                 }
             }
