@@ -2,6 +2,7 @@ import md5 from "md5";
 import {EventEmitter} from "events";
 import {FragmentBFF, IFragmentBFF, IFragmentBFFRender} from "./fragment";
 import {
+    CONTENT_REPLACE_SCRIPT,
     DEFAULT_MAIN_PARTIAL,
     EVENTS,
     FRAGMENT_RENDER_MODES,
@@ -280,8 +281,19 @@ export class GatewayBFF extends Gateway {
 
     private addPlaceholderRoutes(cb: Function) {
         this.config.fragments.forEach(fragment => {
-            this.server.addRoute(`/${fragment.name}/placeholder`, HTTP_METHODS.GET, (req, res, next) => {
-                res.end(this.fragments[fragment.name].placeholder(req, req.cookies[fragment.testCookie]));
+            this.server.addRoute(`/${fragment.name}/placeholder`, HTTP_METHODS.GET, async (req, res, next) => {
+                if (req.query.delay && +req.query.delay) {
+                    res.set('content-type', 'text/html');
+                    res.write(this.wrapFragmentContent(this.fragments[fragment.name].placeholder(req, req.cookies[fragment.testCookie]), this.fragments[fragment.name], req.cookies[fragment.testCookie]));
+                    const gatewayContent = await this.fragments[fragment.name].render(req, req.cookies[fragment.testCookie]);
+                    res.write(`${CONTENT_REPLACE_SCRIPT}<div style="display: none;" id="${fragment.name}-replace">${gatewayContent[DEFAULT_MAIN_PARTIAL]}</div>`);
+                    setTimeout(() => {
+                        res.write(`<script>$p('#${fragment.name}', '#${fragment.name}-replace')</script>`);
+                        res.end();
+                    }, +req.query.delay);
+                } else {
+                    res.send(this.fragments[fragment.name].placeholder(req, req.cookies[fragment.testCookie]));
+                }
             });
         });
 

@@ -5,6 +5,7 @@ import request from "supertest";
 import {IGatewayBFFConfiguration} from "../../src/gateway";
 import {PREVIEW_PARTIAL_QUERY_NAME, RENDER_MODE_QUERY_NAME} from "../../src/config";
 import {
+    CONTENT_REPLACE_SCRIPT,
     FRAGMENT_RENDER_MODES,
     HTTP_METHODS,
     RESOURCE_INJECT_TYPE,
@@ -492,6 +493,56 @@ export default () => {
                     .end((err, res) => {
                         bff.server.close();
                         expect(res.text).to.eq(`placeholder`);
+                        done(err);
+                    });
+            });
+        });
+
+        it('should respond with placeholder with delay', (done) => {
+            const bff = new GatewayBFF({
+                ...commonGatewayConfiguration,
+                fragments: [
+                    {
+                        name: 'product',
+                        render: {
+                            url: '/',
+                            placeholder: true
+                        },
+                        testCookie: 'product-cookie',
+                        version: '1.0.0',
+                        versions: {
+                            '1.0.0': {
+                                assets: [],
+                                dependencies: [],
+                                handler: {
+                                    content(req, data) {
+                                        return {
+                                            main: `<div>Rendered Fragment ${data.username}</div>`
+                                        };
+                                    },
+                                    data(req) {
+                                        return {
+                                            username: 'ACG'
+                                        };
+                                    },
+                                    placeholder() {
+                                        return 'placeholder';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ]
+            });
+
+            bff.init(() => {
+                request(commonGatewayConfiguration.url)
+                    .get('/product/placeholder')
+                    .query({delay: 1500})
+                    .expect(200)
+                    .end((err, res) => {
+                        bff.server.close();
+                        expect(res.text).to.eq(`<html><head><title>Browsing - product</title></head><body><div id="product">placeholder</div></body></html>${CONTENT_REPLACE_SCRIPT}<div style="display: none;" id="product-replace"><div>Rendered Fragment ACG</div></div><script>$p('#product', '#product-replace')</script>`);
                         done(err);
                     });
             });

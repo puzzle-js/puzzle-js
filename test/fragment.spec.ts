@@ -48,6 +48,16 @@ export default () => {
                 });
             });
 
+            it('should render placeholder preview', async () => {
+                const fragmentConfig = JSON.parse(JSON.stringify(commonFragmentBffConfiguration));
+                fragmentConfig.versions.test.handler.placeholder = () => {
+                    return 'placeholder'
+                };
+                const fragment = new FragmentBFF(fragmentConfig);
+                const response = await fragment.placeholder({});
+                expect(response).to.eq('placeholder');
+            });
+
             it('should throw at render error when not static and no data', done => {
                 const fragmentConfig = JSON.parse(JSON.stringify(commonFragmentBffConfiguration));
                 fragmentConfig.versions.test.handler.content = (req: any, data: any) => `${data} was here`;

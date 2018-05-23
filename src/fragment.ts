@@ -7,6 +7,7 @@ import {IFileResourceAsset, IFileResourceDependency} from "./resourceFactory";
 import {IExposeFragment} from "./gateway";
 import {logger} from "./logger";
 import url from "url";
+import path from "path";
 
 export interface IFragmentCookieMap {
     name: string;
@@ -62,10 +63,13 @@ export class Fragment {
 
 export class FragmentBFF extends Fragment {
     public config: IFragmentBFF;
+    private handler: { [version: string]: { content: () => any, placeholder: () => any, data: () => any } };
 
     constructor(config: IFragmentBFF) {
         super({name: config.name});
         this.config = config;
+
+        this.prepareHandlers();
     }
 
     /**
@@ -99,6 +103,15 @@ export class FragmentBFF extends Fragment {
         } else {
             throw new Error(`Failed to find fragment version. Fragment: ${this.config.name}, Version: ${version || this.config.version}`);
         }
+    }
+
+    private prepareHandlers() {
+        console.log(this.config);
+
+        Object.keys(this.config.versions).forEach(version => {
+            this.handler[version] = require(path.join(process.cwd(), `/src/fragments/`, this.config.name, version));
+            console.log(this.handler);
+        });
     }
 }
 
