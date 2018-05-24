@@ -2,6 +2,8 @@ export class TemplateCompiler {
     //ikisini de (\$\{.*\}) dene
     static TEMPLATE_REGEX: RegExp = /(\${.*?}?})/;
     static EXPRESSION_REGEX: RegExp = /^\${(.*?)}$/;
+    static TEMPLATE_CONTENT_REGEX: RegExp = /<template>(.*?)<\/template>/mis;
+    static PAGE_CLASS_CONTENT_REGEX: RegExp = /<script>(.*?)<\/script>(.*)<template>/mis;
 
     /**
      * Checks if there is any string interpolation.

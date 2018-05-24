@@ -5,3 +5,10 @@ export const RENDER_MODE_QUERY_NAME = '__renderMode';
 export const PREVIEW_PARTIAL_QUERY_NAME = '__partial';
 export const API_ROUTE_PREFIX = 'api';
 export const GATEWAY_PREPERATION_CHECK_INTERVAL = 200;
+export const CHEERIO_CONFIGURATION = {
+    normalizeWhitespace: true,
+    recognizeSelfClosing: true,
+    xmlMode: true,
+    lowerCaseAttributeNames: true,
+};
+export const TEMPLATE_FRAGMENT_TAG_NAME = 'fragment';

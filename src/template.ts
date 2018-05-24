@@ -1,7 +1,7 @@
 import {FragmentStorefront} from "./fragment";
 import cheerio from "cheerio";
 import {TemplateCompiler} from "./templateCompiler";
-import {CONTENT_NOT_FOUND_ERROR} from "./config";
+import {CHEERIO_CONFIGURATION, CONTENT_NOT_FOUND_ERROR, TEMPLATE_FRAGMENT_TAG_NAME} from "./config";
 import {
     IFileResourceAsset,
     IFragmentContentResponse,
@@ -25,27 +25,23 @@ import ResourceFactory from "./resourceFactory";
 import CleanCSS from "clean-css";
 import md5 from "md5";
 import {pubsub} from "./util";
+import {TemplateClass} from "./templateClass";
+import {ERROR_CODES, PuzzleError} from "./errors";
 
 
 export class Template {
     dom: CheerioStatic;
     fragments: { [name: string]: FragmentStorefront } = {};
     pageClass: TemplateClass = new TemplateClass();
-    private rawHtml: string;
 
-    constructor(rawHtml: string) {
-        this.rawHtml = rawHtml;
-        this.dom = this.loadRawHtml(rawHtml);
-
-        this.bindPageClass(rawHtml);
-
+    constructor(public rawHtml: string) {
+        this.dom = this.loadRawHtml();
+        this.bindPageClass();
         this.pageClass._onCreate();
     }
 
     public reload() {
-        this.dom = this.loadRawHtml(this.rawHtml);
-
-
+        this.dom = this.loadRawHtml();
     }
 
     /**
@@ -53,19 +49,14 @@ export class Template {
      * @param {string} rawHtml
      * @returns {CheerioStatic}
      */
-    private loadRawHtml(rawHtml: string) {
-        const templateRegex = /<template>(.*?)<\/template>/mis;
+    private loadRawHtml(): CheerioStatic {
+        const templateRegex = TemplateCompiler.TEMPLATE_CONTENT_REGEX;
+        const templateMatch = templateRegex.exec(this.rawHtml);
 
-        const templateMatch = templateRegex.exec(rawHtml);
         if (templateMatch) {
-            return cheerio.load(templateMatch[1], {
-                normalizeWhitespace: true,
-                recognizeSelfClosing: true,
-                xmlMode: true,
-                lowerCaseAttributeNames: true,
-            });
+            return cheerio.load(templateMatch[1], CHEERIO_CONFIGURATION);
         } else {
-            throw new Error('Template not found in html file');
+            throw new PuzzleError(ERROR_CODES.TEMPLATE_NOT_FOUND);
         }
     }
 
@@ -73,9 +64,9 @@ export class Template {
      * Bind user class to page
      * @param {string} rawHtml
      */
-    private bindPageClass(rawHtml: string) {
-        const pageClassScriptRegex = /<script>(.*?)<\/script>(.*)<template>/mis;
-        const scriptMatch = pageClassScriptRegex.exec(rawHtml);
+    private bindPageClass(): void {
+        const pageClassScriptRegex = TemplateCompiler.PAGE_CLASS_CONTENT_REGEX;
+        const scriptMatch = pageClassScriptRegex.exec(this.rawHtml);
         if (scriptMatch) {
             const pageClass = eval(scriptMatch[1]);
             pageClass.__proto__ = new TemplateClass();
@@ -89,9 +80,9 @@ export class Template {
      */
     getDependencies() {
         let primaryName: string | null = null;
-        this.dom = this.loadRawHtml(this.rawHtml);
+        this.dom = this.loadRawHtml();
 
-        return this.dom('fragment').toArray().reduce((dependencyList: IPageDependentGateways, fragment: any) => {
+        return this.dom(TEMPLATE_FRAGMENT_TAG_NAME).toArray().reduce((dependencyList: IPageDependentGateways, fragment: any) => {
             if (!dependencyList.gateways[fragment.attribs.from]) {
                 dependencyList.gateways[fragment.attribs.from] = {
                     gateway: null,
@@ -330,7 +321,7 @@ export class Template {
 
         return new Promise((resolve, reject) => {
             async.each(Object.values(this.fragments), (fragment, cb) => {
-                if(fragment.config){
+                if (fragment.config) {
                     async.each(fragment.config.dependencies, async (dependency, cb1) => {
                         if (injectedDependencies.indexOf(dependency.name) == -1) {
                             injectedDependencies.push(dependency.name);
@@ -338,10 +329,10 @@ export class Template {
                         }
                         cb1();
                     }, cb);
-                }else{
+                } else {
                     cb();
                 }
-            },resolve);
+            }, resolve);
         });
     }
 
@@ -582,30 +573,5 @@ export class Template {
             });
         });
     }
-}
-
-export class TemplateClass {
-    onCreate: Function | undefined;
-    onRequest: Function | undefined;
-    onChunk: Function | undefined;
-    onResponseEnd: Function | undefined;
-
-    _onCreate(...args: any[]) {
-        this.onCreate && this.onCreate(...args);
-    }
-
-    _onRequest(...args: any[]) {
-        this.onRequest && this.onRequest(...args);
-    }
-
-    _onChunk(...args: any[]) {
-        this.onChunk && this.onChunk(...args);
-    }
-
-    _onResponseEnd(...args: any[]) {
-        this.onResponseEnd && this.onResponseEnd(...args);
-    }
-
-    [name: string]: any;
 }
 

@@ -29,12 +29,7 @@ export class Page {
         this.checkPageReady();
     }
 
-    /**
-     * Creates new handler for request or uses existing. Puzzle - Express first contact.
-     * @param {{cookies: ICookieObject}} req
-     * @param {object} res
-     * @returns {Promise<void>}
-     */
+
     async handle(req: { cookies: ICookieObject }, res: object) {
         const handlerVersion = this.getHandlerVersion(req);
         if (!this.responseHandlers[handlerVersion]) {
@@ -43,9 +38,7 @@ export class Page {
         this.responseHandlers[handlerVersion](req, res);
     }
 
-    /**
-     * Checks if all pages are ready and sets this.ready to true
-     */
+
     private checkPageReady(): void {
         if (Object.keys(this.gatewayDependencies.gateways).filter(gatewayName => this.gatewayDependencies.gateways[gatewayName].ready === false).length === 0) {
             this.fragmentCookieList = this.getFragmentTestCookieList();
@@ -53,11 +46,6 @@ export class Page {
         }
     }
 
-    /**
-     * Creates handler key for requested page
-     * @param {{cookies: ICookieObject}} req
-     * @returns {string}
-     */
     private getHandlerVersion(req: { cookies: ICookieObject }) {
         return this.fragmentCookieList.reduce((fragmentHandlerVersion, fragmentCookie) => {
             fragmentHandlerVersion += `{${fragmentCookie.name}_${req.cookies[fragmentCookie.name] || fragmentCookie.live}}`;
@@ -65,10 +53,6 @@ export class Page {
         }, '');
     }
 
-    /**
-     * Fragments test cookie list
-     * @returns {IFragmentCookieMap[]}
-     */
     private getFragmentTestCookieList() {
         const cookieList: IFragmentCookieMap[] = [];
         Object.values(this.gatewayDependencies.fragments).forEach(fragment => {
@@ -83,20 +67,14 @@ export class Page {
         return cookieList;
     }
 
-    /**
-     * Callback for gateway updates
-     * @param {GatewayStorefrontInstance} gateway
-     */
+
     private gatewayUpdated(gateway: GatewayStorefrontInstance) {
         this.updateFragmentsConfig(gateway);
         this.template.reload();
         this.responseHandlers = {};
     }
 
-    /**
-     * Updates updates gateways fragments.
-     * @param {GatewayStorefrontInstance} gateway
-     */
+
     private updateFragmentsConfig(gateway: GatewayStorefrontInstance) {
         Object.values(this.gatewayDependencies.fragments).forEach(fragment => {
             if (fragment.gateway === gateway.name && gateway.config) {
@@ -105,10 +83,6 @@ export class Page {
         });
     }
 
-    /**
-     * Event for gateway ready status
-     * @param {GatewayStorefrontInstance} gateway
-     */
     private gatewayReady(gateway: GatewayStorefrontInstance) {
         this.gatewayDependencies.gateways[gateway.name].ready = true;
         this.updateFragmentsConfig(gateway);
