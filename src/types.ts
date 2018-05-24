@@ -92,7 +92,7 @@ export interface ICookieMap {
     [cookieName: string]: string;
 }
 
-export type IFragmentEndpointHandler = (req: any, res: any, next: any) => void
+export type IFragmentEndpointHandler = (req: any, res: any, next?: any) => void
 
 export interface IApiHandler {
     path: string;
@@ -205,4 +205,9 @@ export interface IReplaceAsset {
 export interface IChunkedReplacementSet {
     fragment: FragmentStorefront;
     replaceItems: IReplaceItem[];
+}
+
+export interface IWaitedResponseFirstFlush {
+    template: string;
+    statusCode: number;
 }

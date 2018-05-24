@@ -11,7 +11,7 @@ import {
     IReplaceAsset,
     IReplaceAssetSet,
     IReplaceItem,
-    IReplaceSet
+    IReplaceSet, IWaitedResponseFirstFlush
 } from "./types";
 import async from "async";
 import {
@@ -150,50 +150,42 @@ export class Template {
     }
 
 
-    private appendPlaceholders(chunkedReplacements: IChunkedReplacementSet[]) {
-        return new Promise((resolve, reject) => {
-            async.each(chunkedReplacements, async (replacement, cb) => {
-                const placeholders = replacement.replaceItems.filter(item => item.type === REPLACE_ITEM_TYPE.PLACEHOLDER);
-                async.each(placeholders, async (placeholderReplacement, rpCb) => {
-                    const placeholderContent = await replacement.fragment.getPlaceholder();
-                    this.dom(`[puzzle-placeholder="${placeholderReplacement.key}"]`).append(placeholderContent);
-                    rpCb();
-                }, cb);
-            }, resolve);
-        });
+    private async appendPlaceholders(chunkedReplacements: IChunkedReplacementSet[]) {
+        for (let replacement of chunkedReplacements) {
+            const placeholders = replacement.replaceItems.filter(item => item.type === REPLACE_ITEM_TYPE.PLACEHOLDER);
+            for (let placeholderReplacement of placeholders) {
+                const placeholderContent = await replacement.fragment.getPlaceholder();
+                this.dom(`[puzzle-placeholder="${placeholderReplacement.key}"]`).append(placeholderContent);
+            }
+        }
     }
 
     /**
      * Replaces static fragments with their content on vDOM
      * @param {FragmentStorefront[]} fragments
-     * @returns {Promise<any>}
+     * @returns {Promise<void>}
      */
-    private replaceStaticFragments(fragments: FragmentStorefront[]) {
-        return new Promise((resolve, reject) => {
-            async.each(fragments, async (fragment: FragmentStorefront, cb) => {
-                const fragmentContent: IFragmentContentResponse = await fragment.getContent();
-                this.dom(`fragment[name="${fragment.name}"][from="${fragment.from}"]`).each((i, element) => {
-                    const partial = this.dom(element).attr('partial') || 'main';
-                    this.dom(element).replaceWith(`<div id="${fragment.name}" puzzle-fragment="${fragment.name}" puzzle-gateway="${fragment.from}" fragment-partial="${element.attribs.partial || 'main'}">${fragmentContent.html[partial] || CONTENT_NOT_FOUND_ERROR}</div>`);
-                });
-                cb();
-            }, err => {
-                if (err) {
-                } //handle
-                resolve();
+    private async replaceStaticFragments(fragments: FragmentStorefront[]): Promise<void> {
+        for (let fragment of fragments) {
+            const fragmentContent: IFragmentContentResponse = await fragment.getContent();
+            this.dom(`fragment[name="${fragment.name}"][from="${fragment.from}"]`).each((i, element) => {
+                const partial = this.dom(element).attr('partial') || 'main';
+                this.dom(element).replaceWith(`<div id="${fragment.name}" puzzle-fragment="${fragment.name}" puzzle-gateway="${fragment.from}" fragment-partial="${element.attribs.partial || 'main'}">${fragmentContent.html[partial] || CONTENT_NOT_FOUND_ERROR}</div>`);
             });
-        });
+        }
     }
 
     /**
      * Replaces waited fragments with their content on first flush string.
      * @param {IReplaceSet[]} waitedFragments
-     * @param {string} output
-     * @param {Function} cb
+     * @param {string} template
+     * @param req
+     * @returns {Promise<IWaitedResponseFirstFlush>}
      */
-    private replaceWaitedFragments(waitedFragments: IReplaceSet[], output: string, req: any, cb: Function) {
+    private async replaceWaitedFragments(waitedFragments: IReplaceSet[], template: string, req: any): Promise<IWaitedResponseFirstFlush> {
         let statusCode = 200;
-        async.each(waitedFragments, async (waitedFragmentReplacement, cb) => {
+
+        for (let waitedFragmentReplacement of waitedFragments) {
             const fragmentContent = await waitedFragmentReplacement.fragment.getContent(waitedFragmentReplacement.fragmentAttributes, req);
             if (waitedFragmentReplacement.fragment.primary) {
                 statusCode = fragmentContent.status;
@@ -202,14 +194,12 @@ export class Template {
                 .forEach(replaceItem => {
                     if (replaceItem.type === REPLACE_ITEM_TYPE.CONTENT) {
                         let fragmentInject = fragmentContent.html[replaceItem.partial] || CONTENT_NOT_FOUND_ERROR;
-                        output = output.replace(replaceItem.key, fragmentInject);
+                        template = template.replace(replaceItem.key, fragmentInject);
                     }
                 });
-            cb();
-        }, err => {
-            //if (err) //todo handle error
-            cb({output, status: statusCode});
-        });
+        }
+
+        return {template, statusCode};
     }
 
     /**
@@ -217,6 +207,7 @@ export class Template {
      * @param {Function} firstFlushHandler
      * @param {IReplaceSet[]} chunkedFragmentReplacements
      * @param {IReplaceSet[]} waitedFragments
+     * @param {IReplaceAsset[]} jsReplacements
      * @returns {(req: any, res: any) => void}
      */
     private buildHandler(firstFlushHandler: Function, chunkedFragmentReplacements: IReplaceSet[], waitedFragments: IReplaceSet[] = [], jsReplacements: IReplaceAsset[] = []) {
@@ -225,66 +216,80 @@ export class Template {
             return (req: any, res: any) => {
                 this.pageClass._onRequest(req);
                 let fragmentedHtml = firstFlushHandler.call(this.pageClass, req);
-                this.replaceWaitedFragments(waitedFragments, fragmentedHtml, req, (flush: { output: string, status: number }) => {
-                    res.status(flush.status).send(flush.output);
+                (async () => {
+                    const waitedReplacement = await this.replaceWaitedFragments(waitedFragments, fragmentedHtml, req);
+                    res.status(waitedReplacement.statusCode).send(waitedReplacement.template);
                     this.pageClass._onResponseEnd();
-                });
+                })();
             };
         } else {
+            let bodyAndAssets = ``;
+            jsReplacements.forEach(replacement => {
+                replacement.replaceItems.filter(item => item.location === RESOURCE_LOCATION.BODY_END).forEach(replaceItem => {
+                    bodyAndAssets += Template.wrapJsAsset(replaceItem);
+                });
+            });
             return (req: any, res: any) => {
                 this.pageClass._onRequest(req);
                 let fragmentedHtml = firstFlushHandler.call(this.pageClass, req).replace('</body>', '').replace('</html>', '');
                 res.set('transfer-encoding', 'chunked');
                 res.set('content-type', 'text/html; charset=UTF-8');
+                (async () => {
+                    const waitedPromises: Promise<any>[] = [];
 
-                this.replaceWaitedFragments(waitedFragments, fragmentedHtml, req, (firstFlush: { output: string, status: number }) => {
-                    res.status(firstFlush.status).write(firstFlush.output);
-                    async.each(chunkedFragmentReplacements, async (chunkedReplacement, cb) => {
-                        if (chunkedReplacement.fragment.config) {
-                            const fragmentContent = await chunkedReplacement.fragment.getContent(chunkedReplacement.fragmentAttributes, req);
-                            const fragmentJsReplacements = jsReplacements.find(jsReplacement => jsReplacement.fragment.name === chunkedReplacement.fragment.name);
-                            const selfReplacing = chunkedReplacement.fragment.config.render.selfReplace;
+                    //Fire requests in parallel
+                    const waitedReplacementPromise = this.replaceWaitedFragments(waitedFragments, fragmentedHtml, req);
+                    for (let chunkedReplacement of chunkedFragmentReplacements) {
+                        waitedPromises.push(chunkedReplacement.fragment.getContent(chunkedReplacement.fragmentAttributes, req));
+                    }
 
-                            let output = ``;
+                    //Wait for first flush
+                    const waitedReplacement = await waitedReplacementPromise;
+                    res.status(waitedReplacement.statusCode).write(waitedReplacement.template);
 
-                            fragmentJsReplacements && fragmentJsReplacements.replaceItems.filter(item => item.location === RESOURCE_LOCATION.CONTENT_START).forEach(replaceItem => {
-                                output += Template.wrapJsAsset(replaceItem);
-                            });
+                    //Bind flush method to resolved or being resolved promises of chunked replacements
+                    Object.values(chunkedFragmentReplacements).forEach((chunkedReplacement, x) => {
+                        waitedPromises[x].then(this.flush(chunkedReplacement, jsReplacements, res));
+                    });
 
-                            chunkedReplacement.replaceItems
-                                .forEach(replaceItem => {
-                                    if (replaceItem.type === REPLACE_ITEM_TYPE.CHUNKED_CONTENT) {
-                                        output += `<div style="display: none;" puzzle-fragment="${chunkedReplacement.fragment.name}" puzzle-chunk-key="${replaceItem.key}">${fragmentContent.html[replaceItem.partial] || CONTENT_NOT_FOUND_ERROR}</div>`;
-                                        if (!(replaceItem.key === 'main' && selfReplacing)) {
-                                            output += `<script>$p('[puzzle-chunk="${replaceItem.key}"]','[puzzle-chunk-key="${replaceItem.key}"]');</script>`;
-                                        }
-                                    }
-                                });
-
-                            fragmentJsReplacements && fragmentJsReplacements.replaceItems.filter(item => item.location === RESOURCE_LOCATION.CONTENT_END).forEach(replaceItem => {
-                                output += Template.wrapJsAsset(replaceItem);
-                            });
-
-
-                            this.pageClass._onChunk(output);
-                            res.write(output);
-                        }
-                        cb();
-                    }, (err) => {
-                        let bodyAndAssets = ``;
-
-                        jsReplacements.forEach(replacement => {
-                            replacement.replaceItems.filter(item => item.location === RESOURCE_LOCATION.BODY_END).forEach(replaceItem => {
-                                bodyAndAssets += Template.wrapJsAsset(replaceItem);
-                            });
-                        });
-
+                    //Close stream after all chunked fragments done
+                    Promise.all(waitedPromises).then(() => {
                         res.end(`${bodyAndAssets}</body></html>`);
                         this.pageClass._onResponseEnd();
                     });
-                });
+                })();
             };
         }
+    }
+
+    private flush(chunkedReplacement: IReplaceSet, jsReplacements: IReplaceAsset[], res: any) {
+        return (fragmentContent: IFragmentContentResponse) => {
+            const fragmentJsReplacements = jsReplacements.find(jsReplacement => jsReplacement.fragment.name === chunkedReplacement.fragment.name);
+            const selfReplacing = chunkedReplacement.fragment.config && chunkedReplacement.fragment.config.render.selfReplace;
+
+            let output = ``;
+
+            fragmentJsReplacements && fragmentJsReplacements.replaceItems.filter(item => item.location === RESOURCE_LOCATION.CONTENT_START).forEach(replaceItem => {
+                output += Template.wrapJsAsset(replaceItem);
+            });
+
+            chunkedReplacement.replaceItems
+                .forEach(replaceItem => {
+                    if (replaceItem.type === REPLACE_ITEM_TYPE.CHUNKED_CONTENT) {
+                        output += `<div style="display: none;" puzzle-fragment="${chunkedReplacement.fragment.name}" puzzle-chunk-key="${replaceItem.key}">${fragmentContent.html[replaceItem.partial] || CONTENT_NOT_FOUND_ERROR}</div>`;
+                        if (!(replaceItem.key === 'main' && selfReplacing)) {
+                            output += `<script>$p('[puzzle-chunk="${replaceItem.key}"]','[puzzle-chunk-key="${replaceItem.key}"]');</script>`;
+                        }
+                    }
+                });
+
+            fragmentJsReplacements && fragmentJsReplacements.replaceItems.filter(item => item.location === RESOURCE_LOCATION.CONTENT_END).forEach(replaceItem => {
+                output += Template.wrapJsAsset(replaceItem);
+            });
+
+            this.pageClass._onChunk(output);
+            res.write(output);
+        };
     }
 
     /**
