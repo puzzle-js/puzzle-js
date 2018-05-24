@@ -1,7 +1,7 @@
 import {GatewayStorefrontInstance, IGatewayMap} from "./gateway";
 import {IPageMap, Page} from "./page";
 import async from "async";
-import {EVENTS, HTTP_METHODS} from "./enums";
+import {EVENTS, HEALTHCHECK_PATH, HTTP_METHODS, HTTP_STATUS_CODE} from "./enums";
 import {wait} from "./util";
 import {logger} from "./logger";
 import {EventEmitter} from "events";
@@ -10,6 +10,7 @@ import {container, TYPES} from "./base";
 import {Server} from "./server";
 import {IStorefrontConfig} from "./types";
 import ResourceFactory from "./resourceFactory";
+import {GATEWAY_PREPERATION_CHECK_INTERVAL} from "./config";
 
 
 @sealed
@@ -62,7 +63,7 @@ export class Storefront {
      */
     private async waitForGateways(cb: Function) {
         while (Object.keys(this.gateways).length != this.gatewaysReady) {
-            await wait(200);
+            await wait(GATEWAY_PREPERATION_CHECK_INTERVAL);
         }
         cb(null);
     }
@@ -102,8 +103,8 @@ export class Storefront {
      * @param {Function} cb
      */
     private addHealthCheckRoute(cb: Function) {
-        this.server.addRoute('/healthcheck', HTTP_METHODS.GET, (req, res) => {
-            res.status(200).end();
+        this.server.addRoute(HEALTHCHECK_PATH, HTTP_METHODS.GET, (req, res) => {
+            res.status(HTTP_STATUS_CODE.OK).end();
         });
 
         cb();
