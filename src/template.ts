@@ -17,7 +17,7 @@ import async from "async";
 import {
     CONTENT_REPLACE_SCRIPT,
     EVENTS,
-    HTTP_METHODS,
+    HTTP_METHODS, HTTP_STATUS_CODE,
     REPLACE_ITEM_TYPE,
     RESOURCE_INJECT_TYPE,
     RESOURCE_LOCATION,
@@ -183,7 +183,7 @@ export class Template {
      * @returns {Promise<IWaitedResponseFirstFlush>}
      */
     private async replaceWaitedFragments(waitedFragments: IReplaceSet[], template: string, req: any): Promise<IWaitedResponseFirstFlush> {
-        let statusCode = 200;
+        let statusCode = HTTP_STATUS_CODE.OK;
 
         for (let waitedFragmentReplacement of waitedFragments) {
             const fragmentContent = await waitedFragmentReplacement.fragment.getContent(waitedFragmentReplacement.fragmentAttributes, req);
