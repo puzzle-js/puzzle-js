@@ -90,7 +90,7 @@ export default () => {
                 });
             });
 
-            it('should resolve module when handler is not provided', function () {
+            it('should resolve module when handler is not provided', () => {
                 const bff = {
                     ...commonFragmentBffConfiguration,
                     version: '1.0.0',
@@ -350,7 +350,7 @@ export default () => {
                 expect(assetPath).to.eq(null);
             });
 
-            it('should return asset path if public asset link provided', function () {
+            it('should return asset path if public asset link provided', () => {
                 const fragment = new FragmentStorefront('product', 'test');
 
                 fragment.update({

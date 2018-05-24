@@ -375,16 +375,21 @@ export default () => {
                         liveVersion: '1.0.0',
                         testCookie: 'test_v',
                         versions: {
-                            '1.0.0': [
-                                {
-                                    middlewares: [],
-                                    method: HTTP_METHODS.GET,
-                                    path: '/',
-                                    handler: (req: object, res: any) => {
+                            '1.0.0': {
+                                handler: {
+                                    test: (req: object, res: any) => {
                                         res.end('working');
                                     }
-                                }
-                            ]
+                                },
+                                endpoints: [
+                                    {
+                                        middlewares: [],
+                                        method: HTTP_METHODS.GET,
+                                        path: '/',
+                                        controller: 'test'
+                                    }
+                                ]
+                            }
                         }
                     }
                 ]
@@ -411,26 +416,36 @@ export default () => {
                         liveVersion: '1.0.0',
                         testCookie: 'test_v',
                         versions: {
-                            '1.0.0': [
-                                {
-                                    middlewares: [],
-                                    method: HTTP_METHODS.GET,
-                                    path: '/',
-                                    handler: (req: object, res: any) => {
+                            '1.0.0': {
+                                handler: {
+                                    test: (req: object, res: any) => {
                                         res.end('working');
                                     }
-                                }
-                            ],
-                            '1.0.1': [
-                                {
-                                    middlewares: [],
-                                    method: HTTP_METHODS.GET,
-                                    path: '/',
-                                    handler: (req: object, res: any) => {
+                                },
+                                endpoints: [
+                                    {
+                                        middlewares: [],
+                                        method: HTTP_METHODS.GET,
+                                        path: '/',
+                                        controller: 'test'
+                                    }
+                                ]
+                            },
+                            '1.0.1': {
+                                handler: {
+                                    test: (req: object, res: any) => {
                                         res.end('working1.0.1');
                                     }
-                                }
-                            ]
+                                },
+                                endpoints: [
+                                    {
+                                        middlewares: [],
+                                        method: HTTP_METHODS.GET,
+                                        path: '/',
+                                        controller: 'test'
+                                    }
+                                ]
+                            }
                         }
                     }
                 ]

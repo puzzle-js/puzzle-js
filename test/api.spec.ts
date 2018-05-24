@@ -3,6 +3,7 @@ import {expect} from "chai";
 import {HTTP_METHODS} from "../src/enums";
 import {Server} from "../src/server";
 import supertest from "supertest";
+import {FragmentBFF} from "../src/fragment";
 
 
 export default () => {
@@ -24,16 +25,21 @@ export default () => {
                 name: 'browsing',
                 testCookie: 'browsing-version',
                 versions: {
-                    '1.0.0': [
-                        {
-                            method: HTTP_METHODS.GET,
-                            path: '/history',
-                            handler: (req: any, res: any) => {
+                    '1.0.0': {
+                        handler: {
+                            'test': (req: any, res: any) => {
                                 res.end('working');
-                            },
-                            middlewares: []
-                        }
-                    ]
+                            }
+                        },
+                        endpoints: [
+                            {
+                                method: HTTP_METHODS.GET,
+                                path: '/history',
+                                controller: 'test',
+                                middlewares: []
+                            }
+                        ]
+                    }
                 }
             });
 
@@ -48,16 +54,21 @@ export default () => {
                 name: 'browsing',
                 testCookie: 'browsing-version',
                 versions: {
-                    '1.0.0': [
-                        {
-                            method: HTTP_METHODS.GET,
-                            path: '/history',
-                            handler: (req: any, res: any) => {
+                    '1.0.0': {
+                        handler: {
+                            'test': (req: any, res: any) => {
                                 res.end('working');
-                            },
-                            middlewares: []
-                        }
-                    ]
+                            }
+                        },
+                        endpoints: [
+                            {
+                                method: HTTP_METHODS.GET,
+                                path: '/history',
+                                controller: 'test',
+                                middlewares: []
+                            }
+                        ]
+                    }
                 }
             });
 
@@ -81,26 +92,36 @@ export default () => {
                 name: 'browsing',
                 testCookie: 'browsing-version',
                 versions: {
-                    '1.0.0': [
-                        {
-                            method: HTTP_METHODS.GET,
-                            path: '/history',
-                            handler: (req: any, res: any) => {
+                    '1.0.0': {
+                        handler: {
+                            'test': (req: any, res: any) => {
                                 res.end('working');
-                            },
-                            middlewares: []
-                        }
-                    ],
-                    '1.0.1': [
-                        {
-                            method: HTTP_METHODS.GET,
-                            path: '/history',
-                            handler: (req: any, res: any) => {
+                            }
+                        },
+                        endpoints: [
+                            {
+                                method: HTTP_METHODS.GET,
+                                path: '/history',
+                                controller: 'test',
+                                middlewares: []
+                            }
+                        ]
+                    },
+                    '1.0.1': {
+                        handler: {
+                            'test': (req: any, res: any) => {
                                 res.end('working1.0.1');
-                            },
-                            middlewares: []
-                        }
-                    ]
+                            }
+                        },
+                        endpoints: [
+                            {
+                                method: HTTP_METHODS.GET,
+                                path: '/history',
+                                controller: 'test',
+                                middlewares: []
+                            }
+                        ]
+                    }
                 }
             });
 
@@ -115,6 +136,28 @@ export default () => {
                     expect(res.text).to.eq('working1.0.1');
                     done();
                 });
+        });
+
+        it('should resolve handler when not provided', () => {
+            expect(() => {
+                const api = new Api({
+                    liveVersion: '1.0.0',
+                    name: 'browsing',
+                    testCookie: 'browsing-version',
+                    versions: {
+                        '1.0.0': {
+                            endpoints: [
+                                {
+                                    method: HTTP_METHODS.GET,
+                                    path: '/history',
+                                    controller: 'test',
+                                    middlewares: []
+                                }
+                            ]
+                        }
+                    }
+                });
+            }).to.throw('/api/browsing/1.0.0');
         });
     });
 }
