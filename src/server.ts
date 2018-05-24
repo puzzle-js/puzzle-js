@@ -83,6 +83,6 @@ export class Server {
         this.app.use(bodyParser.urlencoded({extended: false}));
         this.app.use(cookieParser());
         this.app.use(cors());
-        this.app.use(compression());
+        //this.app.use(compression()); //todo must work on it
     }
 }

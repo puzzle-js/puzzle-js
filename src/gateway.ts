@@ -284,7 +284,8 @@ export class GatewayBFF extends Gateway {
             this.server.addRoute(`/${fragment.name}/placeholder`, HTTP_METHODS.GET, async (req, res, next) => {
                 if (req.query.delay && +req.query.delay) {
                     res.set('content-type', 'text/html');
-                    res.write(this.wrapFragmentContent(this.fragments[fragment.name].placeholder(req, req.cookies[fragment.testCookie]), this.fragments[fragment.name], req.cookies[fragment.testCookie]));
+                    const dom = cheerio.load(`<html><head><title>${this.config.name} - ${fragment.name}</title>${this.config.isMobile ? '<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />' : ''}</head><body><div id="${fragment.name}">${this.fragments[fragment.name].placeholder(req, req.cookies[fragment.testCookie])}</div></body></html>`);
+                    res.write(dom.html());
                     const gatewayContent = await this.fragments[fragment.name].render(req, req.cookies[fragment.testCookie]);
                     res.write(`${CONTENT_REPLACE_SCRIPT}<div style="display: none;" id="${fragment.name}-replace">${gatewayContent[DEFAULT_MAIN_PARTIAL]}</div>`);
                     setTimeout(() => {
