@@ -1,19 +1,19 @@
 import express, {Express} from "express";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
+import "reflect-metadata";
 import morgan from "morgan";
 import bodyParser from "body-parser";
 import cors from "cors";
-import compression from "compression";
 import * as Http from "http";
 import {NextFunction, Request, RequestHandlerParams, Response} from "express-serve-static-core";
 import {ServeStaticOptions} from "serve-static";
 import {EVENTS, HTTP_METHODS} from "./enums";
 import {stream} from "./logger";
 import {pubsub} from "./util";
+import {injectable} from "inversify";
 
 
-//todo connect morgan
 const morganLoggingLevels = [
     'Date: [:date[clf]]',
     'IP: :remote-addr',
@@ -22,6 +22,7 @@ const morganLoggingLevels = [
     'UA: :user-agent',
 ];
 
+@injectable()
 export class Server {
     app: Express;
     server: Http.Server | null;

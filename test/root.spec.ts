@@ -1,3 +1,5 @@
+import "reflect-metadata";
+
 //Unit Tests
 import fragmentTests from "./fragment.spec";
 import gatewayTests from "./gateway.spec";
@@ -10,24 +12,25 @@ import apiTest from "./api.spec";
 import loggerTest from "./logger.spec";
 
 
+
 //Integration Tests
 import bffIntegrationTests from "./integration/bff.spec";
 import storefrontIntegrationTests from "./integration/sf.spec";
 
 
 describe('Unit Tests', () => {
-    fragmentTests();
-    gatewayTests();
-    pageTests();
-    resourceTest();
+    // fragmentTests();
+    // gatewayTests();
+    // pageTests();
+    // resourceTest();
     storefrontTests();
-    templateTests();
-    serverTests();
-    apiTest();
-    loggerTest();
+    // templateTests();
+    // serverTests();
+    // apiTest();
+    // loggerTest();
 });
 
 describe('Integration', () => {
-    bffIntegrationTests();
-    storefrontIntegrationTests();
+    // bffIntegrationTests();
+    // storefrontIntegrationTests();
 });

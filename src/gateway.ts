@@ -63,7 +63,6 @@ export class Gateway {
     constructor(gatewayConfig: IGatewayConfiguration) {
         this.name = gatewayConfig.name;
         this.url = gatewayConfig.url;
-
     }
 }
 

@@ -1,13 +1,16 @@
 import {GatewayStorefrontInstance, IGatewayConfiguration, IGatewayMap} from "./gateway";
 import {IPageConfiguration, Page} from "./page";
 import {IPageMap} from "./page";
-import {Server} from "./server";
 import async from "async";
 import {EVENTS, HTTP_METHODS} from "./enums";
 import {wait} from "./util";
 import {logger} from "./logger";
 import {IFileResourceStorefrontDependency, default as ResourceFactory} from "./resourceFactory";
 import {EventEmitter} from "events";
+import {conditionalInject, sealed} from "./decorators";
+import {inject} from "inversify";
+import {container, TYPES} from "./base";
+import {Server} from "./server";
 
 export interface IStorefrontConfig {
     gateways: IGatewayConfiguration[];
@@ -17,28 +20,33 @@ export interface IStorefrontConfig {
     dependencies: IFileResourceStorefrontDependency[];
 }
 
+
+@sealed
 export class Storefront {
-    server: Server = new Server();
+    server: Server;
     events: EventEmitter = new EventEmitter();
     config: IStorefrontConfig;
     pages: IPageMap = {};
     gateways: IGatewayMap = {};
     private gatewaysReady = 0;
 
+
     /**
      * Start point for Storefront. Creates pages, gateways.
      * @param {IStorefrontConfig} storefrontConfig
      */
-    constructor(storefrontConfig: IStorefrontConfig) {
-        this.createStorefrontPagesAndGateways(storefrontConfig);
 
+    constructor(storefrontConfig: IStorefrontConfig, _server?: Server) {
+        this.server = _server || container.get(TYPES.Server);
+        this.createStorefrontPagesAndGateways(storefrontConfig);
         this.config = storefrontConfig;
     }
 
 
     private createStorefrontPagesAndGateways(storefrontConfig: IStorefrontConfig) {
         storefrontConfig.gateways.forEach(gatewayConfiguration => {
-            this.gateways[gatewayConfiguration.name] = new GatewayStorefrontInstance(gatewayConfiguration);
+            const gateway = new GatewayStorefrontInstance(gatewayConfiguration);
+            this.gateways[gatewayConfiguration.name] = gateway;
 
             this.gateways[gatewayConfiguration.name].events.once(EVENTS.GATEWAY_READY, () => {
                 this.gatewaysReady++;
@@ -60,6 +68,7 @@ export class Storefront {
             this.registerDependencies.bind(this),
             async (cb: any) => {
                 while (Object.keys(this.gateways).length != this.gatewaysReady) {
+                    console.log('wait');
                     await wait(200);
                 }
 
@@ -77,7 +86,7 @@ export class Storefront {
         });
     }
 
-    private registerDependencies(cb: Function){
+    private registerDependencies(cb: Function) {
         this.config.dependencies.forEach(dependency => {
             ResourceFactory.instance.registerDependencies(dependency);
         });

@@ -73,7 +73,6 @@ export default () => {
             });
 
             storefrontInstance.init(() => {
-
                 request(storefrontInstance.server.app)
                     .get('/healthcheck')
                     .expect(200)

@@ -50,9 +50,11 @@
     "cors": "^2.8.4",
     "express": "^4.16.3",
     "helmet": "latest",
+    "inversify": "^4.13.0",
     "md5": "^2.2.1",
     "morgan": "^1.9.0",
     "node-fetch": "^2.1.2",
+    "reflect-metadata": "^0.1.12",
     "uuid": "^3.2.1",
     "winston": "^3.0.0-rc1",
     "winston-graylog2": "^1.0.0"
