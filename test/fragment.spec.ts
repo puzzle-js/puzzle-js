@@ -51,7 +51,7 @@ export default () => {
             it('should render placeholder preview', async () => {
                 const fragmentConfig = JSON.parse(JSON.stringify(commonFragmentBffConfiguration));
                 fragmentConfig.versions.test.handler.placeholder = () => {
-                    return 'placeholder'
+                    return 'placeholder';
                 };
                 const fragment = new FragmentBFF(fragmentConfig);
                 const response = await fragment.placeholder({});
@@ -88,6 +88,64 @@ export default () => {
                     expect(e.message).to.include('Failed to find fragment version');
                     done();
                 });
+            });
+
+            it('should resolve module when handler is not provided', function () {
+                const bff = {
+                    ...commonFragmentBffConfiguration,
+                    version: '1.0.0',
+                    versions: {
+                        "1.0.0": {
+                            assets: [],
+                            dependencies: [],
+                        }
+                    }
+                };
+                const fragmentConfig = JSON.parse(JSON.stringify(bff));
+                expect(() => {
+                    const fragment = new FragmentBFF(fragmentConfig);
+                }).to.throw('/fragments/test/1.0.0');
+            });
+
+
+            it('should throw error when fails to find requested fragment placeholder', () => {
+                const bff = {
+                    ...commonFragmentBffConfiguration,
+                    version: '1.0.0',
+                    versions: {
+                        "2.0.0": {
+                            assets: [],
+                            dependencies: [],
+                            handler: {}
+                        }
+                    }
+                };
+                const fragmentConfig = JSON.parse(JSON.stringify(bff));
+                expect(() => {
+                    const fragment = new FragmentBFF(fragmentConfig);
+                    const placeholder = fragment.placeholder({}, '123');
+                }).to.throw('Failed to find fragment version. Fragment: test, Version: 123');
+            });
+
+            it('should throw error when fails to find requested fragment content', async () => {
+                const bff = {
+                    ...commonFragmentBffConfiguration,
+                    version: '1.0.0',
+                    versions: {
+                        "2.0.0": {
+                            assets: [],
+                            dependencies: [],
+                            handler: {}
+                        }
+                    }
+                };
+                const fragmentConfig = JSON.parse(JSON.stringify(bff));
+                const fragment = new FragmentBFF(fragmentConfig);
+
+                try {
+                    await fragment.render({}, '123');
+                } catch (err) { return; }
+                throw new Error('Should have thrown an error');
             });
         });
 

@@ -41,7 +41,7 @@ export interface IFragmentHandler {
 export interface IFragmentBFFVersion {
     assets: IFileResourceAsset[];
     dependencies: IFileResourceDependency[];
-    handler: IFragmentHandler;
+    handler?: IFragmentHandler;
 }
 
 export interface IFragmentBFF extends IFragment {
@@ -63,7 +63,7 @@ export class Fragment {
 
 export class FragmentBFF extends Fragment {
     public config: IFragmentBFF;
-    private handler: { [version: string]: { content: () => any, placeholder: () => any, data: () => any } };
+    private handler: { [version: string]: IFragmentHandler } = {};
 
     constructor(config: IFragmentBFF) {
         super({name: config.name});
@@ -79,14 +79,15 @@ export class FragmentBFF extends Fragment {
      * @returns {Promise<{main: string; [p: string]: string}>}
      */
     async render(req: object, version?: string) {
-        const fragmentVersion = this.config.versions[version || this.config.version];
-        if (fragmentVersion) {
+        const targetVersion = version || this.config.version;
+        const handler = this.handler[targetVersion];
+        if (handler) {
             if (this.config.render.static) {
-                return fragmentVersion.handler.content(req);
+                return handler.content(req);
             } else {
-                if (fragmentVersion.handler.data) {
-                    const data = await fragmentVersion.handler.data(req);
-                    return fragmentVersion.handler.content(req, data);
+                if (handler.data) {
+                    const data = await handler.data(req);
+                    return handler.content(req, data);
                 } else {
                     throw new Error(`Failed to find data handler for fragment. Fragment: ${this.config.name}, Version: ${version || this.config.version}`);
                 }
@@ -97,20 +98,24 @@ export class FragmentBFF extends Fragment {
     }
 
     placeholder(req: object, version?: string) {
-        const fragmentVersion = version && this.config.versions[version] ? this.config.versions[version] : this.config.versions[this.config.version];
-        if (fragmentVersion) {
-            return fragmentVersion.handler.placeholder();
+        const fragmentVersion = (version && this.config.versions[version]) ? version : this.config.version;
+        const handler = this.handler[fragmentVersion];
+        if (handler) {
+            return handler.placeholder();
         } else {
             throw new Error(`Failed to find fragment version. Fragment: ${this.config.name}, Version: ${version || this.config.version}`);
         }
     }
 
     private prepareHandlers() {
-        console.log(this.config);
-
         Object.keys(this.config.versions).forEach(version => {
-            this.handler[version] = require(path.join(process.cwd(), `/src/fragments/`, this.config.name, version));
-            console.log(this.handler);
+            const configurationHandler = this.config.versions[version].handler;
+            if (configurationHandler) {
+                this.handler[version] = configurationHandler;
+            } else {
+                const module = require(path.join(process.cwd(), `/src/fragments/`, this.config.name, version));
+                this.handler[version] = module;
+            }
         });
     }
 }
