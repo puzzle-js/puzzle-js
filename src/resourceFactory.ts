@@ -1,30 +1,9 @@
 import nodeFetch from "node-fetch";
-import {EVENTS, HTTP_METHODS, RESOURCE_INJECT_TYPE, RESOURCE_LOCATION, RESOURCE_TYPE} from "./enums";
+import {EVENTS, HTTP_METHODS, RESOURCE_INJECT_TYPE, RESOURCE_TYPE} from "./enums";
 import {pubsub} from "./util";
+import {IFileResourceStorefrontDependency} from "./types";
 
 const singletonSymbol = Symbol();
-
-export interface IFileResource {
-    name: string;
-    type: RESOURCE_TYPE;
-}
-
-export interface IFileResourceDependency extends IFileResource {
-    link?: string;
-    preview?: string;
-    injectType?: RESOURCE_INJECT_TYPE;
-}
-
-export interface IFileResourceAsset extends IFileResource {
-    injectType: RESOURCE_INJECT_TYPE;
-    fileName: string;
-    location: RESOURCE_LOCATION;
-}
-
-export interface IFileResourceStorefrontDependency extends IFileResource {
-    content?: string;
-    link?: string;
-}
 
 export default class ResourceFactory {
     static singleton: boolean | ResourceFactory = false;

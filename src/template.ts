@@ -2,46 +2,30 @@ import {FragmentStorefront} from "./fragment";
 import cheerio from "cheerio";
 import {TemplateCompiler} from "./templateCompiler";
 import {CONTENT_NOT_FOUND_ERROR} from "./config";
-import {IPageDependentGateways} from "./page";
+import {
+    IFileResourceAsset,
+    IFragmentContentResponse,
+    IPageDependentGateways,
+    IReplaceAsset,
+    IReplaceAssetSet,
+    IReplaceItem,
+    IReplaceSet
+} from "./types";
 import async from "async";
 import {
-    CONTENT_REPLACE_SCRIPT, EVENTS, HTTP_METHODS,
+    CONTENT_REPLACE_SCRIPT,
+    EVENTS,
+    HTTP_METHODS,
     REPLACE_ITEM_TYPE,
     RESOURCE_INJECT_TYPE,
     RESOURCE_LOCATION,
     RESOURCE_TYPE
 } from "./enums";
-import ResourceFactory, {IFileResourceAsset} from "./resourceFactory";
+import ResourceFactory from "./resourceFactory";
 import CleanCSS from "clean-css";
-import {IFragmentContentResponse} from "./page";
 import md5 from "md5";
 import {pubsub} from "./util";
 
-
-export interface IReplaceItem {
-    key: string;
-    type: REPLACE_ITEM_TYPE;
-    partial: string;
-}
-
-export interface IReplaceSet {
-    fragment: FragmentStorefront;
-    replaceItems: IReplaceItem[];
-    fragmentAttributes: { [name: string]: string };
-}
-
-export interface IReplaceAssetSet {
-    link: string | undefined | null;
-    content: string | undefined | null;
-    name: string;
-    location: RESOURCE_LOCATION,
-    injectType: RESOURCE_INJECT_TYPE
-}
-
-export interface IReplaceAsset {
-    fragment: FragmentStorefront,
-    replaceItems: IReplaceAssetSet[]
-}
 
 export class Template {
     dom: CheerioStatic;

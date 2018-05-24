@@ -1,11 +1,12 @@
 import "mocha";
 import {expect} from "chai";
-import {Gateway, GatewayBFF, GatewayStorefrontInstance} from "../src/gateway";
+import {GatewayStorefrontInstance} from "../src/gatewayStorefront";
 import {DEFAULT_MAIN_PARTIAL, EVENTS, FRAGMENT_RENDER_MODES, RESOURCE_LOCATION, RESOURCE_TYPE} from "../src/enums";
-import {IGatewayBFFConfiguration} from "../src/gateway";
+import {IGatewayBFFConfiguration} from "../src/types";
 import nock from "nock";
 import {createGateway} from "./mock/mock";
-import {IFileResourceAsset} from "../src/resourceFactory";
+import {IFileResourceAsset} from "../src/types";
+import {GatewayBFF} from "../src/gatewayBff";
 
 export default () => {
     describe('Gateway', () => {
@@ -26,7 +27,7 @@ export default () => {
                     url: 'http://localhost:4446/'
                 };
 
-                const browsingGateway = new Gateway(gatewayConfiguration);
+                const browsingGateway = new GatewayStorefrontInstance(gatewayConfiguration);
                 expect(browsingGateway.name).to.eq(gatewayConfiguration.name);
                 expect(browsingGateway.url).to.eq(gatewayConfiguration.url);
             });

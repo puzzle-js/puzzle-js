@@ -1,11 +1,11 @@
 import "mocha";
 import {expect} from "chai";
 import {FragmentBFF, FragmentStorefront} from "../src/fragment";
-import {IExposeFragment} from "../src/gateway";
+import {IExposeFragment} from "../src/types";
 import nock from "nock";
 import {FRAGMENT_RENDER_MODES, RESOURCE_INJECT_TYPE, RESOURCE_LOCATION, RESOURCE_TYPE} from "../src/enums";
 import {deepEqual} from "assert";
-import {IFragmentBFF} from "../src/fragment";
+import {IFragmentBFF} from "../src/types";
 
 export default () => {
     describe('Fragment', () => {
@@ -144,7 +144,9 @@ export default () => {
 
                 try {
                     await fragment.render({}, '123');
-                } catch (err) { return; }
+                } catch (err) {
+                    return;
+                }
                 throw new Error('Should have thrown an error');
             });
         });

@@ -2,7 +2,7 @@ import "mocha";
 import {expect} from "chai";
 import {Storefront} from "../src/storefront";
 import {Page} from "../src/page";
-import {GatewayStorefrontInstance} from "../src/gateway";
+import {GatewayStorefrontInstance} from "../src/gatewayStorefront";
 import * as fs from "fs";
 import * as path from "path";
 import request from "supertest";

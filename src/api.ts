@@ -1,29 +1,7 @@
 import {Server} from "./server";
 import {API_ROUTE_PREFIX} from "./config";
-import {NextFunction, Request, Response} from "express-serve-static-core";
-import {HTTP_METHODS} from "./enums";
 import path from "path";
-
-export interface IApiHandler {
-    path: string;
-    middlewares: ((req: Request, res: Response, next: NextFunction) => void)[];
-    method: HTTP_METHODS;
-    cacheControl?: string;
-    routeCache?: number;
-    controller: string;
-}
-
-export interface IApiVersion {
-    handler?: any;
-    endpoints: IApiHandler[];
-}
-
-export interface IApiConfig {
-    name: string;
-    testCookie: string;
-    liveVersion: string;
-    versions: { [version: string]: IApiVersion };
-}
+import {IApiConfig} from "./types";
 
 export class Api {
     config: IApiConfig;

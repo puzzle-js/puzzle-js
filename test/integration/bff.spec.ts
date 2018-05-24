@@ -1,6 +1,6 @@
 import "mocha";
 import {expect} from "chai";
-import {GatewayBFF} from "../../src/gateway";
+import {GatewayBFF} from "../../src/gatewayBff";
 import request from "supertest";
 import {IGatewayBFFConfiguration} from "../../src/gateway";
 import {PREVIEW_PARTIAL_QUERY_NAME, RENDER_MODE_QUERY_NAME} from "../../src/config";
@@ -13,7 +13,7 @@ import {
     RESOURCE_TYPE
 } from "../../src/enums";
 import * as path from "path";
-import {IFileResourceAsset} from "../../src/resourceFactory";
+import {IFileResourceAsset} from "../../src/types";
 
 const commonGatewayConfiguration: IGatewayBFFConfiguration = {
     api: [],

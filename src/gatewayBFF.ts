@@ -1,145 +1,39 @@
-import md5 from "md5";
-import {EventEmitter} from "events";
-import {FragmentBFF, IFragmentBFF, IFragmentBFFRender} from "./fragment";
+import {FragmentBFF} from "./fragment";
+import {Api} from "./api";
+import {logger} from "./logger";
 import {
     CONTENT_REPLACE_SCRIPT,
     DEFAULT_MAIN_PARTIAL,
-    EVENTS,
     FRAGMENT_RENDER_MODES,
     HTTP_METHODS,
     RESOURCE_LOCATION,
     RESOURCE_TYPE
 } from "./enums";
-import fetch from "node-fetch";
-import {DEFAULT_POLLING_INTERVAL, PREVIEW_PARTIAL_QUERY_NAME, RENDER_MODE_QUERY_NAME} from "./config";
+import {PREVIEW_PARTIAL_QUERY_NAME, RENDER_MODE_QUERY_NAME} from "./config";
+import {IExposeConfig} from "./types";
+import md5 from "md5";
 import async from "async";
-import {Server} from "./server";
-import * as path from "path";
+import path from "path";
 import express from "express";
-import {Api, IApiConfig} from "./api";
+import {Server} from "./server";
+import {container, TYPES} from "./base";
 import cheerio from "cheerio";
-import {IFileResourceAsset, IFileResourceDependency} from "./resourceFactory";
-import Timer = NodeJS.Timer;
-import {logger} from "./logger";
+import {IExposeFragment, IGatewayBFFConfiguration} from "./types";
 
-export interface IExposeFragment {
-    version: string;
-    testCookie: string;
-    render: IFragmentBFFRender;
-    assets: IFileResourceAsset[];
-    dependencies: IFileResourceDependency[];
-}
-
-export interface IGatewayMap {
-    [name: string]: GatewayStorefrontInstance;
-}
-
-export interface IGatewayConfiguration {
-    name: string;
-    url: string;
-    assetUrl?: string;
-}
-
-export interface IGatewayBFFConfiguration extends IGatewayConfiguration {
-    fragments: IFragmentBFF[];
-    api: IApiConfig[];
-    port: number;
-    isMobile?: boolean;
-    fragmentsFolder: string;
-}
-
-export interface IExposeConfig {
-    hash: string;
-    fragments: {
-        [name: string]: IExposeFragment
-    };
-}
-
-export class Gateway {
-    name: string;
-    url: string;
-
-
-    constructor(gatewayConfig: IGatewayConfiguration) {
-        this.name = gatewayConfig.name;
-        this.url = gatewayConfig.url;
-    }
-}
-
-export class GatewayStorefrontInstance extends Gateway {
-    events: EventEmitter = new EventEmitter();
-    config: IExposeConfig | undefined;
-    assetUrl: string | undefined;
-    private intervalId: Timer | null | number = null;
-
-    constructor(gatewayConfig: IGatewayConfiguration) {
-        super(gatewayConfig);
-
-        this.assetUrl = gatewayConfig.assetUrl;
-
-        this.fetch();
-    }
-
-    /**
-     * Starts updating gateway by polling with the provided miliseconds
-     * @param {number} pollingInterval
-     */
-    startUpdating(pollingInterval: number = DEFAULT_POLLING_INTERVAL) {
-        this.intervalId = setInterval(this.fetch.bind(this), pollingInterval);
-    }
-
-    /**
-     * Stops udpating gateway
-     */
-    stopUpdating() {
-        if (this.intervalId) {
-            clearInterval(this.intervalId as Timer);
-        }
-    }
-
-    /**
-     * Fetches gateway condifuration and calls this.bind
-     */
-    private fetch() {
-        fetch(this.url)
-            .then(res => res.json())
-            .then(this.update.bind(this))
-            .catch(e => {
-                console.error(`Failed to fetch gateway configuration: ${this.name}`);
-                //todo error handling
-                //console.error(e)
-            });
-    }
-
-    /**
-     * Updates gateway configuration and if hash changed emits GATEWAY_UPDATED event
-     * @param {IExposeConfig} data
-     */
-    private update(data: IExposeConfig) {
-        if (!this.config) {
-            logger.info(`Gateway is ready: ${this.name}`);
-            this.config = data;
-            this.events.emit(EVENTS.GATEWAY_READY, this);
-        } else {
-            if (data.hash !== this.config.hash) {
-                logger.info(`Gateway is updated: ${this.name}`);
-                this.config = data;
-                this.events.emit(EVENTS.GATEWAY_UPDATED, this);
-            }
-        }
-    }
-}
-
-export class GatewayBFF extends Gateway {
+export class GatewayBFF {
     exposedConfig: IExposeConfig;
-    server: Server = new Server();
+    server: Server;
+    name: string;
+    url: string;
     private config: IGatewayBFFConfiguration;
     private fragments: { [name: string]: FragmentBFF } = {};
     private apis: { [name: string]: Api } = {};
 
 
-    constructor(gatewayConfig: IGatewayBFFConfiguration) {
-        super(gatewayConfig);
+    constructor(gatewayConfig: IGatewayBFFConfiguration, _server?: Server) {
+        this.server = _server || container.get(TYPES.Server);
+        this.name = gatewayConfig.name;
+        this.url = gatewayConfig.url;
         this.config = gatewayConfig;
         this.exposedConfig = this.createExposeConfig();
         this.exposedConfig.hash = md5(JSON.stringify(this.exposedConfig));
@@ -341,4 +235,3 @@ export class GatewayBFF extends Gateway {
         cb();
     }
 }
-

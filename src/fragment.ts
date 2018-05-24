@@ -1,57 +1,12 @@
 import fetch from "node-fetch";
-import {IFragmentContentResponse} from "./page";
+import {IFragmentContentResponse} from "./types";
 import {FRAGMENT_RENDER_MODES} from "./enums";
 import * as querystring from "querystring";
 import {DEFAULT_CONTENT_TIMEOUT} from "./config";
-import {IFileResourceAsset, IFileResourceDependency} from "./resourceFactory";
-import {IExposeFragment} from "./gateway";
+import {IExposeFragment, IFragment, IFragmentBFF, IFragmentHandler} from "./types";
 import {logger} from "./logger";
 import url from "url";
 import path from "path";
-
-export interface IFragmentCookieMap {
-    name: string;
-    live: string;
-}
-
-export interface IFragment {
-    name: string;
-}
-
-export interface IFragmentBFFRender {
-    static?: boolean;
-    url: string;
-    routeCache?: number;
-    selfReplace?: boolean;
-    middlewares?: [Function[]];
-    cacheControl?: string;
-    placeholder?: boolean;
-    timeout?: number;
-}
-
-export interface IFragmentHandler {
-    content: (req: object, data?: any) => {
-        main: string;
-        [name: string]: string;
-    };
-    placeholder: () => string;
-    data: (req: object) => any;
-}
-
-export interface IFragmentBFFVersion {
-    assets: IFileResourceAsset[];
-    dependencies: IFileResourceDependency[];
-    handler?: IFragmentHandler;
-}
-
-export interface IFragmentBFF extends IFragment {
-    versions: {
-        [version: string]: IFragmentBFFVersion
-    };
-    version: string;
-    testCookie: string;
-    render: IFragmentBFFRender;
-}
 
 export class Fragment {
     name: string;

@@ -1,46 +1,7 @@
 import {Template} from "./template";
-import {GatewayStorefrontInstance, IGatewayMap} from "./gateway";
+import {GatewayStorefrontInstance} from "./gatewayStorefront";
 import {EVENTS} from "./enums";
-import {FragmentStorefront, IFragmentCookieMap} from "./fragment";
-
-export interface ICookieObject {
-    [name: string]: string;
-}
-
-export interface IFragmentContentResponse {
-    status: number;
-    html: {
-        [name: string]: string;
-    };
-}
-
-export interface IPageDependentGateways {
-    gateways: {
-        [name: string]: {
-            gateway: GatewayStorefrontInstance | null,
-            ready: boolean
-        }
-    },
-    fragments: {
-        [name: string]: {
-            instance: FragmentStorefront,
-            gateway: string
-        }
-    }
-}
-
-export interface IPageConfiguration {
-    html: string;
-    url: string;
-}
-
-export interface IPageMap {
-    [url: string]: Page;
-}
-
-export interface IResponseHandlers {
-    [versionsHash: string]: (req: object, res: object) => void;
-}
+import {ICookieObject, IFragmentCookieMap, IGatewayMap, IPageDependentGateways, IResponseHandlers} from "./types";
 
 export class Page {
     ready = false;

@@ -3,7 +3,7 @@ import {Page} from "../src/page";
 import {expect} from "chai";
 import * as fs from "fs";
 import * as path from "path";
-import {GatewayStorefrontInstance} from "../src/gateway";
+import {GatewayStorefrontInstance} from "../src/gatewayStorefront";
 import {createExpressMock, createGateway} from "./mock/mock";
 import {EVENTS} from "../src/enums";
 

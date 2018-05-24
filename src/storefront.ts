@@ -1,5 +1,5 @@
-import {GatewayStorefrontInstance, IGatewayMap} from "./gateway";
-import {IPageMap, Page} from "./page";
+import {GatewayStorefrontInstance} from "./gatewayStorefront";
+import {Page} from "./page";
 import async from "async";
 import {EVENTS, HEALTHCHECK_PATH, HTTP_METHODS, HTTP_STATUS_CODE} from "./enums";
 import {wait} from "./util";
@@ -8,7 +8,7 @@ import {EventEmitter} from "events";
 import {callableOnce, sealed} from "./decorators";
 import {container, TYPES} from "./base";
 import {Server} from "./server";
-import {IStorefrontConfig} from "./types";
+import {IGatewayMap, IPageMap, IStorefrontConfig} from "./types";
 import ResourceFactory from "./resourceFactory";
 import {GATEWAY_PREPERATION_CHECK_INTERVAL} from "./config";
 
