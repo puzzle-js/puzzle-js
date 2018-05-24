@@ -253,10 +253,9 @@ export class Template {
                     });
 
                     //Close stream after all chunked fragments done
-                    Promise.all(waitedPromises).then(() => {
-                        res.end(`${bodyAndAssets}</body></html>`);
-                        this.pageClass._onResponseEnd();
-                    });
+                    await Promise.all(waitedPromises);
+                    res.end(`${bodyAndAssets}</body></html>`);
+                    this.pageClass._onResponseEnd();
                 })();
             };
         }
@@ -314,24 +313,19 @@ export class Template {
     /**
      * Adds required dependencies
      */
-    private addDependencies() {
+    private async addDependencies() {
         let injectedDependencies: string[] = [];
 
-        return new Promise((resolve, reject) => {
-            async.each(Object.values(this.fragments), (fragment, cb) => {
-                if (fragment.config) {
-                    async.each(fragment.config.dependencies, async (dependency, cb1) => {
-                        if (injectedDependencies.indexOf(dependency.name) == -1) {
-                            injectedDependencies.push(dependency.name);
-                            this.dom('head').append(await ResourceFactory.instance.getDependencyContent(dependency.name, dependency.injectType));
-                        }
-                        cb1();
-                    }, cb);
-                } else {
-                    cb();
-                }
-            }, resolve);
-        });
+        await Promise.all(Object.values(this.fragments).map(async fragment => {
+            if (fragment.config) {
+                await Promise.all(Object.values(fragment.config.dependencies).map(async dependency => {
+                    if (injectedDependencies.indexOf(dependency.name) == -1) {
+                        injectedDependencies.push(dependency.name);
+                        this.dom('head').append(await ResourceFactory.instance.getDependencyContent(dependency.name, dependency.injectType));
+                    }
+                }));
+            }
+        }));
     }
 
     /**
@@ -446,63 +440,58 @@ export class Template {
      * Prepares JS asset replacements and replaces HEAD, BODY_START
      * @returns {Promise<IReplaceAsset[]>}
      */
-    private prepareJsAssetLocations(): Promise<IReplaceAsset[]> {
+    private async prepareJsAssetLocations(): Promise<IReplaceAsset[]> {
         const replaceScripts: IReplaceAsset[] = [];
 
-        return new Promise((resolve, reject) => {
-            async.each(Object.keys(this.fragments), (fragmentName, cb) => {
-                const fragment = this.fragments[fragmentName];
-                if (fragment.config) {
-                    const replaceItems: IReplaceAssetSet[] = [];
-                    async.each(fragment.config.assets.filter(asset => asset.type === RESOURCE_TYPE.JS), async (asset: IFileResourceAsset, cba) => {
-                        let assetContent = null;
-                        if (asset.injectType === RESOURCE_INJECT_TYPE.INLINE) {
-                            assetContent = await fragment.getAsset(asset.name);
-                        }
-                        switch (asset.location) {
-                            case RESOURCE_LOCATION.HEAD:
-                                this.dom('head').append(Template.wrapJsAsset({
-                                    name: asset.name,
-                                    injectType: asset.injectType,
-                                    link: fragment.getAssetPath(asset.name),
-                                    content: assetContent
-                                }));
-                                break;
-                            case RESOURCE_LOCATION.BODY_START:
-                                this.dom('body').prepend(Template.wrapJsAsset({
-                                    name: asset.name,
-                                    injectType: asset.injectType,
-                                    link: fragment.getAssetPath(asset.name),
-                                    content: assetContent
-                                }));
-                                break;
-                            case RESOURCE_LOCATION.CONTENT_START:
-                            case RESOURCE_LOCATION.CONTENT_END:
-                            case RESOURCE_LOCATION.BODY_END:
-                                replaceItems.push({
-                                    content: assetContent,
-                                    name: asset.name,
-                                    link: fragment.getAssetPath(asset.name),
-                                    injectType: asset.injectType,
-                                    location: asset.location
-                                });
-                                break;
-                        }
-                        cba();
-                    }, () => {
-                        replaceScripts.push({
-                            fragment,
-                            replaceItems
-                        });
-                        cb();
-                    });
-                } else {
-                    cb();
-                }
-            }, () => {
-                return resolve(replaceScripts);
-            });
-        });
+        await Promise.all(Object.keys(this.fragments).map(async (fragmentName) => {
+            const fragment = this.fragments[fragmentName];
+
+            if (fragment.config) {
+                const replaceItems: IReplaceAssetSet[] = [];
+                await Promise.all(fragment.config.assets.filter(asset => asset.type === RESOURCE_TYPE.JS).map(async asset => {
+                    let assetContent = null;
+                    if (asset.injectType === RESOURCE_INJECT_TYPE.INLINE) {
+                        assetContent = await fragment.getAsset(asset.name);
+                    }
+                    switch (asset.location) {
+                        case RESOURCE_LOCATION.HEAD:
+                            this.dom('head').append(Template.wrapJsAsset({
+                                name: asset.name,
+                                injectType: asset.injectType,
+                                link: fragment.getAssetPath(asset.name),
+                                content: assetContent
+                            }));
+                            break;
+                        case RESOURCE_LOCATION.BODY_START:
+                            this.dom('body').prepend(Template.wrapJsAsset({
+                                name: asset.name,
+                                injectType: asset.injectType,
+                                link: fragment.getAssetPath(asset.name),
+                                content: assetContent
+                            }));
+                            break;
+                        case RESOURCE_LOCATION.CONTENT_START:
+                        case RESOURCE_LOCATION.CONTENT_END:
+                        case RESOURCE_LOCATION.BODY_END:
+                            replaceItems.push({
+                                content: assetContent,
+                                name: asset.name,
+                                link: fragment.getAssetPath(asset.name),
+                                injectType: asset.injectType,
+                                location: asset.location
+                            });
+                            break;
+                    }
+
+                }));
+                replaceScripts.push({
+                    fragment,
+                    replaceItems
+                });
+            }
+        }));
+
+        return replaceScripts;
     }
 
     /**
