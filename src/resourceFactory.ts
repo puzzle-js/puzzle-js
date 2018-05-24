@@ -26,7 +26,7 @@ export interface IFileResourceStorefrontDependency extends IFileResource {
     link?: string;
 }
 
-class ResourceFactory {
+export default class ResourceFactory {
     static singleton: boolean | ResourceFactory = false;
     private resources: { [name: string]: IFileResourceStorefrontDependency } = {};
 
@@ -149,5 +149,3 @@ class ResourceFactory {
         }
     }
 }
-
-export default ResourceFactory;

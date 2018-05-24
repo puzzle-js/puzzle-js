@@ -1,11 +1,12 @@
 import "mocha";
 import {expect} from "chai";
-import {IStorefrontConfig, Storefront} from "../../src/storefront";
+import {Storefront} from "../../src/storefront";
 import request from "supertest";
 import {createGateway} from "../mock/mock";
 import {RENDER_MODE_QUERY_NAME} from "../../src/config";
 import {CONTENT_REPLACE_SCRIPT, EVENTS, FRAGMENT_RENDER_MODES} from "../../src/enums";
 import nock from "nock";
+import {IStorefrontConfig} from "../../src/types";
 
 const commonStorefrontConfiguration = {
     gateways: [],

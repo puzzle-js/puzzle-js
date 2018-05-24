@@ -19,18 +19,18 @@ import storefrontIntegrationTests from "./integration/sf.spec";
 
 
 describe('Unit Tests', () => {
-    // fragmentTests();
-    // gatewayTests();
-    // pageTests();
-    // resourceTest();
+    fragmentTests();
+    gatewayTests();
+    pageTests();
+    resourceTest();
     storefrontTests();
-    // templateTests();
-    // serverTests();
-    // apiTest();
-    // loggerTest();
+    templateTests();
+    serverTests();
+    apiTest();
+    loggerTest();
 });
 
 describe('Integration', () => {
-    // bffIntegrationTests();
-    // storefrontIntegrationTests();
+    bffIntegrationTests();
+    storefrontIntegrationTests();
 });

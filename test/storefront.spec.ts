@@ -6,6 +6,7 @@ import {GatewayStorefrontInstance} from "../src/gateway";
 import * as fs from "fs";
 import * as path from "path";
 import request from "supertest";
+import {createGateway} from "./mock/mock";
 
 export default () => {
     describe('Storefront', () => {
@@ -63,6 +64,11 @@ export default () => {
                 url: 'http://browsing-gw.com'
             };
 
+            const scope = createGateway(gateway.name, gateway.url, {
+                hash: '1234',
+                fragments: {}
+            });
+
             const storefrontInstance = new Storefront({
                 pages: [],
                 port: 4444,
@@ -71,6 +77,7 @@ export default () => {
                 ],
                 dependencies: []
             });
+
 
             storefrontInstance.init(() => {
                 request(storefrontInstance.server.app)
@@ -81,7 +88,6 @@ export default () => {
                         storefrontInstance.gateways['Browsing'].stopUpdating();
                         done(err);
                     });
-
             });
         });
     });
