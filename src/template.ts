@@ -11,7 +11,7 @@ import {
     IReplaceAsset,
     IReplaceAssetSet,
     IReplaceItem,
-    IReplaceSet, IWaitedResponseFirstFlush
+    IReplaceSet, IWaitedResponseFirstFlush, IWrappingJsAsset
 } from "./types";
 import async from "async";
 import {
@@ -507,10 +507,10 @@ export class Template {
 
     /**
      * Wraps js asset based on its configuration
-     * @param {{injectType: RESOURCE_INJECT_TYPE; name: string; link: string | null | undefined; content: string | null | undefined}} asset
+     * @param {IWrappingJsAsset} asset
      * @returns {string}
      */
-    static wrapJsAsset(asset: { injectType: RESOURCE_INJECT_TYPE; name: string; link: string | null | undefined; content: string | null | undefined }) {
+    static wrapJsAsset(asset: IWrappingJsAsset) {
         if (asset.injectType === RESOURCE_INJECT_TYPE.EXTERNAL && asset.link) {
             return `<script puzzle-dependency="${asset.name}" src="${asset.link}" type="text/javascript"> </script>`;
         } else if (asset.injectType === RESOURCE_INJECT_TYPE.INLINE && asset.content) {
@@ -523,7 +523,7 @@ export class Template {
 
     /**
      * Merges, minifies stylesheets and inject them into a page
-     * @returns {Promise<any>}
+     * @returns {Promise<void>}
      */
     private async buildStyleSheets() {
         const _CleanCss = new CleanCSS({
@@ -536,40 +536,34 @@ export class Template {
 
         let styleSheets: string[] = [];
 
-        return new Promise((resolve, reject) => {
-            async.each(Object.values(this.fragments), async (fragment, cb) => {
-                if (!fragment.config) return cb();
-                const cssAssets = fragment.config.assets.filter(asset => asset.type === RESOURCE_TYPE.CSS);
+        await Promise.all(Object.values(this.fragments).map(async fragment => {
+            if (!fragment.config) return;
+            const cssAssets = fragment.config.assets.filter(asset => asset.type === RESOURCE_TYPE.CSS);
 
-                for (let x = 0, len = cssAssets.length; x < len; x++) {
-                    const assetContent = await fragment.getAsset(cssAssets[x].name);
-                    if (assetContent) {
-                        styleSheets.push(assetContent);
-                    }
+            await Promise.all(cssAssets.map(async (asset) => {
+                const assetContent = await fragment.getAsset(asset.name);
+                if (assetContent) {
+                    styleSheets.push(assetContent);
                 }
+            }));
+        }));
 
-                cb();
-            }, err => {
-                if (!err) {
-                    let output = _CleanCss.minify(styleSheets.join(''));
-                    if (output.styles.length > 0) {
-                        const styleHash = md5(output.styles);
-                        const path = `/static/${styleHash}.min.css`;
-                        pubsub.emit(EVENTS.ADD_ROUTE, {
-                            path: path,
-                            method: HTTP_METHODS.GET,
-                            handler(req: any, res: any) {
-                                res.set('content-type', 'text/css');
-                                res.send(output.styles);
-                            }
-                        });
 
-                        this.dom('head').append(`<link puzzle-dependency="dynamic" rel="stylesheet" href="${path}" />`);
-                    }
+        let output = _CleanCss.minify(styleSheets.join(''));
+        if (output.styles.length > 0) {
+            const styleHash = md5(output.styles);
+            const path = `/static/${styleHash}.min.css`;
+            pubsub.emit(EVENTS.ADD_ROUTE, {
+                path: path,
+                method: HTTP_METHODS.GET,
+                handler(req: any, res: any) {
+                    res.set('content-type', 'text/css');
+                    res.send(output.styles);
                 }
-                resolve();
             });
-        });
+
+            this.dom('head').append(`<link puzzle-dependency="dynamic" rel="stylesheet" href="${path}" />`);
+        }
     }
 }
 

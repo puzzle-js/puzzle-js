@@ -1,11 +1,11 @@
 import {Server} from "./server";
 import {API_ROUTE_PREFIX} from "./config";
 import path from "path";
-import {IApiConfig} from "./types";
+import {IApiConfig, IApiHandlerModule} from "./types";
 
 export class Api {
     config: IApiConfig;
-    private handler: { [version: string]: { [controller: string]: (req: object, res: object) => any } } = {};
+    private handler: { [version: string]: IApiHandlerModule } = {};
 
     constructor(config: IApiConfig) {
         this.config = config;

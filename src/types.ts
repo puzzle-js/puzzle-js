@@ -211,3 +211,14 @@ export interface IWaitedResponseFirstFlush {
     template: string;
     statusCode: number;
 }
+
+export interface IApiHandlerModule {
+    [controller: string]: (req: object, res: object) => any
+}
+
+export interface IWrappingJsAsset {
+    injectType: RESOURCE_INJECT_TYPE;
+    name: string;
+    link: string | null | undefined;
+    content: string | null | undefined
+}
