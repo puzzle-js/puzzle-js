@@ -3,8 +3,10 @@ import cheerio from "cheerio";
 import {TemplateCompiler} from "./templateCompiler";
 import {CHEERIO_CONFIGURATION, CONTENT_NOT_FOUND_ERROR, TEMPLATE_FRAGMENT_TAG_NAME} from "./config";
 import {
+    IChunkedReplacementSet,
+    ICookieMap,
     IFileResourceAsset,
-    IFragmentContentResponse,
+    IFragmentContentResponse, IFragmentEndpointHandler,
     IPageDependentGateways,
     IReplaceAsset,
     IReplaceAssetSet,
@@ -35,42 +37,21 @@ export class Template {
     pageClass: TemplateClass = new TemplateClass();
 
     constructor(public rawHtml: string) {
-        this.dom = this.loadRawHtml();
+        this.load();
         this.bindPageClass();
         this.pageClass._onCreate();
     }
 
-    public reload() {
-        this.dom = this.loadRawHtml();
-    }
-
     /**
      * Loads html template into Cheerio instance
-     * @param {string} rawHtml
-     * @returns {CheerioStatic}
      */
-    private loadRawHtml(): CheerioStatic {
-        const templateRegex = TemplateCompiler.TEMPLATE_CONTENT_REGEX;
-        const templateMatch = templateRegex.exec(this.rawHtml);
+    public load(): void {
+        const templateMatch = TemplateCompiler.TEMPLATE_CONTENT_REGEX.exec(this.rawHtml);
 
         if (templateMatch) {
-            return cheerio.load(templateMatch[1], CHEERIO_CONFIGURATION);
+            this.dom = cheerio.load(templateMatch[1], CHEERIO_CONFIGURATION);
         } else {
             throw new PuzzleError(ERROR_CODES.TEMPLATE_NOT_FOUND);
-        }
-    }
-
-    /**
-     * Bind user class to page
-     * @param {string} rawHtml
-     */
-    private bindPageClass(): void {
-        const pageClassScriptRegex = TemplateCompiler.PAGE_CLASS_CONTENT_REGEX;
-        const scriptMatch = pageClassScriptRegex.exec(this.rawHtml);
-        if (scriptMatch) {
-            const pageClass = eval(scriptMatch[1]);
-            pageClass.__proto__ = new TemplateClass();
-            this.pageClass = pageClass;
         }
     }
 
@@ -79,10 +60,9 @@ export class Template {
      * @returns {IPageDependentGateways}
      */
     getDependencies() {
-        let primaryName: string | null = null;
-        this.dom = this.loadRawHtml();
+        let primaryName: string | null;
 
-        return this.dom(TEMPLATE_FRAGMENT_TAG_NAME).toArray().reduce((dependencyList: IPageDependentGateways, fragment: any) => {
+        return this.dom(TEMPLATE_FRAGMENT_TAG_NAME).toArray().reduce((dependencyList: IPageDependentGateways, fragment: CheerioElement) => {
             if (!dependencyList.gateways[fragment.attribs.from]) {
                 dependencyList.gateways[fragment.attribs.from] = {
                     gateway: null,
@@ -100,7 +80,7 @@ export class Template {
 
             if (this.fragments[fragment.attribs.name].primary === false) {
                 if (typeof fragment.attribs.primary !== 'undefined') {
-                    if (primaryName != null && primaryName !== fragment.attribs.name) throw new Error('Multiple primary fragments are not allowed');
+                    if (primaryName != null && primaryName !== fragment.attribs.name) throw new PuzzleError(ERROR_CODES.MULTIPLE_PRIMARY_FRAGMENTS);
                     primaryName = fragment.attribs.name;
                     this.fragments[fragment.attribs.name].primary = true;
                     this.fragments[fragment.attribs.name].shouldWait = true;
@@ -119,45 +99,58 @@ export class Template {
         });
     }
 
+
+    /**
+     * Bind user class to page
+     */
+    private bindPageClass(): void {
+        const scriptMatch = TemplateCompiler.PAGE_CLASS_CONTENT_REGEX.exec(this.rawHtml);
+        if (scriptMatch) {
+            const pageClass = eval(scriptMatch[1]);
+            pageClass.__proto__ = new TemplateClass();
+            this.pageClass = pageClass;
+        }
+    }
+
+
     //todo fragmentConfigleri versiyon bilgileriyle inmis olmali ki assetleri versionlara gore compile edebilelim. ayni not gatewayde de var.
     /**
      * Compiles template and returns a function that can handle the request.
-     * @param {{[p: string]: string}} testCookies
-     * @returns {Promise<(req: any, res: any) => void | (req: any, res: any) => void>}
+     * @param {ICookieMap} testCookies
+     * @returns {Promise<IFragmentEndpointHandler>}
      */
-    async compile(testCookies: { [cookieName: string]: string }) {
-        let firstFlushHandler: Function;
-
-        const fragmentsShouldBeWaited = Object.values(this.fragments).filter(fragment => fragment.config && fragment.shouldWait);
-        const chunkedFragments = Object.values(this.fragments).filter(fragment => fragment.config && !fragment.shouldWait && !fragment.config.render.static);
-        const staticFragments = Object.values(this.fragments).filter(fragment => fragment.config && fragment.config.render.static);
-
+    async compile(testCookies: ICookieMap): Promise<IFragmentEndpointHandler> {
         if (Object.keys(this.fragments).length === 0) {
-            firstFlushHandler = TemplateCompiler.compile(this.clearHtmlContent(this.dom.html()));
-            return this.buildHandler(firstFlushHandler, []);
+            const singleFlushHandlerWithoutFragments = TemplateCompiler.compile(this.clearHtmlContent(this.dom.html()));
+            return this.buildHandler(singleFlushHandlerWithoutFragments, []);
         }
 
+        /* Fragment Types
+            chunkedFragmentsWithShouldWait -> Contents will be in first flush, waits for fragment response
+            chunkedFragmentsWithoutWait -> Fragments that doesn't need to waited. Flushes after first request.
+            staticFragments -> Contents are prepared on compile time. Req independent
+         */
+        const chunkedFragmentsWithShouldWait = Object.values(this.fragments).filter(fragment => fragment.config && fragment.shouldWait);
+        const chunkedFragmentsWithoutWait = Object.values(this.fragments).filter(fragment => fragment.config && !fragment.shouldWait && !fragment.config.render.static);
+        const staticFragments = Object.values(this.fragments).filter(fragment => fragment.config && fragment.config.render.static);
 
         const replaceScripts = await this.prepareJsAssetLocations();
-        const waitedFragmentReplacements: IReplaceSet[] = this.replaceWaitedFragmentContainers(fragmentsShouldBeWaited, replaceScripts);
-        const chunkReplacements: IReplaceSet[] = this.replaceChunkedFragmentContainers(chunkedFragments);
-        this.replaceUnfetchedFragments(Object.values(this.fragments).filter(fragment => !fragment.config));
-        await this.addDependencies();
+        const waitedFragmentReplacements: IReplaceSet[] = this.replaceWaitedFragmentContainers(chunkedFragmentsWithShouldWait, replaceScripts);
 
+        const chunkReplacements: IReplaceSet[] = this.replaceChunkedFragmentContainers(chunkedFragmentsWithoutWait);
+
+        this.replaceUnfetchedFragments(Object.values(this.fragments).filter(fragment => !fragment.config));
+
+        await this.addDependencies();
         await this.replaceStaticFragments(staticFragments);
         await this.appendPlaceholders(chunkReplacements);
         await this.buildStyleSheets();
 
-
         return this.buildHandler(TemplateCompiler.compile(this.clearHtmlContent(this.dom.html())), chunkReplacements, waitedFragmentReplacements, replaceScripts);
     }
 
-    /**
-     * Appends placeholders to fragment contents on vDOM
-     * @param {{fragment: FragmentStorefront; replaceItems: IReplaceItem[]}[]} chunkedReplacements
-     * @returns {Promise<any>}
-     */
-    private appendPlaceholders(chunkedReplacements: { fragment: FragmentStorefront, replaceItems: IReplaceItem[] }[]) {
+
+    private appendPlaceholders(chunkedReplacements: IChunkedReplacementSet[]) {
         return new Promise((resolve, reject) => {
             async.each(chunkedReplacements, async (replacement, cb) => {
                 const placeholders = replacement.replaceItems.filter(item => item.type === REPLACE_ITEM_TYPE.PLACEHOLDER);

@@ -88,6 +88,12 @@ export interface IGatewayConfiguration {
     assetUrl?: string;
 }
 
+export interface ICookieMap {
+    [cookieName: string]: string;
+}
+
+export type IFragmentEndpointHandler = (req: any, res: any, next: any) => void
+
 export interface IApiHandler {
     path: string;
     middlewares: ((req: Request, res: Response, next: NextFunction) => void)[];
@@ -194,4 +200,9 @@ export interface IReplaceAssetSet {
 export interface IReplaceAsset {
     fragment: FragmentStorefront,
     replaceItems: IReplaceAssetSet[]
+}
+
+export interface IChunkedReplacementSet {
+    fragment: FragmentStorefront;
+    replaceItems: IReplaceItem[];
 }

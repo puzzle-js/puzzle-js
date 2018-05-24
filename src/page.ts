@@ -70,7 +70,7 @@ export class Page {
 
     private gatewayUpdated(gateway: GatewayStorefrontInstance) {
         this.updateFragmentsConfig(gateway);
-        this.template.reload();
+        this.template.load();
         this.responseHandlers = {};
     }
 
