@@ -199,16 +199,25 @@ export class GatewayBFF extends Gateway {
      * @param {string} cookieValue
      * @returns {Promise<string>}
      */
-    async renderFragment(req: { [name: string]: any }, fragmentName: string, renderMode: FRAGMENT_RENDER_MODES = FRAGMENT_RENDER_MODES.PREVIEW, partial: string, cookieValue?: string): Promise<string> {
+    async renderFragment(req: { [name: string]: any }, fragmentName: string, renderMode: FRAGMENT_RENDER_MODES = FRAGMENT_RENDER_MODES.PREVIEW, partial: string, cookieValue?: string): Promise<{ content: string, $status: number }> {
         if (this.fragments[fragmentName]) {
             const fragmentContent = await this.fragments[fragmentName].render(req, cookieValue);
             switch (renderMode) {
                 case FRAGMENT_RENDER_MODES.STREAM:
-                    return JSON.stringify(fragmentContent);
+                    return {
+                        content: JSON.stringify(fragmentContent),
+                        $status: +fragmentContent.$status || 200
+                    };
                 case FRAGMENT_RENDER_MODES.PREVIEW:
-                    return this.wrapFragmentContent(fragmentContent[partial], this.fragments[fragmentName], cookieValue);
+                    return {
+                        content: this.wrapFragmentContent(fragmentContent[partial].toString(), this.fragments[fragmentName], cookieValue),
+                        $status: +fragmentContent.$status || 200
+                    };
                 default:
-                    return JSON.stringify(fragmentContent);
+                    return {
+                        content: JSON.stringify(fragmentContent),
+                        $status: +fragmentContent.$status || 200
+                    };
             }
         } else {
             throw new Error(`Failed to find fragment: ${fragmentName}`);
@@ -266,12 +275,12 @@ export class GatewayBFF extends Gateway {
             this.server.addRoute(`/${fragmentConfig.name}${fragmentConfig.render.url}`, HTTP_METHODS.GET, async (req, res) => {
                 const renderMode = req.query[RENDER_MODE_QUERY_NAME] === FRAGMENT_RENDER_MODES.STREAM ? FRAGMENT_RENDER_MODES.STREAM : FRAGMENT_RENDER_MODES.PREVIEW;
                 const gatewayContent = await this.renderFragment(req, fragmentConfig.name, renderMode, req.query[PREVIEW_PARTIAL_QUERY_NAME] || DEFAULT_MAIN_PARTIAL, req.cookies[fragmentConfig.testCookie]);
-                //todo gatewayden donen headera gore yonelndirme yapilmasi gerekiyor yani res bilmesi gerekiyor gateway yazanin cozum bul
+
                 if (renderMode === FRAGMENT_RENDER_MODES.STREAM) {
                     res.set('content-type', 'application/json');
-                    res.status(200).end(gatewayContent);
+                    res.status(gatewayContent.$status).end(gatewayContent.content);
                 } else {
-                    res.status(200).send(gatewayContent);
+                    res.status(gatewayContent.$status).send(gatewayContent.content);
                 }
             });
         });

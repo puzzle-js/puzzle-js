@@ -78,12 +78,12 @@ export class FragmentBFF extends Fragment {
      * @param {string} version
      * @returns {Promise<{main: string; [p: string]: string}>}
      */
-    async render(req: object, version?: string) {
+    async render(req: object, version?: string): Promise<{ [name: string]: string | number }> {
         const targetVersion = version || this.config.version;
         const handler = this.handler[targetVersion];
         if (handler) {
             if (this.config.render.static) {
-                return handler.content(req);
+                return handler.content(req, null);
             } else {
                 if (handler.data) {
                     const data = await handler.data(req);

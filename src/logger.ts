@@ -49,7 +49,7 @@ const createTransports = () => {
 };
 Object.defineProperty(Error.prototype, 'toJSON', {
     value: function (this: { [name: string]: string }) {
-        var alt: any = {};
+        const alt: any = {};
         const propNames = Object.getOwnPropertyNames(this);
         for (let i = 0, len = propNames.length; i < len; i++) {
             const key = propNames[i];

@@ -132,7 +132,7 @@ export default () => {
                 const bffGw = new GatewayBFF(gatewayConfiguration);
                 const gwResponse = await bffGw.renderFragment({}, 'boutique-list', FRAGMENT_RENDER_MODES.STREAM, DEFAULT_MAIN_PARTIAL);
                 if (!gwResponse) throw new Error('No response from gateway');
-                expect(JSON.parse(gwResponse).main).to.eq('test');
+                expect(JSON.parse(gwResponse.content).main).to.eq('test');
             });
 
             it('should render fragment in preview mode', async () => {
@@ -160,7 +160,7 @@ export default () => {
                 const bffGw = new GatewayBFF(gatewayConfiguration);
                 const gwResponse = await bffGw.renderFragment({}, 'boutique-list', FRAGMENT_RENDER_MODES.PREVIEW, DEFAULT_MAIN_PARTIAL);
                 if (!gwResponse) throw new Error('No response from gateway');
-                expect(gwResponse).to.eq(`<html><head><title>Browsing - boutique-list</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"></head><body><div id="boutique-list">test</div></body></html>`);
+                expect(gwResponse.content).to.eq(`<html><head><title>Browsing - boutique-list</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"></head><body><div id="boutique-list">test</div></body></html>`);
             });
 
             it('should render fragment in preview mode with data passing', async () => {
@@ -200,7 +200,7 @@ export default () => {
                 const bffGw = new GatewayBFF(gatewayConfiguration);
                 const gwResponse = await bffGw.renderFragment({url: 'test'}, 'boutique-list', FRAGMENT_RENDER_MODES.PREVIEW, DEFAULT_MAIN_PARTIAL);
                 if (!gwResponse) throw new Error('No response from gateway');
-                expect(gwResponse).to.eq(`<html><head><title>Browsing - boutique-list</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"></head><body><div id="boutique-list">Requested:Url:test</div></body></html>`);
+                expect(gwResponse.content).to.eq(`<html><head><title>Browsing - boutique-list</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"></head><body><div id="boutique-list">Requested:Url:test</div></body></html>`);
             });
 
             it('should render fragment in preview mode with all assets', async () => {
@@ -275,7 +275,7 @@ export default () => {
                 const bffGw = new GatewayBFF(gatewayConfiguration);
                 const gwResponse = await bffGw.renderFragment({}, 'boutique-list', FRAGMENT_RENDER_MODES.PREVIEW, DEFAULT_MAIN_PARTIAL);
                 if (!gwResponse) throw new Error('No response from gateway');
-                expect(gwResponse).to.eq(`<html><head><title>Browsing - boutique-list</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><script puzzle-asset="head" src="/boutique-list/static/head.min.js" type="text/javascript"></script><link puzzle-asset="headcss" rel="stylesheet" href="/boutique-list/static/bundle.min.css"><script puzzle-asset="js" src="preview" type="text/javascript"></script><link puzzle-asset="css" rel="stylesheet" href="preview"></head><body><script puzzle-asset="bs" src="/boutique-list/static/bundle.min.js" type="text/javascript"></script><script puzzle-asset="cs" src="/boutique-list/static/bundle.min.js" type="text/javascript"></script><div id="boutique-list">test</div><script puzzle-asset="ce" src="/boutique-list/static/bundle.min.js" type="text/javascript"></script><script puzzle-asset="be" src="/boutique-list/static/bundle.min.js" type="text/javascript"></script></body></html>`);
+                expect(gwResponse.content).to.eq(`<html><head><title>Browsing - boutique-list</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><script puzzle-asset="head" src="/boutique-list/static/head.min.js" type="text/javascript"></script><link puzzle-asset="headcss" rel="stylesheet" href="/boutique-list/static/bundle.min.css"><script puzzle-asset="js" src="preview" type="text/javascript"></script><link puzzle-asset="css" rel="stylesheet" href="preview"></head><body><script puzzle-asset="bs" src="/boutique-list/static/bundle.min.js" type="text/javascript"></script><script puzzle-asset="cs" src="/boutique-list/static/bundle.min.js" type="text/javascript"></script><div id="boutique-list">test</div><script puzzle-asset="ce" src="/boutique-list/static/bundle.min.js" type="text/javascript"></script><script puzzle-asset="be" src="/boutique-list/static/bundle.min.js" type="text/javascript"></script></body></html>`);
             });
 
             it('should throw error at render when fragment name not found', done => {
