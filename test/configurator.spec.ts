@@ -166,7 +166,7 @@ export default () => {
                         name: 'test'
                     }
                 ]
-            } as IGatewayBFFConfiguration;
+            } as any;
 
             const handler = {
                 data() {
@@ -263,7 +263,7 @@ export default () => {
                 url: 'http://',
                 port: 32,
                 fragments: []
-            } as IGatewayBFFConfiguration;
+            } as any;
 
             const handler = {
                 a: 5

@@ -58,7 +58,7 @@ export interface IFileResourceStorefrontDependency extends IFileResource {
 export interface IFragmentBFFVersion {
     assets: IFileResourceAsset[];
     dependencies: IFileResourceDependency[];
-    handler?: IFragmentHandler | string;
+    handler?: IFragmentHandler;
 }
 
 export interface IFragmentBFF extends IFragment {
@@ -96,7 +96,7 @@ export type IFragmentEndpointHandler = (req: any, res: any, next?: any) => void
 
 export interface IApiHandler {
     path: string;
-    middlewares: ((req: Request, res: Response, next: NextFunction) => void)[] | string[];
+    middlewares: ((req: Request, res: Response, next: NextFunction) => void)[];
     method: HTTP_METHODS;
     cacheControl?: string;
     routeCache?: number;
