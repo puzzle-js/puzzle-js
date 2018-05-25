@@ -1,4 +1,5 @@
 import {performance} from 'perf_hooks';
+import {ERROR_CODES, PuzzleError} from "./errors";
 
 export const sealed = (constructor: Function) => {
     Object.seal(constructor);
@@ -13,14 +14,14 @@ export const callableOnce = (target: any, name: string, descriptor: PropertyDesc
             descriptor.value.apply(this, arguments);
             this[`___callableOnce__${name}___`] = true;
         } else {
-            throw new Error("You can't call this method more than one once");
+            throw new PuzzleError(ERROR_CODES.CALLABLE_ONCE_CALLED_MORE_THAN_ONE_TIME, target.constructor.name, name);
         }
     };
 
     return newDescriptor;
 };
 
-export const benchmark = (enabled: boolean) => {
+export const benchmark = (enabled: boolean, logger: (input: any) => void) => {
     return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
         if (!enabled) return descriptor;
 
@@ -37,12 +38,14 @@ export const benchmark = (enabled: boolean) => {
             const m1 = process.memoryUsage();
             const diffCPU = process.cpuUsage(c0);
 
-            console.log(`           Benchmarking    :  ${this.constructor.name} - ${propertyKey}`);
-            console.log('           RAM             : ', (m1.rss - m0.rss) / 1048576, 'mb');
-            console.log('           HeapTotal       : ', (m1.heapTotal - m0.heapTotal) / 1048576, 'mb');
-            console.log('           HeapUsed        : ', (m1.heapUsed - m0.heapUsed) / 1048576, 'mb');
-            console.log('           CPU             : ', (diffCPU.user + diffCPU.system) / 1000000, 's');
-            console.log('           Spend time      : ', (new_time - old_time), 'ms');
+            logger({
+                benchmarking: `${this.constructor.name} - ${propertyKey}`,
+                ram: `${(m1.rss - m0.rss) / 1048576} mb`,
+                heapTotal: `${(m1.heapTotal - m0.heapTotal) / 1048576} mb`,
+                heapUsed: `${(m1.heapUsed - m0.heapUsed) / 1048576} mb`,
+                cpu: `${(diffCPU.user + diffCPU.system) / 1000000} s`,
+                spendTime: `${(new_time - old_time)} ms`
+            });
 
             return returnValue;
         };

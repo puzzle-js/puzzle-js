@@ -28,6 +28,7 @@ import {isDebug, pubsub} from "./util";
 import {TemplateClass} from "./templateClass";
 import {ERROR_CODES, PuzzleError} from "./errors";
 import {benchmark} from "./decorators";
+import {logger} from "./logger";
 
 
 export class Template {
@@ -58,7 +59,7 @@ export class Template {
      * Returns fragment dependencies
      * @returns {IPageDependentGateways}
      */
-    @benchmark(isDebug())
+    @benchmark(isDebug(), logger.info)
     getDependencies() {
         let primaryName: string | null;
 
@@ -201,7 +202,7 @@ export class Template {
      * @param req
      * @returns {Promise<IWaitedResponseFirstFlush>}
      */
-    @benchmark(isDebug())
+    @benchmark(isDebug(), logger.info)
     private async replaceWaitedFragments(waitedFragments: IReplaceSet[], template: string, req: any): Promise<IWaitedResponseFirstFlush> {
         let statusCode = HTTP_STATUS_CODE.OK;
 
@@ -331,7 +332,7 @@ export class Template {
      * Replaces unfetched fragments with empty div error
      * @param {FragmentStorefront[]} fragments
      */
-    @benchmark(isDebug())
+    @benchmark(isDebug(), logger.info)
     private replaceUnfetchedFragments(fragments: FragmentStorefront[]) {
         fragments.forEach(fragment => {
             this.dom(`fragment[from="${fragment.from}"][name="${fragment.name}"]`).replaceWith(`<div puzzle-fragment="${fragment.name}" puzzle-gateway="${fragment.from}">${CONTENT_NOT_FOUND_ERROR}</div>`);
@@ -361,7 +362,7 @@ export class Template {
      * @param {FragmentStorefront[]} chunkedFragments
      * @returns {IReplaceSet[]}
      */
-    @benchmark(isDebug())
+    @benchmark(isDebug(), logger.info)
     private replaceChunkedFragmentContainers(chunkedFragments: FragmentStorefront[]) {
         const chunkReplacements: IReplaceSet[] = [];
 
@@ -414,7 +415,7 @@ export class Template {
      * @param {IReplaceAsset[]} replaceJsAssets
      * @returns {IReplaceSet[]}
      */
-    @benchmark(isDebug())
+    @benchmark(isDebug(), logger.info)
     private replaceWaitedFragmentContainers(fragmentsShouldBeWaited: FragmentStorefront[], replaceJsAssets: IReplaceAsset[]) {
         const waitedFragmentReplacements: IReplaceSet[] = [];
 

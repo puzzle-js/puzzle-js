@@ -11,6 +11,7 @@ import serverTests from "./server.spec";
 import apiTest from "./api.spec";
 import loggerTest from "./logger.spec";
 import configuratorTests from "./configurator.spec";
+import decoratorTests from "./decorator.spec";
 
 
 //Integration Tests
@@ -29,6 +30,7 @@ describe('Unit Tests', () => {
     apiTest();
     loggerTest();
     configuratorTests();
+    decoratorTests();
 });
 
 describe('Integration', () => {
