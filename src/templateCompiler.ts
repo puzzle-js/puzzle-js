@@ -1,5 +1,4 @@
 export class TemplateCompiler {
-    //ikisini de (\$\{.*\}) dene
     static TEMPLATE_REGEX: RegExp = /(\${.*?}?})/;
     static EXPRESSION_REGEX: RegExp = /^\${(.*?)}$/;
     static TEMPLATE_CONTENT_REGEX: RegExp = /<template>(.*?)<\/template>/mis;

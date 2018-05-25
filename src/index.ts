@@ -8,11 +8,15 @@ import {
     RESOURCE_INJECT_TYPE,
     RESOURCE_LOCATION,
     RESOURCE_TYPE,
-    HTTP_STATUS_CODE
+    HTTP_STATUS_CODE,
+    INJECTABLE
 } from "./enums";
+import {GatewayConfigurator, StorefrontConfigurator} from "./configurator";
 
 
 export = {
+    StorefrontConfigurator,
+    GatewayConfigurator,
     Gateway: GatewayBFF,
     Storefront,
     logger,
@@ -23,6 +27,7 @@ export = {
         RESOURCE_LOCATION,
         REPLACE_ITEM_TYPE,
         HTTP_METHODS,
-        HTTP_STATUS_CODE
+        HTTP_STATUS_CODE,
+        INJECTABLE
     }
 };

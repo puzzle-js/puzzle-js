@@ -24,9 +24,10 @@ import {
 import ResourceFactory from "./resourceFactory";
 import CleanCSS from "clean-css";
 import md5 from "md5";
-import {pubsub} from "./util";
+import {isDebug, pubsub} from "./util";
 import {TemplateClass} from "./templateClass";
 import {ERROR_CODES, PuzzleError} from "./errors";
+import {benchmark} from "./decorators";
 
 
 export class Template {
@@ -57,6 +58,7 @@ export class Template {
      * Returns fragment dependencies
      * @returns {IPageDependentGateways}
      */
+    @benchmark(isDebug())
     getDependencies() {
         let primaryName: string | null;
 
@@ -150,7 +152,6 @@ export class Template {
     }
 
 
-
     /**
      * Bind user class to page
      */
@@ -163,7 +164,11 @@ export class Template {
         }
     }
 
-
+    /**
+     * Appends placeholders to reserved locations
+     * @param {IChunkedReplacementSet[]} chunkedReplacements
+     * @returns {Promise<void>}
+     */
     private async appendPlaceholders(chunkedReplacements: IChunkedReplacementSet[]) {
         for (let replacement of chunkedReplacements) {
             const placeholders = replacement.replaceItems.filter(item => item.type === REPLACE_ITEM_TYPE.PLACEHOLDER);
@@ -196,6 +201,7 @@ export class Template {
      * @param req
      * @returns {Promise<IWaitedResponseFirstFlush>}
      */
+    @benchmark(isDebug())
     private async replaceWaitedFragments(waitedFragments: IReplaceSet[], template: string, req: any): Promise<IWaitedResponseFirstFlush> {
         let statusCode = HTTP_STATUS_CODE.OK;
 
@@ -275,6 +281,13 @@ export class Template {
         }
     }
 
+    /**
+     * Flushes incoming fragment response
+     * @param {IReplaceSet} chunkedReplacement
+     * @param {IReplaceAsset[]} jsReplacements
+     * @param res
+     * @returns {(fragmentContent: IFragmentContentResponse) => void}
+     */
     private flush(chunkedReplacement: IReplaceSet, jsReplacements: IReplaceAsset[], res: any) {
         return (fragmentContent: IFragmentContentResponse) => {
             const fragmentJsReplacements = jsReplacements.find(jsReplacement => jsReplacement.fragment.name === chunkedReplacement.fragment.name);
@@ -318,6 +331,7 @@ export class Template {
      * Replaces unfetched fragments with empty div error
      * @param {FragmentStorefront[]} fragments
      */
+    @benchmark(isDebug())
     private replaceUnfetchedFragments(fragments: FragmentStorefront[]) {
         fragments.forEach(fragment => {
             this.dom(`fragment[from="${fragment.from}"][name="${fragment.name}"]`).replaceWith(`<div puzzle-fragment="${fragment.name}" puzzle-gateway="${fragment.from}">${CONTENT_NOT_FOUND_ERROR}</div>`);
@@ -347,6 +361,7 @@ export class Template {
      * @param {FragmentStorefront[]} chunkedFragments
      * @returns {IReplaceSet[]}
      */
+    @benchmark(isDebug())
     private replaceChunkedFragmentContainers(chunkedFragments: FragmentStorefront[]) {
         const chunkReplacements: IReplaceSet[] = [];
 
@@ -399,6 +414,7 @@ export class Template {
      * @param {IReplaceAsset[]} replaceJsAssets
      * @returns {IReplaceSet[]}
      */
+    @benchmark(isDebug())
     private replaceWaitedFragmentContainers(fragmentsShouldBeWaited: FragmentStorefront[], replaceJsAssets: IReplaceAsset[]) {
         const waitedFragmentReplacements: IReplaceSet[] = [];
 

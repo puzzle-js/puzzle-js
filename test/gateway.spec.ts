@@ -7,6 +7,7 @@ import nock from "nock";
 import {createGateway} from "./mock/mock";
 import {IFileResourceAsset} from "../src/types";
 import {GatewayBFF} from "../src/gatewayBff";
+import {GatewayConfigurator} from "../src/configurator";
 
 export default () => {
     describe('Gateway', () => {
@@ -30,6 +31,24 @@ export default () => {
                 const browsingGateway = new GatewayStorefrontInstance(gatewayConfiguration);
                 expect(browsingGateway.name).to.eq(gatewayConfiguration.name);
                 expect(browsingGateway.url).to.eq(gatewayConfiguration.url);
+            });
+
+            it('should create new gateway with configurator', () => {
+                const gatewayConfigurator = new GatewayConfigurator();
+
+                gatewayConfigurator.config({
+                    name: 'Browsing',
+                    api: [],
+                    fragments: [],
+                    isMobile: true,
+                    port: 4446,
+                    url: 'http://localhost:4446/',
+                    fragmentsFolder: ''
+                });
+
+                const browsingGateway = new GatewayBFF(gatewayConfigurator);
+                expect(browsingGateway.name).to.eq(gatewayConfigurator.configuration.name);
+                expect(browsingGateway.url).to.eq(gatewayConfigurator.configuration.url);
             });
 
             it('should create new gateway BFF instance', () => {

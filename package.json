@@ -55,6 +55,7 @@
     "morgan": "^1.9.0",
     "node-fetch": "^2.1.2",
     "reflect-metadata": "^0.1.12",
+    "superstruct": "^0.5.4",
     "uuid": "^3.2.1",
     "winston": "^3.0.0-rc1",
     "winston-graylog2": "^1.0.0"

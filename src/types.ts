@@ -14,11 +14,11 @@ export interface IFragment {
 }
 
 export interface IFragmentBFFRender {
-    static?: boolean;
+    static?: boolean; //todo bunun yenilenen versiyonu
     url: string;
     routeCache?: number;
     selfReplace?: boolean;
-    middlewares?: [Function[]];
+    middlewares?: [Function | string];
     cacheControl?: string;
     placeholder?: boolean;
     timeout?: number;
@@ -58,7 +58,7 @@ export interface IFileResourceStorefrontDependency extends IFileResource {
 export interface IFragmentBFFVersion {
     assets: IFileResourceAsset[];
     dependencies: IFileResourceDependency[];
-    handler?: IFragmentHandler;
+    handler?: IFragmentHandler | string;
 }
 
 export interface IFragmentBFF extends IFragment {
@@ -96,7 +96,7 @@ export type IFragmentEndpointHandler = (req: any, res: any, next?: any) => void
 
 export interface IApiHandler {
     path: string;
-    middlewares: ((req: Request, res: Response, next: NextFunction) => void)[];
+    middlewares: ((req: Request, res: Response, next: NextFunction) => void)[] | string[];
     method: HTTP_METHODS;
     cacheControl?: string;
     routeCache?: number;
@@ -221,4 +221,9 @@ export interface IWrappingJsAsset {
     name: string;
     link: string | null | undefined;
     content: string | null | undefined
+}
+
+export interface IFragmentResponse {
+    content: string;
+    $status: number;
 }

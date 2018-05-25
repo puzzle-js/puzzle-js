@@ -32,7 +32,7 @@ export class GatewayStorefrontInstance {
     }
 
     /**
-     * Stops udpating gateway
+     * Stops polling
      */
     stopUpdating() {
         if (this.intervalId) {
@@ -43,15 +43,14 @@ export class GatewayStorefrontInstance {
     /**
      * Fetches gateway condifuration and calls this.bind
      */
-    private fetch() {
-        fetch(this.url)
-            .then(res => res.json())
-            .then(this.update.bind(this))
-            .catch(e => {
-                console.error(`Failed to fetch gateway configuration: ${this.name}`);
-                //todo error handling
-                //console.error(e)
-            });
+    private async fetch() {
+        try {
+            const res = await fetch(this.url);
+            const json = await res.json();
+            this.update(json);
+        } catch (e) {
+            logger.error(`Failed to fetch gateway configuration: ${this.name}`, e);
+        }
     }
 
     /**

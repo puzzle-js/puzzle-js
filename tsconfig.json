@@ -52,7 +52,9 @@
     // "baseUrl": "./",                       /* Base directory to resolve non-absolute module names. */
     // "paths": {},                           /* A series of entries which re-map imports to lookup locations relative to the 'baseUrl'. */
     // "rootDirs": [],                        /* List of root folders whose combined content represents the structure of the project at runtime. */
-    "typeRoots": [],
+    "typeRoots": [
+      "types"
+    ],
     /* List of folders to include type definitions from. */
     "types": [
       "node",
@@ -75,7 +77,8 @@
     "emitDecoratorMetadata": true         /* Enables experimental support for emitting type metadata for decorators. */
   },
   "include": [
-    "src/"
+    "src/",
+    "types"
   ],
   "exclude": [
     "node_modules"

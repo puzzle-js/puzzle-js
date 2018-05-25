@@ -1,9 +1,12 @@
+/**
+ * DI Inversifiy
+ */
 import "reflect-metadata";
 import {Server} from "./server";
 import {Container} from "inversify";
 
 export const TYPES = {
-    Server: Symbol.for("Server")
+    Server: Symbol.for('Server'),
 };
 
 const container = new Container();

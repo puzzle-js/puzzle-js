@@ -10,7 +10,7 @@ import {
     RESOURCE_TYPE
 } from "./enums";
 import {PREVIEW_PARTIAL_QUERY_NAME, RENDER_MODE_QUERY_NAME} from "./config";
-import {IExposeConfig} from "./types";
+import {IExposeConfig, IFragmentResponse} from "./types";
 import md5 from "md5";
 import async from "async";
 import path from "path";
@@ -19,6 +19,8 @@ import {Server} from "./server";
 import {container, TYPES} from "./base";
 import cheerio from "cheerio";
 import {IExposeFragment, IGatewayBFFConfiguration} from "./types";
+import {callableOnce} from "./decorators";
+import {GatewayConfigurator} from "./configurator";
 
 export class GatewayBFF {
     exposedConfig: IExposeConfig;
@@ -29,16 +31,32 @@ export class GatewayBFF {
     private fragments: { [name: string]: FragmentBFF } = {};
     private apis: { [name: string]: Api } = {};
 
-
-    constructor(gatewayConfig: IGatewayBFFConfiguration, _server?: Server) {
+    /**
+     * Gateway constructor
+     * @param {IGatewayBFFConfiguration} gatewayConfig
+     * @param {Server} _server
+     */
+    constructor(gatewayConfig: IGatewayBFFConfiguration | GatewayConfigurator, _server?: Server) {
         this.server = _server || container.get(TYPES.Server);
-        this.name = gatewayConfig.name;
-        this.url = gatewayConfig.url;
-        this.config = gatewayConfig;
+
+        if (gatewayConfig instanceof GatewayConfigurator) {
+            this.config = gatewayConfig.configuration;
+            this.name = gatewayConfig.configuration.name;
+            this.url = gatewayConfig.configuration.url;
+        } else {
+            this.config = gatewayConfig;
+            this.name = gatewayConfig.name;
+            this.url = gatewayConfig.url;
+        }
+
         this.exposedConfig = this.createExposeConfig();
         this.exposedConfig.hash = md5(JSON.stringify(this.exposedConfig));
     }
 
+    @callableOnce
+    /**
+     * Starts gateway
+     */
     public init(cb?: Function) {
         async.series([
             this.addPlaceholderRoutes.bind(this),
@@ -57,6 +75,10 @@ export class GatewayBFF {
         });
     }
 
+    /**
+     * Adds api routes
+     * @param {Function} cb
+     */
     private addApiRoutes(cb: Function) {
         this.config.api.forEach(apiConfig => {
             this.apis[apiConfig.name] = new Api(apiConfig);
@@ -65,7 +87,11 @@ export class GatewayBFF {
         cb();
     }
 
-    private createExposeConfig() {
+    /**
+     * Creates expose config
+     * @returns {IExposeConfig}
+     */
+    private createExposeConfig(): IExposeConfig {
         return {
             fragments: this.config.fragments.reduce((fragmentList: { [name: string]: IExposeFragment }, fragment) => {
                 //todo test cookieler calismiyor, versiyonlara gore build edilmeli asset ve dependency configleri
@@ -87,12 +113,14 @@ export class GatewayBFF {
 
     /**
      * Renders a fragment with desired version and renderMode
+     * @param req
      * @param {string} fragmentName
      * @param {FRAGMENT_RENDER_MODES} renderMode
+     * @param {string} partial
      * @param {string} cookieValue
-     * @returns {Promise<string>}
+     * @returns {Promise<IFragmentResponse>}
      */
-    async renderFragment(req: { [name: string]: any }, fragmentName: string, renderMode: FRAGMENT_RENDER_MODES = FRAGMENT_RENDER_MODES.PREVIEW, partial: string, cookieValue?: string): Promise<{ content: string, $status: number }> {
+    async renderFragment(req: any, fragmentName: string, renderMode: FRAGMENT_RENDER_MODES = FRAGMENT_RENDER_MODES.PREVIEW, partial: string, cookieValue?: string): Promise<IFragmentResponse> {
         if (this.fragments[fragmentName]) {
             const fragmentContent = await this.fragments[fragmentName].render(req, cookieValue);
             switch (renderMode) {
@@ -120,10 +148,11 @@ export class GatewayBFF {
     /**
      * Wraps with html template for preview mode
      * @param {string} htmlContent
-     * @param {string} fragmentName
+     * @param {FragmentBFF} fragment
+     * @param {string | undefined} cookieValue
      * @returns {string}
      */
-    private wrapFragmentContent(htmlContent: string, fragment: FragmentBFF, cookieValue: string | undefined) {
+    private wrapFragmentContent(htmlContent: string, fragment: FragmentBFF, cookieValue: string | undefined): string {
         const dom = cheerio.load(`<html><head><title>${this.config.name} - ${fragment.name}</title>${this.config.isMobile ? '<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />' : ''}</head><body><div id="${fragment.name}">${htmlContent}</div></body></html>`);
 
         const fragmentVersion = cookieValue && fragment.config.versions[cookieValue] ? fragment.config.versions[cookieValue] : fragment.config.versions[fragment.config.version];
@@ -163,7 +192,11 @@ export class GatewayBFF {
         return dom.html();
     }
 
-    private addFragmentRoutes(cb: Function) {
+    /**
+     * Adds fragment routes
+     * @param {Function} cb
+     */
+    private addFragmentRoutes(cb: Function): void {
         this.config.fragments.forEach(fragmentConfig => {
             this.server.addRoute(`/${fragmentConfig.name}${fragmentConfig.render.url}`, HTTP_METHODS.GET, async (req, res) => {
                 const renderMode = req.query[RENDER_MODE_QUERY_NAME] === FRAGMENT_RENDER_MODES.STREAM ? FRAGMENT_RENDER_MODES.STREAM : FRAGMENT_RENDER_MODES.PREVIEW;
@@ -181,7 +214,11 @@ export class GatewayBFF {
         cb();
     }
 
-    private addPlaceholderRoutes(cb: Function) {
+    /**
+     * Adds placeholder routes
+     * @param {Function} cb
+     */
+    private addPlaceholderRoutes(cb: Function): void {
         this.config.fragments.forEach(fragment => {
             this.server.addRoute(`/${fragment.name}/placeholder`, HTTP_METHODS.GET, async (req, res, next) => {
                 if (req.query.delay && +req.query.delay) {
@@ -203,7 +240,11 @@ export class GatewayBFF {
         cb();
     }
 
-    private addStaticRoutes(cb: Function) {
+    /**
+     * Adds static routes
+     * @param {Function} cb
+     */
+    private addStaticRoutes(cb: Function): void {
         this.config.fragments.forEach(fragment => {
             this.server.addRoute(`/${fragment.name}/static/:staticName`, HTTP_METHODS.GET, (req, res, next) => {
                 req.url = path.join('/', fragment.name, req.cookies[fragment.testCookie] || fragment.version, '/static/', req.params.staticName);
@@ -219,6 +260,10 @@ export class GatewayBFF {
         cb();
     }
 
+    /**
+     * Adds healthcheck route
+     * @param {Function} cb
+     */
     private addHealthCheckRoute(cb: Function) {
         this.server.addRoute('/healthcheck', HTTP_METHODS.GET, (req, res) => {
             res.status(200).end();
@@ -227,6 +272,10 @@ export class GatewayBFF {
         cb();
     }
 
+    /**
+     * Adds expose configuration route
+     * @param {Function} cb
+     */
     private addConfigurationRoute(cb: Function) {
         this.server.addRoute('/', HTTP_METHODS.GET, (req, res) => {
             res.status(200).json(this.exposedConfig);

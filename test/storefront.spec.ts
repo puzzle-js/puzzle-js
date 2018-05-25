@@ -7,6 +7,7 @@ import * as fs from "fs";
 import * as path from "path";
 import request from "supertest";
 import {createGateway} from "./mock/mock";
+import {StorefrontConfigurator} from "../src/configurator";
 
 export default () => {
     describe('Storefront', () => {
@@ -17,6 +18,21 @@ export default () => {
                 gateways: [],
                 dependencies: []
             });
+
+            expect(storefrontConfiguration).to.be.instanceOf(Storefront);
+        });
+
+        it('should create a new storefront instance with configurator', () => {
+            const storefrontConfigurator = new StorefrontConfigurator();
+
+            storefrontConfigurator.config({
+                pages: [],
+                port: 4444,
+                gateways: [],
+                dependencies: []
+            });
+
+            const storefrontConfiguration = new Storefront(storefrontConfigurator);
 
             expect(storefrontConfiguration).to.be.instanceOf(Storefront);
         });

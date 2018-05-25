@@ -11,6 +11,7 @@ import {Server} from "./server";
 import {IGatewayMap, IPageMap, IStorefrontConfig} from "./types";
 import ResourceFactory from "./resourceFactory";
 import {GATEWAY_PREPERATION_CHECK_INTERVAL} from "./config";
+import {StorefrontConfigurator} from "./configurator";
 
 
 @sealed
@@ -28,9 +29,14 @@ export class Storefront {
      * @param {IStorefrontConfig} storefrontConfig
      * @param {Server} _server
      */
-    constructor(storefrontConfig: IStorefrontConfig, _server?: Server) {
+    constructor(storefrontConfig: IStorefrontConfig | StorefrontConfigurator, _server?: Server) {
         this.server = _server || container.get(TYPES.Server);
-        this.config = storefrontConfig;
+
+        if (storefrontConfig instanceof StorefrontConfigurator) {
+            this.config = storefrontConfig.configuration;
+        } else {
+            this.config = storefrontConfig;
+        }
 
         this.createStorefrontPagesAndGateways();
     }

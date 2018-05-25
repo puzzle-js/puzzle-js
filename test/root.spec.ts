@@ -10,7 +10,7 @@ import templateTests from "./template.spec";
 import serverTests from "./server.spec";
 import apiTest from "./api.spec";
 import loggerTest from "./logger.spec";
-
+import configuratorTests from "./configurator.spec";
 
 
 //Integration Tests
@@ -28,6 +28,7 @@ describe('Unit Tests', () => {
     serverTests();
     apiTest();
     loggerTest();
+    configuratorTests();
 });
 
 describe('Integration', () => {
