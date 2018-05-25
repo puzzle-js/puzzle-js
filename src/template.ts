@@ -5,7 +5,6 @@ import {CHEERIO_CONFIGURATION, CONTENT_NOT_FOUND_ERROR, TEMPLATE_FRAGMENT_TAG_NA
 import {
     IChunkedReplacementSet,
     ICookieMap,
-    IFileResourceAsset,
     IFragmentContentResponse, IFragmentEndpointHandler,
     IPageDependentGateways,
     IReplaceAsset,
@@ -13,7 +12,6 @@ import {
     IReplaceItem,
     IReplaceSet, IWaitedResponseFirstFlush, IWrappingJsAsset
 } from "./types";
-import async from "async";
 import {
     CONTENT_REPLACE_SCRIPT,
     EVENTS,
@@ -99,20 +97,6 @@ export class Template {
         });
     }
 
-
-    /**
-     * Bind user class to page
-     */
-    private bindPageClass(): void {
-        const scriptMatch = TemplateCompiler.PAGE_CLASS_CONTENT_REGEX.exec(this.rawHtml);
-        if (scriptMatch) {
-            const pageClass = eval(scriptMatch[1]);
-            pageClass.__proto__ = new TemplateClass();
-            this.pageClass = pageClass;
-        }
-    }
-
-
     //todo fragmentConfigleri versiyon bilgileriyle inmis olmali ki assetleri versionlara gore compile edebilelim. ayni not gatewayde de var.
     /**
      * Compiles template and returns a function that can handle the request.
@@ -121,7 +105,7 @@ export class Template {
      */
     async compile(testCookies: ICookieMap): Promise<IFragmentEndpointHandler> {
         if (Object.keys(this.fragments).length === 0) {
-            const singleFlushHandlerWithoutFragments = TemplateCompiler.compile(this.clearHtmlContent(this.dom.html()));
+            const singleFlushHandlerWithoutFragments = TemplateCompiler.compile(Template.clearHtmlContent(this.dom.html()));
             return this.buildHandler(singleFlushHandlerWithoutFragments, []);
         }
 
@@ -146,7 +130,37 @@ export class Template {
         await this.appendPlaceholders(chunkReplacements);
         await this.buildStyleSheets();
 
-        return this.buildHandler(TemplateCompiler.compile(this.clearHtmlContent(this.dom.html())), chunkReplacements, waitedFragmentReplacements, replaceScripts);
+        return this.buildHandler(TemplateCompiler.compile(Template.clearHtmlContent(this.dom.html())), chunkReplacements, waitedFragmentReplacements, replaceScripts);
+    }
+
+    /**
+     * Wraps js asset based on its configuration
+     * @param {IWrappingJsAsset} asset
+     * @returns {string}
+     */
+    static wrapJsAsset(asset: IWrappingJsAsset) {
+        if (asset.injectType === RESOURCE_INJECT_TYPE.EXTERNAL && asset.link) {
+            return `<script puzzle-dependency="${asset.name}" src="${asset.link}" type="text/javascript"> </script>`;
+        } else if (asset.injectType === RESOURCE_INJECT_TYPE.INLINE && asset.content) {
+            return `<script puzzle-dependency="${asset.name}" type="text/javascript">${asset.content}</script>`;
+        } else {
+            //todo handle error
+            return `<!-- Failed to inject asset: ${asset.name} -->`;
+        }
+    }
+
+
+
+    /**
+     * Bind user class to page
+     */
+    private bindPageClass(): void {
+        const scriptMatch = TemplateCompiler.PAGE_CLASS_CONTENT_REGEX.exec(this.rawHtml);
+        if (scriptMatch) {
+            const pageClass = eval(scriptMatch[1]);
+            pageClass.__proto__ = new TemplateClass();
+            this.pageClass = pageClass;
+        }
     }
 
 
@@ -296,7 +310,7 @@ export class Template {
      * @param {string} str
      * @returns {string}
      */
-    private clearHtmlContent(str: string) {
+    private static clearHtmlContent(str: string) {
         return str.replace(/>\s+</g, "><").trim();
     }
 
@@ -382,6 +396,7 @@ export class Template {
     /**
      * Creates containers for fragments should be waited
      * @param {FragmentStorefront[]} fragmentsShouldBeWaited
+     * @param {IReplaceAsset[]} replaceJsAssets
      * @returns {IReplaceSet[]}
      */
     private replaceWaitedFragmentContainers(fragmentsShouldBeWaited: FragmentStorefront[], replaceJsAssets: IReplaceAsset[]) {
@@ -494,21 +509,6 @@ export class Template {
         return replaceScripts;
     }
 
-    /**
-     * Wraps js asset based on its configuration
-     * @param {IWrappingJsAsset} asset
-     * @returns {string}
-     */
-    static wrapJsAsset(asset: IWrappingJsAsset) {
-        if (asset.injectType === RESOURCE_INJECT_TYPE.EXTERNAL && asset.link) {
-            return `<script puzzle-dependency="${asset.name}" src="${asset.link}" type="text/javascript"> </script>`;
-        } else if (asset.injectType === RESOURCE_INJECT_TYPE.INLINE && asset.content) {
-            return `<script puzzle-dependency="${asset.name}" type="text/javascript">${asset.content}</script>`;
-        } else {
-            //todo handle error
-            return `<!-- Failed to inject asset: ${asset.name} -->`;
-        }
-    }
 
     /**
      * Merges, minifies stylesheets and inject them into a page
