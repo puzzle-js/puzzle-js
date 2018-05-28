@@ -1,5 +1,5 @@
 import "./base";
-import {GatewayBFF} from "./gatewayBff";
+import {GatewayBFF} from "./gatewayBFF";
 import {Storefront} from "./storefront";
 import {logger} from "./logger";
 import {

@@ -6,7 +6,7 @@ import {HTTP_METHODS, INJECTABLE, RESOURCE_INJECT_TYPE, RESOURCE_LOCATION, RESOU
 
 const apiEndpointsStructure = struct({
     path: 'string',
-    middlewares: ['string'],
+    middlewares: struct.optional(['string']),
     method: struct.enum(Object.values(HTTP_METHODS)),
     controller: 'string',
     routeCache: 'number?',
