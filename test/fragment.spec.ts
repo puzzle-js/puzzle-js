@@ -40,9 +40,11 @@ export default () => {
                         main: `${data} was here`
                     };
                 };
-                fragmentConfig.versions.test.handler.data = () => 'acg';
+                fragmentConfig.versions.test.handler.data = () => {
+                    return {data: 'acg'};
+                };
                 const fragment = new FragmentBFF(fragmentConfig);
-                const response = await fragment.render({});
+                const response = await fragment.render({}, {});
                 expect(response).to.deep.eq({
                     main: `acg was here`
                 });
@@ -62,7 +64,7 @@ export default () => {
                 const fragmentConfig = JSON.parse(JSON.stringify(commonFragmentBffConfiguration));
                 fragmentConfig.versions.test.handler.content = (req: any, data: any) => `${data} was here`;
                 const fragment = new FragmentBFF(fragmentConfig);
-                fragment.render({}).then(data => done(data)).catch(e => {
+                fragment.render({}, {}).then(data => done(data)).catch(e => {
                     expect(e.message).to.include('Failed to find data handler');
                     done();
                 });
@@ -76,15 +78,17 @@ export default () => {
                     throw new Error("It shouldn't call data for static fragments");
                 };
                 const fragment = new FragmentBFF(fragmentConfig);
-                fragment.render({}).then(data => done()).catch(done);
+                fragment.render({}, {}).then(data => done()).catch(done);
             });
 
             it('should throw at render when failing to find version', done => {
                 const fragmentConfig = JSON.parse(JSON.stringify(commonFragmentBffConfiguration));
                 fragmentConfig.versions.test.handler.content = (req: any, data: any) => `${data} was here`;
-                fragmentConfig.versions.test.handler.data = () => 'acg';
+                fragmentConfig.versions.test.handler.data = () => {
+                    return {data: 'acg'};
+                };
                 const fragment = new FragmentBFF(fragmentConfig);
-                fragment.render({}, 'no_version').then(data => done(data)).catch(e => {
+                fragment.render({}, {}, 'no_version').then(data => done(data)).catch(e => {
                     expect(e.message).to.include('Failed to find fragment version');
                     done();
                 });
@@ -143,7 +147,7 @@ export default () => {
                 const fragment = new FragmentBFF(fragmentConfig);
 
                 try {
-                    await fragment.render({}, '123');
+                    await fragment.render({}, {}, '123');
                 } catch (err) {
                     return;
                 }

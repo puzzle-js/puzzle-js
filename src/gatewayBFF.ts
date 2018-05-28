@@ -5,7 +5,7 @@ import {
     CONTENT_REPLACE_SCRIPT,
     DEFAULT_MAIN_PARTIAL,
     FRAGMENT_RENDER_MODES,
-    HTTP_METHODS,
+    HTTP_METHODS, HTTP_STATUS_CODE,
     RESOURCE_LOCATION,
     RESOURCE_TYPE
 } from "./enums";
@@ -19,9 +19,10 @@ import {Server} from "./server";
 import {container, TYPES} from "./base";
 import cheerio from "cheerio";
 import {IExposeFragment, IGatewayBFFConfiguration} from "./types";
-import {callableOnce} from "./decorators";
+import {callableOnce, sealed} from "./decorators";
 import {GatewayConfigurator} from "./configurator";
 
+@sealed
 export class GatewayBFF {
     exposedConfig: IExposeConfig;
     server: Server;
@@ -39,14 +40,16 @@ export class GatewayBFF {
     constructor(gatewayConfig: IGatewayBFFConfiguration | GatewayConfigurator, _server?: Server) {
         this.server = _server || container.get(TYPES.Server);
 
-        if (gatewayConfig instanceof GatewayConfigurator) {
-            this.config = gatewayConfig.configuration;
-            this.name = gatewayConfig.configuration.name;
-            this.url = gatewayConfig.configuration.url;
+        if (gatewayConfig.hasOwnProperty('configuration')) {
+            const configurator = gatewayConfig as GatewayConfigurator;
+            this.config = configurator.configuration;
+            this.name = configurator.configuration.name;
+            this.url = configurator.configuration.url;
         } else {
-            this.config = gatewayConfig;
-            this.name = gatewayConfig.name;
-            this.url = gatewayConfig.url;
+            const config = gatewayConfig as IGatewayBFFConfiguration;
+            this.config = config;
+            this.name = config.name;
+            this.url = config.url;
         }
 
         this.exposedConfig = this.createExposeConfig();
@@ -120,24 +123,27 @@ export class GatewayBFF {
      * @param {string} cookieValue
      * @returns {Promise<IFragmentResponse>}
      */
-    async renderFragment(req: any, fragmentName: string, renderMode: FRAGMENT_RENDER_MODES = FRAGMENT_RENDER_MODES.PREVIEW, partial: string, cookieValue?: string): Promise<IFragmentResponse> {
+    async renderFragment(req: any, fragmentName: string, renderMode: FRAGMENT_RENDER_MODES = FRAGMENT_RENDER_MODES.PREVIEW, partial: string, res: any, cookieValue?: string): Promise<IFragmentResponse> {
         if (this.fragments[fragmentName]) {
-            const fragmentContent = await this.fragments[fragmentName].render(req, cookieValue);
+            const fragmentContent = await this.fragments[fragmentName].render(req, res, cookieValue);
             switch (renderMode) {
                 case FRAGMENT_RENDER_MODES.STREAM:
                     return {
                         content: JSON.stringify(fragmentContent),
-                        $status: +fragmentContent.$status || 200
+                        $status: +(fragmentContent.$status || HTTP_STATUS_CODE.OK),
+                        $headers: fragmentContent.$headers || {}
                     };
                 case FRAGMENT_RENDER_MODES.PREVIEW:
                     return {
                         content: this.wrapFragmentContent(fragmentContent[partial].toString(), this.fragments[fragmentName], cookieValue),
-                        $status: +fragmentContent.$status || 200
+                        $status: +(fragmentContent.$status || HTTP_STATUS_CODE.OK),
+                        $headers: fragmentContent.$headers || {}
                     };
                 default:
                     return {
                         content: JSON.stringify(fragmentContent),
-                        $status: +fragmentContent.$status || 200
+                        $status: +(fragmentContent.$status || HTTP_STATUS_CODE.OK),
+                        $headers: fragmentContent.$headers || {}
                     };
             }
         } else {
@@ -200,12 +206,18 @@ export class GatewayBFF {
         this.config.fragments.forEach(fragmentConfig => {
             this.server.addRoute(`/${fragmentConfig.name}${fragmentConfig.render.url}`, HTTP_METHODS.GET, async (req, res) => {
                 const renderMode = req.query[RENDER_MODE_QUERY_NAME] === FRAGMENT_RENDER_MODES.STREAM ? FRAGMENT_RENDER_MODES.STREAM : FRAGMENT_RENDER_MODES.PREVIEW;
-                const gatewayContent = await this.renderFragment(req, fragmentConfig.name, renderMode, req.query[PREVIEW_PARTIAL_QUERY_NAME] || DEFAULT_MAIN_PARTIAL, req.cookies[fragmentConfig.testCookie]);
+                const gatewayContent = await this.renderFragment(req, fragmentConfig.name, renderMode, req.query[PREVIEW_PARTIAL_QUERY_NAME] || DEFAULT_MAIN_PARTIAL, res, req.cookies[fragmentConfig.testCookie]);
 
                 if (renderMode === FRAGMENT_RENDER_MODES.STREAM) {
                     res.set('content-type', 'application/json');
+                    for (let prop in gatewayContent.$headers) {
+                        res.set(prop, gatewayContent.$headers[prop]);
+                    }
                     res.status(gatewayContent.$status).end(gatewayContent.content);
                 } else {
+                    for (let prop in gatewayContent.$headers) {
+                        res.set(prop, gatewayContent.$headers[prop]);
+                    }
                     res.status(gatewayContent.$status).send(gatewayContent.content);
                 }
             });

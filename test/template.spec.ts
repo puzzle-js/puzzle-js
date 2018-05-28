@@ -309,6 +309,60 @@ export default () => {
             });
         });
 
+        it('should parse static config fragments and inject them into first flush with assets', (done) => {
+            let scope = nock('http://my-test-gateway-static.com')
+                .get('/product/')
+                .query({
+                    __renderMode: FRAGMENT_RENDER_MODES.STREAM
+                })
+                .reply(200, {
+                    main: '<div>Static Fragment</div>',
+                });
+
+
+            const template = new Template(`
+                <template>
+                    <div>
+                        <fragment from="Browsing" name="product"></fragment>
+                    </div>
+                </template>
+            `);
+
+            template.getDependencies();
+
+            template.fragments.product.update({
+                render: {
+                    url: '/',
+                    static: true
+                },
+                dependencies: [],
+                assets: [
+                    {
+                        injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
+                        fileName: 'test.bundle.js',
+                        name: 'bundle',
+                        type: RESOURCE_TYPE.JS,
+                        location: RESOURCE_LOCATION.BODY_END
+                    }
+                ],
+                testCookie: 'test',
+                version: '1.0.0'
+            }, 'http://my-test-gateway-static.com');
+
+            template.compile({}).then(handler => {
+                handler({}, createExpressMock({
+                    write(str: string) {
+                        expect(str).to.eq(null);
+                    },
+                    end(str: string) {
+                        expect(str).to.eq(`<div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" fragment-partial="main"><div>Static Fragment</div></div><script puzzle-dependency="bundle" src="http://my-test-gateway-static.com/product/static/test.bundle.js" type="text/javascript"></script></div>`);
+                        done();
+                    },
+                    status: () => ''
+                }));
+            });
+        });
+
         it('should render content not found static fragment that doesnt exists', (done) => {
             let scope = nock('http://my-test-gateway-static-2.com')
                 .get('/product/')

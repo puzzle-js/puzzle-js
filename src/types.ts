@@ -30,7 +30,17 @@ export interface IFragmentHandler {
         [name: string]: string;
     };
     placeholder: () => string;
-    data: (req: object) => any;
+    data: (req: object) => Promise<HandlerDataResponse>;
+}
+
+export interface HandlerDataResponse {
+    [name: string]: any,
+
+    data?: any,
+    $status?: number,
+    $headers?: {
+        [name: string]: string
+    },
 }
 
 export interface IFileResource {
@@ -139,6 +149,9 @@ export interface IFragmentContentResponse {
     html: {
         [name: string]: string;
     };
+    headers: {
+        [name: string]: string;
+    }
 }
 
 export interface IPageDependentGateways {
@@ -210,6 +223,9 @@ export interface IChunkedReplacementSet {
 export interface IWaitedResponseFirstFlush {
     template: string;
     statusCode: number;
+    headers: {
+        [name: string]: string;
+    };
 }
 
 export interface IApiHandlerModule {
@@ -226,4 +242,7 @@ export interface IWrappingJsAsset {
 export interface IFragmentResponse {
     content: string;
     $status: number;
+    $headers: {
+        [name: string]: string;
+    }
 }

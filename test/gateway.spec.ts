@@ -150,8 +150,9 @@ export default () => {
                 };
 
                 const bffGw = new GatewayBFF(gatewayConfiguration);
-                const gwResponse = await bffGw.renderFragment({}, 'boutique-list', FRAGMENT_RENDER_MODES.STREAM, DEFAULT_MAIN_PARTIAL);
+                const gwResponse = await bffGw.renderFragment({}, 'boutique-list', FRAGMENT_RENDER_MODES.STREAM, DEFAULT_MAIN_PARTIAL, {});
                 if (!gwResponse) throw new Error('No response from gateway');
+                console.log(gwResponse);
                 expect(JSON.parse(gwResponse.content).main).to.eq('test');
             });
 
@@ -178,7 +179,7 @@ export default () => {
                 };
 
                 const bffGw = new GatewayBFF(gatewayConfiguration);
-                const gwResponse = await bffGw.renderFragment({}, 'boutique-list', FRAGMENT_RENDER_MODES.PREVIEW, DEFAULT_MAIN_PARTIAL);
+                const gwResponse = await bffGw.renderFragment({}, 'boutique-list', FRAGMENT_RENDER_MODES.PREVIEW, DEFAULT_MAIN_PARTIAL, {});
                 if (!gwResponse) throw new Error('No response from gateway');
                 expect(gwResponse.content).to.eq(`<html><head><title>Browsing - boutique-list</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"></head><body><div id="boutique-list">test</div></body></html>`);
             });
@@ -199,18 +200,20 @@ export default () => {
                                     assets: [],
                                     dependencies: [],
                                     handler: {
-                                        content(req, data) {
+                                        content(req: any, data: any) {
                                             return {
                                                 main: `Requested:${data}`
                                             };
                                         },
                                         data(req: any) {
-                                            return `Url:${req.url}`;
+                                            return {
+                                                data: `Url:${req.url}`
+                                            };
                                         },
                                         placeholder() {
                                             return "Placeholder";
                                         }
-                                    }
+                                    } as any
                                 }
                             }
                         }
@@ -218,7 +221,7 @@ export default () => {
                 };
 
                 const bffGw = new GatewayBFF(gatewayConfiguration);
-                const gwResponse = await bffGw.renderFragment({url: 'test'}, 'boutique-list', FRAGMENT_RENDER_MODES.PREVIEW, DEFAULT_MAIN_PARTIAL);
+                const gwResponse = await bffGw.renderFragment({url: 'test'}, 'boutique-list', FRAGMENT_RENDER_MODES.PREVIEW, DEFAULT_MAIN_PARTIAL, {});
                 if (!gwResponse) throw new Error('No response from gateway');
                 expect(gwResponse.content).to.eq(`<html><head><title>Browsing - boutique-list</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"></head><body><div id="boutique-list">Requested:Url:test</div></body></html>`);
             });
@@ -293,7 +296,7 @@ export default () => {
                 };
 
                 const bffGw = new GatewayBFF(gatewayConfiguration);
-                const gwResponse = await bffGw.renderFragment({}, 'boutique-list', FRAGMENT_RENDER_MODES.PREVIEW, DEFAULT_MAIN_PARTIAL);
+                const gwResponse = await bffGw.renderFragment({}, 'boutique-list', FRAGMENT_RENDER_MODES.PREVIEW, DEFAULT_MAIN_PARTIAL, {});
                 if (!gwResponse) throw new Error('No response from gateway');
                 expect(gwResponse.content).to.eq(`<html><head><title>Browsing - boutique-list</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><script puzzle-asset="head" src="/boutique-list/static/head.min.js" type="text/javascript"></script><link puzzle-asset="headcss" rel="stylesheet" href="/boutique-list/static/bundle.min.css"><script puzzle-asset="js" src="preview" type="text/javascript"></script><link puzzle-asset="css" rel="stylesheet" href="preview"></head><body><script puzzle-asset="bs" src="/boutique-list/static/bundle.min.js" type="text/javascript"></script><script puzzle-asset="cs" src="/boutique-list/static/bundle.min.js" type="text/javascript"></script><div id="boutique-list">test</div><script puzzle-asset="ce" src="/boutique-list/static/bundle.min.js" type="text/javascript"></script><script puzzle-asset="be" src="/boutique-list/static/bundle.min.js" type="text/javascript"></script></body></html>`);
             });
@@ -321,7 +324,7 @@ export default () => {
                 };
 
                 const bffGw = new GatewayBFF(gatewayConfiguration);
-                bffGw.renderFragment({}, 'not_exists', FRAGMENT_RENDER_MODES.STREAM, DEFAULT_MAIN_PARTIAL).then(data => done(data)).catch((e) => {
+                bffGw.renderFragment({}, 'not_exists', FRAGMENT_RENDER_MODES.STREAM, DEFAULT_MAIN_PARTIAL, {}).then(data => done(data)).catch((e) => {
                     expect(e.message).to.include('Failed to find fragment');
                     done();
                 });

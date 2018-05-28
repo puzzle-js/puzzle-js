@@ -120,7 +120,7 @@ export class Configurator {
 
         this.injectDependencies(configuration);
 
-        this.configuration = configuration;
+        this.configuration = Object.assign({}, configuration);
     }
 
     protected validate(configuration: IStorefrontConfig | IGatewayBFFConfiguration) {

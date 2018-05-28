@@ -2,7 +2,7 @@ import "mocha";
 import {expect} from "chai";
 import {GatewayBFF} from "../../src/gatewayBff";
 import request from "supertest";
-import {IGatewayBFFConfiguration} from "../../src/gateway";
+import {IGatewayBFFConfiguration} from "../../src/types";
 import {PREVIEW_PARTIAL_QUERY_NAME, RENDER_MODE_QUERY_NAME} from "../../src/config";
 import {
     CONTENT_REPLACE_SCRIPT,
@@ -83,20 +83,22 @@ export default () => {
                                 ] as IFileResourceAsset[],
                                 dependencies: [],
                                 handler: {
-                                    content(req, data) {
+                                    content(req: any, data: any) {
                                         return {
                                             main: `<div>Rendered Fragment ${data.username}</div>`
                                         };
                                     },
-                                    data(req) {
+                                    data(req: any) {
                                         return {
-                                            username: 'ACG'
+                                            data: {
+                                                username: 'ACG'
+                                            }
                                         };
                                     },
                                     placeholder() {
                                         return '';
                                     }
-                                }
+                                } as any
                             }
                         }
                     }
@@ -139,21 +141,23 @@ export default () => {
                                 ] as IFileResourceAsset[],
                                 dependencies: [],
                                 handler: {
-                                    content(req, data) {
+                                    content(req: any, data: any) {
                                         return {
                                             main: `<div>Rendered Fragment ${data.username}</div>`,
                                             another: `<div>another partial</div>`
                                         };
                                     },
-                                    data(req) {
+                                    data(req: any) {
                                         return {
-                                            username: 'ACG'
+                                            data: {
+                                                username: 'ACG'
+                                            }
                                         };
                                     },
                                     placeholder() {
                                         return '';
                                     }
-                                }
+                                } as any
                             }
                         }
                     }
@@ -189,20 +193,22 @@ export default () => {
                                 assets: [],
                                 dependencies: [],
                                 handler: {
-                                    content(req, data) {
+                                    content(req: any, data: any) {
                                         return {
                                             main: `<div>Rendered Fragment ${data.username}</div>`
                                         };
                                     },
-                                    data(req) {
+                                    data(req: any) {
                                         return {
-                                            username: 'ACG'
+                                            data: {
+                                                username: 'ACG'
+                                            }
                                         };
                                     },
                                     placeholder() {
                                         return '';
                                     }
-                                }
+                                }as any
                             }
                         }
                     }
@@ -218,6 +224,65 @@ export default () => {
                         bff.server.close();
                         expect(res.body).to.deep.eq({
                             main: '<div>Rendered Fragment ACG</div>'
+                        });
+                        done(err);
+                    });
+            });
+        });
+
+        it('should export fragment content in stream mode', (done) => {
+            const bff = new GatewayBFF({
+                ...commonGatewayConfiguration,
+                fragments: [
+                    {
+                        name: 'product',
+                        render: {
+                            url: '/'
+                        },
+                        testCookie: 'product-cookie',
+                        version: '1.0.0',
+                        versions: {
+                            '1.0.0': {
+                                assets: [],
+                                dependencies: [],
+                                handler: {
+                                    content(req: any, data: any) {
+                                        done('Content called without data.');
+                                        return {
+                                            main: `<div>Rendered Fragment ${data.username}</div>`
+                                        };
+                                    },
+                                    data(req: any) {
+                                        return {
+                                            $status: 404,
+                                            $headers: {
+                                                'failure': 'reason'
+                                            }
+                                        };
+                                    },
+                                    placeholder() {
+                                        return '';
+                                    }
+                                }as any
+                            }
+                        }
+                    }
+                ]
+            });
+
+            bff.init(() => {
+                request(commonGatewayConfiguration.url)
+                    .get('/product/')
+                    .query({[RENDER_MODE_QUERY_NAME]: FRAGMENT_RENDER_MODES.STREAM})
+                    .expect(404)
+                    .end((err, res) => {
+                        bff.server.close();
+                        expect(res.header['failure']).to.eq('reason');
+                        expect(res.body).to.deep.eq({
+                            $headers: {
+                                failure: 'reason'
+                            },
+                            $status: 404
                         });
                         done(err);
                     });
@@ -248,20 +313,22 @@ export default () => {
                                 ],
                                 dependencies: [],
                                 handler: {
-                                    content(req, data) {
+                                    content(req: any, data: any) {
                                         return {
                                             main: `<div>Rendered Fragment ${data.username}</div>`
                                         };
                                     },
-                                    data(req) {
+                                    data(req: any) {
                                         return {
-                                            username: 'ACG'
+                                            data: {
+                                                username: 'ACG'
+                                            }
                                         };
                                     },
                                     placeholder() {
                                         return '';
                                     }
-                                }
+                                }as any
                             }
                         }
                     }
@@ -305,20 +372,22 @@ export default () => {
                                 ],
                                 dependencies: [],
                                 handler: {
-                                    content(req, data) {
+                                    content(req: any, data: any) {
                                         return {
                                             main: `<div>Rendered Fragment ${data.username}</div>`
                                         };
                                     },
-                                    data(req) {
+                                    data(req: any) {
                                         return {
-                                            username: 'ACG'
+                                            data: {
+                                                username: 'ACG'
+                                            }
                                         };
                                     },
                                     placeholder() {
                                         return '';
                                     }
-                                }
+                                }as any
                             },
                             '1.0.1': {
                                 assets: [
@@ -332,20 +401,22 @@ export default () => {
                                 ],
                                 dependencies: [],
                                 handler: {
-                                    content(req, data) {
+                                    content(req: any, data: any) {
                                         return {
                                             main: `<div>Rendered Fragment ${data.username}</div>`
                                         };
                                     },
-                                    data(req) {
+                                    data(req: any) {
                                         return {
-                                            username: 'ACG'
+                                            data: {
+                                                username: 'ACG'
+                                            }
                                         };
                                     },
                                     placeholder() {
                                         return '';
                                     }
-                                }
+                                }as any
                             }
                         }
                     }
@@ -481,20 +552,22 @@ export default () => {
                                 assets: [],
                                 dependencies: [],
                                 handler: {
-                                    content(req, data) {
+                                    content(req: any, data: any) {
                                         return {
                                             main: `<div>Rendered Fragment ${data.username}</div>`
                                         };
                                     },
-                                    data(req) {
+                                    data(req: any) {
                                         return {
-                                            username: 'ACG'
+                                            data: {
+                                                username: 'ACG'
+                                            }
                                         };
                                     },
                                     placeholder() {
                                         return 'placeholder';
                                     }
-                                }
+                                }as any
                             }
                         }
                     }
@@ -530,20 +603,22 @@ export default () => {
                                 assets: [],
                                 dependencies: [],
                                 handler: {
-                                    content(req, data) {
+                                    content(req: any, data: any) {
                                         return {
                                             main: `<div>Rendered Fragment ${data.username}</div>`
                                         };
                                     },
-                                    data(req) {
+                                    data(req: any) {
                                         return {
-                                            username: 'ACG'
+                                            data: {
+                                                username: 'ACG'
+                                            }
                                         };
                                     },
                                     placeholder() {
                                         return 'placeholder';
                                     }
-                                }
+                                }as any
                             }
                         }
                     }

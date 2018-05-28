@@ -1,13 +1,15 @@
 module.exports = {
-    content(){
+    content() {
         return {
             main: 'test'
         };
     },
-    data(){
-        return null;
+    data() {
+        return {
+            data: {}
+        };
     },
-    placeholder(){
-        return "Placeholder"
+    placeholder() {
+        return "Placeholder";
     }
 };

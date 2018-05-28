@@ -129,7 +129,7 @@ export class Template {
         this.replaceUnfetchedFragments(Object.values(this.fragments).filter(fragment => !fragment.config));
 
         await this.addDependencies();
-        await this.replaceStaticFragments(staticFragments);
+        await this.replaceStaticFragments(staticFragments, replaceScripts.filter(replaceSet => replaceSet.fragment.config && replaceSet.fragment.config.render.static));
         await this.appendPlaceholders(chunkReplacements);
         await this.buildStyleSheets();
 
@@ -185,12 +185,20 @@ export class Template {
      * @param {FragmentStorefront[]} fragments
      * @returns {Promise<void>}
      */
-    private async replaceStaticFragments(fragments: FragmentStorefront[]): Promise<void> {
+    private async replaceStaticFragments(fragments: FragmentStorefront[], replaceAssets: IReplaceAsset[]): Promise<void> {
         for (let fragment of fragments) {
             const fragmentContent: IFragmentContentResponse = await fragment.getContent();
             this.dom(`fragment[name="${fragment.name}"][from="${fragment.from}"]`).each((i, element) => {
                 const partial = this.dom(element).attr('partial') || 'main';
-                this.dom(element).replaceWith(`<div id="${fragment.name}" puzzle-fragment="${fragment.name}" puzzle-gateway="${fragment.from}" fragment-partial="${element.attribs.partial || 'main'}">${fragmentContent.html[partial] || CONTENT_NOT_FOUND_ERROR}</div>`);
+                const assets = replaceAssets.find(set => set.fragment.name === fragment.name);
+                let fragmentScripts = assets ? assets.replaceItems.reduce((script, replaceItem) => {
+                    script += Template.wrapJsAsset(replaceItem);
+
+                    return script;
+                }, '') : '';
+
+                this.dom(element).replaceWith(`<div id="${fragment.name}" puzzle-fragment="${fragment.name}" puzzle-gateway="${fragment.from}" fragment-partial="${element.attribs.partial || 'main'}">${fragmentContent.html[partial] || CONTENT_NOT_FOUND_ERROR}</div>${fragmentScripts}`);
+
             });
         }
     }
@@ -205,11 +213,13 @@ export class Template {
     @benchmark(isDebug(), logger.info)
     private async replaceWaitedFragments(waitedFragments: IReplaceSet[], template: string, req: any): Promise<IWaitedResponseFirstFlush> {
         let statusCode = HTTP_STATUS_CODE.OK;
+        let headers = {};
 
         for (let waitedFragmentReplacement of waitedFragments) {
             const fragmentContent = await waitedFragmentReplacement.fragment.getContent(waitedFragmentReplacement.fragmentAttributes, req);
             if (waitedFragmentReplacement.fragment.primary) {
                 statusCode = fragmentContent.status;
+                headers = fragmentContent.headers;
             }
             waitedFragmentReplacement.replaceItems
                 .forEach(replaceItem => {
@@ -220,7 +230,7 @@ export class Template {
                 });
         }
 
-        return {template, statusCode};
+        return {template, statusCode, headers};
     }
 
     /**
@@ -239,8 +249,18 @@ export class Template {
                 let fragmentedHtml = firstFlushHandler.call(this.pageClass, req);
                 (async () => {
                     const waitedReplacement = await this.replaceWaitedFragments(waitedFragments, fragmentedHtml, req);
-                    res.status(waitedReplacement.statusCode).send(waitedReplacement.template);
-                    this.pageClass._onResponseEnd();
+                    for (let prop in waitedReplacement.headers) {
+                        res.set(prop, waitedReplacement.headers[prop]);
+                    }
+                    res.status(waitedReplacement.statusCode);
+                    if (waitedReplacement.statusCode === HTTP_STATUS_CODE.MOVED_PERMANENTLY) {
+                        res.end();
+                        this.pageClass._onResponseEnd();
+                    } else {
+                        res.send(waitedReplacement.template);
+                        this.pageClass._onResponseEnd();
+                    }
+
                 })();
             };
         } else {
@@ -266,17 +286,26 @@ export class Template {
 
                     //Wait for first flush
                     const waitedReplacement = await waitedReplacementPromise;
-                    res.status(waitedReplacement.statusCode).write(waitedReplacement.template);
+                    for (let prop in waitedReplacement.headers) {
+                        res.set(prop, waitedReplacement.headers[prop]);
+                    }
+                    res.status(waitedReplacement.statusCode);
+                    if (waitedReplacement.statusCode === HTTP_STATUS_CODE.MOVED_PERMANENTLY) {
+                        res.end();
+                        this.pageClass._onResponseEnd();
+                    } else {
+                        res.write(waitedReplacement.template);
 
-                    //Bind flush method to resolved or being resolved promises of chunked replacements
-                    Object.values(chunkedFragmentReplacements).forEach((chunkedReplacement, x) => {
-                        waitedPromises[x].then(this.flush(chunkedReplacement, jsReplacements, res));
-                    });
+                        //Bind flush method to resolved or being resolved promises of chunked replacements
+                        Object.values(chunkedFragmentReplacements).forEach((chunkedReplacement, x) => {
+                            waitedPromises[x].then(this.flush(chunkedReplacement, jsReplacements, res));
+                        });
 
-                    //Close stream after all chunked fragments done
-                    await Promise.all(waitedPromises);
-                    res.end(`${bodyAndAssets}</body></html>`);
-                    this.pageClass._onResponseEnd();
+                        //Close stream after all chunked fragments done
+                        await Promise.all(waitedPromises);
+                        res.end(`${bodyAndAssets}</body></html>`);
+                        this.pageClass._onResponseEnd();
+                    }
                 })();
             };
         }

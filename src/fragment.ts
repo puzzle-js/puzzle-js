@@ -1,5 +1,5 @@
 import fetch from "node-fetch";
-import {IFragmentContentResponse} from "./types";
+import {HandlerDataResponse, IFragmentContentResponse} from "./types";
 import {FRAGMENT_RENDER_MODES} from "./enums";
 import * as querystring from "querystring";
 import {DEFAULT_CONTENT_TIMEOUT} from "./config";
@@ -33,7 +33,7 @@ export class FragmentBFF extends Fragment {
      * @param {string} version
      * @returns {Promise<{main: string; [p: string]: string}>}
      */
-    async render(req: object, version?: string): Promise<{ [name: string]: string | number }> {
+    async render(req: object, res: any, version?: string): Promise<HandlerDataResponse> {
         const targetVersion = version || this.config.version;
         const handler = this.handler[targetVersion];
         if (handler) {
@@ -41,8 +41,12 @@ export class FragmentBFF extends Fragment {
                 return handler.content(req, null);
             } else {
                 if (handler.data) {
-                    const data = await handler.data(req);
-                    return handler.content(req, data);
+                    const dataResponse = await handler.data(req);
+                    if (dataResponse.data) {
+                        return handler.content(req, dataResponse.data);
+                    } else {
+                        return dataResponse;
+                    }
                 } else {
                     throw new Error(`Failed to find data handler for fragment. Fragment: ${this.config.name}, Version: ${version || this.config.version}`);
                 }
@@ -145,7 +149,8 @@ export class FragmentStorefront extends Fragment {
             logger.error(new Error(`No config provided for fragment: ${this.name}`));
             return {
                 status: 500,
-                html: {}
+                html: {},
+                headers: {}
             };
         }
 
@@ -184,16 +189,19 @@ export class FragmentStorefront extends Fragment {
         //todo pass cookies too
         return fetch(`${this.fragmentUrl}${routeRequest}`, requestConfiguration)
             .then(async res => {
+                const responseBody = await res.json();
                 return {
                     status: res.status,
-                    html: await res.json()
+                    headers: responseBody.$headers || {},
+                    html: responseBody
                 };
             })
             .catch(err => {
                 logger.error(`Failed to get contents for fragment: ${this.name}`, err);
                 return {
                     status: 500,
-                    html: {}
+                    html: {},
+                    headers: {}
                 };
             });
     }

@@ -3,7 +3,9 @@ module.exports = {
         return 'test';
     },
     data(){
-        return null;
+        return {
+            data: {}
+        };
     },
     placeholder(){
         return "Placeholder"
