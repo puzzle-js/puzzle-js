@@ -306,7 +306,8 @@ export default () => {
                     try {
                         expect(content).to.deep.eq({
                             status: 500,
-                            html: {}
+                            html: {},
+                            headers: {}
                         });
                         done();
                     } catch (e) {
