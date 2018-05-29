@@ -135,7 +135,7 @@ export class GatewayBFF {
                     };
                 case FRAGMENT_RENDER_MODES.PREVIEW:
                     return {
-                        content: this.wrapFragmentContent(fragmentContent[partial].toString(), this.fragments[fragmentName], cookieValue),
+                        content: fragmentContent[partial] ? this.wrapFragmentContent(fragmentContent[partial].toString(), this.fragments[fragmentName], cookieValue) : '',
                         $status: +(fragmentContent.$status || HTTP_STATUS_CODE.OK),
                         $headers: fragmentContent.$headers || {}
                     };
