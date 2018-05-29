@@ -85,6 +85,7 @@ export class FragmentStorefront extends Fragment {
     shouldWait = false;
     from: string;
     public fragmentUrl: string | undefined;
+    public assetUrl: string | undefined;
 
     constructor(name: string, from: string) {
         super({name});
@@ -99,10 +100,9 @@ export class FragmentStorefront extends Fragment {
      */
     update(config: IExposeFragment, gatewayUrl: string, assetUrl?: string | undefined) {
         if (assetUrl) {
-            this.fragmentUrl = url.resolve(assetUrl, this.name);
-        } else {
-            this.fragmentUrl = url.resolve(gatewayUrl, this.name);
+            this.assetUrl = url.resolve(assetUrl, this.name);
         }
+        this.fragmentUrl = url.resolve(gatewayUrl, this.name);
 
         this.config = config;
     }
@@ -239,7 +239,7 @@ export class FragmentStorefront extends Fragment {
             return null;
         }
 
-        return `${this.fragmentUrl}/static/${asset.fileName}`;
+        return `${this.assetUrl || this.fragmentUrl}/static/${asset.fileName}`;
     }
 }
 

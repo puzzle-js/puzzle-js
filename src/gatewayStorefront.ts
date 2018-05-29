@@ -18,6 +18,7 @@ export class GatewayStorefrontInstance {
         this.name = gatewayConfig.name;
         this.url = gatewayConfig.url;
 
+
         this.assetUrl = gatewayConfig.assetUrl;
 
         this.fetch();
