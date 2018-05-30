@@ -43,7 +43,12 @@ export class FragmentBFF extends Fragment {
                 if (handler.data) {
                     const dataResponse = await handler.data(req);
                     if (dataResponse.data) {
-                        return handler.content(req, dataResponse.data);
+                        const renderedPartials = handler.content(req, dataResponse.data);
+                        delete dataResponse.data;
+                        return {
+                            ...renderedPartials,
+                            ...dataResponse
+                        };
                     } else {
                         return dataResponse;
                     }
@@ -191,7 +196,7 @@ export class FragmentStorefront extends Fragment {
             .then(async res => {
                 const responseBody = await res.json();
                 return {
-                    status: res.status,
+                    status: responseBody.$status || res.status,
                     headers: responseBody.$headers || {},
                     html: responseBody
                 };

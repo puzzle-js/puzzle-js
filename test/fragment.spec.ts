@@ -7,7 +7,6 @@ import {FRAGMENT_RENDER_MODES, RESOURCE_INJECT_TYPE, RESOURCE_LOCATION, RESOURCE
 import {deepEqual} from "assert";
 import {IFragmentBFF} from "../src/types";
 
-export default () => {
     describe('Fragment', () => {
         describe('BFF', () => {
             const commonFragmentBffConfiguration: any = {
@@ -411,5 +410,4 @@ export default () => {
             });
         });
     });
-}
 

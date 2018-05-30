@@ -183,6 +183,7 @@ export class Template {
     /**
      * Replaces static fragments with their content on vDOM
      * @param {FragmentStorefront[]} fragments
+     * @param {IReplaceAsset[]} replaceAssets
      * @returns {Promise<void>}
      */
     private async replaceStaticFragments(fragments: FragmentStorefront[], replaceAssets: IReplaceAsset[]): Promise<void> {
@@ -571,17 +572,20 @@ export class Template {
 
         let styleSheets: string[] = [];
 
-        await Promise.all(Object.values(this.fragments).map(async fragment => {
+
+        for (let fragment of Object.values(this.fragments)) {
             if (!fragment.config) return;
+
             const cssAssets = fragment.config.assets.filter(asset => asset.type === RESOURCE_TYPE.CSS);
 
-            await Promise.all(cssAssets.map(async (asset) => {
+            for (let asset of cssAssets) {
                 const assetContent = await fragment.getAsset(asset.name);
+
                 if (assetContent) {
                     styleSheets.push(assetContent);
                 }
-            }));
-        }));
+            }
+        }
 
 
         let output = _CleanCss.minify(styleSheets.join(''));

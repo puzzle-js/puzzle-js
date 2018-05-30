@@ -9,102 +9,101 @@ import request from "supertest";
 import {createGateway} from "./mock/mock";
 import {StorefrontConfigurator} from "../src/configurator";
 
-export default () => {
-    describe('Storefront', () => {
-        it('should create a new storefront instance', () => {
-            const storefrontConfiguration = new Storefront({
-                pages: [],
-                port: 4444,
-                gateways: [],
-                dependencies: []
-            });
-
-            expect(storefrontConfiguration).to.be.instanceOf(Storefront);
+describe('Storefront', () => {
+    it('should create a new storefront instance', () => {
+        const storefrontConfiguration = new Storefront({
+            pages: [],
+            port: 4444,
+            gateways: [],
+            dependencies: []
         });
 
-        it('should create a new storefront instance with configurator', () => {
-            const storefrontConfigurator = new StorefrontConfigurator();
+        expect(storefrontConfiguration).to.be.instanceOf(Storefront);
+    });
 
-            storefrontConfigurator.config({
-                pages: [],
-                port: 4444,
-                gateways: [],
-                dependencies: []
-            });
+    it('should create a new storefront instance with configurator', () => {
+        const storefrontConfigurator = new StorefrontConfigurator();
 
-            const storefrontConfiguration = new Storefront(storefrontConfigurator);
-
-            expect(storefrontConfiguration).to.be.instanceOf(Storefront);
+        storefrontConfigurator.config({
+            pages: [],
+            port: 4444,
+            gateways: [],
+            dependencies: []
         });
 
-        it('should create new page instance when registering a new storefront', () => {
-            const pageConfiguration = {
-                html: fs.readFileSync(path.join(__dirname, './templates/noFragmentsWithClass.html'), 'utf8'),
-                url: '/'
-            };
+        const storefrontConfiguration = new Storefront(storefrontConfigurator);
 
-            const storefrontInstance = new Storefront({
-                pages: [
-                    pageConfiguration
-                ],
-                port: 4444,
-                gateways: [],
-                dependencies: []
-            });
+        expect(storefrontConfiguration).to.be.instanceOf(Storefront);
+    });
 
+    it('should create new page instance when registering a new storefront', () => {
+        const pageConfiguration = {
+            html: fs.readFileSync(path.join(__dirname, './templates/noFragmentsWithClass.html'), 'utf8'),
+            url: '/'
+        };
 
-            expect(storefrontInstance.pages[pageConfiguration.url]).to.be.instanceOf(Page);
+        const storefrontInstance = new Storefront({
+            pages: [
+                pageConfiguration
+            ],
+            port: 4444,
+            gateways: [],
+            dependencies: []
         });
 
-        it('should create new gateway instances when registering a new storefront', () => {
-            const gateway = {
-                name: 'Browsing',
-                url: 'http://browsing-gw.com'
-            };
-            const storefrontInstance = new Storefront({
-                pages: [],
-                port: 4444,
-                gateways: [
-                    gateway
-                ],
-                dependencies: []
-            });
 
-            expect(storefrontInstance.gateways[gateway.name]).to.be.instanceOf(GatewayStorefrontInstance);
-            storefrontInstance.gateways['Browsing'].stopUpdating();
+        expect(storefrontInstance.pages[pageConfiguration.url]).to.be.instanceOf(Page);
+    });
+
+    it('should create new gateway instances when registering a new storefront', () => {
+        const gateway = {
+            name: 'Browsing',
+            url: 'http://browsing-gw.com'
+        };
+        const storefrontInstance = new Storefront({
+            pages: [],
+            port: 4444,
+            gateways: [
+                gateway
+            ],
+            dependencies: []
         });
 
-        it('should add health check route', done => {
-            const gateway = {
-                name: 'Browsing',
-                url: 'http://browsing-gw.com'
-            };
+        expect(storefrontInstance.gateways[gateway.name]).to.be.instanceOf(GatewayStorefrontInstance);
+        storefrontInstance.gateways['Browsing'].stopUpdating();
+    });
 
-            const scope = createGateway(gateway.name, gateway.url, {
-                hash: '1234',
-                fragments: {}
-            });
+    it('should add health check route', done => {
+        const gateway = {
+            name: 'Browsing',
+            url: 'http://browsing-gw.com'
+        };
 
-            const storefrontInstance = new Storefront({
-                pages: [],
-                port: 4444,
-                gateways: [
-                    gateway
-                ],
-                dependencies: []
-            });
+        const scope = createGateway(gateway.name, gateway.url, {
+            hash: '1234',
+            fragments: {}
+        });
+
+        const storefrontInstance = new Storefront({
+            pages: [],
+            port: 4444,
+            gateways: [
+                gateway
+            ],
+            dependencies: []
+        });
 
 
-            storefrontInstance.init(() => {
-                request(storefrontInstance.server.app)
-                    .get('/healthcheck')
-                    .expect(200)
-                    .end(err => {
-                        storefrontInstance.server.close();
-                        storefrontInstance.gateways['Browsing'].stopUpdating();
-                        done(err);
-                    });
-            });
+        storefrontInstance.init(() => {
+            request(storefrontInstance.server.app)
+                .get('/healthcheck')
+                .expect(200)
+                .end(err => {
+                    storefrontInstance.server.close();
+                    storefrontInstance.gateways['Browsing'].stopUpdating();
+                    done(err);
+                });
         });
     });
-}
+});
+

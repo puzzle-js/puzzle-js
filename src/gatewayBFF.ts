@@ -56,10 +56,11 @@ export class GatewayBFF {
         this.exposedConfig.hash = md5(JSON.stringify(this.exposedConfig));
     }
 
-    @callableOnce
+
     /**
      * Starts gateway
      */
+    @callableOnce
     public init(cb?: Function) {
         async.series([
             this.addPlaceholderRoutes.bind(this),
@@ -207,18 +208,17 @@ export class GatewayBFF {
             this.server.addRoute(`/${fragmentConfig.name}${fragmentConfig.render.url}`, HTTP_METHODS.GET, async (req, res) => {
                 const renderMode = req.query[RENDER_MODE_QUERY_NAME] === FRAGMENT_RENDER_MODES.STREAM ? FRAGMENT_RENDER_MODES.STREAM : FRAGMENT_RENDER_MODES.PREVIEW;
                 const gatewayContent = await this.renderFragment(req, fragmentConfig.name, renderMode, req.query[PREVIEW_PARTIAL_QUERY_NAME] || DEFAULT_MAIN_PARTIAL, res, req.cookies[fragmentConfig.testCookie]);
-
                 if (renderMode === FRAGMENT_RENDER_MODES.STREAM) {
                     res.set('content-type', 'application/json');
                     for (let prop in gatewayContent.$headers) {
                         res.set(prop, gatewayContent.$headers[prop]);
                     }
-                    res.status(gatewayContent.$status).end(gatewayContent.content);
+                    res.status(HTTP_STATUS_CODE.OK).end(gatewayContent.content);
                 } else {
                     for (let prop in gatewayContent.$headers) {
                         res.set(prop, gatewayContent.$headers[prop]);
                     }
-                    res.status(gatewayContent.$status).send(gatewayContent.content);
+                    res.status(HTTP_STATUS_CODE.OK).send(gatewayContent.content);
                 }
             });
         });
