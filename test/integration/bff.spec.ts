@@ -7,7 +7,7 @@ import {PREVIEW_PARTIAL_QUERY_NAME, RENDER_MODE_QUERY_NAME} from "../../src/conf
 import {
     CONTENT_REPLACE_SCRIPT,
     FRAGMENT_RENDER_MODES,
-    HTTP_METHODS,
+    HTTP_METHODS, HTTP_STATUS_CODE,
     RESOURCE_INJECT_TYPE,
     RESOURCE_LOCATION,
     RESOURCE_TYPE
@@ -645,6 +645,62 @@ describe('BFF', () => {
                 .end((err, res) => {
                     bff.server.close();
                     expect(res.text).to.eq(`placeholder`);
+                    done(err);
+                });
+        });
+    });
+
+    it('should respond with middleware', (done) => {
+        const bff = new GatewayBFF({
+            ...commonGatewayConfiguration,
+            fragments: [
+                {
+                    name: 'product',
+                    render: {
+                        url: '/',
+                        placeholder: true,
+                        middlewares: [
+                            (req, res, next) => {
+                                res.status(HTTP_STATUS_CODE.FORBIDDEN).end('Nope');
+                            }
+                        ]
+                    },
+                    testCookie: 'product-cookie',
+                    version: '1.0.0',
+                    versions: {
+                        '1.0.0': {
+                            assets: [],
+                            dependencies: [],
+                            handler: {
+                                content(req: any, data: any) {
+                                    return {
+                                        main: `<div>Rendered Fragment ${data.username}</div>`
+                                    };
+                                },
+                                data(req: any) {
+                                    return {
+                                        data: {
+                                            username: 'ACG'
+                                        }
+                                    };
+                                },
+                                placeholder() {
+                                    return 'placeholder';
+                                }
+                            }as any
+                        }
+                    }
+                }
+            ]
+        });
+
+        bff.init(() => {
+            request(commonGatewayConfiguration.url)
+                .get('/product')
+                .expect(HTTP_STATUS_CODE.FORBIDDEN)
+                .end((err, res) => {
+                    bff.server.close();
+                    expect(res.text).to.eq(`Nope`);
                     done(err);
                 });
         });

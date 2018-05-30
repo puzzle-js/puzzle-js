@@ -220,7 +220,7 @@ export class GatewayBFF {
                     }
                     res.status(HTTP_STATUS_CODE.OK).send(gatewayContent.content);
                 }
-            });
+            }, fragmentConfig.render.middlewares);
         });
 
         cb();

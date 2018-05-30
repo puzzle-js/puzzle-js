@@ -18,7 +18,7 @@ export interface IFragmentBFFRender {
     url: string;
     routeCache?: number;
     selfReplace?: boolean;
-    middlewares?: [Function | string];
+    middlewares?: [ (req: Request, res: Response, next: NextFunction) => any | string];
     cacheControl?: string;
     placeholder?: boolean;
     timeout?: number;
