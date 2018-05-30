@@ -12,3 +12,4 @@ export const CHEERIO_CONFIGURATION = {
     lowerCaseAttributeNames: true,
 };
 export const TEMPLATE_FRAGMENT_TAG_NAME = 'fragment';
+export const DEFAULT_GZIP_EXTENSIONS = ['.js', '.css'];

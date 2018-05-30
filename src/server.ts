@@ -11,7 +11,10 @@ import {ServeStaticOptions} from "serve-static";
 import {EVENTS, HTTP_METHODS} from "./enums";
 import {stream} from "./logger";
 import {pubsub} from "./util";
+import compression from "compression";
 import {injectable} from "inversify";
+import path from "path";
+import {DEFAULT_GZIP_EXTENSIONS} from "./config";
 
 
 const morganLoggingLevels = [
@@ -84,6 +87,10 @@ export class Server {
         this.app.use(bodyParser.urlencoded({extended: false}));
         this.app.use(cookieParser());
         this.app.use(cors());
-        //this.app.use(compression()); //todo must work on it
+        this.app.use(compression({
+            filter(req: any) {
+                return DEFAULT_GZIP_EXTENSIONS.indexOf(path.extname(req.path)) > -1;
+            }
+        }));
     }
 }
