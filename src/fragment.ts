@@ -2,7 +2,7 @@ import fetch from "node-fetch";
 import {HandlerDataResponse, IFragmentContentResponse} from "./types";
 import {FRAGMENT_RENDER_MODES} from "./enums";
 import * as querystring from "querystring";
-import {DEFAULT_CONTENT_TIMEOUT} from "./config";
+import {DEFAULT_CONTENT_TIMEOUT, PREVIEW_PARTIAL_QUERY_NAME, RENDER_MODE_QUERY_NAME} from "./config";
 import {IExposeFragment, IFragment, IFragmentBFF, IFragmentHandler} from "./types";
 import {logger} from "./logger";
 import url from "url";
@@ -30,20 +30,22 @@ export class FragmentBFF extends Fragment {
     /**
      * Renders fragment: data -> content
      * @param {object} req
+     * @param res
      * @param {string} version
-     * @returns {Promise<{main: string; [p: string]: string}>}
+     * @returns {Promise<HandlerDataResponse>}
      */
     async render(req: object, res: any, version?: string): Promise<HandlerDataResponse> {
         const targetVersion = version || this.config.version;
         const handler = this.handler[targetVersion];
+        const clearedRequest = this.clearRequest(req);
         if (handler) {
             if (this.config.render.static) {
-                return handler.content(req, null);
+                return handler.content(clearedRequest, null);
             } else {
                 if (handler.data) {
-                    const dataResponse = await handler.data(req);
+                    const dataResponse = await handler.data(clearedRequest);
                     if (dataResponse.data) {
-                        const renderedPartials = handler.content(req, dataResponse.data);
+                        const renderedPartials = handler.content(clearedRequest, dataResponse.data);
                         delete dataResponse.data;
                         return {
                             ...renderedPartials,
@@ -69,6 +71,18 @@ export class FragmentBFF extends Fragment {
         } else {
             throw new Error(`Failed to find fragment version. Fragment: ${this.config.name}, Version: ${version || this.config.version}`);
         }
+    }
+
+    private clearRequest(req: any) {
+        const clearedReq = Object.assign({}, req);
+        if (req.query) {
+            delete clearedReq.query[RENDER_MODE_QUERY_NAME];
+            delete clearedReq.query[PREVIEW_PARTIAL_QUERY_NAME];
+        }
+        if (req.path) {
+            clearedReq.path = req.path.replace(`/${this.name}`, '');
+        }
+        return clearedReq;
     }
 
     private prepareHandlers() {
