@@ -1,6 +1,6 @@
 import "mocha";
 import {expect} from "chai";
-import {GatewayBFF} from "../../src/gatewayBff";
+import {GatewayBFF} from "../../src/gatewayBFF";
 import request from "supertest";
 import {IGatewayBFFConfiguration} from "../../src/types";
 import {PREVIEW_PARTIAL_QUERY_NAME, RENDER_MODE_QUERY_NAME} from "../../src/config";
