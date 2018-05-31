@@ -3,7 +3,7 @@
     <p style="text-aling: center;">Frontend microservices framework for scalable and blazing fast websites.</p>
 </p>
 
-[![npm version](https://badge.fury.io/js/ty-puzzlejs.svg)](https://www.npmjs.com/package/ty-puzzlejs) [![MIT Licence](https://img.shields.io/npm/l/slate.svg?maxAge=300)](https://opensource.org/licenses/mit-license.php)
+[![npm version](https://badge.fury.io/js/ty-puzzlejs.svg)](https://www.npmjs.com/package/ty-puzzlejs)
 # PuzzleJs Framework
 
 PuzzleJs makes it easy to create gateways and storefront projects that talk each other. It is inspired by Facebook's [BigPipe](https://www.facebook.com/notes/facebook-engineering/bigpipe-pipelining-web-pages-for-high-performance/389414033919/), developed with lots of great features and passion.
