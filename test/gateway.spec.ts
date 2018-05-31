@@ -6,7 +6,7 @@ import {IGatewayBFFConfiguration} from "../src/types";
 import nock from "nock";
 import {createGateway} from "./mock/mock";
 import {IFileResourceAsset} from "../src/types";
-import {GatewayBFF} from "../src/gatewayBff";
+import {GatewayBFF} from "../src/gatewayBFF";
 import {GatewayConfigurator} from "../src/configurator";
 
 describe('Gateway', () => {
