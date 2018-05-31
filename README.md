@@ -50,17 +50,6 @@ Please check the [guide](./docs/guide.md) for full documentation.
 Read the [guide](./docs/guide.md) to familiarize yourself with how PuzzleJs works.
 
 * [Installing PuzzleJs](./docs/guide.md#installing-puzzlejs)
-* [Creating Gateways](./docs/guide.md#creating-gateways)
-    * [Fragments](./docs/guide.md#fragments)
-    * [Api](./docs/guide.md#api)
-    * [Render Modes](./docs/guide.md#render-modes)
-* [Creating Storefront](./docs/guide.md#creating-storefront)
-    * [Template Engine](./docs/guide.md#template-engine)
-    * [Fragment Tag](./docs/guide.md#fragment-tag)
-* [Logging](./docs/guide.md#template)
-* [Server](./docs/guide.md#server)
-    * [Custom Middlewares](./docs/guide.md#middlewares)
-    * [Custom Routes](./docs/guide.md#custom-routes)
 
 ### [Changelog](./CHANGELOG.md)
 
