@@ -63,6 +63,12 @@ export class FragmentBFF extends Fragment {
         }
     }
 
+    /**
+     * Renders placeholder
+     * @param {object} req
+     * @param {string} version
+     * @returns {string}
+     */
     placeholder(req: object, version?: string) {
         const fragmentVersion = (version && this.config.versions[version]) ? version : this.config.version;
         const handler = this.handler[fragmentVersion];
@@ -73,6 +79,11 @@ export class FragmentBFF extends Fragment {
         }
     }
 
+    /**
+     * Purifies req.path, req.query from Puzzle elements.
+     * @param req
+     * @returns {*}
+     */
     private clearRequest(req: any) {
         const clearedReq = Object.assign({}, req);
         if (req.query) {
@@ -85,6 +96,9 @@ export class FragmentBFF extends Fragment {
         return clearedReq;
     }
 
+    /**
+     * Reolves handlers based on configuration
+     */
     private prepareHandlers() {
         Object.keys(this.config.versions).forEach(version => {
             const configurationHandler = this.config.versions[version].handler;
@@ -116,6 +130,7 @@ export class FragmentStorefront extends Fragment {
      * Updates fragment configuration
      * @param {IExposeFragment} config
      * @param {string} gatewayUrl
+     * @param {string | undefined} assetUrl
      */
     update(config: IExposeFragment, gatewayUrl: string, assetUrl?: string | undefined) {
         if (assetUrl) {
@@ -225,6 +240,11 @@ export class FragmentStorefront extends Fragment {
             });
     }
 
+    /**
+     * Returns asset content
+     * @param {string} name
+     * @returns {Promise<string>}
+     */
     async getAsset(name: string) {
         if (!this.config) {
             logger.error(new Error(`No config provided for fragment: ${this.name}`));
@@ -245,6 +265,11 @@ export class FragmentStorefront extends Fragment {
         });
     }
 
+    /**
+     * Returns asset path
+     * @param {string} name
+     * @returns {string}
+     */
     getAssetPath(name: string) {
         if (!this.config) {
             logger.error(new Error(`No config provided for fragment: ${this.name}`));

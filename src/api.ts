@@ -13,6 +13,10 @@ export class Api {
         this.prepareHandlers();
     }
 
+    /**
+     * Registers API endpoints /{API_PREFIX}/{APINAME}
+     * @param {Server} app
+     */
     public registerEndpoints(app: Server) {
         app.addUse(`/${API_ROUTE_PREFIX}/${this.config.name}`, (req, res, next) => {
             const requestVersion = [req.cookies[this.config.testCookie]] ? (this.config.versions[req.cookies[this.config.testCookie]] ? req.cookies[this.config.testCookie] : this.config.liveVersion) : this.config.liveVersion;
@@ -29,6 +33,9 @@ export class Api {
         });
     }
 
+    /**
+     * Resolves version handlers based on configuration
+     */
     private prepareHandlers() {
         Object.keys(this.config.versions).forEach(version => {
             const configurationHandler = this.config.versions[version].handler;

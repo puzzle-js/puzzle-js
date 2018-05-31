@@ -45,6 +45,11 @@ export class Server {
         });
     }
 
+    /**
+     * Register new middleware to route
+     * @param {string | null} path
+     * @param {(req: Request, res: Response, next: NextFunction) => any} handler
+     */
     public addUse(path: string | null, handler: (req: Request, res: Response, next: NextFunction) => any) {
         if (path) {
             this.app.use(path, handler);
@@ -53,6 +58,12 @@ export class Server {
         }
     }
 
+    /**
+     * Registers static routes
+     * @param {string | null} path
+     * @param {string} source
+     * @param {serveStatic.ServeStaticOptions} staticOptions
+     */
     public setStatic(path: string | null, source: string, staticOptions?: ServeStaticOptions) {
         if (!staticOptions) {
             this.addUse(path, express.static(source));
@@ -61,17 +72,32 @@ export class Server {
         }
     }
 
+    /**
+     * Adds new route
+     * @param {string} path
+     * @param {HTTP_METHODS} method
+     * @param {(req: Request, res: Response, next: NextFunction) => any} handler
+     * @param {RequestHandlerParams[]} middlewares
+     */
     public addRoute(path: string, method: HTTP_METHODS, handler: (req: Request, res: Response, next: NextFunction) => any, middlewares: RequestHandlerParams[] = []) {
         (this.app as any)[method](path, middlewares, handler);
     }
 
 
+    /**
+     * Starts server
+     * @param {number} port
+     * @param {Function} cb
+     */
     public listen(port: number, cb?: Function) {
         this.server = this.app.listen(port, (e: Error) => {
             cb && cb(e);
         });
     }
 
+    /**
+     * Clears instances, stops listening
+     */
     public close() {
         if (this.server) {
             this.server.close();
@@ -81,6 +107,10 @@ export class Server {
         }
     }
 
+    /**
+     * Predefined middlewares
+     * @returns {boolean}
+     */
     private addMiddlewares() {
         this.app.use(morgan(morganLoggingLevels.join('||'), {stream}));
         this.app.use(helmet());

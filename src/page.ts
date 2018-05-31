@@ -14,6 +14,29 @@ export class Page {
         this.template = new Template(html);
         this.gatewayDependencies = this.template.getDependencies();
 
+        this.preparePageDependencies(gatewayMap);
+        this.checkPageReady();
+    }
+
+    /**
+     * Request handler, compiles template if not exists
+     * @param {{cookies: ICookieObject}} req
+     * @param {object} res
+     * @returns {Promise<void>}
+     */
+    async handle(req: { cookies: ICookieObject }, res: object) {
+        const handlerVersion = this.getHandlerVersion(req);
+        if (!this.responseHandlers[handlerVersion]) {
+            this.responseHandlers[handlerVersion] = await this.template.compile(req.cookies);
+        }
+        this.responseHandlers[handlerVersion](req, res);
+    }
+
+    /**
+     * Prepares dependencies and subscribes to events.
+     * @param {IGatewayMap} gatewayMap
+     */
+    private preparePageDependencies(gatewayMap: IGatewayMap) {
         Object.keys(gatewayMap)
             .filter(gatewayName => this.gatewayDependencies.gateways[gatewayMap[gatewayName].name])
             .forEach(gatewayName => {
@@ -25,20 +48,11 @@ export class Page {
                     gatewayMap[gatewayName].events.once(EVENTS.GATEWAY_READY, this.gatewayReady.bind(this));
                 }
             });
-
-        this.checkPageReady();
     }
 
-
-    async handle(req: { cookies: ICookieObject }, res: object) {
-        const handlerVersion = this.getHandlerVersion(req);
-        if (!this.responseHandlers[handlerVersion]) {
-            this.responseHandlers[handlerVersion] = await this.template.compile(req.cookies);
-        }
-        this.responseHandlers[handlerVersion](req, res);
-    }
-
-
+    /**
+     * Checks for page dependencies are ready
+     */
     private checkPageReady(): void {
         if (Object.keys(this.gatewayDependencies.gateways).filter(gatewayName => this.gatewayDependencies.gateways[gatewayName].ready === false).length === 0) {
             this.fragmentCookieList = this.getFragmentTestCookieList();
@@ -46,6 +60,11 @@ export class Page {
         }
     }
 
+    /**
+     * Based on test cookies returns handler key
+     * @param {{cookies: ICookieObject}} req
+     * @returns {string}
+     */
     private getHandlerVersion(req: { cookies: ICookieObject }) {
         return this.fragmentCookieList.reduce((fragmentHandlerVersion, fragmentCookie) => {
             fragmentHandlerVersion += `{${fragmentCookie.name}_${req.cookies[fragmentCookie.name] || fragmentCookie.live}}`;
@@ -53,6 +72,10 @@ export class Page {
         }, '');
     }
 
+    /**
+     * Returns test cookie list from all fragments
+     * @returns {IFragmentCookieMap[]}
+     */
     private getFragmentTestCookieList() {
         const cookieList: IFragmentCookieMap[] = [];
         Object.values(this.gatewayDependencies.fragments).forEach(fragment => {
@@ -68,13 +91,20 @@ export class Page {
     }
 
 
+    /**
+     * Called on GATEWAY_UPDATED
+     * @param {GatewayStorefrontInstance} gateway
+     */
     private gatewayUpdated(gateway: GatewayStorefrontInstance) {
         this.updateFragmentsConfig(gateway);
         this.template.load();
         this.responseHandlers = {};
     }
 
-
+    /**
+     * Updates fragment config based on gateway configuration
+     * @param {GatewayStorefrontInstance} gateway
+     */
     private updateFragmentsConfig(gateway: GatewayStorefrontInstance) {
         Object.values(this.gatewayDependencies.fragments).forEach(fragment => {
             if (fragment.gateway === gateway.name && gateway.config) {
@@ -83,6 +113,10 @@ export class Page {
         });
     }
 
+    /**
+     * Called on GATEWAY_READY
+     * @param {GatewayStorefrontInstance} gateway
+     */
     private gatewayReady(gateway: GatewayStorefrontInstance) {
         this.gatewayDependencies.gateways[gateway.name].ready = true;
         this.updateFragmentsConfig(gateway);

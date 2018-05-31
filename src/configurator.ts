@@ -115,6 +115,10 @@ export class Configurator {
         return this.dependencies[type][name];
     }
 
+    /**
+     * Config json
+     * @param {IStorefrontConfig | IGatewayBFFConfiguration} configuration
+     */
     config(configuration: IStorefrontConfig | IGatewayBFFConfiguration) {
         this.validate(configuration);
 
