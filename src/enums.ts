@@ -36,7 +36,10 @@ export enum REPLACE_ITEM_TYPE {
 
 export enum HTTP_METHODS {
     GET = 'get',
-    POST = 'post'
+    POST = 'post',
+    PUT = 'put',
+    DELETE = 'delete',
+    PATCH = 'patch'
 }
 
 export const CONTENT_REPLACE_SCRIPT = `<script>function $p(p,c){var z = document.querySelector(c),r = z.innerHTML;z.parentNode.removeChild(z);document.querySelector(p).innerHTML=r}</script>`;
