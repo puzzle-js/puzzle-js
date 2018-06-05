@@ -1,8 +1,9 @@
 (function (scope) {
     const preOverload = console.info;
-    console.info = function (b) {
-        if (b.indexOf('will mount') > -1) return;
-    }
+    console.info = function () {
+        if (arguments[0].indexOf('will mount') > -1) return;
+        preOverload(...arguments);
+    };
 
     /*
       Util
@@ -12,18 +13,18 @@
         console.groupCollapsed(...logConfig(name, color), description);
         cb();
         console.groupEnd()
-    };
+    }
 
 
     function log(content, type = PuzzleAnalytics.LOG_TYPES.INFO, color = PuzzleAnalytics.LOG_COLORS.BLUE) {
         const logConfig = color => ['%cPuzzleJs', `background: ${color}; color: white; padding: 2px 0.5em; ` + `border-radius: 0.5em;`];
         console[type](...logConfig(color), content);
-    };
+    }
 
 
     function table(content) {
         console.table(content);
-    };
+    }
 
 
     /**
@@ -35,6 +36,9 @@
         this.measuredTimes = {};
         this.connectionInformation = this.collectConnectionInformation();
         this.start();
+        this.observingComplete = false;
+        this.parseComplete = false;
+        this.logDone = false;
     }
 
     PuzzleAnalytics.prototype.collectConnectionInformation = function () {
@@ -44,7 +48,7 @@
             effectiveType: connection.effectiveType,
             downlink: connection.downlink
         }
-    }
+    };
 
     PuzzleAnalytics.prototype.start = function () {
         performance.mark(PuzzleAnalytics.TIME_LABELS.HTML_TRANSFER_STARTED);
@@ -62,7 +66,7 @@
     PuzzleAnalytics.OBSERVABLE_LABELS = {
         FIRST_CONTENTFUL_PAINT: 'first-contentful-paint',
         FIRST_PAINT: 'first-paint'
-    }
+    };
 
     PuzzleAnalytics.LOG_COLORS = Object.freeze({
         GREY: `#7f8c8d`,
@@ -95,8 +99,15 @@
 
 
     PuzzleAnalytics.prototype.end = function () {
+        this.parseComplete = true;
         performance.mark(PuzzleAnalytics.HTML_TRANSFER_ENDED);
 
+        if (this.observingComplete && this.parseComplete && !this.logDone) {
+            this.logAnalytics();
+        }
+    };
+
+    PuzzleAnalytics.prototype.logAnalytics = function () {
         wrapGroup('PuzzleJs', 'Debug Mode - Analytics', () => {
             table({
                 'Round Trip Time': `${this.connectionInformation.rtt} ms`,
@@ -106,14 +117,26 @@
 
             log(`First Paint Started: ${this.measuredTimes[PuzzleAnalytics.OBSERVABLE_LABELS.FIRST_PAINT]}`);
             log(`First Meaningfull Paint: ${this.measuredTimes[PuzzleAnalytics.OBSERVABLE_LABELS.FIRST_CONTENTFUL_PAINT]}`);
+
+            const fragmentsTableData = this.fragments.reduce((fragmentMap, fragment) => {
+                fragmentMap[fragment.name] = {
+                    'Parsing Started': fragment.loadTime[0].startTime,
+                    'Parse Duration': fragment.loadTime[0].duration
+                };
+                return fragmentMap;
+            }, {});
+            table(fragmentsTableData);
         });
     };
 
     PuzzleAnalytics.prototype.injectObserver = function () {
         const observer = new PerformanceObserver((list) => {
             for (const entry of list.getEntries()) {
-                const metricName = entry.name;
-                this.measuredTimes[metricName] = Math.round(entry.startTime + entry.duration);
+                this.measuredTimes[entry.name] = Math.round(entry.startTime + entry.duration);
+            }
+            this.observingComplete = true;
+            if (this.observingComplete && this.parseComplete && !this.logDone) {
+                this.logAnalytics();
             }
         });
         observer.observe({entryTypes: ['paint']});
@@ -126,6 +149,7 @@
     function PuzzleInfo() {
         wrapGroup('PuzzleJs', 'Debug Mode - Package Info', () => {
             this.logo();
+            log('PuzzleJs: 2.5.1');
         });
     }
 
