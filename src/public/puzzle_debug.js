@@ -120,8 +120,8 @@
 
             const fragmentsTableData = this.fragments.reduce((fragmentMap, fragment) => {
                 fragmentMap[fragment.name] = {
-                    'Parsing Started': fragment.loadTime[0].startTime,
-                    'Parse Duration': fragment.loadTime[0].duration
+                    'Parsing Started': ~~fragment.loadTime[0].startTime,
+                    'Parse Duration': ~~fragment.loadTime[0].duration
                 };
                 return fragmentMap;
             }, {});
