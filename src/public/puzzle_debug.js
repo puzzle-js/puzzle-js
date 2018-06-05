@@ -6,7 +6,17 @@
     function PuzzleAnalytics() {
         this.fragments = [];
         this.measuredTimes = {};
+        this.connectionInformation = this.collectConnectionInformation();
         this.start();
+    }
+
+    PuzzleAnalytics.prototype.collectConnectionInformation = function () {
+        const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+        return {
+            rtt: connection.rtt,
+            effectiveType: connection.effectiveType,
+            downlink: connection.downlink
+        }
     }
 
     PuzzleAnalytics.prototype.start = function () {
@@ -20,6 +30,11 @@
         FRAGMENT_RENDER_START: 'fragment-render-started-',
         FRAGMENT_RENDER_END: 'fragment-render-ended-'
     });
+
+    PuzzleAnalytics.OBSERVABLE_LABELS = {
+        FIRST_CONTENTFUL_PAINT: 'first-contentful-paint',
+        FIRST_PAINT: 'first-paint'
+    }
 
     PuzzleAnalytics.LOG_COLORS = Object.freeze({
         GREY: `#7f8c8d`,
@@ -73,6 +88,15 @@
 
         this.wrapGroup('PuzzleJs', 'Debug Mode - Analytics', () => {
             this.logo();
+
+            this.table({
+                'Round Trip Time': `${this.connectionInformation.rtt} ms`,
+                'Connection Speed': `${this.connectionInformation.downlink} kbps`,
+                'Connection Type': this.connectionInformation.effectiveType
+            });
+
+            this.log(`First Paint Started: ${this.measuredTimes[PuzzleAnalytics.OBSERVABLE_LABELS.FIRST_PAINT]}`);
+            this.log(`First Meaningfull Paint: ${this.measuredTimes[PuzzleAnalytics.OBSERVABLE_LABELS.FIRST_CONTENTFUL_PAINT]}`);
         });
     };
 
