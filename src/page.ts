@@ -2,6 +2,7 @@ import {Template} from "./template";
 import {GatewayStorefrontInstance} from "./gatewayStorefront";
 import {EVENTS} from "./enums";
 import {ICookieObject, IFragmentCookieMap, IGatewayMap, IPageDependentGateways, IResponseHandlers} from "./types";
+import {DEBUG_QUERY_NAME} from "./config";
 
 export class Page {
     ready = false;
@@ -24,10 +25,11 @@ export class Page {
      * @param {object} res
      * @returns {Promise<void>}
      */
-    async handle(req: { cookies: ICookieObject }, res: object) {
+    async handle(req: { cookies: ICookieObject, query: { [name: string]: string } }, res: object) {
         const handlerVersion = this.getHandlerVersion(req);
+        const isDebug = req.query && req.query.hasOwnProperty(DEBUG_QUERY_NAME);
         if (!this.responseHandlers[handlerVersion]) {
-            this.responseHandlers[handlerVersion] = await this.template.compile(req.cookies);
+            this.responseHandlers[handlerVersion] = await this.template.compile(req.cookies, isDebug);
         }
         this.responseHandlers[handlerVersion](req, res);
     }
@@ -65,11 +67,17 @@ export class Page {
      * @param {{cookies: ICookieObject}} req
      * @returns {string}
      */
-    private getHandlerVersion(req: { cookies: ICookieObject }) {
-        return this.fragmentCookieList.reduce((fragmentHandlerVersion, fragmentCookie) => {
+    private getHandlerVersion(req: { cookies: ICookieObject, query: { [name: string]: string } }) {
+        let fragmentCookieVersion = this.fragmentCookieList.reduce((fragmentHandlerVersion, fragmentCookie) => {
             fragmentHandlerVersion += `{${fragmentCookie.name}_${req.cookies[fragmentCookie.name] || fragmentCookie.live}}`;
             return fragmentHandlerVersion;
         }, '');
+
+        if (req.query && req.query[DEBUG_QUERY_NAME]) {
+            fragmentCookieVersion += DEBUG_QUERY_NAME;
+        }
+
+        return fragmentCookieVersion;
     }
 
     /**

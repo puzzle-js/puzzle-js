@@ -1,7 +1,12 @@
 import {FragmentStorefront} from "./fragment";
 import cheerio from "cheerio";
 import {TemplateCompiler} from "./templateCompiler";
-import {CHEERIO_CONFIGURATION, CONTENT_NOT_FOUND_ERROR, TEMPLATE_FRAGMENT_TAG_NAME} from "./config";
+import {
+    CHEERIO_CONFIGURATION,
+    CONTENT_NOT_FOUND_ERROR,
+    PUZZLE_DEBUGGER_LINK,
+    TEMPLATE_FRAGMENT_TAG_NAME
+} from "./config";
 import {
     IChunkedReplacementSet,
     ICookieMap,
@@ -104,9 +109,14 @@ export class Template {
     /**
      * Compiles template and returns a function that can handle the request.
      * @param {ICookieMap} testCookies
+     * @param {boolean} isDebug
      * @returns {Promise<IFragmentEndpointHandler>}
      */
-    async compile(testCookies: ICookieMap): Promise<IFragmentEndpointHandler> {
+    async compile(testCookies: ICookieMap, isDebug: boolean = false): Promise<IFragmentEndpointHandler> {
+        if (isDebug) {
+            this.dom('head').append(`<script src="${PUZZLE_DEBUGGER_LINK}" type="text/javascript"> </script>`);
+        }
+
         if (Object.keys(this.fragments).length === 0) {
             const singleFlushHandlerWithoutFragments = TemplateCompiler.compile(Template.clearHtmlContent(this.dom.html()));
             return this.buildHandler(singleFlushHandlerWithoutFragments, []);

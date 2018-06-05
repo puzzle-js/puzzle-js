@@ -23,3 +23,5 @@ export const CHEERIO_CONFIGURATION = loadConfigurationFromEnv('CHEERIO_CONFIGURA
 };
 export const TEMPLATE_FRAGMENT_TAG_NAME = loadConfigurationFromEnv('TEMPLATE_FRAGMENT_TAG_NAME') || 'fragment';
 export const DEFAULT_GZIP_EXTENSIONS = loadConfigurationFromEnv('DEFAULT_GZIP_EXTENSIONS', true) || ['.js', '.css'];
+export const DEBUG_QUERY_NAME = loadConfigurationFromEnv('DEBUG_QUERY_NAME') || '__debug';
+export const PUZZLE_DEBUGGER_LINK = loadConfigurationFromEnv('PUZZLE_DEBUGGER_LINK') || '/static/puzzle_debug.js';

@@ -10,7 +10,7 @@ import {container, TYPES} from "./base";
 import {Server} from "./server";
 import {IGatewayMap, IPageMap, IStorefrontConfig} from "./types";
 import ResourceFactory from "./resourceFactory";
-import {GATEWAY_PREPERATION_CHECK_INTERVAL} from "./config";
+import {GATEWAY_PREPERATION_CHECK_INTERVAL, PUZZLE_DEBUGGER_LINK} from "./config";
 import {StorefrontConfigurator} from "./configurator";
 import path from "path";
 
@@ -64,8 +64,8 @@ export class Storefront {
         });
     }
 
-    private async registerDebugScripts(cb: Function){
-        this.server.addRoute('/static/puzzle_debug.js', HTTP_METHODS.GET, (req, res) => {
+    private async registerDebugScripts(cb: Function) {
+        this.server.addRoute(PUZZLE_DEBUGGER_LINK, HTTP_METHODS.GET, (req, res) => {
             res.sendFile(path.join(__dirname, './public/puzzle_debug.js'));
         });
 

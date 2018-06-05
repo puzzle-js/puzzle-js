@@ -8,6 +8,7 @@ import * as path from "path";
 import request from "supertest";
 import {createGateway} from "./mock/mock";
 import {StorefrontConfigurator} from "../src/configurator";
+import {PUZZLE_DEBUGGER_LINK} from "../src/config";
 
 describe('Storefront', () => {
     it('should create a new storefront instance', () => {
@@ -129,7 +130,7 @@ describe('Storefront', () => {
 
         storefrontInstance.init(() => {
             request(storefrontInstance.server.app)
-                .get('/static/puzzle_debug.js')
+                .get(PUZZLE_DEBUGGER_LINK)
                 .expect(200)
                 .end((err, res) => {
                     storefrontInstance.server.close();
