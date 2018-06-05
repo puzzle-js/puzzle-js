@@ -8,6 +8,7 @@ import {
 } from "../src/enums";
 import {createExpressMock} from "./mock/mock";
 import ResourceFactory from "../src/resourceFactory";
+import {PUZZLE_DEBUGGER_LINK} from "../src/config";
 
 describe('Template', () => {
     it('should create a new Template instance', () => {
@@ -401,6 +402,59 @@ describe('Template', () => {
                 },
                 end(str: string) {
                     expect(str).to.eq(`<div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" fragment-partial="main"><script>console.log('Fragment Part does not exists')</script></div></div>`);
+                    done();
+                },
+                status: () => ''
+            }));
+        });
+    });
+
+    it('should render content in debug mode with debug script', (done) => {
+        let scope = nock('http://my-test-gateway-static-2.com')
+            .get('/product/')
+            .query({
+                __renderMode: FRAGMENT_RENDER_MODES.STREAM
+            })
+            .reply(200, {
+                nope: '<div>Nope Fragment</div>',
+            });
+
+
+        const template = new Template(`
+            <template>
+                <html>
+                    <head>
+                    
+                    </head>
+                    <body>
+                        <div>
+                            <fragment from="Browsing" name="product"></fragment>
+                        </div>
+                    </body>
+                </html>
+            </template>
+        `);
+
+        template.getDependencies();
+
+        template.fragments.product.update({
+            render: {
+                url: '/',
+                static: true
+            },
+            dependencies: [],
+            assets: [],
+            testCookie: 'test',
+            version: '1.0.0'
+        }, 'http://my-test-gateway-static-2.com');
+
+        template.compile({}, true).then(handler => {
+            handler({}, createExpressMock({
+                write(str: string) {
+                    expect(str).to.eq(null);
+                },
+                end(str: string) {
+                    expect(str).to.eq(`<html><head><script src="${PUZZLE_DEBUGGER_LINK}" type="text/javascript"></script></head><body><div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" fragment-partial="main"><script>console.log('Fragment Part does not exists')</script></div></div></body></html>`);
                     done();
                 },
                 status: () => ''
