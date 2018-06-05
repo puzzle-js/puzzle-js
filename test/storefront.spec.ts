@@ -105,5 +105,38 @@ describe('Storefront', () => {
                 });
         });
     });
+
+    it('should add debug script route', done => {
+        const gateway = {
+            name: 'Browsing',
+            url: 'http://browsing-gw.com'
+        };
+
+        const scope = createGateway(gateway.name, gateway.url, {
+            hash: '1234',
+            fragments: {}
+        });
+
+        const storefrontInstance = new Storefront({
+            pages: [],
+            port: 4444,
+            gateways: [
+                gateway
+            ],
+            dependencies: []
+        });
+
+
+        storefrontInstance.init(() => {
+            request(storefrontInstance.server.app)
+                .get('/static/puzzle_debug.js')
+                .expect(200)
+                .end((err, res) => {
+                    storefrontInstance.server.close();
+                    storefrontInstance.gateways['Browsing'].stopUpdating();
+                    done(err);
+                });
+        });
+    });
 });
 

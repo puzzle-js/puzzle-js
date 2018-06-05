@@ -12,6 +12,7 @@ import {IGatewayMap, IPageMap, IStorefrontConfig} from "./types";
 import ResourceFactory from "./resourceFactory";
 import {GATEWAY_PREPERATION_CHECK_INTERVAL} from "./config";
 import {StorefrontConfigurator} from "./configurator";
+import path from "path";
 
 
 @sealed
@@ -50,6 +51,7 @@ export class Storefront {
         async.series([
             this.registerDependencies.bind(this),
             this.waitForGateways.bind(this),
+            this.registerDebugScripts.bind(this),
             this.addPageRoute.bind(this),
             this.addHealthCheckRoute.bind(this)
         ], err => {
@@ -60,6 +62,14 @@ export class Storefront {
                 throw err;
             }
         });
+    }
+
+    private async registerDebugScripts(cb: Function){
+        this.server.addRoute('/static/puzzle_debug.js', HTTP_METHODS.GET, (req, res) => {
+            res.sendFile(path.join(__dirname, './public/puzzle_debug.js'));
+        });
+
+        cb(null);
     }
 
     /**
