@@ -17,7 +17,7 @@
             effectiveType: connection.effectiveType,
             downlink: connection.downlink
         }
-    }
+    };
 
     PuzzleAnalytics.prototype.start = function () {
         performance.mark(PuzzleAnalytics.TIME_LABELS.HTML_TRANSFER_STARTED);
@@ -34,7 +34,7 @@
     PuzzleAnalytics.OBSERVABLE_LABELS = {
         FIRST_CONTENTFUL_PAINT: 'first-contentful-paint',
         FIRST_PAINT: 'first-paint'
-    }
+    };
 
     PuzzleAnalytics.LOG_COLORS = Object.freeze({
         GREY: `#7f8c8d`,
