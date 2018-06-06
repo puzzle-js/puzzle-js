@@ -11,14 +11,30 @@
     /*
       Util
      */
-    function wrapGroup(name, description, cb, color = PuzzleAnalytics.LOG_COLORS.GREEN) {
+
+    const LOG_COLORS = Object.freeze({
+        GREY: `#7f8c8d`,
+        GREEN: `#2ecc71`,
+        YELLOW: `#f39c12`,
+        RED: `#c0392b`,
+        BLUE: `#3498db`
+    });
+
+    const LOG_TYPES = Object.freeze({
+        INFO: `info`,
+        ERROR: `error`,
+        WARN: `warn`,
+        LOG: `log`
+    });
+
+    function wrapGroup(name, description, cb, color = LOG_COLORS.GREEN) {
         const logConfig = (name, color) => ['%c' + name, `background: ${color}; color: white; padding: 2px 0.5em; ` + `border-radius: 0.5em;`];
         console.groupCollapsed(...logConfig(name, color), description);
         cb();
         console.groupEnd()
     }
 
-    function log(content, type = PuzzleAnalytics.LOG_TYPES.INFO, color = PuzzleAnalytics.LOG_COLORS.BLUE) {
+    function log(content, type = LOG_TYPES.INFO, color = LOG_COLORS.BLUE) {
         const logConfig = color => ['%cPuzzleJs', `background: ${color}; color: white; padding: 2px 0.5em; ` + `border-radius: 0.5em;`];
         console[type](...logConfig(color), content);
     }
@@ -70,21 +86,6 @@
         FIRST_PAINT: 'first-paint'
     };
 
-    PuzzleAnalytics.LOG_COLORS = Object.freeze({
-        GREY: `#7f8c8d`,
-        GREEN: `#2ecc71`,
-        YELLOW: `#f39c12`,
-        RED: `#c0392b`,
-        BLUE: `#3498db`
-    });
-
-    PuzzleAnalytics.LOG_TYPES = Object.freeze({
-        INFO: `info`,
-        ERROR: `error`,
-        WARN: `warn`,
-        LOG: `log`
-    });
-
     PuzzleAnalytics.prototype.fragment = function (name) {
         const fragment = this.fragments.find(fragment => fragment.name === name);
         if (fragment) {
@@ -100,7 +101,6 @@
             performance.mark(`${PuzzleAnalytics.TIME_LABELS.FRAGMENT_RENDER_START}${name}`);
         }
     };
-
 
     PuzzleAnalytics.prototype.end = function () {
         this.parseComplete = true;
@@ -169,9 +169,13 @@
     function PuzzleFragments() {
     }
 
-    PuzzleFragments.prototype.set = function (fragmentObject) {
+    PuzzleFragments.prototype.set = function (fragmentsObject) {
         wrapGroup('PuzzleJs', 'Debug Mode - Fragments', () => {
-            table(fragmentObject);
+            Object.keys(fragmentsObject).forEach(fragmentName => {
+                wrapGroup('PuzzleJs', fragmentName, () => {
+                    log(fragmentsObject[fragmentName]);
+                }, LOG_COLORS.BLUE);
+            });
         });
     };
 

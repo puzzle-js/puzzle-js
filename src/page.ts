@@ -2,7 +2,7 @@ import {Template} from "./template";
 import {GatewayStorefrontInstance} from "./gatewayStorefront";
 import {EVENTS} from "./enums";
 import {ICookieObject, IFragmentCookieMap, IGatewayMap, IPageDependentGateways, IResponseHandlers} from "./types";
-import {DEBUG_QUERY_NAME} from "./config";
+import {DEBUG_INFORMATION, DEBUG_QUERY_NAME} from "./config";
 
 export class Page {
     ready = false;
@@ -29,7 +29,7 @@ export class Page {
      */
     async handle(req: { cookies: ICookieObject, query: { [name: string]: string } }, res: object) {
         const handlerVersion = this.getHandlerVersion(req);
-        const isDebug = req.query && req.query.hasOwnProperty(DEBUG_QUERY_NAME);
+        const isDebug = DEBUG_INFORMATION || (req.query && req.query.hasOwnProperty(DEBUG_QUERY_NAME));
         if (!this.responseHandlers[handlerVersion]) {
             this.template.load();
             this.responseHandlers[handlerVersion] = await this.template.compile(req.cookies, isDebug);
