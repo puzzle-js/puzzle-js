@@ -1,5 +1,9 @@
 # Changelog
 
+# [2.6.1] - 06-06-2018
+### Fixed
+- Fixed json body parsing
+
 # [2.6.0] - 06-06-2018
 ### Added
 - Debug mode added.
