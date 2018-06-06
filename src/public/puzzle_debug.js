@@ -1,4 +1,7 @@
 (function (scope) {
+    const PACKAGE_VERSION = '';
+    const DEPENDENCIES = {};
+
     const preOverload = console.info;
     console.info = function () {
         if (arguments[0].indexOf('will mount') > -1) return;
@@ -15,20 +18,17 @@
         console.groupEnd()
     }
 
-
     function log(content, type = PuzzleAnalytics.LOG_TYPES.INFO, color = PuzzleAnalytics.LOG_COLORS.BLUE) {
         const logConfig = color => ['%cPuzzleJs', `background: ${color}; color: white; padding: 2px 0.5em; ` + `border-radius: 0.5em;`];
         console[type](...logConfig(color), content);
     }
 
-
     function table(content) {
         console.table(content);
     }
 
-
     /**
-     * Puzzle Analytics
+     * Puzzle Analytics Module
      * @constructor
      */
     function PuzzleAnalytics() {
@@ -150,11 +150,15 @@
     function PuzzleUtil() {
     }
 
-
+    /**
+     * Puzzle Info Module
+     * @constructor
+     */
     function PuzzleInfo() {
         wrapGroup('PuzzleJs', 'Debug Mode - Package Info', () => {
             this.logo();
-            log('PuzzleJs: 2.5.1');
+            log(`PuzzleJs: ${PACKAGE_VERSION}`);
+            table(DEPENDENCIES);
         });
     }
 
@@ -162,9 +166,19 @@
         console.log('%c       ', 'font-size: 400px; background: url(https://camo.githubusercontent.com/77c4a5c7adc5f0d99a319130498e5a44a2c50e01/68747470733a2f2f696d6167652e6962622e636f2f6a4d32396f6e2f70757a7a6c656c6f676f2e706e67) no-repeat;');
     };
 
+    function PuzzleFragments() {
+    }
+
+    PuzzleFragments.prototype.set = function (fragmentObject) {
+        wrapGroup('PuzzleJs', 'Debug Mode - Fragments', () => {
+            table(fragmentObject);
+        });
+    };
+
     function PuzzleJs() {
         this.analytics = new PuzzleAnalytics();
         this.info = new PuzzleInfo();
+        this.fragments = new PuzzleFragments();
     }
 
     Object.defineProperty(scope, 'PuzzleJs', {

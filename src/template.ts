@@ -265,7 +265,7 @@ export class Template {
                         this.pageClass._onResponseEnd();
                     } else {
                         if (isDebug) {
-                            res.send(waitedReplacement.template.replace('</body></html>', '<script>PuzzleJs.analytics.end();</script></body></html>').replace('<head>', `<head><script src="${PUZZLE_DEBUGGER_LINK}" type="text/javascript"></script>`));
+                            res.send(waitedReplacement.template.replace('</body></html>', '<script>PuzzleJs.analytics.end();</script></body></html>').replace('<head>', `<head><script src="${PUZZLE_DEBUGGER_LINK}" type="text/javascript"></script><script>PuzzleJs.fragments.set(JSON.stringify(this.fragments))</script>`));
                         } else {
                             res.send(waitedReplacement.template);
                         }
@@ -306,8 +306,7 @@ export class Template {
                         this.pageClass._onResponseEnd();
                     } else {
                         if (isDebug) {
-                            res.write(waitedReplacement.template.replace('<head>', `<head><script src="${PUZZLE_DEBUGGER_LINK}" type="text/javascript"></script>`));
-
+                            res.write(waitedReplacement.template.replace('<head>', `<head><script src="${PUZZLE_DEBUGGER_LINK}" type="text/javascript"></script><script>PuzzleJs.fragments.set(JSON.stringify(this.fragments))</script>`));
                         } else {
                             res.write(waitedReplacement.template);
                         }
