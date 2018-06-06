@@ -41,7 +41,7 @@
     "prepublish": "yarn build & yarn test",
     "build": "gulp build & tsc",
     "test": "nyc --check-coverage --lines=90 cross-env NODE_ENV=production mocha -r ts-node/register  --recursive 'test/**/*.spec.ts'",
-    "test:watch": "mocha --watch --require ts-node/register --watch-extensions ts,tsx --recursive 'test/**/*.spec.ts'",
+    "test:watch": "cross-env NODE_ENV=production mocha --watch --require ts-node/register --watch-extensions ts,tsx --recursive 'test/**/*.spec.ts'",
     "publish:beta": "yarn publish --tag=beta"
   },
   "dependencies": {
