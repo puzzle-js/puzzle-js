@@ -31,6 +31,7 @@ export class Page {
         const handlerVersion = this.getHandlerVersion(req);
         const isDebug = req.query && req.query.hasOwnProperty(DEBUG_QUERY_NAME);
         if (!this.responseHandlers[handlerVersion]) {
+            this.template.load();
             this.responseHandlers[handlerVersion] = await this.template.compile(req.cookies, isDebug);
         }
         this.responseHandlers[handlerVersion](req, res);
