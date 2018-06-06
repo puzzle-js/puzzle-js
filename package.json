@@ -72,7 +72,8 @@
       "dist/**",
       "coverage/**",
       "demo",
-      "src/types"
+      "src/types",
+      "**/*.js"
     ],
     "reporter": [
       "text"
