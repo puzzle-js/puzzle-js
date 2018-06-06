@@ -22,6 +22,7 @@
     "@types/supertest": "^2.0.4",
     "@types/uuid": "^3.4.3",
     "chai": "^4.1.2",
+    "cross-env": "^5.1.6",
     "gulp": "^3.9.1",
     "gulp-replace": "^1.0.0",
     "mocha": "^5.0.5",
@@ -39,7 +40,7 @@
   "scripts": {
     "prepublish": "yarn build & yarn test",
     "build": "gulp build & tsc",
-    "test": "nyc --check-coverage --lines=90 mocha -r ts-node/register  --recursive 'test/**/*.spec.ts'",
+    "test": "nyc --check-coverage --lines=90 cross-env NODE_ENV=production mocha -r ts-node/register  --recursive 'test/**/*.spec.ts'",
     "test:watch": "mocha --watch --require ts-node/register --watch-extensions ts,tsx --recursive 'test/**/*.spec.ts'",
     "publish:beta": "yarn publish --tag=beta"
   },
