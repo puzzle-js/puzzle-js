@@ -9,9 +9,11 @@ export class Page {
     gatewayDependencies: IPageDependentGateways;
     responseHandlers: IResponseHandlers = {};
     private template: Template;
+    private rawHtml: string;
     private fragmentCookieList: IFragmentCookieMap[] = [];
 
     constructor(html: string, gatewayMap: IGatewayMap) {
+        this.rawHtml = html;
         this.template = new Template(html);
         this.gatewayDependencies = this.template.getDependencies();
 

@@ -40,7 +40,6 @@ export class Template {
     dom: CheerioStatic;
     fragments: { [name: string]: FragmentStorefront } = {};
     pageClass: TemplateClass = new TemplateClass();
-    private debug: boolean = false;
 
     constructor(public rawHtml: string) {
         this.load();
@@ -114,14 +113,9 @@ export class Template {
      * @returns {Promise<IFragmentEndpointHandler>}
      */
     async compile(testCookies: ICookieMap, isDebug: boolean = false): Promise<IFragmentEndpointHandler> {
-        this.debug = isDebug;
-        if (isDebug) {
-            this.dom('head').append(`<script src="${PUZZLE_DEBUGGER_LINK}" type="text/javascript"> </script>`);
-        }
-
         if (Object.keys(this.fragments).length === 0) {
             const singleFlushHandlerWithoutFragments = TemplateCompiler.compile(Template.clearHtmlContent(this.dom.html()));
-            return this.buildHandler(singleFlushHandlerWithoutFragments, []);
+            return this.buildHandler(singleFlushHandlerWithoutFragments, [], [], [], isDebug);
         }
 
         /* Fragment Types
@@ -134,7 +128,7 @@ export class Template {
         const staticFragments = Object.values(this.fragments).filter(fragment => fragment.config && fragment.config.render.static);
 
         const replaceScripts = await this.prepareJsAssetLocations();
-        const waitedFragmentReplacements: IReplaceSet[] = this.replaceWaitedFragmentContainers(chunkedFragmentsWithShouldWait, replaceScripts);
+        const waitedFragmentReplacements: IReplaceSet[] = this.replaceWaitedFragmentContainers(chunkedFragmentsWithShouldWait, replaceScripts, isDebug);
 
         const chunkReplacements: IReplaceSet[] = this.replaceChunkedFragmentContainers(chunkedFragmentsWithoutWait);
 
@@ -145,7 +139,7 @@ export class Template {
         await this.appendPlaceholders(chunkReplacements);
         await this.buildStyleSheets();
 
-        return this.buildHandler(TemplateCompiler.compile(Template.clearHtmlContent(this.dom.html())), chunkReplacements, waitedFragmentReplacements, replaceScripts);
+        return this.buildHandler(TemplateCompiler.compile(Template.clearHtmlContent(this.dom.html())), chunkReplacements, waitedFragmentReplacements, replaceScripts, isDebug);
     }
 
     /**
@@ -254,7 +248,7 @@ export class Template {
      * @param {IReplaceAsset[]} jsReplacements
      * @returns {(req: any, res: any) => void}
      */
-    private buildHandler(firstFlushHandler: Function, chunkedFragmentReplacements: IReplaceSet[], waitedFragments: IReplaceSet[] = [], jsReplacements: IReplaceAsset[] = []) {
+    private buildHandler(firstFlushHandler: Function, chunkedFragmentReplacements: IReplaceSet[], waitedFragments: IReplaceSet[] = [], jsReplacements: IReplaceAsset[] = [], isDebug: boolean) {
         //todo primary fragment test et
         if (chunkedFragmentReplacements.length === 0) {
             return (req: any, res: any) => {
@@ -270,7 +264,11 @@ export class Template {
                         res.end();
                         this.pageClass._onResponseEnd();
                     } else {
-                        res.send(this.debug ? waitedReplacement.template.replace('</body></html>', '<script>PuzzleJs.analytics.end();</script></body></html>') : waitedReplacement.template);
+                        if (isDebug) {
+                            res.send(waitedReplacement.template.replace('</body></html>', '<script>PuzzleJs.analytics.end();</script></body></html>').replace('<head>', `<head><script src="${PUZZLE_DEBUGGER_LINK}" type="text/javascript"></script>`));
+                        } else {
+                            res.send(waitedReplacement.template);
+                        }
                         this.pageClass._onResponseEnd();
                     }
 
@@ -307,16 +305,25 @@ export class Template {
                         res.end();
                         this.pageClass._onResponseEnd();
                     } else {
-                        res.write(waitedReplacement.template);
+                        if (isDebug) {
+                            res.write(waitedReplacement.template.replace('<head>', `<head><script src="${PUZZLE_DEBUGGER_LINK}" type="text/javascript"></script>`));
+
+                        } else {
+                            res.write(waitedReplacement.template);
+                        }
 
                         //Bind flush method to resolved or being resolved promises of chunked replacements
                         Object.values(chunkedFragmentReplacements).forEach((chunkedReplacement, x) => {
-                            waitedPromises[x].then(this.flush(chunkedReplacement, jsReplacements, res));
+                            waitedPromises[x].then(this.flush(chunkedReplacement, jsReplacements, res, isDebug));
                         });
 
                         //Close stream after all chunked fragments done
                         await Promise.all(waitedPromises);
-                        res.end(`${bodyAndAssets}${this.debug ? '<script>PuzzleJs.analytics.end();</script>' : ''}</body></html>`);
+                        if (isDebug) {
+                            res.end(`${bodyAndAssets}<script>PuzzleJs.analytics.end();</script></body></html>`);
+                        } else {
+                            res.end(`${bodyAndAssets}</body></html>`);
+                        }
                         this.pageClass._onResponseEnd();
                     }
                 })();
@@ -324,7 +331,6 @@ export class Template {
         }
     }
 
-    
 
     /**
      * Flushes incoming fragment response
@@ -333,12 +339,12 @@ export class Template {
      * @param res
      * @returns {(fragmentContent: IFragmentContentResponse) => void}
      */
-    private flush(chunkedReplacement: IReplaceSet, jsReplacements: IReplaceAsset[], res: any) {
+    private flush(chunkedReplacement: IReplaceSet, jsReplacements: IReplaceAsset[], res: any, isDebug: boolean) {
         return (fragmentContent: IFragmentContentResponse) => {
             const fragmentJsReplacements = jsReplacements.find(jsReplacement => jsReplacement.fragment.name === chunkedReplacement.fragment.name);
             const selfReplacing = chunkedReplacement.fragment.config && chunkedReplacement.fragment.config.render.selfReplace;
 
-            let output = this.debug ? `<script>PuzzleJs.analytics.fragment('${chunkedReplacement.fragment.name}')</script>` : '';
+            let output = isDebug ? `<script>PuzzleJs.analytics.fragment('${chunkedReplacement.fragment.name}')</script>` : '';
 
             fragmentJsReplacements && fragmentJsReplacements.replaceItems.filter(item => item.location === RESOURCE_LOCATION.CONTENT_START).forEach(replaceItem => {
                 output += Template.wrapJsAsset(replaceItem);
@@ -358,7 +364,7 @@ export class Template {
                 output += Template.wrapJsAsset(replaceItem);
             });
 
-            if (this.debug) {
+            if (isDebug) {
                 output += `<script>PuzzleJs.analytics.fragment('${chunkedReplacement.fragment.name}')</script>`;
             }
             this.pageClass._onChunk(output);
@@ -463,7 +469,7 @@ export class Template {
      * @returns {IReplaceSet[]}
      */
     @benchmark(isDebug(), logger.info)
-    private replaceWaitedFragmentContainers(fragmentsShouldBeWaited: FragmentStorefront[], replaceJsAssets: IReplaceAsset[]) {
+    private replaceWaitedFragmentContainers(fragmentsShouldBeWaited: FragmentStorefront[], replaceJsAssets: IReplaceAsset[], isDebug: boolean) {
         const waitedFragmentReplacements: IReplaceSet[] = [];
 
         fragmentsShouldBeWaited.forEach(fragment => {
@@ -471,7 +477,7 @@ export class Template {
             let fragmentAttributes = {};
 
             const jsReplacements = replaceJsAssets.find(jsReplacement => jsReplacement.fragment.name === fragment.name);
-            let contentStart = this.debug ? `<script>PuzzleJs.analytics.fragment('${fragment.name}')</script>` : '';
+            let contentStart = isDebug ? `<script>PuzzleJs.analytics.fragment('${fragment.name}')</script>` : '';
             let contentEnd = ``;
 
             jsReplacements && jsReplacements.replaceItems.filter(item => item.location === RESOURCE_LOCATION.CONTENT_START).forEach(replaceItem => {
@@ -482,7 +488,7 @@ export class Template {
                 contentEnd += Template.wrapJsAsset(replaceItem);
             });
 
-            if (this.debug) {
+            if (isDebug) {
                 contentEnd += `<script>PuzzleJs.analytics.fragment('${fragment.name}')</script>`;
             }
 
