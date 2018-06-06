@@ -35,10 +35,11 @@
         this.fragments = [];
         this.measuredTimes = {};
         this.connectionInformation = this.collectConnectionInformation();
-        this.start();
         this.observingComplete = false;
         this.parseComplete = false;
         this.logDone = false;
+
+        this.start();
     }
 
     PuzzleAnalytics.prototype.collectConnectionInformation = function () {
@@ -60,7 +61,8 @@
         HTML_TRANSFER_ENDED: 'html-transfer-end',
         FRAGMENT_RENDER_START: 'fragment-render-started-',
         FRAGMENT_RENDER_END: 'fragment-render-ended-',
-        FRAGMENT_MEASUREMENT: 'fragment-total-'
+        FRAGMENT_MEASUREMENT: 'fragment-total-',
+        FRAGMENT_MEASUREMENT_RESPONSE_START_TIME: 'fragment-response-start-'
     });
 
     PuzzleAnalytics.OBSERVABLE_LABELS = {
@@ -88,7 +90,9 @@
         if (fragment) {
             performance.mark(`${PuzzleAnalytics.TIME_LABELS.FRAGMENT_RENDER_END}${name}`);
             performance.measure(`${PuzzleAnalytics.TIME_LABELS.FRAGMENT_MEASUREMENT}${name}`, `${PuzzleAnalytics.TIME_LABELS.FRAGMENT_RENDER_START}${name}`, `${PuzzleAnalytics.TIME_LABELS.FRAGMENT_RENDER_END}${name}`);
+            performance.measure(`${PuzzleAnalytics.TIME_LABELS.FRAGMENT_MEASUREMENT_RESPONSE_START_TIME}${name}`, PuzzleAnalytics.TIME_LABELS.HTML_TRANSFER_STARTED, `${PuzzleAnalytics.TIME_LABELS.FRAGMENT_RENDER_START}${name}`);
             fragment.loadTime = performance.getEntriesByName(`${PuzzleAnalytics.TIME_LABELS.FRAGMENT_MEASUREMENT}${name}`);
+            fragment.responseTime = performance.getEntriesByName(`${PuzzleAnalytics.TIME_LABELS.FRAGMENT_MEASUREMENT_RESPONSE_START_TIME}${name}`);
         } else {
             this.fragments.push({
                 name
@@ -121,7 +125,8 @@
             const fragmentsTableData = this.fragments.reduce((fragmentMap, fragment) => {
                 fragmentMap[fragment.name] = {
                     'Parsing Started': ~~fragment.loadTime[0].startTime,
-                    'Parse Duration': ~~fragment.loadTime[0].duration
+                    'Parse Duration': ~~fragment.loadTime[0].duration,
+                    'Response Time': ~~fragment.responseTime[0].startTime
                 };
                 return fragmentMap;
             }, {});

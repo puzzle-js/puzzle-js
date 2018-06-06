@@ -40,6 +40,7 @@ export class Template {
     dom: CheerioStatic;
     fragments: { [name: string]: FragmentStorefront } = {};
     pageClass: TemplateClass = new TemplateClass();
+    private debug: boolean = false;
 
     constructor(public rawHtml: string) {
         this.load();
@@ -113,6 +114,7 @@ export class Template {
      * @returns {Promise<IFragmentEndpointHandler>}
      */
     async compile(testCookies: ICookieMap, isDebug: boolean = false): Promise<IFragmentEndpointHandler> {
+        this.debug = isDebug;
         if (isDebug) {
             this.dom('head').append(`<script src="${PUZZLE_DEBUGGER_LINK}" type="text/javascript"> </script>`);
         }
@@ -268,7 +270,7 @@ export class Template {
                         res.end();
                         this.pageClass._onResponseEnd();
                     } else {
-                        res.send(waitedReplacement.template);
+                        res.send(this.debug ? waitedReplacement.template.replace('</body></html>', '<script>PuzzleJs.analytics.end();</script></body></html>') : waitedReplacement.template);
                         this.pageClass._onResponseEnd();
                     }
 
@@ -314,13 +316,15 @@ export class Template {
 
                         //Close stream after all chunked fragments done
                         await Promise.all(waitedPromises);
-                        res.end(`${bodyAndAssets}</body></html>`);
+                        res.end(`${bodyAndAssets}${this.debug ? '<script>PuzzleJs.analytics.end();</script>' : ''}</body></html>`);
                         this.pageClass._onResponseEnd();
                     }
                 })();
             };
         }
     }
+
+    
 
     /**
      * Flushes incoming fragment response
@@ -334,7 +338,7 @@ export class Template {
             const fragmentJsReplacements = jsReplacements.find(jsReplacement => jsReplacement.fragment.name === chunkedReplacement.fragment.name);
             const selfReplacing = chunkedReplacement.fragment.config && chunkedReplacement.fragment.config.render.selfReplace;
 
-            let output = ``;
+            let output = this.debug ? `<script>PuzzleJs.analytics.fragment('${chunkedReplacement.fragment.name}')</script>` : '';
 
             fragmentJsReplacements && fragmentJsReplacements.replaceItems.filter(item => item.location === RESOURCE_LOCATION.CONTENT_START).forEach(replaceItem => {
                 output += Template.wrapJsAsset(replaceItem);
@@ -354,6 +358,9 @@ export class Template {
                 output += Template.wrapJsAsset(replaceItem);
             });
 
+            if (this.debug) {
+                output += `<script>PuzzleJs.analytics.fragment('${chunkedReplacement.fragment.name}')</script>`;
+            }
             this.pageClass._onChunk(output);
             res.write(output);
         };
@@ -464,7 +471,7 @@ export class Template {
             let fragmentAttributes = {};
 
             const jsReplacements = replaceJsAssets.find(jsReplacement => jsReplacement.fragment.name === fragment.name);
-            let contentStart = ``;
+            let contentStart = this.debug ? `<script>PuzzleJs.analytics.fragment('${fragment.name}')</script>` : '';
             let contentEnd = ``;
 
             jsReplacements && jsReplacements.replaceItems.filter(item => item.location === RESOURCE_LOCATION.CONTENT_START).forEach(replaceItem => {
@@ -474,6 +481,10 @@ export class Template {
             jsReplacements && jsReplacements.replaceItems.filter(item => item.location === RESOURCE_LOCATION.CONTENT_END).forEach(replaceItem => {
                 contentEnd += Template.wrapJsAsset(replaceItem);
             });
+
+            if (this.debug) {
+                contentEnd += `<script>PuzzleJs.analytics.fragment('${fragment.name}')</script>`;
+            }
 
             this.dom(contentStart).insertBefore(this.dom(`fragment[from="${fragment.from}"][name="${fragment.name}"]`).first());
             this.dom(contentEnd).insertAfter(this.dom(`fragment[from="${fragment.from}"][name="${fragment.name}"]`).last());

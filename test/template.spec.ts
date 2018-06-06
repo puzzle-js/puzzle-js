@@ -454,7 +454,7 @@ describe('Template', () => {
                     expect(str).to.eq(null);
                 },
                 end(str: string) {
-                    expect(str).to.eq(`<html><head><script src="${PUZZLE_DEBUGGER_LINK}" type="text/javascript"></script></head><body><div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" fragment-partial="main"><script>console.log('Fragment Part does not exists')</script></div></div></body></html>`);
+                    expect(str).to.eq(`<html><head><script src="${PUZZLE_DEBUGGER_LINK}" type="text/javascript"></script></head><body><div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" fragment-partial="main"><script>console.log('Fragment Part does not exists')</script></div></div><script>PuzzleJs.analytics.end();</script></body></html>`);
                     done();
                 },
                 status: () => ''
