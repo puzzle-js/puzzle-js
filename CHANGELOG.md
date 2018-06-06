@@ -1,6 +1,6 @@
 # Changelog
 
-# [2.5.0] - 05-06-2018
+# [2.6.0] - 06-06-2018
 ### Added
 - Debug mode added.
 - Added gulp to project dependencies, public folder is now being moved into dist
