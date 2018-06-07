@@ -284,6 +284,61 @@ describe('BFF', () => {
         });
     });
 
+    it('should export fragment with model preview mode', (done) => {
+        const pageModel = faker.helpers.createTransaction();
+
+        const bff = new GatewayBFF({
+            ...commonGatewayConfiguration,
+            fragments: [
+                {
+                    name: 'product',
+                    render: {
+                        url: '/'
+                    },
+                    testCookie: 'product-cookie',
+                    version: '1.0.0',
+                    versions: {
+                        '1.0.0': {
+                            assets: [],
+                            dependencies: [],
+                            handler: {
+                                content() {
+                                    return {
+                                        main: `<div>${faker.random.words()}</div>`
+                                    };
+                                },
+                                data() {
+                                    return {
+                                        data: faker.random.word(),
+                                        $model: {
+                                            transaction: pageModel
+                                        }
+                                    };
+                                },
+                                placeholder() {
+                                    return '';
+                                }
+                            }as any
+                        }
+                    }
+                }
+            ]
+        });
+
+        bff.init(() => {
+            request(commonGatewayConfiguration.url)
+                .get('/product/')
+                .expect(200)
+                .end((err, res) => {
+                    if (err) throw new (err);
+                    bff.server.close();
+                    console.log(res.text);
+                    expect(res.text).to.include(`<script>window['transaction']=window['transaction']||${JSON.stringify(pageModel)};</script>`);
+                    done();
+                });
+        });
+    });
+
     it('should export fragment 404 content in stream mode with header', (done) => {
         const bff = new GatewayBFF({
             ...commonGatewayConfiguration,
