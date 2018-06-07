@@ -2,7 +2,7 @@ import fetch from "node-fetch";
 import {HandlerDataResponse, IFragmentContentResponse} from "./types";
 import {FRAGMENT_RENDER_MODES} from "./enums";
 import * as querystring from "querystring";
-import {DEFAULT_CONTENT_TIMEOUT, PREVIEW_PARTIAL_QUERY_NAME, RENDER_MODE_QUERY_NAME} from "./config";
+import {DEBUG_QUERY_NAME, DEFAULT_CONTENT_TIMEOUT, PREVIEW_PARTIAL_QUERY_NAME, RENDER_MODE_QUERY_NAME} from "./config";
 import {IExposeFragment, IFragment, IFragmentBFF, IFragmentHandler} from "./types";
 import {logger} from "./logger";
 import url from "url";
@@ -89,6 +89,7 @@ export class FragmentBFF extends Fragment {
         if (req.query) {
             delete clearedReq.query[RENDER_MODE_QUERY_NAME];
             delete clearedReq.query[PREVIEW_PARTIAL_QUERY_NAME];
+            delete clearedReq.query[DEBUG_QUERY_NAME];
         }
         if (req.path) {
             clearedReq.path = req.path.replace(`/${this.name}`, '');
@@ -227,7 +228,8 @@ export class FragmentStorefront extends Fragment {
                 return {
                     status: responseBody.$status || res.status,
                     headers: responseBody.$headers || {},
-                    html: responseBody
+                    html: responseBody,
+                    model: responseBody.$model || {}
                 };
             })
             .catch(err => {
@@ -235,7 +237,8 @@ export class FragmentStorefront extends Fragment {
                 return {
                     status: 500,
                     html: {},
-                    headers: {}
+                    headers: {},
+                    model: {}
                 };
             });
     }

@@ -14,6 +14,7 @@ import {
 } from "../../src/enums";
 import * as path from "path";
 import {IFileResourceAsset} from "../../src/types";
+import faker from "faker";
 
 const commonGatewayConfiguration: IGatewayBFFConfiguration = {
     api: [],
@@ -229,6 +230,60 @@ describe('BFF', () => {
         });
     });
 
+    it('should export fragment with model', (done) => {
+        const pageModel = faker.random.objectElement();
+
+        const bff = new GatewayBFF({
+            ...commonGatewayConfiguration,
+            fragments: [
+                {
+                    name: 'product',
+                    render: {
+                        url: '/'
+                    },
+                    testCookie: 'product-cookie',
+                    version: '1.0.0',
+                    versions: {
+                        '1.0.0': {
+                            assets: [],
+                            dependencies: [],
+                            handler: {
+                                content() {
+                                    return {
+                                        main: ``
+                                    };
+                                },
+                                data() {
+                                    return {
+                                        $model: pageModel
+                                    };
+                                },
+                                placeholder() {
+                                    return '';
+                                }
+                            }as any
+                        }
+                    }
+                }
+            ]
+        });
+
+        bff.init(() => {
+            request(commonGatewayConfiguration.url)
+                .get('/product/')
+                .query({[RENDER_MODE_QUERY_NAME]: FRAGMENT_RENDER_MODES.STREAM})
+                .expect(200)
+                .end((err, res) => {
+                    if (err) throw new (err);
+                    bff.server.close();
+                    expect(res.body).to.deep.eq({
+                        $model: pageModel
+                    });
+                    done();
+                });
+        });
+    });
+
     it('should export fragment 404 content in stream mode with header', (done) => {
         const bff = new GatewayBFF({
             ...commonGatewayConfiguration,
@@ -252,8 +307,8 @@ describe('BFF', () => {
                                 },
                                 data(req: any) {
                                     return {
-                                        data:{
-                                          username: 'Fragment'
+                                        data: {
+                                            username: 'Fragment'
                                         },
                                         $status: 404,
                                         $headers: {
