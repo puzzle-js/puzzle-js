@@ -185,7 +185,8 @@ export class FragmentStorefront extends Fragment {
             return {
                 status: 500,
                 html: {},
-                headers: {}
+                headers: {},
+                model: {}
             };
         }
 

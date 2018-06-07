@@ -306,7 +306,8 @@ import {IFragmentBFF} from "../src/types";
                         expect(content).to.deep.eq({
                             status: 500,
                             html: {},
-                            headers: {}
+                            headers: {},
+                            model: {}
                         });
                         done();
                     } catch (e) {

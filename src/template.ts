@@ -8,6 +8,7 @@ import {
     TEMPLATE_FRAGMENT_TAG_NAME
 } from "./config";
 import {
+    FragmentModel,
     IChunkedReplacementSet,
     ICookieMap,
     IFragmentContentResponse, IFragmentEndpointHandler,
@@ -18,7 +19,7 @@ import {
     IReplaceSet, IWaitedResponseFirstFlush, IWrappingJsAsset
 } from "./types";
 import {
-    CONTENT_REPLACE_SCRIPT,
+    CONTENT_REPLACE_SCRIPT, DEFAULT_MAIN_PARTIAL,
     EVENTS,
     HTTP_METHODS, HTTP_STATUS_CODE,
     REPLACE_ITEM_TYPE,
@@ -228,6 +229,13 @@ export class Template {
                 statusCode = fragmentContent.status;
                 headers = fragmentContent.headers;
             }
+
+
+            const modelReplacement = waitedFragmentReplacement.replaceItems.find(item => item.type === REPLACE_ITEM_TYPE.MODEL_SCRIPT);
+            if (modelReplacement) {
+                template = template.replace(`${modelReplacement.key}`, Template.fragmentModelScript(fragmentContent.model));
+            }
+
             waitedFragmentReplacement.replaceItems
                 .forEach(replaceItem => {
                     if (replaceItem.type === REPLACE_ITEM_TYPE.CONTENT) {
@@ -238,6 +246,13 @@ export class Template {
         }
 
         return {template, statusCode, headers};
+    }
+
+    private static fragmentModelScript(fragmentPageModel: FragmentModel) {
+        return Object.keys(fragmentPageModel).length ? `<script>${Object.keys(fragmentPageModel).reduce((modelVariable, key) => {
+            modelVariable += `window['${key}']=${JSON.stringify(fragmentPageModel[key])};`;
+            return modelVariable;
+        }, '')}</script>` : '';
     }
 
     /**
@@ -340,10 +355,13 @@ export class Template {
      */
     private flush(chunkedReplacement: IReplaceSet, jsReplacements: IReplaceAsset[], res: any, isDebug: boolean) {
         return (fragmentContent: IFragmentContentResponse) => {
+
             const fragmentJsReplacements = jsReplacements.find(jsReplacement => jsReplacement.fragment.name === chunkedReplacement.fragment.name);
             const selfReplacing = chunkedReplacement.fragment.config && chunkedReplacement.fragment.config.render.selfReplace;
 
             let output = isDebug ? `<script>PuzzleJs.analytics.fragment('${chunkedReplacement.fragment.name}')</script>` : '';
+
+            output += Template.fragmentModelScript(fragmentContent.model);
 
             fragmentJsReplacements && fragmentJsReplacements.replaceItems.filter(item => item.location === RESOURCE_LOCATION.CONTENT_START).forEach(replaceItem => {
                 output += Template.wrapJsAsset(replaceItem);
@@ -479,6 +497,14 @@ export class Template {
             let contentStart = isDebug ? `<script>PuzzleJs.analytics.fragment('${fragment.name}')</script>` : '';
             let contentEnd = ``;
 
+            const replaceModelKey = `{fragment|${fragment.name}_pageModel}`;
+
+            replaceItems.push({
+                type: REPLACE_ITEM_TYPE.MODEL_SCRIPT,
+                key: replaceModelKey,
+                partial: DEFAULT_MAIN_PARTIAL,
+            });
+
             jsReplacements && jsReplacements.replaceItems.filter(item => item.location === RESOURCE_LOCATION.CONTENT_START).forEach(replaceItem => {
                 contentStart += Template.wrapJsAsset(replaceItem);
             });
@@ -494,6 +520,7 @@ export class Template {
             this.dom(contentStart).insertBefore(this.dom(`fragment[from="${fragment.from}"][name="${fragment.name}"]`).first());
             this.dom(contentEnd).insertAfter(this.dom(`fragment[from="${fragment.from}"][name="${fragment.name}"]`).last());
 
+
             this.dom(`fragment[from="${fragment.from}"][name="${fragment.name}"]`)
                 .each((i, element) => {
                     let replaceKey = `{fragment|${element.attribs.name}_${element.attribs.from}_${element.attribs.partial || 'main'}}`;
@@ -506,10 +533,11 @@ export class Template {
                     if (partial === 'main') {
                         fragmentAttributes = element.attribs;
                     }
+
                     if (element.parentNode.name !== 'head') {
-                        this.dom(element).replaceWith(`<div id="${fragment.name}" puzzle-fragment="${element.attribs.name}" puzzle-gateway="${element.attribs.from}" ${element.attribs.partial ? 'fragment-partial="' + element.attribs.partial + '"' : ''}>${replaceKey}</div>`);
+                        this.dom(element).replaceWith(`${i === 0 ? replaceModelKey : ''}<div id="${fragment.name}" puzzle-fragment="${element.attribs.name}" puzzle-gateway="${element.attribs.from}" ${element.attribs.partial ? 'fragment-partial="' + element.attribs.partial + '"' : ''}>${replaceKey}</div>`);
                     } else {
-                        this.dom(element).replaceWith(replaceKey);
+                        this.dom(element).replaceWith((i === 0 ? replaceModelKey : '') + replaceKey);
                     }
                 });
 

@@ -31,7 +31,8 @@ export enum REPLACE_ITEM_TYPE {
     ASSET,
     CONTENT,
     PLACEHOLDER,
-    CHUNKED_CONTENT
+    CHUNKED_CONTENT,
+    MODEL_SCRIPT
 }
 
 export enum HTTP_METHODS {
