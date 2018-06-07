@@ -132,19 +132,22 @@ export class GatewayBFF {
                     return {
                         content: JSON.stringify(fragmentContent),
                         $status: +(fragmentContent.$status || HTTP_STATUS_CODE.OK),
-                        $headers: fragmentContent.$headers || {}
+                        $headers: fragmentContent.$headers || {},
+                        $model: fragmentContent.$model || {}
                     };
                 case FRAGMENT_RENDER_MODES.PREVIEW:
                     return {
                         content: fragmentContent[partial] ? this.wrapFragmentContent(fragmentContent[partial].toString(), this.fragments[fragmentName], cookieValue) : '',
                         $status: +(fragmentContent.$status || HTTP_STATUS_CODE.OK),
-                        $headers: fragmentContent.$headers || {}
+                        $headers: fragmentContent.$headers || {},
+                        $model: fragmentContent.$model || {}
                     };
                 default:
                     return {
                         content: JSON.stringify(fragmentContent),
                         $status: +(fragmentContent.$status || HTTP_STATUS_CODE.OK),
-                        $headers: fragmentContent.$headers || {}
+                        $headers: fragmentContent.$headers || {},
+                        $model: fragmentContent.$model || {}
                     };
             }
         } else {
