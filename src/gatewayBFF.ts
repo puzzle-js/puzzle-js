@@ -10,7 +10,7 @@ import {
     RESOURCE_TYPE
 } from "./enums";
 import {PREVIEW_PARTIAL_QUERY_NAME, RENDER_MODE_QUERY_NAME} from "./config";
-import {IExposeConfig, IFragmentResponse} from "./types";
+import {FragmentModel, IExposeConfig, IFragmentResponse} from "./types";
 import md5 from "md5";
 import async from "async";
 import path from "path";
@@ -21,6 +21,7 @@ import cheerio from "cheerio";
 import {IExposeFragment, IGatewayBFFConfiguration} from "./types";
 import {callableOnce, sealed} from "./decorators";
 import {GatewayConfigurator} from "./configurator";
+import {Template} from "./template";
 
 @sealed
 export class GatewayBFF {
@@ -133,21 +134,21 @@ export class GatewayBFF {
                         content: JSON.stringify(fragmentContent),
                         $status: +(fragmentContent.$status || HTTP_STATUS_CODE.OK),
                         $headers: fragmentContent.$headers || {},
-                        $model: fragmentContent.$model || {}
+                        $model: fragmentContent.$model
                     };
                 case FRAGMENT_RENDER_MODES.PREVIEW:
                     return {
-                        content: fragmentContent[partial] ? this.wrapFragmentContent(fragmentContent[partial].toString(), this.fragments[fragmentName], cookieValue) : '',
+                        content: fragmentContent[partial] ? this.wrapFragmentContent(fragmentContent[partial].toString(), this.fragments[fragmentName], cookieValue, fragmentContent.$model) : '',
                         $status: +(fragmentContent.$status || HTTP_STATUS_CODE.OK),
                         $headers: fragmentContent.$headers || {},
-                        $model: fragmentContent.$model || {}
+                        $model: fragmentContent.$model
                     };
                 default:
                     return {
                         content: JSON.stringify(fragmentContent),
                         $status: +(fragmentContent.$status || HTTP_STATUS_CODE.OK),
                         $headers: fragmentContent.$headers || {},
-                        $model: fragmentContent.$model || {}
+                        $model: fragmentContent.$model
                     };
             }
         } else {
@@ -160,10 +161,11 @@ export class GatewayBFF {
      * @param {string} htmlContent
      * @param {FragmentBFF} fragment
      * @param {string | undefined} cookieValue
+     * @param model
      * @returns {string}
      */
-    private wrapFragmentContent(htmlContent: string, fragment: FragmentBFF, cookieValue: string | undefined): string {
-        const dom = cheerio.load(`<html><head><title>${this.config.name} - ${fragment.name}</title>${this.config.isMobile ? '<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />' : ''}</head><body><div id="${fragment.name}">${htmlContent}</div></body></html>`);
+    private wrapFragmentContent(htmlContent: string, fragment: FragmentBFF, cookieValue: string | undefined, model: FragmentModel): string {
+        const dom = cheerio.load(`<html><head><title>${this.config.name} - ${fragment.name}</title>${this.config.isMobile ? '<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />' : ''}${Template.fragmentModelScript(model)}</head><body><div id="${fragment.name}">${htmlContent}</div></body></html>`);
 
         const fragmentVersion = cookieValue && fragment.config.versions[cookieValue] ? fragment.config.versions[cookieValue] : fragment.config.versions[fragment.config.version];
 

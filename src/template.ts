@@ -248,8 +248,8 @@ export class Template {
         return {template, statusCode, headers};
     }
 
-    private static fragmentModelScript(fragmentPageModel: FragmentModel) {
-        return Object.keys(fragmentPageModel).length ? `<script>${Object.keys(fragmentPageModel).reduce((modelVariable, key) => {
+    static fragmentModelScript(fragmentPageModel: FragmentModel) {
+        return fragmentPageModel && Object.keys(fragmentPageModel).length ? `<script>${Object.keys(fragmentPageModel).reduce((modelVariable, key) => {
             modelVariable += `window['${key}']=window['${key}']||${JSON.stringify(fragmentPageModel[key])};`;
             return modelVariable;
         }, '')}</script>` : '';
