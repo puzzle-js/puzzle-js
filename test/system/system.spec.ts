@@ -355,7 +355,7 @@ describe('System Tests', function () {
                         .end((err, res) => {
                             closeInstance(storefrontInstance);
                             closeInstance(gatewayInstance);
-                            expect(res.text).to.include(`<script>window['transaction']=${JSON.stringify(customModel)};</script><div id="example" puzzle-fragment="example" puzzle-gateway="Browsing">${gatewayRender}</div></body></html>`);
+                            expect(res.text).to.include(`<script>window['transaction']=window['transaction']||${JSON.stringify(customModel)};</script><div id="example" puzzle-fragment="example" puzzle-gateway="Browsing">${gatewayRender}</div></body></html>`);
                             done(err);
                         });
                 });
@@ -478,8 +478,8 @@ describe('System Tests', function () {
                         .end((err, res) => {
                             closeInstance(storefrontInstance);
                             closeInstance(gatewayInstance);
-                            expect(res.text).to.include(`<script>window['transaction']=${JSON.stringify(customModel)};</script><div style="display: none;" puzzle-fragment="example"`);
-                            expect(res.text).to.include(`<script>window['transaction2']=${JSON.stringify(customModel2)};</script><div style="display: none;" puzzle-fragment="example2"`);
+                            expect(res.text).to.include(`<script>window['transaction']=window['transaction']||${JSON.stringify(customModel)};</script><div style="display: none;" puzzle-fragment="example"`);
+                            expect(res.text).to.include(`<script>window['transaction2']=window['transaction2']||${JSON.stringify(customModel2)};</script><div style="display: none;" puzzle-fragment="example2"`);
                             done(err);
                         });
                 });
