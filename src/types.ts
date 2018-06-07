@@ -246,7 +246,7 @@ export interface IFragmentResponse {
     $headers: {
         [name: string]: string;
     },
-    $mode: FragmentModel
+    $model: FragmentModel
 }
 
 export interface FragmentModel {
