@@ -156,7 +156,7 @@ describe('Api', function () {
                     }
                 }
             });
-        }).to.throw('/api/browsing/1.0.0');
+        }).to.throw();
     });
 });
 

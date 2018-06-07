@@ -107,7 +107,7 @@ import {IFragmentBFF} from "../src/types";
                 const fragmentConfig = JSON.parse(JSON.stringify(bff));
                 expect(() => {
                     const fragment = new FragmentBFF(fragmentConfig);
-                }).to.throw('/fragments/test/1.0.0');
+                }).to.throw();
             });
 
 
