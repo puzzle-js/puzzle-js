@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+# [2.8.0] - 08-06-2018
+### Added
+- TemplateClass now has method for converting string to data attribute with base64 `this.toDataAttribute(str)`.
+
 # [2.7.0] - 07-06-2018
 ### Fixed
 - Fixed all potentatial regular expression replacement mistakes
