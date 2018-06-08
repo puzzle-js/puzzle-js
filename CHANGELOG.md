@@ -6,7 +6,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 # [2.9.0] - 08-06-2018
 ### Added
-- Gateway Fragment urls can be array now.
+- Gateway Fragment url can be array.
+- Storefront Page url can be array.
 
 # [2.8.0] - 08-06-2018
 ### Added
