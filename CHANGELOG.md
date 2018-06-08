@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+# [2.9.0] - 08-06-2018
+### Added
+- Gateway Fragment url can be array.
+- Storefront Page url can be array.
+
 # [2.8.0] - 08-06-2018
 ### Added
 - TemplateClass now has method for converting string to data attribute with base64 `this.toDataAttribute(str)`.

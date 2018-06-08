@@ -867,4 +867,58 @@ describe('BFF', () => {
                 });
         });
     });
+
+    it('should export fragment with multiple urls in stream mode', (done) => {
+        const key = faker.random.word();
+        const bff = new GatewayBFF({
+            ...commonGatewayConfiguration,
+            fragments: [
+                {
+                    name: 'product',
+                    render: {
+                        url: ['/products/', '/products/detail/:key']
+                    },
+                    testCookie: 'product-cookie',
+                    version: '1.0.0',
+                    versions: {
+                        '1.0.0': {
+                            assets: [],
+                            dependencies: [],
+                            handler: {
+                                content(req: any, data: any) {
+                                    return {
+                                        main: `<div>Rendered Fragment ${data.key || ''}</div>`
+                                    };
+                                },
+                                data(req: any) {
+                                    return {
+                                        data: {
+                                            key: req.params.key
+                                        }
+                                    };
+                                },
+                                placeholder() {
+                                    return '';
+                                }
+                            }as any
+                        }
+                    }
+                }
+            ]
+        });
+
+        bff.init(() => {
+            request(commonGatewayConfiguration.url)
+                .get(`/product/products/detail/${key}`)
+                .query({[RENDER_MODE_QUERY_NAME]: FRAGMENT_RENDER_MODES.STREAM})
+                .expect(200)
+                .end((err, res) => {
+                    bff.server.close();
+                    expect(res.body).to.deep.eq({
+                        main: `<div>Rendered Fragment ${key}</div>`
+                    });
+                    done(err);
+                })
+        });
+    });
 });
