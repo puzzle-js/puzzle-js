@@ -98,7 +98,7 @@ export class Storefront {
         });
 
         this.config.pages.forEach(pageConfiguration => {
-            this.pages[pageConfiguration.url] = new Page(pageConfiguration.html, this.gateways);
+            this.pages[pageConfiguration.url.toString()] = new Page(pageConfiguration.html, this.gateways);
         });
     }
 
@@ -132,8 +132,9 @@ export class Storefront {
      */
     private addPageRoute(cb: Function) {
         this.config.pages.forEach(page => {
+            const targetPage = page.url.toString();
             this.server.addRoute(page.url, HTTP_METHODS.GET, (req, res) => {
-                this.pages[page.url].handle(req, res);
+                this.pages[targetPage].handle(req, res);
             });
         });
 

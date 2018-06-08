@@ -15,7 +15,7 @@ export interface IFragment {
 
 export interface IFragmentBFFRender {
     static?: boolean; //todo bunun yenilenen versiyonu
-    url: string;
+    url: string | string[];
     routeCache?: number;
     selfReplace?: boolean;
     middlewares?: [ (req: Request, res: Response, next: NextFunction) => any | string];
@@ -172,7 +172,7 @@ export interface IPageDependentGateways {
 
 export interface IPageConfiguration {
     html: string;
-    url: string;
+    url: string | string[];
 }
 
 export interface IPageMap {

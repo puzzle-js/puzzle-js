@@ -210,7 +210,7 @@ export class GatewayBFF {
      */
     private addFragmentRoutes(cb: Function): void {
         this.config.fragments.forEach(fragmentConfig => {
-            this.server.addRoute(`/${fragmentConfig.name}${fragmentConfig.render.url}`, HTTP_METHODS.GET, async (req, res) => {
+            this.server.addRoute(Array.isArray(fragmentConfig.render.url) ? fragmentConfig.render.url.map(url => `/${fragmentConfig.name}${url}`) : `/${fragmentConfig.name}${fragmentConfig.render.url}`, HTTP_METHODS.GET, async (req, res) => {
                 const renderMode = req.query[RENDER_MODE_QUERY_NAME] === FRAGMENT_RENDER_MODES.STREAM ? FRAGMENT_RENDER_MODES.STREAM : FRAGMENT_RENDER_MODES.PREVIEW;
                 const gatewayContent = await this.renderFragment(req, fragmentConfig.name, renderMode, req.query[PREVIEW_PARTIAL_QUERY_NAME] || DEFAULT_MAIN_PARTIAL, res, req.cookies[fragmentConfig.testCookie]);
                 if (renderMode === FRAGMENT_RENDER_MODES.STREAM) {
