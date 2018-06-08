@@ -26,7 +26,7 @@ const apiStructure = struct({
 });
 
 const gatewayRenderStructure = struct({
-    url: struct.any('string', ['string']),
+    url: struct.union(['string', ['string']]),
     static: 'boolean?',
     selfReplace: 'boolean?',
     placeholder: 'boolean?',
@@ -77,7 +77,7 @@ const gatewayStructure = struct({
 
 const storefrontPageStructure = struct({
     html: 'string',
-    url: struct.any('string', ['string'])
+    url: struct.union(['string', ['string']])
 });
 
 const storefrontGatewaysStructure = struct({
