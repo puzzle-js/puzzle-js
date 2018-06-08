@@ -151,7 +151,8 @@ export interface IFragmentContentResponse {
     };
     headers: {
         [name: string]: string;
-    }
+    },
+    model: FragmentModel
 }
 
 export interface IPageDependentGateways {
@@ -244,5 +245,10 @@ export interface IFragmentResponse {
     $status: number;
     $headers: {
         [name: string]: string;
-    }
+    },
+    $model: FragmentModel
+}
+
+export interface FragmentModel {
+    [name: string]: any
 }
