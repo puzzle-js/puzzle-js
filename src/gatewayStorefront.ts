@@ -2,74 +2,78 @@ import {EventEmitter} from "events";
 import {EVENTS} from "./enums";
 import fetch from "node-fetch";
 import {DEFAULT_POLLING_INTERVAL} from "./config";
-import {logger} from "./logger";
+import {Logger} from "./logger";
 import {IExposeConfig, IGatewayConfiguration} from "./types";
 import Timer = NodeJS.Timer;
+import {container, TYPES} from "./base";
+
+const logger = <Logger>container.get(TYPES.Logger);
+
 
 export class GatewayStorefrontInstance {
-    events: EventEmitter = new EventEmitter();
-    config: IExposeConfig | undefined;
-    assetUrl: string | undefined;
-    name: string;
-    url: string;
-    private intervalId: Timer | null | number = null;
+  events: EventEmitter = new EventEmitter();
+  config: IExposeConfig | undefined;
+  assetUrl: string | undefined;
+  name: string;
+  url: string;
+  private intervalId: Timer | null | number = null;
 
-    constructor(gatewayConfig: IGatewayConfiguration) {
-        this.name = gatewayConfig.name;
-        this.url = gatewayConfig.url;
+  constructor(gatewayConfig: IGatewayConfiguration) {
+    this.name = gatewayConfig.name;
+    this.url = gatewayConfig.url;
 
 
-        this.assetUrl = gatewayConfig.assetUrl;
+    this.assetUrl = gatewayConfig.assetUrl;
 
-        this.fetch();
+    this.fetch();
+  }
+
+  /**
+   * Starts updating gateway by polling with the provided miliseconds
+   * @param {number} pollingInterval
+   */
+  startUpdating(pollingInterval: number = DEFAULT_POLLING_INTERVAL) {
+    this.intervalId = setInterval(this.fetch.bind(this), pollingInterval);
+  }
+
+  /**
+   * Stops polling
+   */
+  stopUpdating() {
+    if (this.intervalId) {
+      clearInterval(this.intervalId as Timer);
     }
+  }
 
-    /**
-     * Starts updating gateway by polling with the provided miliseconds
-     * @param {number} pollingInterval
-     */
-    startUpdating(pollingInterval: number = DEFAULT_POLLING_INTERVAL) {
-        this.intervalId = setInterval(this.fetch.bind(this), pollingInterval);
+  /**
+   * Fetches gateway condifuration and calls this.bind
+   */
+  private async fetch() {
+    try {
+      const res = await fetch(this.url);
+      const json = await res.json();
+      this.update(json);
+    } catch (e) {
+      logger.error(`Failed to fetch gateway configuration: ${this.name}`, e);
     }
+  }
 
-    /**
-     * Stops polling
-     */
-    stopUpdating() {
-        if (this.intervalId) {
-            clearInterval(this.intervalId as Timer);
-        }
+  /**
+   * Updates gateway configuration and if hash changed emits GATEWAY_UPDATED event
+   * @param {IExposeConfig} data
+   */
+  private update(data: IExposeConfig) {
+    if (!this.config) {
+      logger.info(`Gateway is ready: ${this.name}`);
+      this.config = data;
+      this.events.emit(EVENTS.GATEWAY_READY, this);
+    } else {
+      if (data.hash !== this.config.hash) {
+        logger.info(`Gateway is updated: ${this.name}`);
+        this.config = data;
+        this.events.emit(EVENTS.GATEWAY_UPDATED, this);
+      }
     }
-
-    /**
-     * Fetches gateway condifuration and calls this.bind
-     */
-    private async fetch() {
-        try {
-            const res = await fetch(this.url);
-            const json = await res.json();
-            this.update(json);
-        } catch (e) {
-            logger.error(`Failed to fetch gateway configuration: ${this.name}`, e);
-        }
-    }
-
-    /**
-     * Updates gateway configuration and if hash changed emits GATEWAY_UPDATED event
-     * @param {IExposeConfig} data
-     */
-    private update(data: IExposeConfig) {
-        if (!this.config) {
-            logger.info(`Gateway is ready: ${this.name}`);
-            this.config = data;
-            this.events.emit(EVENTS.GATEWAY_READY, this);
-        } else {
-            if (data.hash !== this.config.hash) {
-                logger.info(`Gateway is updated: ${this.name}`);
-                this.config = data;
-                this.events.emit(EVENTS.GATEWAY_UPDATED, this);
-            }
-        }
-    }
+  }
 }
 

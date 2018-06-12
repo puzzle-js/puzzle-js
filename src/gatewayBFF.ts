@@ -1,6 +1,5 @@
 import {FragmentBFF} from "./fragment";
 import {Api} from "./api";
-import {logger} from "./logger";
 import {
     CONTENT_REPLACE_SCRIPT,
     DEFAULT_MAIN_PARTIAL,
@@ -22,6 +21,9 @@ import {IExposeFragment, IGatewayBFFConfiguration} from "./types";
 import {callableOnce, sealed} from "./decorators";
 import {GatewayConfigurator} from "./configurator";
 import {Template} from "./template";
+import {Logger} from "./logger";
+const logger = <Logger>container.get(TYPES.Logger);
+
 
 @sealed
 export class GatewayBFF {

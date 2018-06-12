@@ -1,11 +1,10 @@
 import "mocha";
 import {expect} from "chai";
+import "../src/base";
 import {FragmentBFF, FragmentStorefront} from "../src/fragment";
 import {IExposeFragment} from "../src/types";
 import nock from "nock";
 import {FRAGMENT_RENDER_MODES, RESOURCE_INJECT_TYPE, RESOURCE_LOCATION, RESOURCE_TYPE} from "../src/enums";
-import {deepEqual} from "assert";
-import {IFragmentBFF} from "../src/types";
 
     describe('Fragment', () => {
         describe('BFF', () => {
