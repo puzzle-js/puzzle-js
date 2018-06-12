@@ -3,7 +3,7 @@ import {Page} from "./page";
 import async from "async";
 import {EVENTS, HEALTHCHECK_PATH, HTTP_METHODS, HTTP_STATUS_CODE} from "./enums";
 import {wait} from "./util";
-import {logger} from "./logger";
+import {Logger} from "./logger";
 import {EventEmitter} from "events";
 import {callableOnce, sealed} from "./decorators";
 import {container, TYPES} from "./base";
@@ -13,6 +13,8 @@ import ResourceFactory from "./resourceFactory";
 import {GATEWAY_PREPERATION_CHECK_INTERVAL, PUZZLE_DEBUGGER_LINK} from "./config";
 import {StorefrontConfigurator} from "./configurator";
 import path from "path";
+
+const logger = <Logger>container.get(TYPES.Logger);
 
 
 @sealed

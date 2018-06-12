@@ -1,7 +1,7 @@
 import "./base";
 import {GatewayBFF} from "./gatewayBFF";
 import {Storefront} from "./storefront";
-import {logger} from "./logger";
+import {Logger} from "./logger";
 import {
     FRAGMENT_RENDER_MODES, HTTP_METHODS,
     REPLACE_ITEM_TYPE,
@@ -19,7 +19,7 @@ export = {
     GatewayConfigurator,
     Gateway: GatewayBFF,
     Storefront,
-    logger,
+    logger: Logger,
     ENUMS: {
         FRAGMENT_RENDER_MODES,
         RESOURCE_INJECT_TYPE,
