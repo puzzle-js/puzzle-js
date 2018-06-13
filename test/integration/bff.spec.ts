@@ -2,18 +2,19 @@ import "mocha";
 import {expect} from "chai";
 import {GatewayBFF} from "../../src/gatewayBFF";
 import request from "supertest";
-import {IGatewayBFFConfiguration} from "../../src/types";
+import {IExposeConfig, IGatewayBFFConfiguration} from "../../src/types";
 import {PREVIEW_PARTIAL_QUERY_NAME, RENDER_MODE_QUERY_NAME} from "../../src/config";
 import {
     CONTENT_REPLACE_SCRIPT,
     FRAGMENT_RENDER_MODES,
     HTTP_METHODS, HTTP_STATUS_CODE,
-    RESOURCE_INJECT_TYPE,
+    RESOURCE_INJECT_TYPE, RESOURCE_JS_EXECUTE_TYPE,
     RESOURCE_LOCATION,
     RESOURCE_TYPE
 } from "../../src/enums";
 import * as path from "path";
 import {IFileResourceAsset} from "../../src/types";
+import faker from "faker";
 
 const commonGatewayConfiguration: IGatewayBFFConfiguration = {
     api: [],
@@ -52,6 +53,67 @@ describe('BFF', () => {
                 .get('/')
                 .expect(200).end((err, res) => {
                 expect(res.body).to.haveOwnProperty('hash');
+                bff.server.close();
+                done(err);
+            });
+        });
+    });
+
+    it('it should asset execute type when gateway is ready', (done) => {
+        const bff = new GatewayBFF({
+            ...commonGatewayConfiguration,
+            fragments: [
+                {
+                    name: 'product',
+                    render: {
+                        url: '/'
+                    },
+                    testCookie: 'product-cookie',
+                    version: '1.0.0',
+                    versions: {
+                        '1.0.0': {
+                            assets: [
+                                {
+                                    name: 'bundle',
+                                    location: RESOURCE_LOCATION.CONTENT_END,
+                                    type: RESOURCE_TYPE.JS,
+                                    fileName: 'bundle.min.js',
+                                    injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
+                                    executeType: RESOURCE_JS_EXECUTE_TYPE.ASYNC
+                                }
+                            ] as IFileResourceAsset[],
+                            dependencies: [],
+                            handler: {
+                                content(req: any, data: any) {
+                                    return {
+                                        main: `<div>Rendered Fragment ${data.username}</div>`
+                                    };
+                                },
+                                data(req: any) {
+                                    return {
+                                        data: {
+                                            username: 'ACG'
+                                        }
+                                    };
+                                },
+                                placeholder() {
+                                    return '';
+                                }
+                            } as any
+                        }
+                    }
+                }
+            ]
+        });
+
+
+
+        bff.init(() => {
+            request(commonGatewayConfiguration.url)
+                .get('/')
+                .expect(200).end((err, res) => {
+                    const response = res.body as IExposeConfig;
+                expect(response.fragments.product.assets[0].executeType).to.eq(RESOURCE_JS_EXECUTE_TYPE.ASYNC);
                 bff.server.close();
                 done(err);
             });
@@ -229,6 +291,115 @@ describe('BFF', () => {
         });
     });
 
+    it('should export fragment with model', (done) => {
+        const pageModel = faker.random.objectElement();
+
+        const bff = new GatewayBFF({
+            ...commonGatewayConfiguration,
+            fragments: [
+                {
+                    name: 'product',
+                    render: {
+                        url: '/'
+                    },
+                    testCookie: 'product-cookie',
+                    version: '1.0.0',
+                    versions: {
+                        '1.0.0': {
+                            assets: [],
+                            dependencies: [],
+                            handler: {
+                                content() {
+                                    return {
+                                        main: ``
+                                    };
+                                },
+                                data() {
+                                    return {
+                                        $model: pageModel
+                                    };
+                                },
+                                placeholder() {
+                                    return '';
+                                }
+                            }as any
+                        }
+                    }
+                }
+            ]
+        });
+
+        bff.init(() => {
+            request(commonGatewayConfiguration.url)
+                .get('/product/')
+                .query({[RENDER_MODE_QUERY_NAME]: FRAGMENT_RENDER_MODES.STREAM})
+                .expect(200)
+                .end((err, res) => {
+                    if (err) throw new (err);
+                    bff.server.close();
+                    expect(res.body).to.deep.eq({
+                        $model: pageModel
+                    });
+                    done();
+                });
+        });
+    });
+
+    it('should export fragment with model preview mode', (done) => {
+        const pageModel = faker.helpers.createTransaction();
+
+        const bff = new GatewayBFF({
+            ...commonGatewayConfiguration,
+            fragments: [
+                {
+                    name: 'product',
+                    render: {
+                        url: '/'
+                    },
+                    testCookie: 'product-cookie',
+                    version: '1.0.0',
+                    versions: {
+                        '1.0.0': {
+                            assets: [],
+                            dependencies: [],
+                            handler: {
+                                content() {
+                                    return {
+                                        main: `<div>${faker.random.words()}</div>`
+                                    };
+                                },
+                                data() {
+                                    return {
+                                        data: faker.random.word(),
+                                        $model: {
+                                            transaction: pageModel
+                                        }
+                                    };
+                                },
+                                placeholder() {
+                                    return '';
+                                }
+                            }as any
+                        }
+                    }
+                }
+            ]
+        });
+
+        bff.init(() => {
+            request(commonGatewayConfiguration.url)
+                .get('/product/')
+                .expect(200)
+                .end((err, res) => {
+                    if (err) throw new (err);
+                    bff.server.close();
+                    console.log(res.text);
+                    expect(res.text).to.include(`<script>window['transaction']=window['transaction']||${JSON.stringify(pageModel)};</script>`);
+                    done();
+                });
+        });
+    });
+
     it('should export fragment 404 content in stream mode with header', (done) => {
         const bff = new GatewayBFF({
             ...commonGatewayConfiguration,
@@ -252,8 +423,8 @@ describe('BFF', () => {
                                 },
                                 data(req: any) {
                                     return {
-                                        data:{
-                                          username: 'Fragment'
+                                        data: {
+                                            username: 'Fragment'
                                         },
                                         $status: 404,
                                         $headers: {
@@ -755,6 +926,60 @@ describe('BFF', () => {
                     expect(res.text).to.eq(`<html><head><title>Browsing - product</title></head><body><div id="product">placeholder</div></body></html>${CONTENT_REPLACE_SCRIPT}<div style="display: none;" id="product-replace"><div>Rendered Fragment ACG</div></div><script>$p('#product', '#product-replace')</script>`);
                     done(err);
                 });
+        });
+    });
+
+    it('should export fragment with multiple urls in stream mode', (done) => {
+        const key = faker.random.word();
+        const bff = new GatewayBFF({
+            ...commonGatewayConfiguration,
+            fragments: [
+                {
+                    name: 'product',
+                    render: {
+                        url: ['/products/', '/products/detail/:key']
+                    },
+                    testCookie: 'product-cookie',
+                    version: '1.0.0',
+                    versions: {
+                        '1.0.0': {
+                            assets: [],
+                            dependencies: [],
+                            handler: {
+                                content(req: any, data: any) {
+                                    return {
+                                        main: `<div>Rendered Fragment ${data.key || ''}</div>`
+                                    };
+                                },
+                                data(req: any) {
+                                    return {
+                                        data: {
+                                            key: req.params.key
+                                        }
+                                    };
+                                },
+                                placeholder() {
+                                    return '';
+                                }
+                            }as any
+                        }
+                    }
+                }
+            ]
+        });
+
+        bff.init(() => {
+            request(commonGatewayConfiguration.url)
+                .get(`/product/products/detail/${key}`)
+                .query({[RENDER_MODE_QUERY_NAME]: FRAGMENT_RENDER_MODES.STREAM})
+                .expect(200)
+                .end((err, res) => {
+                    bff.server.close();
+                    expect(res.body).to.deep.eq({
+                        main: `<div>Rendered Fragment ${key}</div>`
+                    });
+                    done(err);
+                })
         });
     });
 });

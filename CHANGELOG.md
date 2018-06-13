@@ -4,6 +4,45 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+# [2.12.0] - 13-06-2018
+### Added
+- Assets can be injected using link for independent assets.
+
+# [2.11.0] - 13-06-2018
+### Added
+- Assets can be injected with async, defer tags. `executeType` property of asset.
+
+# [2.10.1] - 13-06-2018
+### Fixed
+- Added support check for connection api (Thanks to Safari)
+
+# [2.10.0] - 13-06-2018
+### Added
+- Added debug information for variables
+
+# [2.9.2] - 08-06-2018
+### Changed
+- Changed Logger into injectable class
+
+# [2.9.1] - 08-06-2018
+### Fixed
+- Fixed configurator type checking for array urls
+
+# [2.9.0] - 08-06-2018
+### Added
+- Gateway Fragment url can be array.
+- Storefront Page url can be array.
+
+# [2.8.0] - 08-06-2018
+### Added
+- TemplateClass now has method for converting string to data attribute with base64 `this.toDataAttribute(str)`.
+
+# [2.7.0] - 07-06-2018
+### Fixed
+- Fixed all potentatial regular expression replacement mistakes
+
+### Added
+- `$model` property in data for dynamic page variables.
 
 # [2.6.1] - 06-06-2018
 ### Fixed

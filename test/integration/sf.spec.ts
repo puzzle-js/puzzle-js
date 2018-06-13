@@ -7,6 +7,7 @@ import {RENDER_MODE_QUERY_NAME} from "../../src/config";
 import {CONTENT_REPLACE_SCRIPT, EVENTS, FRAGMENT_RENDER_MODES} from "../../src/enums";
 import nock from "nock";
 import {IStorefrontConfig} from "../../src/types";
+import faker from "faker";
 
 const commonStorefrontConfiguration = {
     gateways: [],
@@ -220,6 +221,65 @@ describe('Storefront', () => {
                     });
 
                     expect(res.text).to.eq(`<div><html><head/><body><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing">Product Content Not Found</div></body></html></div>`);
+                    done(err);
+                });
+        });
+    });
+
+    it('should add multiple routes for pages with optional params', (done) => {
+        const fragment ={
+            name: faker.random.word(),
+            testCookie: faker.random.word(),
+            hash: faker.random.uuid()
+        };
+        const scope = createGateway('Browsing', 'http://localhost:4446', {
+            fragments: {
+                [fragment.name]:
+                    {
+                        assets: [],
+                        dependencies: [],
+                        render: {
+                            url: '/',
+                        },
+                        testCookie: fragment.testCookie,
+                        version: '1.0.0'
+                    }
+            },
+            hash: fragment.hash
+        }, false)
+            .get(`/${fragment.name}/detail`)
+            .query({[RENDER_MODE_QUERY_NAME]: FRAGMENT_RENDER_MODES.STREAM})
+            .reply(200, {
+                main: `Fragment: ${fragment.name}`
+            });
+
+        const sf = new Storefront({
+            ...commonStorefrontConfiguration,
+            gateways: [
+                {
+                    name: "Browsing",
+                    url: "http://localhost:4446"
+                }
+            ],
+            pages: [
+                {
+                    url: ['/', '/detail'],
+                    html: `<template><div><html><head></head><body><fragment from="Browsing" name="${fragment.name}" primary/></div></body></html></template>`
+                }
+            ]
+        });
+
+        sf.init(() => {
+            request('http://localhost:4448')
+                .get('/detail')
+                .expect(200)
+                .end((err, res) => {
+                    sf.server.close();
+                    Object.values(sf.gateways).forEach(gateway => {
+                        gateway.stopUpdating();
+                    });
+
+                    expect(res.text).to.eq(`<div><html><head/><body><div id="${fragment.name}" puzzle-fragment="${fragment.name}" puzzle-gateway="Browsing">Fragment: ${fragment.name}</div></body></html></div>`);
                     done(err);
                 });
         });

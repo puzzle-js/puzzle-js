@@ -31,7 +31,8 @@ export enum REPLACE_ITEM_TYPE {
     ASSET,
     CONTENT,
     PLACEHOLDER,
-    CHUNKED_CONTENT
+    CHUNKED_CONTENT,
+    MODEL_SCRIPT
 }
 
 export enum HTTP_METHODS {
@@ -40,6 +41,12 @@ export enum HTTP_METHODS {
     PUT = 'put',
     DELETE = 'delete',
     PATCH = 'patch'
+}
+
+export enum RESOURCE_JS_EXECUTE_TYPE {
+    ASYNC = 'async',
+    DEFER = 'defer',
+    SYNC = ''
 }
 
 export const CONTENT_REPLACE_SCRIPT = `<script>function $p(p,c){var z = document.querySelector(c),r = z.innerHTML;z.parentNode.removeChild(z);document.querySelector(p).innerHTML=r}</script>`;

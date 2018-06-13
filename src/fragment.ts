@@ -2,11 +2,14 @@ import fetch from "node-fetch";
 import {HandlerDataResponse, IFragmentContentResponse} from "./types";
 import {FRAGMENT_RENDER_MODES} from "./enums";
 import * as querystring from "querystring";
-import {DEFAULT_CONTENT_TIMEOUT, PREVIEW_PARTIAL_QUERY_NAME, RENDER_MODE_QUERY_NAME} from "./config";
+import {DEBUG_QUERY_NAME, DEFAULT_CONTENT_TIMEOUT, PREVIEW_PARTIAL_QUERY_NAME, RENDER_MODE_QUERY_NAME} from "./config";
 import {IExposeFragment, IFragment, IFragmentBFF, IFragmentHandler} from "./types";
-import {logger} from "./logger";
 import url from "url";
 import path from "path";
+import {container, TYPES} from "./base";
+import {Logger} from "./logger";
+
+const logger = <Logger>container.get(TYPES.Logger);
 
 export class Fragment {
     name: string;
@@ -89,6 +92,7 @@ export class FragmentBFF extends Fragment {
         if (req.query) {
             delete clearedReq.query[RENDER_MODE_QUERY_NAME];
             delete clearedReq.query[PREVIEW_PARTIAL_QUERY_NAME];
+            delete clearedReq.query[DEBUG_QUERY_NAME];
         }
         if (req.path) {
             clearedReq.path = req.path.replace(`/${this.name}`, '');
@@ -184,7 +188,8 @@ export class FragmentStorefront extends Fragment {
             return {
                 status: 500,
                 html: {},
-                headers: {}
+                headers: {},
+                model: {}
             };
         }
 
@@ -227,7 +232,8 @@ export class FragmentStorefront extends Fragment {
                 return {
                     status: responseBody.$status || res.status,
                     headers: responseBody.$headers || {},
-                    html: responseBody
+                    html: responseBody,
+                    model: responseBody.$model || {}
                 };
             })
             .catch(err => {
@@ -235,7 +241,8 @@ export class FragmentStorefront extends Fragment {
                 return {
                     status: 500,
                     html: {},
-                    headers: {}
+                    headers: {},
+                    model: {}
                 };
             });
     }
@@ -257,7 +264,7 @@ export class FragmentStorefront extends Fragment {
             return null;
         }
 
-        return fetch(`${this.fragmentUrl}/static/${asset.fileName}`).then(async res => {
+        return fetch(asset.link || `${this.fragmentUrl}/static/${asset.fileName}`).then(async res => {
             return await res.text();
         }).catch(e => {
             logger.error(new Error(`Failed to fetch asset from gateway: ${this.fragmentUrl}/static/${asset.fileName}`));
@@ -283,7 +290,7 @@ export class FragmentStorefront extends Fragment {
             return null;
         }
 
-        return `${this.assetUrl || this.fragmentUrl}/static/${asset.fileName}`;
+        return asset.link || `${this.assetUrl || this.fragmentUrl}/static/${asset.fileName}`;
     }
 }
 

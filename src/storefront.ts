@@ -3,7 +3,7 @@ import {Page} from "./page";
 import async from "async";
 import {EVENTS, HEALTHCHECK_PATH, HTTP_METHODS, HTTP_STATUS_CODE} from "./enums";
 import {wait} from "./util";
-import {logger} from "./logger";
+import {Logger} from "./logger";
 import {EventEmitter} from "events";
 import {callableOnce, sealed} from "./decorators";
 import {container, TYPES} from "./base";
@@ -13,6 +13,8 @@ import ResourceFactory from "./resourceFactory";
 import {GATEWAY_PREPERATION_CHECK_INTERVAL, PUZZLE_DEBUGGER_LINK} from "./config";
 import {StorefrontConfigurator} from "./configurator";
 import path from "path";
+
+const logger = <Logger>container.get(TYPES.Logger);
 
 
 @sealed
@@ -98,7 +100,7 @@ export class Storefront {
         });
 
         this.config.pages.forEach(pageConfiguration => {
-            this.pages[pageConfiguration.url] = new Page(pageConfiguration.html, this.gateways);
+            this.pages[pageConfiguration.url.toString()] = new Page(pageConfiguration.html, this.gateways);
         });
     }
 
@@ -132,8 +134,9 @@ export class Storefront {
      */
     private addPageRoute(cb: Function) {
         this.config.pages.forEach(page => {
+            const targetPage = page.url.toString();
             this.server.addRoute(page.url, HTTP_METHODS.GET, (req, res) => {
-                this.pages[page.url].handle(req, res);
+                this.pages[targetPage].handle(req, res);
             });
         });
 

@@ -3,12 +3,13 @@ import {expect} from "chai";
 import {Template} from "../src/template";
 import nock = require("nock");
 import {
-    CONTENT_REPLACE_SCRIPT, FRAGMENT_RENDER_MODES, RESOURCE_INJECT_TYPE, RESOURCE_LOCATION,
+    CONTENT_REPLACE_SCRIPT, FRAGMENT_RENDER_MODES, RESOURCE_INJECT_TYPE, RESOURCE_JS_EXECUTE_TYPE, RESOURCE_LOCATION,
     RESOURCE_TYPE
 } from "../src/enums";
 import {createExpressMock} from "./mock/mock";
 import ResourceFactory from "../src/resourceFactory";
 import {PUZZLE_DEBUGGER_LINK} from "../src/config";
+import faker from "faker";
 
 describe('Template', () => {
     it('should create a new Template instance', () => {
@@ -454,7 +455,7 @@ describe('Template', () => {
                     expect(str).to.eq(null);
                 },
                 end(str: string) {
-                    expect(str).to.eq(`<html><head><script src="${PUZZLE_DEBUGGER_LINK}" type="text/javascript"></script><script>PuzzleJs.fragments.set({"product":{"name":"product","primary":false,"shouldWait":false,"from":"Browsing","fragmentUrl":"http://my-test-gateway-static-2.com/product","config":{"render":{"url":"/","static":true},"dependencies":[],"assets":[],"testCookie":"test","version":"1.0.0"}}})</script></head><body><div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" fragment-partial="main"><script>console.log('Fragment Part does not exists')</script></div></div><script>PuzzleJs.analytics.end();</script></body></html>`);
+                    expect(str).to.eq(`<html><head><script src="${PUZZLE_DEBUGGER_LINK}" type="text/javascript"></script><script>PuzzleJs.fragments.set({"product":{"name":"product","primary":false,"shouldWait":false,"from":"Browsing","fragmentUrl":"http://my-test-gateway-static-2.com/product","config":{"render":{"url":"/","static":true},"dependencies":[],"assets":[],"testCookie":"test","version":"1.0.0"}}})</script></head><body><div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" fragment-partial="main"><script>console.log('Fragment Part does not exists')</script></div></div><script>PuzzleJs.analytics.end();PuzzleJs.variables.end();</script></body></html>`);
                     done();
                 },
                 status: () => ''
@@ -520,7 +521,7 @@ describe('Template', () => {
                 },
                 end(str: string) {
                     try {
-                        expect(str).to.eq(`<html><head><script puzzle-dependency="${randomDependency}" type="text/javascript">console.log('5')</script></head><body><div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div></div></body></html>`);
+                        expect(str).to.eq(`<html><head><script puzzle-dependency="${randomDependency}" type="text/javascript">console.log('5')</script></head><body><div> <div id="product" puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div></div></body></html>`);
                         done();
                     } catch (e) {
                         done(e);
@@ -602,7 +603,7 @@ describe('Template', () => {
                         },
                         end(str: string) {
                             try {
-                                expect(str).to.eq(`<div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div></div>`);
+                                expect(str).to.eq(`<div> <div id="product" puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div></div>`);
                                 done();
                             } catch (e) {
                                 done(e);
@@ -657,7 +658,7 @@ describe('Template', () => {
                         },
                         end(str: string) {
                             try {
-                                expect(str).to.eq(`<div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div></div><div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" fragment-partial="gallery">List of great products</div></div>`);
+                                expect(str).to.eq(`<div> <div id="product" puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div></div><div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" fragment-partial="gallery">List of great products</div></div>`);
                                 done();
                             } catch (e) {
                                 done(e);
@@ -727,7 +728,7 @@ describe('Template', () => {
                         },
                         end(str: string) {
                             try {
-                                expect(str).to.eq(`<div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div></div><div><div id="product2" puzzle-fragment="product2" puzzle-gateway="Browsing">List of great products</div></div>`);
+                                expect(str).to.eq(`<div> <div id="product" puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div></div><div> <div id="product2" puzzle-fragment="product2" puzzle-gateway="Browsing">List of great products</div></div>`);
                                 done();
                             } catch (e) {
                                 done(e);
@@ -780,7 +781,7 @@ describe('Template', () => {
                         },
                         end(str: string) {
                             try {
-                                expect(str).to.eq(`<div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div></div><div><div puzzle-fragment="product2" puzzle-gateway="Browsing"><script>console.log('Fragment Part does not exists')</script></div></div>`);
+                                expect(str).to.eq(`<div> <div id="product" puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div></div><div><div puzzle-fragment="product2" puzzle-gateway="Browsing"><script>console.log('Fragment Part does not exists')</script></div></div>`);
                                 done();
                             } catch (e) {
                                 done(e);
@@ -852,7 +853,7 @@ describe('Template', () => {
                         },
                         end(str: string) {
                             try {
-                                expect(str).to.eq(`<div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div></div><div><div id="header" puzzle-fragment="header" puzzle-gateway="Common">Header Content</div></div>`);
+                                expect(str).to.eq(`<div> <div id="product" puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div></div><div> <div id="header" puzzle-fragment="header" puzzle-gateway="Common">Header Content</div></div>`);
                                 done();
                             } catch (e) {
                                 done(e);
@@ -1084,7 +1085,7 @@ describe('Template', () => {
                         end(str: string) {
                             chunks.push(str);
                             try {
-                                expect(chunks[0]).to.eq(`<html><head> <meta product="bag"/> <script>function $p(p,c){var z = document.querySelector(c),r = z.innerHTML;z.parentNode.removeChild(z);document.querySelector(p).innerHTML=r}</script></head><body><div id="header" puzzle-fragment="header" puzzle-gateway="Browsing">Header Content</div><div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol Product Content</div></div><div id="footer" puzzle-fragment="footer" puzzle-gateway="Browsing" puzzle-chunk="footer_main"></div>`);
+                                expect(chunks[0]).to.eq(`<html><head> <meta product="bag"/> <script>function $p(p,c){var z = document.querySelector(c),r = z.innerHTML;z.parentNode.removeChild(z);document.querySelector(p).innerHTML=r}</script></head><body> <div id="header" puzzle-fragment="header" puzzle-gateway="Browsing">Header Content</div><div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol Product Content</div></div><div id="footer" puzzle-fragment="footer" puzzle-gateway="Browsing" puzzle-chunk="footer_main"></div>`);
                                 expect(chunks[1]).to.eq(`<div style="display: none;" puzzle-fragment="footer" puzzle-chunk-key="footer_main">Footer Content</div><script>$p('[puzzle-chunk="footer_main"]','[puzzle-chunk-key="footer_main"]');</script>`);
                                 expect(chunks[2]).to.eq(`</body></html>`);
                             } catch (e) {
@@ -1225,7 +1226,7 @@ describe('Template', () => {
                         end(str: string) {
                             chunks.push(str);
                             try {
-                                expect(str).to.eq(`<html><head></head><body><div><div id="product-not-exists" puzzle-fragment="product-not-exists" puzzle-gateway="Browsing">Trendyol</div></div></body></html>`);
+                                expect(str).to.eq(`<html><head></head><body><div> <div id="product-not-exists" puzzle-fragment="product-not-exists" puzzle-gateway="Browsing">Trendyol</div></div></body></html>`);
                             } catch (e) {
                                 err = e;
                             }
@@ -1245,8 +1246,22 @@ describe('Template', () => {
                     link: null,
                     injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
                     name: 'Nope',
-                    content: null
+                    content: null,
+                    executeType: RESOURCE_JS_EXECUTE_TYPE.SYNC
                 })).to.eq(`<!-- Failed to inject asset: Nope -->`);
+            });
+
+            it('should wrap js assets based on execute type', () => {
+                const name = faker.random.word();
+                const link = faker.random.word();
+
+                expect(Template.wrapJsAsset({
+                    link,
+                    injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
+                    name,
+                    content: null,
+                    executeType: RESOURCE_JS_EXECUTE_TYPE.ASYNC
+                })).to.eq(`<script puzzle-dependency="${name}" src="${link}" type="text/javascript"${RESOURCE_JS_EXECUTE_TYPE.ASYNC}> </script>`);
             });
 
             it('should append asset locations for normal fragment, HEAD - External', (done) => {
@@ -2318,7 +2333,7 @@ describe('Template', () => {
                         },
                         end(str: string) {
                             try {
-                                expect(str).to.eq(`<html><head></head><body><div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div><script puzzle-dependency="Product Bundle" type="text/javascript">console.log('Product Script')</script></div></body></html>`);
+                                expect(str).to.eq(`<html><head></head><body><div> <div id="product" puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div><script puzzle-dependency="Product Bundle" type="text/javascript">console.log('Product Script')</script></div></body></html>`);
                             } catch (e) {
                                 err = e;
                             }

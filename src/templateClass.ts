@@ -20,5 +20,9 @@ export class TemplateClass {
         this.onResponseEnd && this.onResponseEnd(...args);
     }
 
+    toDataAttribute(str: string){
+        return new Buffer(str).toString('base64');
+    }
+
     [name: string]: any;
 }

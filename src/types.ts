@@ -1,6 +1,13 @@
 import {GatewayStorefrontInstance} from "./gatewayStorefront";
 import {NextFunction, Request, Response} from "express-serve-static-core";
-import {HTTP_METHODS, REPLACE_ITEM_TYPE, RESOURCE_INJECT_TYPE, RESOURCE_LOCATION, RESOURCE_TYPE} from "./enums";
+import {
+  HTTP_METHODS,
+  REPLACE_ITEM_TYPE,
+  RESOURCE_INJECT_TYPE,
+  RESOURCE_JS_EXECUTE_TYPE,
+  RESOURCE_LOCATION,
+  RESOURCE_TYPE
+} from "./enums";
 import {FragmentStorefront} from "./fragment";
 import {Page} from "./page";
 
@@ -15,7 +22,7 @@ export interface IFragment {
 
 export interface IFragmentBFFRender {
     static?: boolean; //todo bunun yenilenen versiyonu
-    url: string;
+    url: string | string[];
     routeCache?: number;
     selfReplace?: boolean;
     middlewares?: [ (req: Request, res: Response, next: NextFunction) => any | string];
@@ -57,7 +64,9 @@ export interface IFileResourceDependency extends IFileResource {
 export interface IFileResourceAsset extends IFileResource {
     injectType: RESOURCE_INJECT_TYPE;
     fileName: string;
+    link?: string;
     location: RESOURCE_LOCATION;
+    executeType?: RESOURCE_JS_EXECUTE_TYPE;
 }
 
 export interface IFileResourceStorefrontDependency extends IFileResource {
@@ -151,7 +160,8 @@ export interface IFragmentContentResponse {
     };
     headers: {
         [name: string]: string;
-    }
+    },
+    model: FragmentModel
 }
 
 export interface IPageDependentGateways {
@@ -171,7 +181,7 @@ export interface IPageDependentGateways {
 
 export interface IPageConfiguration {
     html: string;
-    url: string;
+    url: string | string[];
 }
 
 export interface IPageMap {
@@ -206,8 +216,9 @@ export interface IReplaceAssetSet {
     link: string | undefined | null;
     content: string | undefined | null;
     name: string;
-    location: RESOURCE_LOCATION,
-    injectType: RESOURCE_INJECT_TYPE
+    location: RESOURCE_LOCATION;
+    injectType: RESOURCE_INJECT_TYPE;
+    executeType: RESOURCE_JS_EXECUTE_TYPE;
 }
 
 export interface IReplaceAsset {
@@ -236,7 +247,8 @@ export interface IWrappingJsAsset {
     injectType: RESOURCE_INJECT_TYPE;
     name: string;
     link: string | null | undefined;
-    content: string | null | undefined
+    content: string | null | undefined;
+    executeType: RESOURCE_JS_EXECUTE_TYPE;
 }
 
 export interface IFragmentResponse {
@@ -244,5 +256,10 @@ export interface IFragmentResponse {
     $status: number;
     $headers: {
         [name: string]: string;
-    }
+    },
+    $model: FragmentModel
+}
+
+export interface FragmentModel {
+    [name: string]: any
 }
