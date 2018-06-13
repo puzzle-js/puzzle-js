@@ -28,10 +28,14 @@ const logger = <Logger>container.get(TYPES.Logger);
 
 @sealed
 export class GatewayBFF {
+  get url(): string {
+    return this.config.url;
+  }
+  get name(): string {
+    return this.config.name;
+  }
   exposedConfig: IExposeConfig;
   server: Server;
-  name: string;
-  url: string;
   private config: IGatewayBFFConfiguration;
   private fragments: { [name: string]: FragmentBFF } = {};
   private apis: { [name: string]: Api } = {};
@@ -43,11 +47,7 @@ export class GatewayBFF {
    */
   constructor(gatewayConfig: IGatewayBFFConfiguration | GatewayConfigurator, _server?: Server) {
     this.server = _server || container.get(TYPES.Server);
-    const configMethod = gatewayConfig.hasOwnProperty('configuration') ?  (gatewayConfig as GatewayConfigurator).configuration : (gatewayConfig as IGatewayBFFConfiguration);
-    this.config = configMethod;
-    this.name = configMethod.name;
-    this.url = configMethod.url;
-
+    this.config = gatewayConfig.hasOwnProperty('configuration') ?  (gatewayConfig as GatewayConfigurator).configuration : (gatewayConfig as IGatewayBFFConfiguration);
     this.exposedConfig = this.createExposeConfig();
     this.exposedConfig.hash = md5(JSON.stringify(this.exposedConfig));
   }
