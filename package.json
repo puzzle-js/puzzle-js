@@ -38,7 +38,7 @@
     "email": "ahmetcanguven44@gmail.com"
   },
   "scripts": {
-    "prepublish": "yarn build & yarn test",
+    "prepublish": "yarn build",
     "build": "gulp build & tsc",
     "test": "nyc --check-coverage --lines=90 cross-env NODE_ENV=production mocha -r ts-node/register  --recursive 'test/**/*.spec.ts'",
     "test:watch": "cross-env NODE_ENV=production mocha --watch --require ts-node/register --watch-extensions ts,tsx --recursive 'test/**/*.spec.ts'",
