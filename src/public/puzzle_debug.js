@@ -1,24 +1,6 @@
 (function (scope) {
-  const PACKAGE_VERSION = '2.9.1';
-  const DEPENDENCIES = {
-    "async": "^2.6.0",
-    "cheerio": "^1.0.0-rc.2",
-    "clean-css": "^4.1.11",
-    "compression": "^1.7.2",
-    "cookie-parser": "latest",
-    "cors": "^2.8.4",
-    "express": "^4.16.3",
-    "helmet": "latest",
-    "inversify": "^4.13.0",
-    "md5": "^2.2.1",
-    "morgan": "^1.9.0",
-    "node-fetch": "^2.1.2",
-    "reflect-metadata": "^0.1.12",
-    "superstruct": "^0.5.4",
-    "uuid": "^3.2.1",
-    "winston": "^3.0.0-rc1",
-    "winston-graylog2": "^1.0.0"
-  };
+  const PACKAGE_VERSION = '';
+  const DEPENDENCIES = {};
 
   const preOverload = console.info;
   console.info = function () {
