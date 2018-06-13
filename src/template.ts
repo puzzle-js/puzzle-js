@@ -219,10 +219,11 @@ export class Template {
    * @param {IReplaceSet[]} waitedFragments
    * @param {string} template
    * @param req
+   * @param isDebug
    * @returns {Promise<IWaitedResponseFirstFlush>}
    */
   @benchmark(isDebug(), logger.info)
-  private async replaceWaitedFragments(waitedFragments: IReplaceSet[], template: string, req: any): Promise<IWaitedResponseFirstFlush> {
+  private async replaceWaitedFragments(waitedFragments: IReplaceSet[], template: string, req: any, isDebug: boolean): Promise<IWaitedResponseFirstFlush> {
     let statusCode = HTTP_STATUS_CODE.OK;
     let headers = {};
 
@@ -236,7 +237,7 @@ export class Template {
 
       const modelReplacement = waitedFragmentReplacement.replaceItems.find(item => item.type === REPLACE_ITEM_TYPE.MODEL_SCRIPT);
       if (modelReplacement) {
-        template = template.replace(`${modelReplacement.key}`, Template.fragmentModelScript(fragmentContent.model));
+        template = template.replace(`${modelReplacement.key}`, Template.fragmentModelScript(waitedFragmentReplacement.fragment, fragmentContent.model, isDebug));
       }
 
       waitedFragmentReplacement.replaceItems
@@ -251,9 +252,9 @@ export class Template {
     return {template, statusCode, headers};
   }
 
-  static fragmentModelScript(fragmentPageModel: FragmentModel) {
+  static fragmentModelScript(fragment: { name: string }, fragmentPageModel: FragmentModel, isDebug: boolean = false) {
     return fragmentPageModel && Object.keys(fragmentPageModel).length ? `<script>${Object.keys(fragmentPageModel).reduce((modelVariable, key) => {
-      modelVariable += `window['${key}']=window['${key}']||${JSON.stringify(fragmentPageModel[key])};`;
+      modelVariable += `window['${key}']=window['${key}']||${JSON.stringify(fragmentPageModel[key])};${isDebug ? `PuzzleJs.variables.add('${fragment.name}','${key}');` : ""}`;
       return modelVariable;
     }, '')}</script>` : '';
   }
@@ -264,6 +265,7 @@ export class Template {
    * @param {IReplaceSet[]} chunkedFragmentReplacements
    * @param {IReplaceSet[]} waitedFragments
    * @param {IReplaceAsset[]} jsReplacements
+   * @param isDebug
    * @returns {(req: any, res: any) => void}
    */
   private buildHandler(firstFlushHandler: Function, chunkedFragmentReplacements: IReplaceSet[], waitedFragments: IReplaceSet[] = [], jsReplacements: IReplaceAsset[] = [], isDebug: boolean) {
@@ -273,7 +275,7 @@ export class Template {
         this.pageClass._onRequest(req);
         let fragmentedHtml = firstFlushHandler.call(this.pageClass, req);
         (async () => {
-          const waitedReplacement = await this.replaceWaitedFragments(waitedFragments, fragmentedHtml, req);
+          const waitedReplacement = await this.replaceWaitedFragments(waitedFragments, fragmentedHtml, req, isDebug);
           for (let prop in waitedReplacement.headers) {
             res.set(prop, waitedReplacement.headers[prop]);
           }
@@ -283,7 +285,7 @@ export class Template {
             this.pageClass._onResponseEnd();
           } else {
             if (isDebug) {
-              res.send(waitedReplacement.template.replace('</body></html>', () => '<script>PuzzleJs.analytics.end();</script></body></html>').replace('<head>', () => `<head><script src="${PUZZLE_DEBUGGER_LINK}" type="text/javascript"></script><script>PuzzleJs.fragments.set(${JSON.stringify(this.fragments)})</script>`));
+              res.send(waitedReplacement.template.replace('</body></html>', () => '<script>PuzzleJs.analytics.end();PuzzleJs.variables.end();</script></body></html>').replace('<head>', () => `<head><script src="${PUZZLE_DEBUGGER_LINK}" type="text/javascript"></script><script>PuzzleJs.fragments.set(${JSON.stringify(this.fragments)})</script>`));
             } else {
               res.send(waitedReplacement.template);
             }
@@ -308,7 +310,7 @@ export class Template {
           const waitedPromises: Promise<any>[] = [];
 
           //Fire requests in parallel
-          const waitedReplacementPromise = this.replaceWaitedFragments(waitedFragments, fragmentedHtml, req);
+          const waitedReplacementPromise = this.replaceWaitedFragments(waitedFragments, fragmentedHtml, req, isDebug);
           for (let chunkedReplacement of chunkedFragmentReplacements) {
             waitedPromises.push(chunkedReplacement.fragment.getContent(chunkedReplacement.fragmentAttributes, req));
           }
@@ -337,7 +339,7 @@ export class Template {
             //Close stream after all chunked fragments done
             await Promise.all(waitedPromises);
             if (isDebug) {
-              res.end(`${bodyAndAssets}<script>PuzzleJs.analytics.end();</script></body></html>`);
+              res.end(`${bodyAndAssets}<script>PuzzleJs.analytics.end();PuzzleJs.variables.end();</script></body></html>`);
             } else {
               res.end(`${bodyAndAssets}</body></html>`);
             }
@@ -354,6 +356,7 @@ export class Template {
    * @param {IReplaceSet} chunkedReplacement
    * @param {IReplaceAsset[]} jsReplacements
    * @param res
+   * @param isDebug
    * @returns {(fragmentContent: IFragmentContentResponse) => void}
    */
   private flush(chunkedReplacement: IReplaceSet, jsReplacements: IReplaceAsset[], res: any, isDebug: boolean) {
@@ -364,7 +367,7 @@ export class Template {
 
       let output = isDebug ? `<script>PuzzleJs.analytics.fragment('${chunkedReplacement.fragment.name}')</script>` : '';
 
-      output += Template.fragmentModelScript(fragmentContent.model);
+      output += Template.fragmentModelScript(chunkedReplacement.fragment, fragmentContent.model, isDebug);
 
       fragmentJsReplacements && fragmentJsReplacements.replaceItems.filter(item => item.location === RESOURCE_LOCATION.CONTENT_START).forEach(replaceItem => {
         output += Template.wrapJsAsset(replaceItem);

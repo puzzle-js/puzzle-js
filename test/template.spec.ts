@@ -454,7 +454,7 @@ describe('Template', () => {
                     expect(str).to.eq(null);
                 },
                 end(str: string) {
-                    expect(str).to.eq(`<html><head><script src="${PUZZLE_DEBUGGER_LINK}" type="text/javascript"></script><script>PuzzleJs.fragments.set({"product":{"name":"product","primary":false,"shouldWait":false,"from":"Browsing","fragmentUrl":"http://my-test-gateway-static-2.com/product","config":{"render":{"url":"/","static":true},"dependencies":[],"assets":[],"testCookie":"test","version":"1.0.0"}}})</script></head><body><div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" fragment-partial="main"><script>console.log('Fragment Part does not exists')</script></div></div><script>PuzzleJs.analytics.end();</script></body></html>`);
+                    expect(str).to.eq(`<html><head><script src="${PUZZLE_DEBUGGER_LINK}" type="text/javascript"></script><script>PuzzleJs.fragments.set({"product":{"name":"product","primary":false,"shouldWait":false,"from":"Browsing","fragmentUrl":"http://my-test-gateway-static-2.com/product","config":{"render":{"url":"/","static":true},"dependencies":[],"assets":[],"testCookie":"test","version":"1.0.0"}}})</script></head><body><div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" fragment-partial="main"><script>console.log('Fragment Part does not exists')</script></div></div><script>PuzzleJs.analytics.end();PuzzleJs.variables.end();</script></body></html>`);
                     done();
                 },
                 status: () => ''
