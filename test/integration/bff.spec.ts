@@ -2,13 +2,13 @@ import "mocha";
 import {expect} from "chai";
 import {GatewayBFF} from "../../src/gatewayBFF";
 import request from "supertest";
-import {IGatewayBFFConfiguration} from "../../src/types";
+import {IExposeConfig, IGatewayBFFConfiguration} from "../../src/types";
 import {PREVIEW_PARTIAL_QUERY_NAME, RENDER_MODE_QUERY_NAME} from "../../src/config";
 import {
     CONTENT_REPLACE_SCRIPT,
     FRAGMENT_RENDER_MODES,
     HTTP_METHODS, HTTP_STATUS_CODE,
-    RESOURCE_INJECT_TYPE,
+    RESOURCE_INJECT_TYPE, RESOURCE_JS_EXECUTE_TYPE,
     RESOURCE_LOCATION,
     RESOURCE_TYPE
 } from "../../src/enums";
@@ -53,6 +53,67 @@ describe('BFF', () => {
                 .get('/')
                 .expect(200).end((err, res) => {
                 expect(res.body).to.haveOwnProperty('hash');
+                bff.server.close();
+                done(err);
+            });
+        });
+    });
+
+    it('it should asset execute type when gateway is ready', (done) => {
+        const bff = new GatewayBFF({
+            ...commonGatewayConfiguration,
+            fragments: [
+                {
+                    name: 'product',
+                    render: {
+                        url: '/'
+                    },
+                    testCookie: 'product-cookie',
+                    version: '1.0.0',
+                    versions: {
+                        '1.0.0': {
+                            assets: [
+                                {
+                                    name: 'bundle',
+                                    location: RESOURCE_LOCATION.CONTENT_END,
+                                    type: RESOURCE_TYPE.JS,
+                                    fileName: 'bundle.min.js',
+                                    injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
+                                    executeType: RESOURCE_JS_EXECUTE_TYPE.ASYNC
+                                }
+                            ] as IFileResourceAsset[],
+                            dependencies: [],
+                            handler: {
+                                content(req: any, data: any) {
+                                    return {
+                                        main: `<div>Rendered Fragment ${data.username}</div>`
+                                    };
+                                },
+                                data(req: any) {
+                                    return {
+                                        data: {
+                                            username: 'ACG'
+                                        }
+                                    };
+                                },
+                                placeholder() {
+                                    return '';
+                                }
+                            } as any
+                        }
+                    }
+                }
+            ]
+        });
+
+
+
+        bff.init(() => {
+            request(commonGatewayConfiguration.url)
+                .get('/')
+                .expect(200).end((err, res) => {
+                    const response = res.body as IExposeConfig;
+                expect(response.fragments.product.assets[0].executeType).to.eq(RESOURCE_JS_EXECUTE_TYPE.ASYNC);
                 bff.server.close();
                 done(err);
             });
