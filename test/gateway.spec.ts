@@ -151,7 +151,6 @@ describe('Gateway', () => {
             const bffGw = new GatewayBFF(gatewayConfiguration);
             const gwResponse = await bffGw.renderFragment({}, 'boutique-list', FRAGMENT_RENDER_MODES.STREAM, DEFAULT_MAIN_PARTIAL, {});
             if (!gwResponse) throw new Error('No response from gateway');
-            console.log(gwResponse);
             expect(JSON.parse(gwResponse.content).main).to.eq('test');
         });
 

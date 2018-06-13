@@ -510,6 +510,7 @@ describe('BFF', () => {
         });
 
         bff.init(() => {
+            console.log(commonGatewayConfiguration.url);
             request(commonGatewayConfiguration.url)
                 .get('/product/static/bundle.min.css')
                 .expect(200)
