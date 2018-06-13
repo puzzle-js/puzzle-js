@@ -60,11 +60,12 @@
 
   PuzzleAnalytics.prototype.collectConnectionInformation = function () {
     const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    if (!connection) log('Connection api is not supported', LOG_TYPES.WARN, LOG_COLORS.RED);
     return {
-      rtt: connection.rtt,
-      effectiveType: connection.effectiveType,
-      downlink: connection.downlink
-    }
+      rtt: connection ? connection.rtt : '',
+      effectiveType: connection ? connection.effectiveType : '',
+      downlink: connection ? connection.downlink : ''
+    };
   };
 
   PuzzleAnalytics.prototype.start = function () {
