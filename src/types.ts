@@ -64,6 +64,7 @@ export interface IFileResourceDependency extends IFileResource {
 export interface IFileResourceAsset extends IFileResource {
     injectType: RESOURCE_INJECT_TYPE;
     fileName: string;
+    link?: string;
     location: RESOURCE_LOCATION;
     executeType?: RESOURCE_JS_EXECUTE_TYPE;
 }

@@ -384,6 +384,35 @@ import {FRAGMENT_RENDER_MODES, RESOURCE_INJECT_TYPE, RESOURCE_LOCATION, RESOURCE
                 expect(assetPath).to.eq(`https://differentlink.com/product/static/bundle.min.js`);
             });
 
+            it('should return asset path if public asset external link provided', () => {
+                const fragment = new FragmentStorefront('product', 'test');
+
+                fragment.update({
+                    render: {
+                        placeholder: false,
+                        url: '/'
+                    },
+                    version: '1.0.0',
+                    testCookie: 'fragment',
+                    dependencies: [],
+                    assets: [
+                        {
+                            fileName: 'bundle.min.js',
+                            link: 'fullPath',
+                            location: RESOURCE_LOCATION.HEAD,
+                            name: 'product-bundle',
+                            injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
+                            type: RESOURCE_TYPE.JS
+                        }
+                    ]
+                }, 'https://different.com/', 'https://differentLink.com/');
+
+
+                const assetPath = fragment.getAssetPath('product-bundle');
+
+                expect(assetPath).to.eq(`fullPath`);
+            });
+
             it('should log and return null asset path when requested asset not found', (done) => {
                 const fragment = new FragmentStorefront('product', 'test');
 

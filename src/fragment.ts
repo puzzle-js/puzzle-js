@@ -264,7 +264,7 @@ export class FragmentStorefront extends Fragment {
             return null;
         }
 
-        return fetch(`${this.fragmentUrl}/static/${asset.fileName}`).then(async res => {
+        return fetch(asset.link || `${this.fragmentUrl}/static/${asset.fileName}`).then(async res => {
             return await res.text();
         }).catch(e => {
             logger.error(new Error(`Failed to fetch asset from gateway: ${this.fragmentUrl}/static/${asset.fileName}`));
@@ -290,7 +290,7 @@ export class FragmentStorefront extends Fragment {
             return null;
         }
 
-        return `${this.assetUrl || this.fragmentUrl}/static/${asset.fileName}`;
+        return asset.link || `${this.assetUrl || this.fragmentUrl}/static/${asset.fileName}`;
     }
 }
 
