@@ -4,9 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+# [2.11.0] - 13-06-2018
+### Added
+- Assets can be injected with async, defer tags. `executeType` property of asset.
+
 # [2.10.1] - 13-06-2018
 ### Fixed
-- Added suppor check for connection api (Thanks to Safari)
+- Added support check for connection api (Thanks to Safari)
 
 # [2.10.0] - 13-06-2018
 ### Added

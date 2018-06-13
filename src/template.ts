@@ -23,7 +23,7 @@ import {
   EVENTS,
   HTTP_METHODS, HTTP_STATUS_CODE,
   REPLACE_ITEM_TYPE,
-  RESOURCE_INJECT_TYPE,
+  RESOURCE_INJECT_TYPE, RESOURCE_JS_EXECUTE_TYPE,
   RESOURCE_LOCATION,
   RESOURCE_TYPE
 } from "./enums";
@@ -153,7 +153,7 @@ export class Template {
    */
   static wrapJsAsset(asset: IWrappingJsAsset) {
     if (asset.injectType === RESOURCE_INJECT_TYPE.EXTERNAL && asset.link) {
-      return `<script puzzle-dependency="${asset.name}" src="${asset.link}" type="text/javascript"> </script>`;
+      return `<script puzzle-dependency="${asset.name}" src="${asset.link}" type="text/javascript"${asset.executeType}> </script>`;
     } else if (asset.injectType === RESOURCE_INJECT_TYPE.INLINE && asset.content) {
       return `<script puzzle-dependency="${asset.name}" type="text/javascript">${asset.content}</script>`;
     } else {
@@ -581,7 +581,8 @@ export class Template {
                 name: asset.name,
                 injectType: asset.injectType,
                 link: fragment.getAssetPath(asset.name),
-                content: assetContent
+                content: assetContent,
+                executeType: asset.executeType || RESOURCE_JS_EXECUTE_TYPE.SYNC
               }));
               break;
             case RESOURCE_LOCATION.BODY_START:
@@ -589,7 +590,8 @@ export class Template {
                 name: asset.name,
                 injectType: asset.injectType,
                 link: fragment.getAssetPath(asset.name),
-                content: assetContent
+                content: assetContent,
+                executeType: asset.executeType || RESOURCE_JS_EXECUTE_TYPE.SYNC
               }));
               break;
             case RESOURCE_LOCATION.CONTENT_START:
@@ -600,7 +602,8 @@ export class Template {
                 name: asset.name,
                 link: fragment.getAssetPath(asset.name),
                 injectType: asset.injectType,
-                location: asset.location
+                location: asset.location,
+                executeType: asset.executeType || RESOURCE_JS_EXECUTE_TYPE.SYNC
               });
               break;
           }

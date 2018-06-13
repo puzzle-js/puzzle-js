@@ -43,6 +43,12 @@ export enum HTTP_METHODS {
     PATCH = 'patch'
 }
 
+export enum RESOURCE_JS_EXECUTE_TYPE {
+    ASYNC = 'async',
+    DEFER = 'defer',
+    SYNC = ''
+}
+
 export const CONTENT_REPLACE_SCRIPT = `<script>function $p(p,c){var z = document.querySelector(c),r = z.innerHTML;z.parentNode.removeChild(z);document.querySelector(p).innerHTML=r}</script>`;
 export const DEFAULT_MAIN_PARTIAL = `main`;
 

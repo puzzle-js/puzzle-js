@@ -2,7 +2,14 @@ import {sealed} from "./decorators";
 import {struct} from "superstruct";
 import {IGatewayBFFConfiguration, IStorefrontConfig} from "./types";
 import {ERROR_CODES, PuzzleError} from "./errors";
-import {HTTP_METHODS, INJECTABLE, RESOURCE_INJECT_TYPE, RESOURCE_LOCATION, RESOURCE_TYPE} from "./enums";
+import {
+  HTTP_METHODS,
+  INJECTABLE,
+  RESOURCE_INJECT_TYPE,
+  RESOURCE_JS_EXECUTE_TYPE,
+  RESOURCE_LOCATION,
+  RESOURCE_TYPE
+} from "./enums";
 
 const apiEndpointsStructure = struct({
     path: 'string',
@@ -40,7 +47,8 @@ const gatewayFragmentAssetsStructure = struct({
     type: struct.enum(Object.values(RESOURCE_TYPE)),
     injectType: struct.enum(Object.values(RESOURCE_INJECT_TYPE)),
     fileName: 'string',
-    location: struct.enum(Object.values(RESOURCE_LOCATION))
+    location: struct.enum(Object.values(RESOURCE_LOCATION)),
+    executeType: struct.optional(struct.enum(Object.values(RESOURCE_JS_EXECUTE_TYPE)))
 });
 
 const gatewayFragmentDependenctStructure = struct({

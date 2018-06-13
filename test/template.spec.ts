@@ -3,12 +3,13 @@ import {expect} from "chai";
 import {Template} from "../src/template";
 import nock = require("nock");
 import {
-    CONTENT_REPLACE_SCRIPT, FRAGMENT_RENDER_MODES, RESOURCE_INJECT_TYPE, RESOURCE_LOCATION,
+    CONTENT_REPLACE_SCRIPT, FRAGMENT_RENDER_MODES, RESOURCE_INJECT_TYPE, RESOURCE_JS_EXECUTE_TYPE, RESOURCE_LOCATION,
     RESOURCE_TYPE
 } from "../src/enums";
 import {createExpressMock} from "./mock/mock";
 import ResourceFactory from "../src/resourceFactory";
 import {PUZZLE_DEBUGGER_LINK} from "../src/config";
+import faker from "faker";
 
 describe('Template', () => {
     it('should create a new Template instance', () => {
@@ -1245,8 +1246,22 @@ describe('Template', () => {
                     link: null,
                     injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
                     name: 'Nope',
-                    content: null
+                    content: null,
+                    executeType: RESOURCE_JS_EXECUTE_TYPE.SYNC
                 })).to.eq(`<!-- Failed to inject asset: Nope -->`);
+            });
+
+            it('should wrap js assets based on execute type', () => {
+                const name = faker.random.word();
+                const link = faker.random.word();
+
+                expect(Template.wrapJsAsset({
+                    link,
+                    injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
+                    name,
+                    content: null,
+                    executeType: RESOURCE_JS_EXECUTE_TYPE.ASYNC
+                })).to.eq(`<script puzzle-dependency="${name}" src="${link}" type="text/javascript"${RESOURCE_JS_EXECUTE_TYPE.ASYNC}> </script>`);
             });
 
             it('should append asset locations for normal fragment, HEAD - External', (done) => {
