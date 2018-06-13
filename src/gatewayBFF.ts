@@ -43,18 +43,10 @@ export class GatewayBFF {
    */
   constructor(gatewayConfig: IGatewayBFFConfiguration | GatewayConfigurator, _server?: Server) {
     this.server = _server || container.get(TYPES.Server);
-
-    if (gatewayConfig.hasOwnProperty('configuration')) {
-      const configurator = gatewayConfig as GatewayConfigurator;
-      this.config = configurator.configuration;
-      this.name = configurator.configuration.name;
-      this.url = configurator.configuration.url;
-    } else {
-      const config = gatewayConfig as IGatewayBFFConfiguration;
-      this.config = config;
-      this.name = config.name;
-      this.url = config.url;
-    }
+    const configMethod = gatewayConfig.hasOwnProperty('configuration') ?  (gatewayConfig as GatewayConfigurator).configuration : (gatewayConfig as IGatewayBFFConfiguration);
+    this.config = configMethod;
+    this.name = configMethod.name;
+    this.url = configMethod.url;
 
     this.exposedConfig = this.createExposeConfig();
     this.exposedConfig.hash = md5(JSON.stringify(this.exposedConfig));
@@ -131,29 +123,13 @@ export class GatewayBFF {
   async renderFragment(req: any, fragmentName: string, renderMode: FRAGMENT_RENDER_MODES = FRAGMENT_RENDER_MODES.PREVIEW, partial: string, res: any, cookieValue?: string): Promise<IFragmentResponse> {
     if (this.fragments[fragmentName]) {
       const fragmentContent = await this.fragments[fragmentName].render(req, res, cookieValue);
-      switch (renderMode) {
-        case FRAGMENT_RENDER_MODES.STREAM:
-          return {
-            content: JSON.stringify(fragmentContent),
-            $status: +(fragmentContent.$status || HTTP_STATUS_CODE.OK),
-            $headers: fragmentContent.$headers || {},
-            $model: fragmentContent.$model
-          };
-        case FRAGMENT_RENDER_MODES.PREVIEW:
-          return {
-            content: fragmentContent[partial] ? this.wrapFragmentContent(fragmentContent[partial].toString(), this.fragments[fragmentName], cookieValue, fragmentContent.$model) : '',
-            $status: +(fragmentContent.$status || HTTP_STATUS_CODE.OK),
-            $headers: fragmentContent.$headers || {},
-            $model: fragmentContent.$model
-          };
-        default:
-          return {
-            content: JSON.stringify(fragmentContent),
-            $status: +(fragmentContent.$status || HTTP_STATUS_CODE.OK),
-            $headers: fragmentContent.$headers || {},
-            $model: fragmentContent.$model
-          };
-      }
+      const fragmentRenderContent = fragmentContent[partial] && renderMode === FRAGMENT_RENDER_MODES.PREVIEW ? this.wrapFragmentContent(fragmentContent[partial].toString(), this.fragments[fragmentName], cookieValue, fragmentContent.$model) : JSON.stringify(fragmentContent);
+      return {
+        content: fragmentRenderContent || '',
+        $status: +(fragmentContent.$status || HTTP_STATUS_CODE.OK),
+        $headers: fragmentContent.$headers || {},
+        $model: fragmentContent.$model
+      };
     } else {
       throw new Error(`Failed to find fragment: ${fragmentName}`);
     }
