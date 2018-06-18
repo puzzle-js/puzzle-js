@@ -246,7 +246,7 @@ describe('Storefront', () => {
                     }
             },
             hash: fragment.hash
-        }, false)
+        }, true)
             .get(`/${fragment.name}/detail`)
             .query({[RENDER_MODE_QUERY_NAME]: FRAGMENT_RENDER_MODES.STREAM})
             .reply(200, {
@@ -264,7 +264,7 @@ describe('Storefront', () => {
             pages: [
                 {
                     url: ['/', '/detail'],
-                    html: `<template><div><html><head></head><body><fragment from="Browsing" name="${fragment.name}" primary/></div></body></html></template>`
+                    html: `<template><html><head></head><body><fragment from="Browsing" name="${fragment.name}" primary/></div></body></html></template>`
                 }
             ]
         });
@@ -279,7 +279,7 @@ describe('Storefront', () => {
                         gateway.stopUpdating();
                     });
 
-                    expect(res.text).to.eq(`<div><html><head/><body><div id="${fragment.name}" puzzle-fragment="${fragment.name}" puzzle-gateway="Browsing">Fragment: ${fragment.name}</div></body></html></div>`);
+                    expect(res.text).to.eq(`<html><head/><body><div id="${fragment.name}" puzzle-fragment="${fragment.name}" puzzle-gateway="Browsing">Fragment: ${fragment.name}</div></body></html>`);
                     done(err);
                 });
         });
