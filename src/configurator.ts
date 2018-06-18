@@ -80,7 +80,8 @@ const gatewayStructure = struct({
     api: [apiStructure],
     port: 'number',
     isMobile: 'boolean?',
-    fragmentsFolder: 'string'
+    fragmentsFolder: 'string',
+    corsDomains: struct.optional(['string'])
 });
 
 const storefrontPageStructure = struct({

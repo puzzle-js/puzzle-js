@@ -140,6 +140,7 @@ export interface IGatewayBFFConfiguration extends IGatewayConfiguration {
     port: number;
     isMobile?: boolean;
     fragmentsFolder: string;
+    corsDomains?: string[]
 }
 
 export interface IExposeConfig {

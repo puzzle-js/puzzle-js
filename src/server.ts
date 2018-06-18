@@ -4,7 +4,6 @@ import helmet from "helmet";
 import "reflect-metadata";
 import morgan from "morgan";
 import bodyParser from "body-parser";
-import cors from "cors";
 import * as Http from "http";
 import {NextFunction, Request, RequestHandlerParams, Response} from "express-serve-static-core";
 import {ServeStaticOptions} from "serve-static";
@@ -117,7 +116,6 @@ export class Server {
     this.app.use(bodyParser.urlencoded({extended: true}));
     this.app.use(bodyParser.json());
     this.app.use(cookieParser());
-    this.app.use(cors());
     this.app.use(compression({
       filter(req: any) {
         return DEFAULT_GZIP_EXTENSIONS.indexOf(path.extname(req.path)) > -1;

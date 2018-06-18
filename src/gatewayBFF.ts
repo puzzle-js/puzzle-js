@@ -1,12 +1,12 @@
 import {FragmentBFF} from "./fragment";
 import {Api} from "./api";
 import {
-    CONTENT_REPLACE_SCRIPT,
-    DEFAULT_MAIN_PARTIAL,
-    FRAGMENT_RENDER_MODES,
-    HTTP_METHODS, HTTP_STATUS_CODE, RESOURCE_JS_EXECUTE_TYPE,
-    RESOURCE_LOCATION,
-    RESOURCE_TYPE
+  CONTENT_REPLACE_SCRIPT,
+  DEFAULT_MAIN_PARTIAL,
+  FRAGMENT_RENDER_MODES,
+  HTTP_METHODS, HTTP_STATUS_CODE, RESOURCE_JS_EXECUTE_TYPE,
+  RESOURCE_LOCATION,
+  RESOURCE_TYPE
 } from "./enums";
 import {PREVIEW_PARTIAL_QUERY_NAME, RENDER_MODE_QUERY_NAME} from "./config";
 import {FragmentModel, IExposeConfig, IFragmentResponse} from "./types";
@@ -22,6 +22,7 @@ import {callableOnce, sealed} from "./decorators";
 import {GatewayConfigurator} from "./configurator";
 import {Template} from "./template";
 import {Logger} from "./logger";
+import cors from "cors";
 
 const logger = <Logger>container.get(TYPES.Logger);
 
@@ -31,9 +32,11 @@ export class GatewayBFF {
   get url(): string {
     return this.config.url;
   }
+
   get name(): string {
     return this.config.name;
   }
+
   exposedConfig: IExposeConfig;
   server: Server;
   private config: IGatewayBFFConfiguration;
@@ -47,7 +50,7 @@ export class GatewayBFF {
    */
   constructor(gatewayConfig: IGatewayBFFConfiguration | GatewayConfigurator, _server?: Server) {
     this.server = _server || container.get(TYPES.Server);
-    this.config = gatewayConfig.hasOwnProperty('configuration') ?  (gatewayConfig as GatewayConfigurator).configuration : (gatewayConfig as IGatewayBFFConfiguration);
+    this.config = gatewayConfig.hasOwnProperty('configuration') ? (gatewayConfig as GatewayConfigurator).configuration : (gatewayConfig as IGatewayBFFConfiguration);
     this.exposedConfig = this.createExposeConfig();
     this.exposedConfig.hash = md5(JSON.stringify(this.exposedConfig));
   }
@@ -59,6 +62,7 @@ export class GatewayBFF {
   @callableOnce
   public init(cb?: Function) {
     async.series([
+      this.addCorsPlugin.bind(this),
       this.addPlaceholderRoutes.bind(this),
       this.addApiRoutes.bind(this),
       this.addStaticRoutes.bind(this),
@@ -264,6 +268,17 @@ export class GatewayBFF {
     this.server.addRoute('/healthcheck', HTTP_METHODS.GET, (req, res) => {
       res.status(200).end();
     });
+
+    cb();
+  }
+
+  private addCorsPlugin(cb: Function) {
+    this.server.addUse(null, cors(
+      {
+        origin: this.config.corsDomains || ['*'],
+        allowedHeaders: ['Content-Type', 'Authorization']
+      }
+    ));
 
     cb();
   }
