@@ -276,7 +276,6 @@ export class GatewayBFF {
     this.server.addUse(null, cors(
       {
         origin: this.config.corsDomains || ['*'],
-        allowedHeaders: ['Content-Type', 'Authorization'],
         credentials: true
       }
     ));
