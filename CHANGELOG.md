@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+# [2.14.0] - 19-06-2018
+### Added
+- Added original url to header to requests for fragment contents
+
+# [2.13.0] - 18-06-2018
+### Added
+- corsDomains added to gateway configuration.
+
 # [2.12.0] - 13-06-2018
 ### Added
 - Assets can be injected using link for independent assets.

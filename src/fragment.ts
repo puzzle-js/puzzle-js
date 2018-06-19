@@ -180,6 +180,7 @@ export class FragmentStorefront extends Fragment {
      *  status: gateway status response code
      * }
      * @param attribs
+     * @param req
      * @returns {Promise<IFragmentContentResponse>}
      */
     async getContent(attribs: any = {}, req?: { url: string, headers: { [name: string]: string } }): Promise<IFragmentContentResponse> {
