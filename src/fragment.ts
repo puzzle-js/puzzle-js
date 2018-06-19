@@ -201,7 +201,6 @@ export class FragmentStorefront extends Fragment {
         let parsedRequest;
         let requestConfiguration: any = {
             timeout: this.config.render.timeout || DEFAULT_CONTENT_TIMEOUT,
-
         };
 
         if (req) {
@@ -214,8 +213,10 @@ export class FragmentStorefront extends Fragment {
             }
             if (req.headers) {
                 requestConfiguration.headers = req.headers;
+                requestConfiguration.headers.originalUrl = req.url;
             }
         }
+
 
         delete query.from;
         delete query.name;
