@@ -14,6 +14,7 @@ import compression from "compression";
 import {injectable} from "inversify";
 import path from "path";
 import {DEFAULT_GZIP_EXTENSIONS} from "./config";
+import {ISpdyConfiguration} from "./types";
 
 
 const morganLoggingLevels = [
@@ -42,6 +43,10 @@ export class Server {
         e.handler
       );
     });
+  }
+
+  public useProtocalOptions(options: ISpdyConfiguration) {
+
   }
 
   /**
