@@ -29,6 +29,7 @@ const morganLoggingLevels = [
 export class Server {
   app: Express;
   server: Http.Server | null;
+  private spdy: ISpdyConfiguration;
 
   constructor() {
     this.app = express();
@@ -45,8 +46,14 @@ export class Server {
     });
   }
 
-  public useProtocalOptions(options: ISpdyConfiguration) {
-
+  /**
+   * Sets spdy protocol configuration.
+   * @param {ISpdyConfiguration} options
+   */
+  public useProtocolOptions(options?: ISpdyConfiguration) {
+    if (options) {
+      this.spdy = options;
+    }
   }
 
   /**
