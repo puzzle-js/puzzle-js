@@ -191,15 +191,15 @@ export interface IPageMap {
 }
 
 export interface ISpdyConfiguration {
-  key: string;
-  cert: string;
+  key: string | Buffer;
+  cert: string | Buffer;
   passphrase: string;
   protocols: TRANSFER_PROTOCOLS[];
 }
 
 export interface INodeSpdyConfiguration {
-  key: string;
-  cert: string;
+  key: string | Buffer;
+  cert: string | Buffer;
   passphrase: string;
   spdy: {
     protocols: TRANSFER_PROTOCOLS[];

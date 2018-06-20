@@ -116,7 +116,11 @@ export class Server {
    */
   public listen(port: number, cb?: Function) {
     if (this.spdyConfiguration) {
-      this.server = spdy.createServer(this.spdyConfiguration, this.app).listen(port);
+      this.server = spdy.createServer(this.spdyConfiguration, this.app);
+      this.server.listen(port, (e: Error) => {
+        console.log('Listening');
+        cb && cb(e);
+      });
     } else {
       this.server = this.app.listen(port, (e: Error) => {
         cb && cb(e);

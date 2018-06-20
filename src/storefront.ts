@@ -58,15 +58,17 @@ export class Storefront {
       this.addHealthCheckRoute.bind(this)
     ], err => {
       if (!err) {
-        logger.info(`Storefront is listening on port ${this.config.port}`);
-        this.server.listen(this.config.port, cb);
+        this.server.listen(this.config.port, () => {
+          logger.info(`Storefront is listening on port ${this.config.port}`);
+          cb && cb();
+        });
       } else {
         throw err;
       }
     });
   }
 
-  private bootstrap(){
+  private bootstrap() {
     this.server.useProtocolOptions(this.config.spdy);
     this.createStorefrontPagesAndGateways();
   }
