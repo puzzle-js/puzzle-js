@@ -118,7 +118,6 @@ export class Server {
     if (this.spdyConfiguration) {
       this.server = spdy.createServer(this.spdyConfiguration, this.app);
       this.server.listen(port, (e: Error) => {
-        console.log('Listening');
         cb && cb(e);
       });
     } else {
