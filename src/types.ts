@@ -197,6 +197,20 @@ export interface ISpdyConfiguration {
   protocols: TRANSFER_PROTOCOLS[];
 }
 
+export interface INodeSpdyConfiguration {
+  key: string;
+  cert: string;
+  passphrase: string;
+  spdy: {
+    protocols: TRANSFER_PROTOCOLS[];
+    'x-forwarded-for': boolean;
+    connection: {
+      windowSize: number;
+      autoSpdy31: boolean;
+    }
+  }
+}
+
 export interface IStorefrontConfig {
   gateways: IGatewayConfiguration[];
   port: number;
