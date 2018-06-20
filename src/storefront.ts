@@ -19,127 +19,139 @@ const logger = <Logger>container.get(TYPES.Logger);
 
 @sealed
 export class Storefront {
-    server: Server;
-    events: EventEmitter = new EventEmitter();
-    config: IStorefrontConfig;
-    pages: IPageMap = {};
-    gateways: IGatewayMap = {};
-    private gatewaysReady = 0;
+  server: Server;
+  events: EventEmitter = new EventEmitter();
+  config: IStorefrontConfig;
+  pages: IPageMap = {};
+  gateways: IGatewayMap = {};
+  private gatewaysReady = 0;
 
 
-    /**
-     * Storefront Instance
-     * @param {IStorefrontConfig} storefrontConfig
-     * @param {Server} _server
-     */
-    constructor(storefrontConfig: IStorefrontConfig | StorefrontConfigurator, _server?: Server) {
-        this.server = _server || container.get(TYPES.Server);
+  /**
+   * Storefront Instance
+   * @param {IStorefrontConfig} storefrontConfig
+   * @param {Server} _server
+   */
+  constructor(storefrontConfig: IStorefrontConfig | StorefrontConfigurator, _server?: Server) {
+    this.server = _server || container.get(TYPES.Server);
 
-        if (storefrontConfig instanceof StorefrontConfigurator) {
-            this.config = storefrontConfig.configuration;
-        } else {
-            this.config = storefrontConfig;
-        }
-
-        this.createStorefrontPagesAndGateways();
+    if (storefrontConfig instanceof StorefrontConfigurator) {
+      this.config = storefrontConfig.configuration;
+    } else {
+      this.config = storefrontConfig;
     }
 
-    /**
-     * Starts storefront instance
-     * @param {Function} cb
-     */
-    @callableOnce
-    public init(cb?: Function) {
-        async.series([
-            this.registerDependencies.bind(this),
-            this.waitForGateways.bind(this),
-            this.registerDebugScripts.bind(this),
-            this.addPageRoute.bind(this),
-            this.addHealthCheckRoute.bind(this)
-        ], err => {
-            if (!err) {
-                logger.info(`Storefront is listening on port ${this.config.port}`);
-                this.server.listen(this.config.port, cb);
-            } else {
-                throw err;
-            }
+    this.bootstrap();
+  }
+
+  /**
+   * Starts storefront instance
+   * @param {Function} cb
+   */
+  @callableOnce
+  public init(cb?: Function) {
+    async.series([
+      this.registerDependencies.bind(this),
+      this.waitForGateways.bind(this),
+      this.registerDebugScripts.bind(this),
+      this.addPageRoute.bind(this),
+      this.addHealthCheckRoute.bind(this)
+    ], err => {
+      if (!err) {
+        this.server.listen(this.config.port, () => {
+          logger.info(`Storefront is listening on port ${this.config.port}`);
+          cb && cb();
         });
+      } else {
+        throw err;
+      }
+    });
+  }
+
+  private bootstrap() {
+    this.server.useProtocolOptions(this.config.spdy);
+    this.createStorefrontPagesAndGateways();
+  }
+
+  /**
+   * Creates static routes for debugging scripts
+   * @param {Function} cb
+   * @returns {Promise<void>}
+   */
+  private async registerDebugScripts(cb: Function) {
+    this.server.addRoute(PUZZLE_DEBUGGER_LINK, HTTP_METHODS.GET, (req, res) => {
+      res.sendFile(path.join(__dirname, './public/puzzle_debug.js'));
+    });
+
+    cb(null);
+  }
+
+  /**
+   * Waits for gateways to be prepared
+   * @param {Function} cb
+   * @returns {Promise<void>}
+   */
+  private async waitForGateways(cb: Function) {
+    while (Object.keys(this.gateways).length != this.gatewaysReady) {
+      await wait(GATEWAY_PREPERATION_CHECK_INTERVAL);
     }
+    cb(null);
+  }
 
-    private async registerDebugScripts(cb: Function) {
-        this.server.addRoute(PUZZLE_DEBUGGER_LINK, HTTP_METHODS.GET, (req, res) => {
-            res.sendFile(path.join(__dirname, './public/puzzle_debug.js'));
-        });
+  /**
+   * Creates gateway pages, pages and subscribes event to gateways to track ready status
+   */
+  private createStorefrontPagesAndGateways() {
+    this.config.gateways.forEach(gatewayConfiguration => {
+      const gateway = new GatewayStorefrontInstance(gatewayConfiguration);
+      gateway.events.once(EVENTS.GATEWAY_READY, () => {
+        this.gatewaysReady++;
+      });
+      gateway.startUpdating();
+      this.gateways[gatewayConfiguration.name] = gateway;
+    });
 
-        cb(null);
-    }
+    this.config.pages.forEach(pageConfiguration => {
+      this.pages[pageConfiguration.url.toString()] = new Page(pageConfiguration.html, this.gateways);
+    });
+  }
 
-    /**
-     * Waits for gateways to be prepared
-     * @param {Function} cb
-     * @returns {Promise<void>}
-     */
-    private async waitForGateways(cb: Function) {
-        while (Object.keys(this.gateways).length != this.gatewaysReady) {
-            await wait(GATEWAY_PREPERATION_CHECK_INTERVAL);
-        }
-        cb(null);
-    }
+  /**
+   * Registers provided dependencies in storefront configuration
+   * @param {Function} cb
+   */
+  private registerDependencies(cb: Function) {
+    this.config.dependencies.forEach(dependency => {
+      ResourceFactory.instance.registerDependencies(dependency);
+    });
 
-    /**
-     * Creates gateway pages, pages and subscribes event to gateways to track ready status
-     */
-    private createStorefrontPagesAndGateways() {
-        this.config.gateways.forEach(gatewayConfiguration => {
-            const gateway = new GatewayStorefrontInstance(gatewayConfiguration);
-            gateway.events.once(EVENTS.GATEWAY_READY, () => {
-                this.gatewaysReady++;
-            });
-            gateway.startUpdating();
-            this.gateways[gatewayConfiguration.name] = gateway;
-        });
+    cb();
+  }
 
-        this.config.pages.forEach(pageConfiguration => {
-            this.pages[pageConfiguration.url.toString()] = new Page(pageConfiguration.html, this.gateways);
-        });
-    }
+  /**
+   * Adds healthcheck route.
+   * @param {Function} cb
+   */
+  private addHealthCheckRoute(cb: Function) {
+    this.server.addRoute(HEALTHCHECK_PATH, HTTP_METHODS.GET, (req, res) => {
+      res.status(HTTP_STATUS_CODE.OK).end();
+    });
 
-    /**
-     * Registers provided dependencies in storefront configuration
-     * @param {Function} cb
-     */
-    private registerDependencies(cb: Function) {
-        this.config.dependencies.forEach(dependency => {
-            ResourceFactory.instance.registerDependencies(dependency);
-        });
+    cb();
+  }
 
-        cb();
-    }
+  /**
+   * Adds page routes then connects with page instance responsible for it.
+   * @param {Function} cb
+   */
+  private addPageRoute(cb: Function) {
+    this.config.pages.forEach(page => {
+      const targetPage = page.url.toString();
+      this.server.addRoute(page.url, HTTP_METHODS.GET, (req, res) => {
+        this.pages[targetPage].handle(req, res);
+      });
+    });
 
-    /**
-     * Adds healthcheck route.
-     * @param {Function} cb
-     */
-    private addHealthCheckRoute(cb: Function) {
-        this.server.addRoute(HEALTHCHECK_PATH, HTTP_METHODS.GET, (req, res) => {
-            res.status(HTTP_STATUS_CODE.OK).end();
-        });
-
-        cb();
-    }
-
-    /**
-     * Adds page routes then connects with page instance responsible for it.
-     * @param {Function} cb
-     */
-    private addPageRoute(cb: Function) {
-        this.config.pages.forEach(page => {
-            const targetPage = page.url.toString();
-            this.server.addRoute(page.url, HTTP_METHODS.GET, (req, res) => {
-                this.pages[targetPage].handle(req, res);
-            });
-        });
-
-        cb();
-    }
+    cb();
+  }
 }

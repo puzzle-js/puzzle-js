@@ -14,6 +14,8 @@ import compression from "compression";
 import {injectable} from "inversify";
 import path from "path";
 import {DEFAULT_GZIP_EXTENSIONS} from "./config";
+import {INodeSpdyConfiguration, ISpdyConfiguration} from "./types";
+import spdy from "spdy";
 
 
 const morganLoggingLevels = [
@@ -27,7 +29,9 @@ const morganLoggingLevels = [
 @injectable()
 export class Server {
   app: Express;
-  server: Http.Server | null;
+  server: Http.Server | spdy.Server | null;
+  private spdyConfiguration: INodeSpdyConfiguration;
+
 
   constructor() {
     this.app = express();
@@ -42,6 +46,28 @@ export class Server {
         e.handler
       );
     });
+  }
+
+  /**
+   * Sets spdy protocol configuration.
+   * @param {ISpdyConfiguration} options
+   */
+  public useProtocolOptions(options?: ISpdyConfiguration) {
+    if (options) {
+      this.spdyConfiguration = {
+        cert: options.cert,
+        key: options.key,
+        passphrase: options.passphrase,
+        spdy: {
+          "x-forwarded-for": true,
+          protocols: options.protocols,
+          connection: {
+            windowSize: 1024 * 1024,
+            autoSpdy31: false
+          }
+        }
+      }
+    }
   }
 
   /**
@@ -89,9 +115,16 @@ export class Server {
    * @param {Function} cb
    */
   public listen(port: number, cb?: Function) {
-    this.server = this.app.listen(port, (e: Error) => {
-      cb && cb(e);
-    });
+    if (this.spdyConfiguration) {
+      this.server = spdy.createServer(this.spdyConfiguration, this.app);
+      this.server.listen(port, (e: Error) => {
+        cb && cb(e);
+      });
+    } else {
+      this.server = this.app.listen(port, (e: Error) => {
+        cb && cb(e);
+      });
+    }
   }
 
   /**

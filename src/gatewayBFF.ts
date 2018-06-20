@@ -50,9 +50,10 @@ export class GatewayBFF {
    */
   constructor(gatewayConfig: IGatewayBFFConfiguration | GatewayConfigurator, _server?: Server) {
     this.server = _server || container.get(TYPES.Server);
+
     this.config = gatewayConfig.hasOwnProperty('configuration') ? (gatewayConfig as GatewayConfigurator).configuration : (gatewayConfig as IGatewayBFFConfiguration);
-    this.exposedConfig = this.createExposeConfig();
-    this.exposedConfig.hash = md5(JSON.stringify(this.exposedConfig));
+
+    this.bootstrap();
   }
 
 
@@ -293,5 +294,14 @@ export class GatewayBFF {
     });
 
     cb();
+  }
+
+  /**
+   * Starts gateway and configures dependencies
+   */
+  private bootstrap() {
+    this.server.useProtocolOptions(this.config.spdy);
+    this.exposedConfig = this.createExposeConfig();
+    this.exposedConfig.hash = md5(JSON.stringify(this.exposedConfig));
   }
 }
