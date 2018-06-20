@@ -1,48 +1,52 @@
-<p align="center">
-    <img src="https://image.ibb.co/jM29on/puzzlelogo.png"/>
-    <p style="text-aling: center;">Frontend microservices framework for scalable and blazing fast websites.</p>
-</p>
+![PuzzleJs](https://image.ibb.co/jM29on/puzzlelogo.png)
 
-[![npm version](https://badge.fury.io/js/ty-puzzlejs.svg)](https://www.npmjs.com/package/ty-puzzlejs) [![Build Status](https://travis-ci.com/Acanguven/Puzzle-Reworked.svg?token=P2s8WVyVNPJgtfCf4E5i&branch=master)](https://travis-ci.com/Acanguven/Puzzle-Reworked)
 # PuzzleJs Framework
+Frontend microservices framework for scalable and blazing fast websites.
+
+[![Build Status](https://travis-ci.com/Acanguven/PuzzleJs.svg?token=P2s8WVyVNPJgtfCf4E5i&branch=master)](https://travis-ci.com/Acanguven/Puzzle-Reworked)
+
 
 PuzzleJs makes it easy to create gateways and storefront projects that talk each other. It is inspired by Facebook's [BigPipe](https://www.facebook.com/notes/facebook-engineering/bigpipe-pipelining-web-pages-for-high-performance/389414033919/), developed with lots of great features and passion.
 
 ### Why?
-Traditional models are not enough because of lacking independence, performance and limitations.
-* Multiple teams working on same code makes everything harder to manage.
-* Slowest service defines the page speed always.
-* When backend is collecting data user browser is wasting time waiting for it.
+The traditional model is very inefficient for modern websites.
+* Multiple teams working on the same code makes everything harder to manage.
+* Time to first byte is as fast as the slowest api.
+* When backend is collecting data user browser is wasting time waiting for first byte.
 * Features can't be online as soon as it is fully developed and tested because of other teams futures are not ready yet.
 * You can't use different technologies expect from the existing one.
 * You can't scale specific process because you are dependent to whole system.
 
 ### Features
-* **First Time To Byte** PuzzleJs compiles html template into javascript function when it is starting for the first time. This operation is fully independent from the request so PuzzleJs can send the first chunk using this function.
-* **Seo Friendly** PuzzleJs is fully seo friendly as everything is being prepared and rendered on serverside.
-* **Extensibility** It is easy to extend PuzzleJs and your custom features to the framework.
-* **Easy** PuzzleJs makes it simple to build a gateway and storefront project.
-* **Independent** You can use any technology on your gateways, PuzzleJs is fully indepented from your technologies.
-* **Scalable** You can scale specific gateway when you need.
-* **Fail-Safe** You can still show your page to your users if any fragments fails to load.
+* **First Time To Byte** PuzzleJs compiles html template into javascript function on compile time. This operation is fully independent from the request so PuzzleJs can send the first chunk using this function.
+* **Seo Friendly** PuzzleJs is fully SEO friendly as everything is being prepared and rendered on server side.
+* **Extensibility** It is easy to extend PuzzleJs with your custom functions.
+* **Easy** You can easily create a gateway or storefront and connect them by providing a configuration file.
+* **Independent** You can use any technology on your gateways, PuzzleJs is fully independent from your technologies. ReactJs, Vue or anything else.
+* **Scalable** PuzzleJs can create storefront and gateways independent from each other. So you can easily scale single project on Dockerized environments.
+* **Fail-Safe** When you suggestion api is down, PuzzleJs guarantees your product page is still working without suggested items.
 
 ### Getting Started
+
+Checkout [quick start guide](./docs/quick.md) for fastest implementation.
+
+ 1. Create one or more gateway projects.
+ 2. Create fragments and api on gateway projects.
+ 3. Create a storefront project and connect gateways with a config file.
+ 4. Create pages on storefront project and provide html files with desired fragments.
+
 Please check the [guide](./docs/guide.md) for full documentation.
-
-1. **Install Puzzlejs**
-`yarn add ty-puzzlejs`
-
 
 ### How PuzzleJs works?
 
-*Before request*
-1. Gateways start and exposes their fragments and gateway information from desired routes.
-2. Storefront fetches registered gateways information.
+*Compile time*
+1. Gateways start exposing their fragments, api and gateway information.
+2. Storefront fetches registered gateways' information.
 3. Storefront downloads and caches required fragments, dependencies and assets.
 4. Storefront compiles html into in memory javascript function for fastest template rendering.
 
 *On Request*
-1. Storefront sends a chunked response with the compiled function but not closes the connection. Users are now able to see your website with static contents and placeholders. It also sends backend requests to gateways ti recieve rendered fragments.
+1. Storefront sends a chunked response with the compiled function but not closes the connection. Users are now able to see your website with static contents and placeholders. It also sends backend requests to gateways to recieve rendered fragments.
 2. When any fragment recieved from gateway it sends it to browser as a chunk and replaces previously sended placeholder with the content.
 3. When all fragments are sent, PuzzleJs closes connection.
 
