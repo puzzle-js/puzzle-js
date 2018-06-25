@@ -1,6 +1,6 @@
 {
   "name": "@trendyol/puzzlejs",
-  "version": "2.16.1",
+  "version": "2.16.2",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "license": "MIT",

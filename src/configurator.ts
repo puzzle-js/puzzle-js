@@ -54,6 +54,7 @@ const gatewayFragmentAssetsStructure = struct({
   type: struct.enum(Object.values(RESOURCE_TYPE)),
   injectType: struct.enum(Object.values(RESOURCE_INJECT_TYPE)),
   fileName: 'string',
+  link: 'string?',
   location: struct.enum(Object.values(RESOURCE_LOCATION)),
   executeType: struct.optional(struct.enum(Object.values(RESOURCE_JS_EXECUTE_TYPE)))
 });
