@@ -21,8 +21,8 @@ const apiEndpointsStructure = struct({
 });
 
 const spdyStructure = struct({
-  key: 'buffer',
-  cert: 'buffer',
+  key: struct.union(['string','buffer']),
+  cert: struct.union(['string','buffer']),
   passphrase: 'string',
   protocols: [struct.enum(Object.values(TRANSFER_PROTOCOLS))],
 });
