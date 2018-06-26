@@ -21,8 +21,8 @@ const apiEndpointsStructure = struct({
 });
 
 const spdyStructure = struct({
-  key: struct.union(['string','buffer']),
-  cert: struct.union(['string','buffer']),
+  key: struct.union(['string', 'buffer']),
+  cert: struct.union(['string', 'buffer']),
   passphrase: 'string',
   protocols: [struct.enum(Object.values(TRANSFER_PROTOCOLS))],
 });
@@ -122,12 +122,13 @@ const storefrontStructure = struct({
 @sealed
 export class Configurator {
   configuration: IGatewayBFFConfiguration | IStorefrontConfig;
-  protected dependencies: { [name: string]: any } = {};
+  protected dependencies: { [name: string]: any } = {
+    [INJECTABLE.CUSTOM]: {},
+    [INJECTABLE.HANDLER]: {},
+    [INJECTABLE.MIDDLEWARE]: {},
+  };
 
   register(name: string, type: INJECTABLE, dependency: any): void {
-    if (!this.dependencies[type]) {
-      this.dependencies[type] = {};
-    }
     this.dependencies[type][name] = dependency;
   }
 
@@ -180,16 +181,12 @@ export class GatewayConfigurator extends Configurator {
   }
 
   protected injectDependencies(configuration: IGatewayBFFConfiguration) {
-    configuration.fragments.forEach(fragment => {
-      (<any>Object.values(fragment.versions)).forEach((version: any) => {
-        if (version.handler) {
-          version.handler = this.dependencies[INJECTABLE.HANDLER][version.handler];
-        }
-      });
+    this.injectMiddlewares(configuration);
+    this.injectApiHandlers(configuration);
+    this.injectCustomDependencies(configuration);
+  }
 
-      fragment.render.middlewares = (<any>fragment.render.middlewares || []).map((middleware: string) => this.dependencies[INJECTABLE.MIDDLEWARE][middleware]);
-    });
-
+  private injectApiHandlers(configuration: IGatewayBFFConfiguration) {
     configuration.api.forEach(api => {
       (<any>Object.values(api.versions)).forEach((version: any) => {
         if (version.handler) {
@@ -200,6 +197,31 @@ export class GatewayConfigurator extends Configurator {
           endpoint.middlewares = (<any>endpoint.middlewares || []).map((middleware: string) => this.dependencies[INJECTABLE.MIDDLEWARE][middleware]);
         });
       });
+    });
+  }
+
+  private injectMiddlewares(configuration: IGatewayBFFConfiguration) {
+    configuration.fragments.forEach(fragment => {
+      (<any>Object.values(fragment.versions)).forEach((version: any) => {
+        if (version.handler) {
+          version.handler = this.dependencies[INJECTABLE.HANDLER][version.handler];
+        }
+      });
+
+      fragment.render.middlewares = (<any>fragment.render.middlewares || []).map((middleware: string) => this.dependencies[INJECTABLE.MIDDLEWARE][middleware]);
+    });
+  }
+
+  private injectCustomDependencies(configuration: { [key: string]: any }) {
+    Object.keys(configuration).forEach((key) => {
+      if (typeof configuration[key] !== 'object') {
+        const targetDependency = this.get(configuration[key], INJECTABLE.CUSTOM);
+        if (targetDependency) {
+          configuration[key] = targetDependency;
+        }
+      } else {
+        this.injectCustomDependencies(configuration[key]);
+      }
     });
   }
 }

@@ -67,7 +67,8 @@ export enum HTTP_STATUS_CODE {
 
 export enum INJECTABLE {
   MIDDLEWARE,
-  HANDLER
+  HANDLER,
+  CUSTOM
 }
 
 export enum TRANSFER_PROTOCOLS {
