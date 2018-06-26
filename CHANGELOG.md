@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 # [2.17.0] - 21-06-2018
 ### Added
-- Custom injectables in configurator are can be used for any property type except `object`.
+- Custom injectables(configurator) are can be used for any property type except `object`.
 
 # [2.16.0] - 21-06-2018
 ### Added
