@@ -8,6 +8,7 @@ import * as fs from "fs";
 import {pubsub} from "../src/util";
 import {TLS_CERT, TLS_KEY, TLS_PASS} from "./core.settings";
 import faker from "faker";
+import {NO_COMPRESS_QUERY_NAME} from "../src/config";
 
 const TEST_CONFIG = {
   TEST_PORT: 3242,
@@ -200,6 +201,19 @@ describe('Server', () => {
             done();
           });
         });
+      });
+    });
+  });
+
+  it('should disable compression when no compress query is set', (done) => {
+    server.addRoute('/lorem.css', HTTP_METHODS.GET, (req, res) => {
+      res.send(faker.lorem.paragraphs(50));
+    });
+
+    server.listen(TEST_CONFIG.TEST_PORT, () => {
+      request(TEST_CONFIG.TEST_URL).get('/lorem.css').query({[NO_COMPRESS_QUERY_NAME]: 'true'}).expect(200).end((err, res) => {
+        expect(res.header['content-encoding']).to.not.eq('gzip');
+        done();
       });
     });
   });

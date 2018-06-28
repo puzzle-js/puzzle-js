@@ -660,6 +660,7 @@ export class Template {
         method: HTTP_METHODS.GET,
         handler(req: any, res: any) {
           res.set('content-type', 'text/css');
+          res.set('cache-control', 'public, max-age=31557600');
           res.send(output.styles);
         }
       });
