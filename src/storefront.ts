@@ -54,6 +54,7 @@ export class Storefront {
       this.registerDependencies.bind(this),
       this.waitForGateways.bind(this),
       this.registerDebugScripts.bind(this),
+      this.preLoadPages.bind(this),
       this.addPageRoute.bind(this),
       this.addHealthCheckRoute.bind(this)
     ], err => {
@@ -66,6 +67,12 @@ export class Storefront {
         throw err;
       }
     });
+  }
+
+  private preLoadPages(cb: Function) {
+    Promise.all(Object.values(this.pages).map(async (page) => {
+      await page.preLoad();
+    })).then(() => cb());
   }
 
   private bootstrap() {

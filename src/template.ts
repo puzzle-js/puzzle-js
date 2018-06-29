@@ -655,6 +655,7 @@ export class Template {
     if (output.styles.length > 0) {
       const styleHash = md5(output.styles);
       const path = `/static/${styleHash}.min.css`;
+      console.log('ADD DYNAMIC CSS');
       pubsub.emit(EVENTS.ADD_ROUTE, {
         path: path,
         method: HTTP_METHODS.GET,
