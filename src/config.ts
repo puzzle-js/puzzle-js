@@ -27,3 +27,4 @@ export const DEBUG_QUERY_NAME = loadConfigurationFromEnv('DEBUG_QUERY_NAME') || 
 export const PUZZLE_DEBUGGER_LINK = loadConfigurationFromEnv('PUZZLE_DEBUGGER_LINK') || '/static/puzzle_debug.js';
 export const DEBUG_INFORMATION = loadConfigurationFromEnv('DEBUG_INFORMATION') || process.env.NODE_ENV !== 'production' || false;
 export const NO_COMPRESS_QUERY_NAME = loadConfigurationFromEnv('NO_COMPRESS_QUERY_NAME') || '__noCompress';
+export const NON_SELF_CLOSING_TAGS = ['div','span', 'p'];

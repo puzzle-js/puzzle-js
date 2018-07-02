@@ -4,6 +4,7 @@ import {TemplateCompiler} from "./templateCompiler";
 import {
   CHEERIO_CONFIGURATION,
   CONTENT_NOT_FOUND_ERROR,
+  NON_SELF_CLOSING_TAGS,
   PUZZLE_DEBUGGER_LINK,
   TEMPLATE_FRAGMENT_TAG_NAME
 } from "./config";
@@ -142,6 +143,7 @@ export class Template {
     await this.replaceStaticFragments(staticFragments, replaceScripts.filter(replaceSet => replaceSet.fragment.config && replaceSet.fragment.config.render.static));
     await this.appendPlaceholders(chunkReplacements);
     await this.buildStyleSheets();
+    this.replaceEmptyTags();
 
     return this.buildHandler(TemplateCompiler.compile(Template.clearHtmlContent(this.dom.html())), chunkReplacements, waitedFragmentReplacements, replaceScripts, isDebug);
   }
@@ -212,6 +214,14 @@ export class Template {
 
       });
     }
+  }
+
+  private replaceEmptyTags(): any {
+    this.dom('*').each((i, element) => {
+      if(NON_SELF_CLOSING_TAGS.indexOf(this.dom(element)[0].name) !== -1 && this.dom(element).text().length === 0){
+        this.dom(element).text(' ');
+      }
+    });
   }
 
   /**
