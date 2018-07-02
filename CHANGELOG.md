@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+# [2.19.0] - 30-06-2018
+### Added
+- Added route cache for fragment renders. use `routeCache` property with seconds in render options. (**Output cache works before all other middlewares**).
+
 # [2.18.3] - 30-06-2018
 ### Fixed
 - Customized template compilation error

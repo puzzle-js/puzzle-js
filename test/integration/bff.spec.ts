@@ -314,6 +314,71 @@ describe('BFF', () => {
     });
   });
 
+  it('should export fragment content in stream mode with route cache', (done) => {
+
+    const handler = {
+      content(req: any, data: any) {
+        const random = faker.random.word();
+        return {
+          main: `<div>${random}</div>`
+        };
+      },
+      data(req: any) {
+        return {
+          data: {
+            username: 'ACG'
+          }
+        };
+      },
+      placeholder() {
+        return '';
+      }
+    }as any;
+
+    const bff = new GatewayBFF({
+      ...commonGatewayConfiguration,
+      fragments: [
+        {
+          name: 'product',
+          render: {
+            url: '/',
+            routeCache: 20
+          },
+          testCookie: 'product-cookie',
+          version: '1.0.0',
+          versions: {
+            '1.0.0': {
+              assets: [],
+              dependencies: [],
+              handler
+            }
+          }
+        }
+      ]
+    });
+
+    let firstResponse = '';
+
+    bff.init(() => {
+      request(commonGatewayConfiguration.url)
+        .get('/product/')
+        .query({[RENDER_MODE_QUERY_NAME]: FRAGMENT_RENDER_MODES.STREAM})
+        .expect(200)
+        .end((err, res) => {
+          firstResponse = res.text;
+          request(commonGatewayConfiguration.url)
+            .get('/product/')
+            .query({[RENDER_MODE_QUERY_NAME]: FRAGMENT_RENDER_MODES.STREAM})
+            .expect(200)
+            .end((err2, res2) => {
+              bff.server.close();
+              expect(res2.text).to.eq(firstResponse);
+              done(err || err2);
+            });
+        });
+    });
+  });
+
   it('should export fragment with model', (done) => {
     const pageModel = faker.random.objectElement();
 
@@ -416,7 +481,6 @@ describe('BFF', () => {
         .end((err, res) => {
           if (err) throw new (err);
           bff.server.close();
-          console.log(res.text);
           expect(res.text).to.include(`<script>window['transaction']=window['transaction']||${JSON.stringify(pageModel)};</script>`);
           done();
         });

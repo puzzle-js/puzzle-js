@@ -25,7 +25,7 @@ export interface IFragmentBFFRender {
   url: string | string[];
   routeCache?: number;
   selfReplace?: boolean;
-  middlewares?: [(req: Request, res: Response, next: NextFunction) => any | string];
+  middlewares?: ((req: Request, res: Response, next: NextFunction) => any | string)[];
   cacheControl?: string;
   placeholder?: boolean;
   timeout?: number;
@@ -277,7 +277,7 @@ export interface IWrappingJsAsset {
 }
 
 export interface IFragmentResponse {
-  content: string;
+  content: HandlerDataResponse;
   $status: number;
   $headers: {
     [name: string]: string;

@@ -9,11 +9,11 @@ import {
   RESOURCE_TYPE
 } from "./enums";
 import {PREVIEW_PARTIAL_QUERY_NAME, RENDER_MODE_QUERY_NAME} from "./config";
-import {FragmentModel, IExposeConfig, IFragmentResponse} from "./types";
+import {FragmentModel, IExposeConfig, IFragmentBFF, IFragmentResponse} from "./types";
 import md5 from "md5";
 import async from "async";
 import path from "path";
-import express from "express";
+import express, {NextFunction, Request, Response} from "express";
 import {Server} from "./server";
 import {container, TYPES} from "./base";
 import cheerio from "cheerio";
@@ -23,6 +23,7 @@ import {GatewayConfigurator} from "./configurator";
 import {Template} from "./template";
 import {Logger} from "./logger";
 import cors from "cors";
+import routeCache from "route-cache";
 
 const logger = <Logger>container.get(TYPES.Logger);
 
@@ -125,16 +126,29 @@ export class GatewayBFF {
    * @param {string} cookieValue
    * @returns {Promise<IFragmentResponse>}
    */
-  async renderFragment(req: any, fragmentName: string, renderMode: FRAGMENT_RENDER_MODES = FRAGMENT_RENDER_MODES.PREVIEW, partial: string, res: any, cookieValue?: string): Promise<IFragmentResponse> {
-    if (this.fragments[fragmentName]) {
-      const fragmentContent = await this.fragments[fragmentName].render(req, res, cookieValue);
-      const fragmentRenderContent = fragmentContent[partial] && renderMode === FRAGMENT_RENDER_MODES.PREVIEW ? this.wrapFragmentContent(fragmentContent[partial].toString(), this.fragments[fragmentName], cookieValue, fragmentContent.$model) : JSON.stringify(fragmentContent);
-      return {
-        content: fragmentRenderContent || '',
+  async renderFragment(req: any, fragmentName: string, renderMode: FRAGMENT_RENDER_MODES = FRAGMENT_RENDER_MODES.PREVIEW, partial: string, res: any, cookieValue?: string): Promise<void> {
+    const fragment = this.fragments[fragmentName]
+    if (fragment) {
+      const fragmentContent = await fragment.render(req, res, cookieValue);
+
+      const gatewayContent = {
+        content: fragmentContent,
         $status: +(fragmentContent.$status || HTTP_STATUS_CODE.OK),
         $headers: fragmentContent.$headers || {},
         $model: fragmentContent.$model
       };
+
+      for (let prop in gatewayContent.$headers) {
+        res.set(prop, gatewayContent.$headers[prop]);
+      }
+
+      res.status(HTTP_STATUS_CODE.OK);
+
+      if (renderMode === FRAGMENT_RENDER_MODES.STREAM) {
+        res.json(gatewayContent.content);
+      } else {
+        res.send(this.wrapFragmentContent(gatewayContent.content[partial].toString(), fragment, cookieValue, gatewayContent.$model));
+      }
     } else {
       throw new Error(`Failed to find fragment: ${fragmentName}`);
     }
@@ -195,24 +209,23 @@ export class GatewayBFF {
   private addFragmentRoutes(cb: Function): void {
     this.config.fragments.forEach(fragmentConfig => {
       this.server.addRoute(Array.isArray(fragmentConfig.render.url) ? fragmentConfig.render.url.map(url => `/${fragmentConfig.name}${url}`) : `/${fragmentConfig.name}${fragmentConfig.render.url}`, HTTP_METHODS.GET, async (req, res) => {
+        const partial = req.query[PREVIEW_PARTIAL_QUERY_NAME] || DEFAULT_MAIN_PARTIAL;
         const renderMode = req.query[RENDER_MODE_QUERY_NAME] === FRAGMENT_RENDER_MODES.STREAM ? FRAGMENT_RENDER_MODES.STREAM : FRAGMENT_RENDER_MODES.PREVIEW;
-        const gatewayContent = await this.renderFragment(req, fragmentConfig.name, renderMode, req.query[PREVIEW_PARTIAL_QUERY_NAME] || DEFAULT_MAIN_PARTIAL, res, req.cookies[fragmentConfig.testCookie]);
-        if (renderMode === FRAGMENT_RENDER_MODES.STREAM) {
-          res.set('content-type', 'application/json');
-          for (let prop in gatewayContent.$headers) {
-            res.set(prop, gatewayContent.$headers[prop]);
-          }
-          res.status(HTTP_STATUS_CODE.OK).end(gatewayContent.content);
-        } else {
-          for (let prop in gatewayContent.$headers) {
-            res.set(prop, gatewayContent.$headers[prop]);
-          }
-          res.status(HTTP_STATUS_CODE.OK).send(gatewayContent.content);
-        }
-      }, fragmentConfig.render.middlewares);
+        this.renderFragment(req, fragmentConfig.name, renderMode, partial, res, req.cookies[fragmentConfig.testCookie]);
+      }, this.getFragmentMiddlewares(fragmentConfig));
     });
 
     cb();
+  }
+
+  private getFragmentMiddlewares(fragmentConfig: IFragmentBFF) {
+    const fragmentMiddlewares = fragmentConfig.render.middlewares || [];
+
+    if (fragmentConfig.render.routeCache) {
+      fragmentMiddlewares.unshift(routeCache.cacheSeconds(+fragmentConfig.render.routeCache));
+    }
+
+    return fragmentMiddlewares;
   }
 
   /**
