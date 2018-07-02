@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+# [2.18.3] - 30-06-2018
+### Fixed
+- Customized template compilation error
+
 # [2.18.2] - 30-06-2018
 ### Fixed
 - Changed dynamic style naming to /static/{templateName}.min.css?v={hash}
