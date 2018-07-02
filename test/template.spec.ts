@@ -56,20 +56,6 @@ describe('Template', () => {
     });
   });
 
-  it('should not close empty div tag', async () => {
-    const template = new Template('<template><div><span>Puzzle</span></div><div></div></template>');
-    const handler = await template.compile({});
-
-    handler({}, createExpressMock({
-      write(str: string) {
-        throw new Error('Wrong express method, it should be end for single fragments');
-      },
-      end(str: string) {
-        expect(str).to.eq('<div><span>Puzzle</span><div></div></div>');
-      }
-    }));
-  });
-
   it('should compile page with script without fragments', async () => {
     const template = new Template('<script>module.exports = {onCreate(){this.title = "Puzzle"}}</script><template><div><span>${this.title}</span></div></template>');
     const handler = await template.compile({});
@@ -223,6 +209,64 @@ describe('Template', () => {
           }
         }
       }
+    });
+  });
+
+  it('should not close restricted empty tags', (done) => {
+    const productScript = `console.log('Product Script')`;
+
+    const scope = nock('http://my-test-gateway-chunked.com')
+      .get('/product/')
+      .query({
+        __renderMode: FRAGMENT_RENDER_MODES.STREAM
+      })
+      .reply(200, {
+        main: '<div><span>Test</span><div></div></div>',
+      });
+
+
+    const template = new Template(`
+                    <template>
+                        <html>
+                            <head>
+                                
+                            </head>
+                            <body>
+                              <div>
+                                  <fragment from="Browsing" name="product"></fragment>
+                              </div>
+                            </body>
+                        </html>
+                    </template>
+                `);
+
+    template.getDependencies();
+
+    template.fragments.product.update({
+      render: {
+        url: '/',
+        placeholder: false,
+        static:true
+      },
+      dependencies: [],
+      assets: [],
+      testCookie: 'test',
+      version: '1.0.0'
+    }, 'http://my-test-gateway-chunked.com');
+
+    let err: boolean | null = null;
+
+    template.compile({}).then(handler => {
+      handler({}, createExpressMock({
+        end(str: string) {
+          try {
+            expect(str).to.eq(`<html><head></head><body><div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" fragment-partial="main"><div><span>Test</span><div></div></div></div></div></body></html>`);
+          } catch (e) {
+            err = e;
+          }
+          done(err);
+        }
+      }));
     });
   });
 
@@ -2546,6 +2590,8 @@ describe('Template', () => {
           }));
         });
       });
+
+
 
       it('should append asset location for fragment main in HEAD, CONTENT_END - External', (done) => {
         const productScript = `console.log('Product Script')`;

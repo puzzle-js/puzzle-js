@@ -119,6 +119,7 @@ export class Template {
    */
   async compile(testCookies: ICookieMap, isDebug: boolean = false): Promise<IFragmentEndpointHandler> {
     if (Object.keys(this.fragments).length === 0) {
+      this.replaceEmptyTags();
       const singleFlushHandlerWithoutFragments = TemplateCompiler.compile(Template.clearHtmlContent(this.dom.html()));
       return this.buildHandler(singleFlushHandlerWithoutFragments, [], [], [], isDebug);
     }
@@ -218,7 +219,7 @@ export class Template {
 
   private replaceEmptyTags(): any {
     this.dom('*').each((i, element) => {
-      if(NON_SELF_CLOSING_TAGS.indexOf(this.dom(element)[0].name) !== -1 && this.dom(element).text().length === 0){
+      if (NON_SELF_CLOSING_TAGS.indexOf(this.dom(element)[0].name) !== -1 && this.dom(element).text().length === 0 && !this.dom(element).html()) {
         this.dom(element).text(' ');
       }
     });
