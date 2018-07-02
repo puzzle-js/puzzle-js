@@ -12,9 +12,9 @@ export class Page {
   private rawHtml: string;
   private fragmentCookieList: IFragmentCookieMap[] = [];
 
-  constructor(html: string, gatewayMap: IGatewayMap) {
+  constructor(html: string, gatewayMap: IGatewayMap, name: string) {
     this.rawHtml = html;
-    this.template = new Template(html);
+    this.template = new Template(html, name);
     this.gatewayDependencies = this.template.getDependencies();
 
     this.preparePageDependencies(gatewayMap);

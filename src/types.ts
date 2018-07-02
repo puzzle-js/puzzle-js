@@ -184,6 +184,7 @@ export interface IPageDependentGateways {
 export interface IPageConfiguration {
   html: string;
   url: string | string[];
+  name: string;
 }
 
 export interface IPageMap {

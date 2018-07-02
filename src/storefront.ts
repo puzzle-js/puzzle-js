@@ -119,7 +119,7 @@ export class Storefront {
     });
 
     this.config.pages.forEach(pageConfiguration => {
-      this.pages[pageConfiguration.url.toString()] = new Page(pageConfiguration.html, this.gateways);
+      this.pages[pageConfiguration.url.toString()] = new Page(pageConfiguration.html, this.gateways, pageConfiguration.name);
     });
   }
 

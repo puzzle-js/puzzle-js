@@ -2681,7 +2681,7 @@ describe('Template', () => {
                             </body>
                         </html>
                     </template>
-                `);
+                `, 'template');
 
                 template.getDependencies();
 
@@ -2715,7 +2715,7 @@ describe('Template', () => {
                         end(str: string) {
                             chunks.push(str);
                             try {
-                                expect(chunks[0]).to.eq(`<html><head>${CONTENT_REPLACE_SCRIPT}<link puzzle-dependency="dynamic" rel="stylesheet" href="/static/a2a708c629ba2f4d377830b52da0e22b.min.css"/></head><body><div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main"></div></div>`);
+                                expect(chunks[0]).to.eq(`<html><head>${CONTENT_REPLACE_SCRIPT}<link puzzle-dependency="dynamic" rel="stylesheet" href="/static/template.min.css?v=a2a708c629ba2f4d377830b52da0e22b"/></head><body><div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main"></div></div>`);
                                 expect(chunks[1]).to.eq(`<div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Trendyol</div><script>$p('[puzzle-chunk="product_main"]','[puzzle-chunk-key="product_main"]');</script>`);
                                 expect(chunks[2]).to.eq(`</body></html>`);
                             } catch (e) {
@@ -2766,7 +2766,7 @@ describe('Template', () => {
                             </body>
                         </html>
                     </template>
-                `);
+                `,'template');
 
                 template.getDependencies();
 
@@ -2819,7 +2819,7 @@ describe('Template', () => {
                         end(str: string) {
                             chunks.push(str);
                             try {
-                                expect(chunks[0]).to.eq(`<html><head><script>function $p(p,c){var z = document.querySelector(c),r = z.innerHTML;z.parentNode.removeChild(z);document.querySelector(p).innerHTML=r}</script><link puzzle-dependency="dynamic" rel="stylesheet" href="/static/726b9e9186b41142e6c718d6e1179a97.min.css"/></head><body><div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main"></div></div><div id="footer" puzzle-fragment="footer" puzzle-gateway="Browsing" puzzle-chunk="footer_main"></div>`);
+                                expect(chunks[0]).to.eq(`<html><head>${CONTENT_REPLACE_SCRIPT}<link puzzle-dependency="dynamic" rel="stylesheet" href="/static/template.min.css?v=726b9e9186b41142e6c718d6e1179a97"/></head><body><div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main"></div></div><div id="footer" puzzle-fragment="footer" puzzle-gateway="Browsing" puzzle-chunk="footer_main"></div>`);
                             } catch (e) {
                                 err = e;
                             }

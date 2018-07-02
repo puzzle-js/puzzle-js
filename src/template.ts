@@ -45,7 +45,7 @@ export class Template {
   fragments: { [name: string]: FragmentStorefront } = {};
   pageClass: TemplateClass = new TemplateClass();
 
-  constructor(public rawHtml: string) {
+  constructor(public rawHtml: string, private name?: string) {
     this.load();
     this.bindPageClass();
     this.pageClass._onCreate();
@@ -654,8 +654,7 @@ export class Template {
     let output = _CleanCss.minify(styleSheets.join(''));
     if (output.styles.length > 0) {
       const styleHash = md5(output.styles);
-      const path = `/static/${styleHash}.min.css`;
-      console.log('ADD DYNAMIC CSS');
+      const path = `/static/${this.name}.min.css`;
       pubsub.emit(EVENTS.ADD_ROUTE, {
         path: path,
         method: HTTP_METHODS.GET,
@@ -666,7 +665,7 @@ export class Template {
         }
       });
 
-      this.dom('head').append(`<link puzzle-dependency="dynamic" rel="stylesheet" href="${path}" />`);
+      this.dom('head').append(`<link puzzle-dependency="dynamic" rel="stylesheet" href="${path}?v=${styleHash}" />`);
     }
   }
 }
