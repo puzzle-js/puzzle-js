@@ -10,7 +10,7 @@ export interface Global {
 
 declare var global: Global;
 
-describe('PuzzleJs Lib', () => {
+describe('PuzzleJs Debug Lib', () => {
   beforeEach(() => {
     global.window = (new JSDOM(``, {runScripts: "outside-only"})).window;
   });
@@ -20,8 +20,8 @@ describe('PuzzleJs Lib', () => {
   });
 
   it('should declare PuzzleJs under window', () => {
-    require("../../src/lib");
-    
+    require("../../src/lib/debug");
+
     expect(window.PuzzleJs).to.be.instanceOf(PuzzleJs);
   });
 });

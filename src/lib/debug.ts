@@ -1,5 +1,7 @@
 import {PuzzleJs} from "./puzzle";
+import {Util} from "./util";
 import {Core} from "./core";
+
 
 declare global {
   interface Window {
@@ -9,6 +11,7 @@ declare global {
 
 (function () {
   const MODULES = {
+    Util,
     Core
   };
 
