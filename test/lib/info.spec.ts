@@ -1,12 +1,12 @@
 import "mocha";
 import {expect} from "chai";
-import {PuzzleJs} from "../../src/lib/puzzle";
 import {JSDOM} from "jsdom";
+import {PuzzleJs} from "../../src/lib/puzzle";
+import {Info} from "../../src/lib/modules/info";
 
 declare global {
   interface Window { PuzzleJs: PuzzleJs; }
 }
-
 
 export interface Global {
   document: Document;
@@ -15,7 +15,7 @@ export interface Global {
 
 declare var global: Global;
 
-describe('PuzzleJs Lib', () => {
+describe('Module - Info', () => {
   beforeEach(() => {
     global.window = (new JSDOM(``, {runScripts: "outside-only"})).window;
   });
@@ -24,9 +24,9 @@ describe('PuzzleJs Lib', () => {
     delete global.window;
   });
 
-  it('should declare PuzzleJs under window', () => {
-    require("../../src/lib");
+  it('should create new Info', () => {
+    const info = new Info();
 
-    expect(window.PuzzleJs).to.be.instanceOf(PuzzleJs);
+    expect(info).to.be.instanceof(Info);
   });
 });

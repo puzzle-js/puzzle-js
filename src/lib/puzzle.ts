@@ -1,7 +1,9 @@
 import {Module, ModuleConstructor} from "./module";
 
 export class PuzzleJs {
-  [name: string]: Module;
+  static PACKAGE_VERSION = '1.0.0';
+  static DEPENDENCIES = [];
+  static LOGO = 'https://image.ibb.co/jM29on/puzzlelogo.png';
 
   constructor(){
 

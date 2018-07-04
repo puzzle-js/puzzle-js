@@ -1,17 +1,10 @@
 import {PuzzleJs} from "./puzzle";
-import {Util} from "./util";
 import {Core} from "./core";
-
-
-declare global {
-  interface Window {
-    PuzzleJs: PuzzleJs;
-  }
-}
+import {Info} from "./modules/info";
 
 (function () {
   const MODULES = {
-    Util,
+    Info,
     Core
   };
 

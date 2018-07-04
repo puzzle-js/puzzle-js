@@ -3,6 +3,10 @@ import {expect} from "chai";
 import {PuzzleJs} from "../../src/lib/puzzle";
 import {JSDOM} from "jsdom";
 
+declare global {
+  interface Window { PuzzleJs: PuzzleJs; }
+}
+
 export interface Global {
   document: Document;
   window: Window;
