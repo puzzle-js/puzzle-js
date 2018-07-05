@@ -12,3 +12,7 @@ export enum LOG_TYPES {
   WARN = 'warn',
   LOG = 'log'
 }
+
+export enum EVENT {
+  PAGE_LOADED = 'page_loaded'
+}
