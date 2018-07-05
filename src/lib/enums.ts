@@ -15,8 +15,9 @@ export enum LOG_TYPES {
 
 export enum EVENT {
   ON_PAGE_LOAD = 'page_loaded',
-  ON_FRAGMENT_RENDERED = 'fragment_rendered'
+  ON_FRAGMENT_RENDERED = 'fragment_rendered',
 }
+
 
 export enum RESOURCE_LOADING_TYPE {
   /**

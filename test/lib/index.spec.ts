@@ -22,6 +22,7 @@ describe('PuzzleJs Lib', () => {
 
   afterEach(() => {
     delete global.window;
+    PuzzleJs.clearListeners();
   });
 
   it('should declare PuzzleJs under window', () => {

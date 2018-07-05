@@ -18,12 +18,16 @@ export class PuzzleJs {
     }
   }
 
-  static emit(event: EVENT, data?: any) {
+  static emit(event: EVENT, ...data: any[]) {
     if (PuzzleJs.__LISTENERS[event]) {
       for (let listener of PuzzleJs.__LISTENERS[event]) {
-        listener(data);
+        listener(...data);
       }
     }
+  }
+
+  static clearListeners () {
+    PuzzleJs.__LISTENERS = {};
   }
 
   inject(modules: { [name: string]: ModuleConstructor }) {

@@ -29,6 +29,7 @@ describe('Module - Variables', () => {
   afterEach(() => {
     sinon.restore();
     delete global.window;
+    PuzzleJs.clearListeners();
   });
 
   it('should create new Info', () => {

@@ -20,6 +20,7 @@ describe('PuzzleJs', () => {
 
   afterEach(() => {
     delete global.window;
+    PuzzleJs.clearListeners();
   });
 
   it('It should export class PuzzleJs', () => {

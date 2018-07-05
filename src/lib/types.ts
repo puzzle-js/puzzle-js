@@ -3,7 +3,9 @@ import {RESOURCE_LOADING_TYPE} from "./enums";
 import {PuzzleJs} from "./puzzle";
 
 declare global {
-  interface Window { PuzzleJs: PuzzleJs; }
+  interface Window {
+    PuzzleJs: PuzzleJs;
+  }
 }
 
 export interface IPageLibAsset {
@@ -22,9 +24,11 @@ export interface ICustomPageAsset {
 
 export interface IPageLibConfiguration {
   page: string;
-  fragments: {
-    name: string;
-    chunked: boolean;
-  };
+  fragments: [
+    {
+      name: string;
+      chunked: boolean;
+    }
+  ];
   assets: IPageLibAsset[];
 }

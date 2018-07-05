@@ -2,6 +2,7 @@ import {Module} from "./module";
 import {PuzzleJs} from "./puzzle";
 import {EVENT} from "./enums";
 import {IPageLibConfiguration} from "./types";
+import {on} from "./decorators";
 
 export class Core extends Module {
   get pageConfiguration(): IPageLibConfiguration {
@@ -14,12 +15,6 @@ export class Core extends Module {
 
   private _pageConfiguration: IPageLibConfiguration;
 
-  constructor() {
-    super();
-
-    PuzzleJs.subscribe(EVENT.ON_PAGE_LOAD, this.loadScripts.bind(this));
-  }
-
   config(pageConfiguration: IPageLibConfiguration) {
     this.pageConfiguration = pageConfiguration;
   }
@@ -30,6 +25,7 @@ export class Core extends Module {
    * @param {string} containerSelector
    * @param {string} replacementContentSelector
    */
+  @on(EVENT.ON_FRAGMENT_RENDERED)
   load(fragmentName: string, containerSelector: string, replacementContentSelector: string) {
     this.replace(containerSelector, replacementContentSelector);
 
@@ -37,21 +33,19 @@ export class Core extends Module {
   }
 
   /**
-   * Replaces container with given content
+   * Replaces container inner with given content.
    * @param {string} containerSelector
    * @param {string} replacementContentSelector
    */
   private replace(containerSelector: string, replacementContentSelector: string) {
-    const z = document.querySelector(replacementContentSelector);
+    const z = window.document.querySelector(replacementContentSelector);
     const r = z.innerHTML;
     z.parentNode.removeChild(z);
-    document.querySelector(containerSelector).innerHTML = r;
+    window.document.querySelector(containerSelector).innerHTML = r;
   }
 
-  /**
-   * Loads page assets
-   */
-  private loadScripts() {
+  @on(EVENT.ON_PAGE_LOAD)
+  private pageLoaded() {
 
   }
 }
