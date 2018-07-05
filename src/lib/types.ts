@@ -1,4 +1,4 @@
-import {RESOURCE_LOADING_TYPE} from "../enums";
+import {RESOURCE_LOADING_TYPE} from "./enums";
 
 import {PuzzleJs} from "./puzzle";
 
