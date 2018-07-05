@@ -1,7 +1,7 @@
 import {Module} from "./module";
 import {PuzzleJs} from "./puzzle";
 import {EVENT} from "./enums";
-import {IPageLibConfiguration} from "../types";
+import {IPageLibConfiguration} from "./types";
 
 export class Core extends Module {
   get pageConfiguration(): IPageLibConfiguration {

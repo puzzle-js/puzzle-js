@@ -4,9 +4,10 @@ import {
   HTTP_METHODS,
   REPLACE_ITEM_TYPE,
   RESOURCE_INJECT_TYPE,
-  RESOURCE_JS_EXECUTE_TYPE, RESOURCE_LOADING_TYPE,
+  RESOURCE_JS_EXECUTE_TYPE,
   RESOURCE_LOCATION,
-  RESOURCE_TYPE, TRANSFER_PROTOCOLS
+  RESOURCE_TYPE,
+  TRANSFER_PROTOCOLS
 } from "./enums";
 import {FragmentStorefront} from "./fragment";
 import {Page} from "./page";
@@ -289,25 +290,3 @@ export interface FragmentModel {
   [name: string]: any
 }
 
-export interface IPageLibAsset {
-  name: string;
-  loadMethod: RESOURCE_LOADING_TYPE
-  fragment?: string;
-  dependent?: string[];
-}
-
-export interface ICustomPageAsset {
-  name: string;
-  loadMethod: RESOURCE_LOADING_TYPE
-  link: string;
-  dependent?: string;
-}
-
-export interface IPageLibConfiguration {
-  page: string;
-  fragments: {
-    name: string;
-    chunked: boolean;
-  };
-  assets: IPageLibAsset[];
-}
