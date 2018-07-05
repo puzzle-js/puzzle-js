@@ -18,6 +18,6 @@ export class Info extends Module {
   }
 
   private logo() {
-    console.log('%c       ', `font-size: 400px; background: url(${PuzzleJs.LOGO}) no-repeat;`);
+    window.console.log('%c       ', `font-size: 400px; background: url(${PuzzleJs.LOGO}) no-repeat;`);
   }
 }
