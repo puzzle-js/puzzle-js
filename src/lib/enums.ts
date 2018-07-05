@@ -20,7 +20,7 @@ export enum EVENT {
 
 export enum RESOURCE_LOADING_TYPE {
   /**
-   * @hideconstructor Loads resource in head. Visible in page source. Great for small dependencies.
+   * @description Loads resource in head. Visible in page source. Great for small dependencies.
    */
   ON_RENDER_START,
 
