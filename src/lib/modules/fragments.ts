@@ -3,10 +3,14 @@ import {Util} from "../util";
 import {PuzzleJs} from "../puzzle";
 import {EVENT, LOG_COLORS} from "../enums";
 
-export class Fragments extends Module {
-  variables: { [name: string]: object };
+export interface IFragmentInfo {
+  [fragmentName: string]: {
+    [name: string]: any
+  }
+}
 
-  set(fragmentInfo: object) {
+export class Fragments extends Module {
+  set(fragmentInfo: IFragmentInfo) {
     Util.wrapGroup('PuzzleJs', 'Debug Mode - Fragments', () => {
       Object.keys(fragmentInfo).forEach(fragmentName => {
         Util.wrapGroup('PuzzleJs', fragmentName, () => {

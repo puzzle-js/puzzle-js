@@ -27,6 +27,7 @@ describe('Module - Variables', () => {
   });
 
   afterEach(() => {
+    sinon.restore();
     delete global.window;
   });
 

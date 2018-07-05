@@ -8,7 +8,7 @@ export class Util {
     window.console.groupEnd();
   }
 
-  static log(content: string, type: LOG_TYPES = LOG_TYPES.INFO, color: LOG_COLORS = LOG_COLORS.BLUE) {
+  static log(content: any, type: LOG_TYPES = LOG_TYPES.INFO, color: LOG_COLORS = LOG_COLORS.BLUE) {
     const logConfig = color => ['%cPuzzleJs', `background: ${color}; color: white; padding: 2px 0.5em; ` + `border-radius: 0.5em;`];
     window.console[type](...logConfig(color), content);
   }

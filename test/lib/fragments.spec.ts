@@ -11,7 +11,6 @@ import {Fragments} from "../../src/lib/modules/fragments";
 declare global {
   interface Window {
     PuzzleJs: PuzzleJs;
-    __fragment_variable: any;
   }
 }
 
@@ -28,12 +27,25 @@ describe('Module - Fragments', () => {
   });
 
   afterEach(() => {
+    sinon.restore();
     delete global.window;
   });
 
-  it('should create new Info', () => {
+  it('should create new Fragments', () => {
     const fragments = new Fragments();
 
     expect(fragments).to.be.instanceof(Fragments);
+  });
+
+  it('should log fragment information', function () {
+    const fragments = new Fragments();
+    const fn = sinon.stub(Util, 'log');
+    const variable = {
+      fragmentName: faker.helpers.userCard()
+    };
+
+    fragments.set(variable);
+
+    expect(fn.calledWith(variable['fragmentName'])).to.true;
   });
 });

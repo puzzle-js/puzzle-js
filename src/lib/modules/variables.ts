@@ -20,7 +20,7 @@ export class Variables extends Module {
 
   constructor() {
     super();
-    PuzzleJs.subscribe(EVENT.PAGE_LOADED, this.print.bind(this));
+    PuzzleJs.subscribe(EVENT.ON_PAGE_LOAD, this.print.bind(this));
   }
 
   set(fragmentName: string, varName: string) {
