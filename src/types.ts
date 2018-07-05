@@ -4,7 +4,7 @@ import {
   HTTP_METHODS,
   REPLACE_ITEM_TYPE,
   RESOURCE_INJECT_TYPE,
-  RESOURCE_JS_EXECUTE_TYPE,
+  RESOURCE_JS_EXECUTE_TYPE, RESOURCE_LOADING_TYPE,
   RESOURCE_LOCATION,
   RESOURCE_TYPE, TRANSFER_PROTOCOLS
 } from "./enums";
@@ -291,15 +291,15 @@ export interface FragmentModel {
 
 export interface IPageLibAsset {
   name: string;
-  location: RESOURCE_LOCATION;
+  loadMethod: RESOURCE_LOADING_TYPE
   fragment?: string;
   dependent?: string[];
 }
 
 export interface ICustomPageAsset {
   name: string;
+  loadMethod: RESOURCE_LOADING_TYPE
   link: string;
-  location: RESOURCE_LOCATION;
   dependent?: string;
 }
 
