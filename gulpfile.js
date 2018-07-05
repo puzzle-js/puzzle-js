@@ -16,14 +16,14 @@ gulp.task('replacePuzzleDebugLib', () => {
     .pipe(replace(`PACKAGE_VERSION=""`, `PACKAGE_VERSION="${package.version}"`))
     .pipe(replace(`DEPENDENCIES={}`, `DEPENDENCIES=${JSON.stringify(package.dependencies)}`))
     .pipe(replace(`LOGO=""`, `LOGO="${package.logo}"`))
-    .pipe(gulp.dest('dist/lib/puzzle_debug.min.js'))
+    .pipe(gulp.dest('dist/lib'))
 });
 
 gulp.task('replacePuzzleProdLib', () => {
   gulp
     .src(['dist/lib/puzzle.min.js'])
     .pipe(replace(`PACKAGE_VERSION=""`, `PACKAGE_VERSION="${package.version}"`))
-    .pipe(gulp.dest('dist/lib/puzzle.min.js'))
+    .pipe(gulp.dest('dist/lib'))
 });
 
 gulp.task('prepareLib', ['replacePuzzleDebugLib', 'replacePuzzleProdLib']);
