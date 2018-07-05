@@ -10,13 +10,22 @@ gulp.task('copyPublic', () => {
     .pipe(gulp.dest('dist/public'))
 });
 
-gulp.task('replacePuzzleLib', () => {
+gulp.task('replacePuzzleDebugLib', () => {
   gulp
-    .src(['dist/lib/*'])
+    .src(['dist/lib/puzzle_debug.min.js'])
     .pipe(replace(`PACKAGE_VERSION=""`, `PACKAGE_VERSION="${package.version}"`))
     .pipe(replace(`DEPENDENCIES={}`, `DEPENDENCIES=${JSON.stringify(package.dependencies)}`))
     .pipe(replace(`LOGO=""`, `LOGO="${package.logo}"`))
-    .pipe(gulp.dest('dist/lib/'))
+    .pipe(gulp.dest('dist/lib/puzzle_debug.min.js'))
 });
+
+gulp.task('replacePuzzleProdLib', () => {
+  gulp
+    .src(['dist/lib/puzzle.min.js'])
+    .pipe(replace(`PACKAGE_VERSION=""`, `PACKAGE_VERSION="${package.version}"`))
+    .pipe(gulp.dest('dist/lib/puzzle.min.js'))
+});
+
+gulp.task('prepareLib', ['replacePuzzleDebugLib', 'replacePuzzleProdLib']);
 
 gulp.task('build', ['copyPublic']);

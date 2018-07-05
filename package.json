@@ -49,7 +49,7 @@
   },
   "scripts": {
     "prepublish": "yarn build",
-    "build": "tsc && gulp build && node_modules/.bin/webpack --config ./src/lib/webpack.config.js && gulp replacePuzzleLib",
+    "build": "tsc && gulp build && node_modules/.bin/webpack --config ./src/lib/webpack.config.js && gulp prepareLib",
     "test": "nyc --check-coverage --lines=90 cross-env NODE_ENV=production mocha -r ts-node/register  --recursive 'test/**/*.spec.ts'",
     "test:watch": "cross-env NODE_ENV=production mocha --watch --require ts-node/register --watch-extensions ts,tsx --recursive 'test/**/*.spec.ts'",
     "publish:beta": "yarn publish --tag=beta",
