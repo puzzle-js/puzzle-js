@@ -3,8 +3,20 @@ import {Util} from "../util";
 import {PuzzleJs} from "../puzzle";
 import {EVENT, LOG_COLORS} from "../enums";
 
+export interface IPageVariables {
+  [fragmentName: string]: { [name: string]: any };
+}
+
 export class Variables extends Module {
-  variables: { [name: string]: object };
+  get variables(): IPageVariables {
+    return this._variables;
+  }
+
+  set variables(value: IPageVariables) {
+    this._variables = value;
+  }
+
+  private _variables: IPageVariables = {};
 
   constructor() {
     super();
@@ -13,7 +25,7 @@ export class Variables extends Module {
 
   set(fragmentName: string, varName: string) {
     if (!this.variables[fragmentName]) {
-      this.variables[fragmentName] = {}
+      this.variables[fragmentName] = {};
     }
     this.variables[fragmentName][varName] = window[varName];
   }
