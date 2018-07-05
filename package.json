@@ -3,6 +3,7 @@
   "version": "2.19.1",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "logo": "https://image.ibb.co/jM29on/puzzlelogo.png",
   "license": "MIT",
   "devDependencies": {
     "@types/async": "^2.0.49",
@@ -48,7 +49,7 @@
   },
   "scripts": {
     "prepublish": "yarn build",
-    "build": "gulp build & tsc & node_modules/.bin/webpack --config ./src/lib/webpack.config.js",
+    "build": "tsc && gulp build && node_modules/.bin/webpack --config ./src/lib/webpack.config.js && gulp replacePuzzleLib",
     "test": "nyc --check-coverage --lines=90 cross-env NODE_ENV=production mocha -r ts-node/register  --recursive 'test/**/*.spec.ts'",
     "test:watch": "cross-env NODE_ENV=production mocha --watch --require ts-node/register --watch-extensions ts,tsx --recursive 'test/**/*.spec.ts'",
     "publish:beta": "yarn publish --tag=beta",

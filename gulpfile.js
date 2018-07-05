@@ -10,4 +10,13 @@ gulp.task('copyPublic', () => {
         .pipe(gulp.dest('dist/public'))
 });
 
+gulp.task('replacePuzzleLib', () => {
+  gulp
+    .src(['dist/lib/*'])
+    .pipe(replace(`PACKAGE_VERSION=""`, `PACKAGE_VERSION="${package.version}"`))
+    .pipe(replace(`DEPENDENCIES={}`, `DEPENDENCIES=${JSON.stringify(package.dependencies)}`))
+    .pipe(replace(`LOGO=""`, `LOGO="${package.logo}"`))
+    .pipe(gulp.dest('dist/lib/'))
+});
+
 gulp.task('build', ['copyPublic']);

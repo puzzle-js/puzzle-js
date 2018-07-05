@@ -2,9 +2,11 @@ import {Module, ModuleConstructor} from "./module";
 import {EVENT} from "./enums";
 
 export class PuzzleJs {
-  static PACKAGE_VERSION = '1.0.0';
-  static DEPENDENCIES = [];
-  static LOGO = 'https://image.ibb.co/jM29on/puzzlelogo.png';
+  [module: string]: object;
+
+  static PACKAGE_VERSION = '';
+  static DEPENDENCIES = {};
+  static LOGO = '';
 
   private static __LISTENERS = {};
 
@@ -18,7 +20,7 @@ export class PuzzleJs {
 
   static emit(event: EVENT, data) {
     if (PuzzleJs.__LISTENERS[event]) {
-      for (var listener of PuzzleJs.__LISTENERS[event]) {
+      for (let listener of PuzzleJs.__LISTENERS[event]) {
         listener(data);
       }
     }
