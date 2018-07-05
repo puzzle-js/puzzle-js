@@ -6,7 +6,8 @@ import {
   RESOURCE_INJECT_TYPE,
   RESOURCE_JS_EXECUTE_TYPE,
   RESOURCE_LOCATION,
-  RESOURCE_TYPE, TRANSFER_PROTOCOLS
+  RESOURCE_TYPE,
+  TRANSFER_PROTOCOLS
 } from "./enums";
 import {FragmentStorefront} from "./fragment";
 import {Page} from "./page";
@@ -288,3 +289,4 @@ export interface IFragmentResponse {
 export interface FragmentModel {
   [name: string]: any
 }
+

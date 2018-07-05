@@ -19,6 +19,10 @@ export enum RESOURCE_TYPE {
   JS
 }
 
+/**
+ * Will be changed with PuzzleLib asset injections
+ * @deprecated
+ */
 export enum RESOURCE_LOCATION {
   HEAD,
   BODY_START,
@@ -49,6 +53,11 @@ export enum RESOURCE_JS_EXECUTE_TYPE {
   SYNC = ''
 }
 
+/**
+ * PuzzleLib will replace this feature.
+ * @deprecated
+ * @type {string}
+ */
 export const CONTENT_REPLACE_SCRIPT = `<script>function $p(p,c){var z = document.querySelector(c),r = z.innerHTML;z.parentNode.removeChild(z);document.querySelector(p).innerHTML=r}</script>`;
 export const DEFAULT_MAIN_PARTIAL = `main`;
 
