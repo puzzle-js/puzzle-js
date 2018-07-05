@@ -19,12 +19,38 @@ export enum RESOURCE_TYPE {
   JS
 }
 
+/**
+ * Will be changed with PuzzleLib asset injections
+ * @deprecated
+ */
 export enum RESOURCE_LOCATION {
   HEAD,
   BODY_START,
   BODY_END,
   CONTENT_START,
   CONTENT_END
+}
+
+export enum RESOURCE_LOADING_TYPE {
+  /**
+   * @hideconstructor Loads resource in head. Visible in page source. Great for small dependencies.
+   */
+  ON_RENDER_START,
+
+  /**
+   * @description Starts loading resource after fragment rendered. Not visible in page source. It is useful for fragments that should run immediately
+   */
+  ON_FRAGMENT_RENDER,
+
+  /**
+   * @description Starts loading resource after all page fragments are visible. Great for performance
+   */
+  ON_PAGE_RENDER,
+
+  /**
+   * @description Starts loading resource after all assets are loaded and injected. Great for marketing scripts and 3rd party tracking tools
+   */
+  ON_ALL_ASSETS_LOADED
 }
 
 export enum REPLACE_ITEM_TYPE {

@@ -1,12 +1,27 @@
 import {Module} from "./module";
 import {PuzzleJs} from "./puzzle";
 import {EVENT} from "./enums";
+import {IPageLibConfiguration} from "../types";
 
 export class Core extends Module {
-  constructor(){
-   super();
+  get pageConfiguration(): IPageLibConfiguration {
+    return this._pageConfiguration;
+  }
 
-   PuzzleJs.subscribe(EVENT.ON_PAGE_LOAD, this.loadScripts.bind(this));
+  set pageConfiguration(value: IPageLibConfiguration) {
+    this._pageConfiguration = value;
+  }
+
+  private _pageConfiguration: IPageLibConfiguration;
+
+  constructor() {
+    super();
+
+    PuzzleJs.subscribe(EVENT.ON_PAGE_LOAD, this.loadScripts.bind(this));
+  }
+
+  config(pageConfiguration: IPageLibConfiguration) {
+    this.pageConfiguration = pageConfiguration;
   }
 
   /**
@@ -36,7 +51,7 @@ export class Core extends Module {
   /**
    * Loads page assets
    */
-  private loadScripts(){
+  private loadScripts() {
 
   }
 }

@@ -2,6 +2,9 @@ import "mocha";
 import {expect} from "chai";
 import {JSDOM} from "jsdom";
 import {PuzzleJs} from "../../src/lib/puzzle";
+import {EVENT} from "../../src/lib/enums";
+import sinon from "sinon";
+import * as faker from "faker";
 
 export interface Global {
   document: Document;
@@ -35,5 +38,15 @@ describe('PuzzleJs', () => {
     puzzle.inject({module: Module});
 
     expect(puzzle.module).to.be.instanceOf(Module);
+  });
+
+  it('should register listeners', function () {
+    const fn = sinon.spy();
+    const variable = faker.helpers.createCard();
+
+    PuzzleJs.subscribe(EVENT.ON_PAGE_LOAD, fn);
+    PuzzleJs.emit(EVENT.ON_PAGE_LOAD, variable);
+
+    expect(fn.calledWithExactly(variable)).to.true;
   });
 });

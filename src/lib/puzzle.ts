@@ -18,7 +18,7 @@ export class PuzzleJs {
     }
   }
 
-  static emit(event: EVENT, data) {
+  static emit(event: EVENT, data?: any) {
     if (PuzzleJs.__LISTENERS[event]) {
       for (let listener of PuzzleJs.__LISTENERS[event]) {
         listener(data);

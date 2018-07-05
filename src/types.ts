@@ -288,3 +288,26 @@ export interface IFragmentResponse {
 export interface FragmentModel {
   [name: string]: any
 }
+
+export interface IPageLibAsset {
+  name: string;
+  location: RESOURCE_LOCATION;
+  fragment?: string;
+  dependent?: string[];
+}
+
+export interface ICustomPageAsset {
+  name: string;
+  link: string;
+  location: RESOURCE_LOCATION;
+  dependent?: string;
+}
+
+export interface IPageLibConfiguration {
+  page: string;
+  fragments: {
+    name: string;
+    chunked: boolean;
+  };
+  assets: IPageLibAsset[];
+}
