@@ -227,8 +227,6 @@ export class Template {
       assets: assets
     } as IPageLibConfiguration;
 
-    console.log(libConfig);
-
     this.dom('body').append(Template.wrapJsAsset({
       content: `PuzzleJs.emit('${EVENT.ON_CONFIG}','${JSON.stringify(libConfig)}');`,
       injectType: RESOURCE_INJECT_TYPE.INLINE,
