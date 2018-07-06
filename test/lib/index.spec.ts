@@ -4,7 +4,9 @@ import {PuzzleJs} from "../../src/lib/puzzle";
 import {JSDOM} from "jsdom";
 
 declare global {
-  interface Window { PuzzleJs: PuzzleJs; }
+  interface Window {
+    PuzzleJs: PuzzleJs;
+  }
 }
 
 
@@ -29,7 +31,5 @@ describe('PuzzleJs Lib', () => {
     require("../../src/lib");
 
     expect(window.PuzzleJs).to.be.instanceOf(PuzzleJs);
-
-    console.log(window.PuzzleJs.Core);
   });
 });
