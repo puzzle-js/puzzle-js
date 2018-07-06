@@ -24,6 +24,7 @@ describe('Module - Util', () => {
 
   afterEach(() => {
     delete global.window;
+    PuzzleJs.clearListeners();
   });
 
   it('should create new Util', () => {

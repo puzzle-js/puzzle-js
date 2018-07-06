@@ -1,7 +1,11 @@
 import "mocha";
 import {expect} from "chai";
-import {PuzzleJs} from "../../src/lib/puzzle";
 import {JSDOM} from "jsdom";
+import {PuzzleJs} from "../../src/lib/puzzle";
+import sinon from "sinon";
+import {on} from "../../src/lib/decorators";
+import {EVENT} from "../../src/lib/enums";
+
 
 declare global {
   interface Window { PuzzleJs: PuzzleJs; }
@@ -14,7 +18,7 @@ export interface Global {
 
 declare var global: Global;
 
-describe('PuzzleJs Debug Lib', () => {
+describe('PuzzleLib Decorators', () => {
   beforeEach(() => {
     global.window = (new JSDOM(``, {runScripts: "outside-only"})).window;
   });
@@ -24,9 +28,14 @@ describe('PuzzleJs Debug Lib', () => {
     PuzzleJs.clearListeners();
   });
 
-  it('should declare PuzzleJs under window', () => {
-    require("../../src/lib/debug");
+  it('should register for events on PuzzleJs', (done) => {
+    class Test {
+      @on(EVENT.ON_PAGE_LOAD)
+      static pageLoaded(){
+        done();
+      }
+    }
 
-    expect(window.PuzzleJs).to.be.instanceOf(PuzzleJs);
+    PuzzleJs.emit(EVENT.ON_PAGE_LOAD);
   });
 });

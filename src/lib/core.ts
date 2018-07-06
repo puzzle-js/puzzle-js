@@ -2,26 +2,20 @@ import {Module} from "./module";
 import {PuzzleJs} from "./puzzle";
 import {EVENT} from "./enums";
 import {IPageLibConfiguration} from "./types";
+import {on} from "./decorators";
 
 export class Core extends Module {
-  get pageConfiguration(): IPageLibConfiguration {
-    return this._pageConfiguration;
+  static get _pageConfiguration() {
+    return this.__pageConfiguration;
   }
 
-  set pageConfiguration(value: IPageLibConfiguration) {
-    this._pageConfiguration = value;
+  static set _pageConfiguration(value) {
+    this.__pageConfiguration = value;
   }
+  private static __pageConfiguration = {};
 
-  private _pageConfiguration: IPageLibConfiguration;
-
-  constructor() {
-    super();
-
-    PuzzleJs.subscribe(EVENT.ON_PAGE_LOAD, this.loadScripts.bind(this));
-  }
-
-  config(pageConfiguration: IPageLibConfiguration) {
-    this.pageConfiguration = pageConfiguration;
+  static config(pageConfiguration: IPageLibConfiguration) {
+    Core.__pageConfiguration = pageConfiguration;
   }
 
   /**
@@ -30,28 +24,28 @@ export class Core extends Module {
    * @param {string} containerSelector
    * @param {string} replacementContentSelector
    */
-  load(fragmentName: string, containerSelector: string, replacementContentSelector: string) {
-    this.replace(containerSelector, replacementContentSelector);
+  @on(EVENT.ON_FRAGMENT_RENDERED)
+  static load(fragmentName: string, containerSelector: string, replacementContentSelector: string) {
+    this.__replace(containerSelector, replacementContentSelector);
 
     PuzzleJs.emit(EVENT.ON_FRAGMENT_RENDERED, fragmentName);
   }
 
-  /**
-   * Replaces container with given content
-   * @param {string} containerSelector
-   * @param {string} replacementContentSelector
-   */
-  private replace(containerSelector: string, replacementContentSelector: string) {
-    const z = document.querySelector(replacementContentSelector);
-    const r = z.innerHTML;
-    z.parentNode.removeChild(z);
-    document.querySelector(containerSelector).innerHTML = r;
+
+  @on(EVENT.ON_PAGE_LOAD)
+  static pageLoaded() {
+
   }
 
   /**
-   * Loads page assets
+   * Replaces container inner with given content.
+   * @param {string} containerSelector
+   * @param {string} replacementContentSelector
    */
-  private loadScripts() {
-
+  private static __replace(containerSelector: string, replacementContentSelector: string) {
+    const z = window.document.querySelector(replacementContentSelector);
+    const r = z.innerHTML;
+    z.parentNode.removeChild(z);
+    window.document.querySelector(containerSelector).innerHTML = r;
   }
 }

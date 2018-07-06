@@ -4,7 +4,9 @@ import {PuzzleJs} from "../../src/lib/puzzle";
 import {JSDOM} from "jsdom";
 
 declare global {
-  interface Window { PuzzleJs: PuzzleJs; }
+  interface Window {
+    PuzzleJs: PuzzleJs;
+  }
 }
 
 
@@ -22,6 +24,7 @@ describe('PuzzleJs Lib', () => {
 
   afterEach(() => {
     delete global.window;
+    PuzzleJs.clearListeners();
   });
 
   it('should declare PuzzleJs under window', () => {

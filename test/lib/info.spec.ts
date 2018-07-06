@@ -22,6 +22,7 @@ describe('Module - Info', () => {
 
   afterEach(() => {
     delete global.window;
+    PuzzleJs.clearListeners();
   });
 
   it('should create new Info', () => {

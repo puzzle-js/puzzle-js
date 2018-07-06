@@ -25,6 +25,7 @@
     "@types/spdy": "^3.4.4",
     "@types/supertest": "^2.0.4",
     "@types/uuid": "^3.4.3",
+    "@types/jsdom": "^11.0.6",
     "chai": "^4.1.2",
     "cross-env": "^5.1.6",
     "faker": "^4.1.0",
@@ -51,6 +52,7 @@
     "prepublish": "yarn build",
     "build": "tsc && gulp build && node_modules/.bin/webpack --config ./src/lib/webpack.config.js && gulp prepareLib",
     "test": "nyc --check-coverage --lines=90 cross-env NODE_ENV=production mocha -r ts-node/register  --recursive 'test/**/*.spec.ts'",
+    "test:lib": "nyc -n 'src/lib/**/*.ts' --check-coverage --lines=90  cross-env NODE_ENV=production mocha -r ts-node/register  --recursive 'test/lib/**/*.spec.ts'",
     "test:watch": "cross-env NODE_ENV=production mocha --watch --require ts-node/register --watch-extensions ts,tsx --recursive 'test/**/*.spec.ts'",
     "test:watch:lib": "cross-env NODE_ENV=production mocha --watch --require ts-node/register --watch-extensions ts,tsx --recursive 'test/lib/**/*.spec.ts'",
     "publish:beta": "yarn publish --tag=beta",
@@ -58,7 +60,6 @@
     "lint": "echo lint"
   },
   "dependencies": {
-    "@types/jsdom": "^11.0.6",
     "async": "^2.6.0",
     "cheerio": "^1.0.0-rc.2",
     "clean-css": "^4.1.11",

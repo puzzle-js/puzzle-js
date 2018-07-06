@@ -2,7 +2,7 @@ import {Module, ModuleConstructor} from "./module";
 import {EVENT} from "./enums";
 
 export class PuzzleJs {
-  [module: string]: object;
+  [module: string]: any;
 
   static PACKAGE_VERSION = '';
   static DEPENDENCIES = {};
@@ -18,17 +18,21 @@ export class PuzzleJs {
     }
   }
 
-  static emit(event: EVENT, data?: any) {
+  static emit(event: EVENT, ...data: any[]) {
     if (PuzzleJs.__LISTENERS[event]) {
       for (let listener of PuzzleJs.__LISTENERS[event]) {
-        listener(data);
+        listener(...data);
       }
     }
   }
 
-  inject(modules: { [name: string]: ModuleConstructor }) {
+  static clearListeners () {
+    PuzzleJs.__LISTENERS = {};
+  }
+
+  inject(modules: { [name: string]: Function }) {
     for (let name in modules) {
-      this[name] = new modules[name]();
+      this[name] = modules[name];
     }
   }
 }
