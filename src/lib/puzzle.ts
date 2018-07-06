@@ -1,6 +1,7 @@
 import {EVENT} from "./enums";
 import {IEventListener} from "./types";
 
+
 export class PuzzleJs {
   [module: string]: any;
 
@@ -21,18 +22,18 @@ export class PuzzleJs {
   static emit(event: EVENT, ...data: any[]) {
     if (PuzzleJs.__LISTENERS[event]) {
       for (let listener of PuzzleJs.__LISTENERS[event]) {
-        listener(...data);
+        listener.apply(null, data);
       }
     }
   }
 
-  static clearListeners () {
+  static clearListeners() {
     PuzzleJs.__LISTENERS = {};
   }
 
-  inject(modules: { [name: string]: Function }) {
+  static inject(modules: { [name: string]: Function }) {
     for (let name in modules) {
-      this[name] = modules[name];
+      (PuzzleJs as any)[name] = modules[name];
     }
   }
 }

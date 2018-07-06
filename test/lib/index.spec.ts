@@ -30,6 +30,6 @@ describe('PuzzleJs Lib', () => {
   it('should declare PuzzleJs under window', () => {
     require("../../src/lib");
 
-    expect(window.PuzzleJs).to.be.instanceOf(PuzzleJs);
+    expect(window.PuzzleJs).to.eq(PuzzleJs);
   });
 });

@@ -13,10 +13,11 @@ export class Core extends Module {
     this.__pageConfiguration = value;
   }
 
-  private static __pageConfiguration = {};
+  private static __pageConfiguration: IPageLibConfiguration | {} = {};
 
-  static config(pageConfiguration: IPageLibConfiguration) {
-    Core.__pageConfiguration = pageConfiguration;
+  @on(EVENT.ON_CONFIG)
+  static config(pageConfiguration: string) {
+    Core.__pageConfiguration = JSON.parse(pageConfiguration) as IPageLibConfiguration;
   }
 
   /**
@@ -27,9 +28,7 @@ export class Core extends Module {
    */
   @on(EVENT.ON_FRAGMENT_RENDERED)
   static load(fragmentName: string, containerSelector: string, replacementContentSelector: string) {
-    this.__replace(containerSelector, replacementContentSelector);
-
-    PuzzleJs.emit(EVENT.ON_FRAGMENT_RENDERED, fragmentName);
+    Core.__replace(containerSelector, replacementContentSelector);
   }
 
   @on(EVENT.ON_PAGE_LOAD)
@@ -38,8 +37,8 @@ export class Core extends Module {
   }
 
   @on(EVENT.ON_VARIABLES)
-  static onVariables(key, model) {
-    window[key] = model;
+  static onVariables(fragmentName: string, configKey: string, configData: string) {
+    window[configKey] = JSON.parse(configData);
   }
 
   /**

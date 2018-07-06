@@ -146,7 +146,10 @@ export class Template {
 
     this.replaceUnfetchedFragments(Object.values(this.fragments).filter(fragment => !fragment.config));
 
-    await this.addDependencies();
+    // todo kaldir lib bag
+    //await this.addDependencies();
+
+
     await this.replaceStaticFragments(staticFragments, replaceScripts.filter(replaceSet => replaceSet.fragment.config && replaceSet.fragment.config.render.static));
     await this.appendPlaceholders(chunkReplacements);
 
@@ -158,7 +161,13 @@ export class Template {
     this.injectPuzzleLibAndConfig(isDebug);
     this.replaceEmptyTags();
 
-    return this.buildHandler(TemplateCompiler.compile(Template.clearHtmlContent(this.dom.html())), chunkReplacements, waitedFragmentReplacements, replaceScripts, isDebug);
+    /**
+     * todo Bu kafa olmaz runtimeda debug not debug degismez, handler ici runtime guzel olur.
+     */
+    const puzzleLib = fs.readFileSync(path.join(__dirname, `/lib/${isDebug ? 'puzzle_debug.min.js' : 'puzzle.min.js'}`)).toString();
+    const clearLibOutput = this.dom.html().replace('{puzzleLibContent}', puzzleLib);
+
+    return this.buildHandler(TemplateCompiler.compile(Template.clearHtmlContent(clearLibOutput)), chunkReplacements, waitedFragmentReplacements, replaceScripts, isDebug);
   }
 
   /**
@@ -182,10 +191,10 @@ export class Template {
    * @param {boolean} isDebug
    */
   private injectPuzzleLibAndConfig(isDebug: boolean): void {
-    const puzzleLib = fs.readFileSync(path.join(__dirname, `/lib/${isDebug ? 'puzzle_debug.min.js' : 'puzzle.min.js'}`)).toString();
+
 
     this.dom('head').prepend(Template.wrapJsAsset({
-      content: puzzleLib,
+      content: `{puzzleLibContent}`,
       injectType: RESOURCE_INJECT_TYPE.INLINE,
       name: 'puzzle-lib',
       link: '',
@@ -352,7 +361,7 @@ export class Template {
   }
 
   /**
-   * @deprecated Will be replaced by PuzzleLib
+   * Maps fragment response variable model into PuzzleLib
    * @param {{name: string}} fragment
    * @param {FragmentModel} fragmentPageModel
    * @param {boolean} isDebug
@@ -360,7 +369,7 @@ export class Template {
    */
   static fragmentModelScript(fragment: { name: string }, fragmentPageModel: FragmentModel, isDebug: boolean = false) {
     return fragmentPageModel && Object.keys(fragmentPageModel).length ? `<script>${Object.keys(fragmentPageModel).reduce((modelVariable, key) => {
-      modelVariable += `window['${key}']=window['${key}']||${JSON.stringify(fragmentPageModel[key])};${isDebug ? `PuzzleJs.variables.add('${fragment.name}','${key}');` : ""}`;
+      modelVariable += `PuzzleJs.emit('${EVENT.ON_VARIABLES}', '${fragment.name}', '${key}', '${JSON.stringify(fragmentPageModel[key])}')`;
       return modelVariable;
     }, '')}</script>` : '';
   }
@@ -461,7 +470,7 @@ export class Template {
 
       let output = isDebug ? `<script>PuzzleJs.analytics.fragment('${chunkedReplacement.fragment.name}')</script>` : '';
 
-      //output += Template.fragmentModelScript(chunkedReplacement.fragment, fragmentContent.model, isDebug);
+      output += Template.fragmentModelScript(chunkedReplacement.fragment, fragmentContent.model, isDebug);
 
       fragmentJsReplacements && fragmentJsReplacements.replaceItems.filter(item => item.location === RESOURCE_LOCATION.CONTENT_START).forEach(replaceItem => {
         output += Template.wrapJsAsset(replaceItem);
@@ -473,7 +482,7 @@ export class Template {
             output += `<div style="display: none;" puzzle-fragment="${chunkedReplacement.fragment.name}" puzzle-chunk-key="${replaceItem.key}">${fragmentContent.html[replaceItem.partial] || CONTENT_NOT_FOUND_ERROR}</div>`;
             if (!(replaceItem.key === 'main' && selfReplacing)) {
               // todo replace here
-              output += `<script>PuzzleJs.emit('${EVENT.ON_FRAGMENT_RENDERED}','[puzzle-chunk="${replaceItem.key}"]','[puzzle-chunk-key="${replaceItem.key}"]');</script>`;
+              output += `<script>PuzzleJs.emit('${EVENT.ON_FRAGMENT_RENDERED}','${chunkedReplacement.fragment.name}','[puzzle-chunk="${replaceItem.key}"]','[puzzle-chunk-key="${replaceItem.key}"]');</script>`;
             }
           }
         });

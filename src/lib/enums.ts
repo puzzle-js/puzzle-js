@@ -14,11 +14,11 @@ export enum LOG_TYPES {
 }
 
 export enum EVENT {
-  ON_PAGE_LOAD = 'pageLoaded',
-  ON_FRAGMENT_RENDERED = 'fragmentRendered',
-  ON_CONFIG = 'config',
-  ON_DEBUG_CONFIG = 'debugConfig',
-  ON_VARIABLES = 'variables' // todo connect variables to lib
+  ON_PAGE_LOAD,
+  ON_FRAGMENT_RENDERED,
+  ON_CONFIG,
+  ON_DEBUG_CONFIG ,
+  ON_VARIABLES // todo connect variables to lib
 }
 
 
@@ -26,22 +26,22 @@ export enum RESOURCE_LOADING_TYPE {
   /**
    * @description Loads resource in head. Visible in page source. Great for small dependencies.
    */
-  ON_RENDER_START = 'onRenderStart',
+  ON_RENDER_START,
 
   /**
    * @description Starts loading resource after fragment rendered. Not visible in page source. It is useful for fragments that should run immediately
    */
-  ON_FRAGMENT_RENDER = 'onFragmentRender',
+  ON_FRAGMENT_RENDER,
 
   /**
    * @description Starts loading resource after all page fragments are visible. Great for performance
    */
-  ON_PAGE_RENDER = 'onPageRender',
+  ON_PAGE_RENDER,
 
   /**
    * @description Starts loading resource after all assets are loaded and injected. Great for marketing scripts and 3rd party tracking tools
    */
-  ON_ALL_ASSETS_LOADED = 'onAllAssetsLoaded'
+  ON_ALL_ASSETS_LOADED
 }
 
 export enum RESOURCE_TYPE {
