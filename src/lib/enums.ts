@@ -18,7 +18,7 @@ export enum EVENT {
   ON_FRAGMENT_RENDERED = 'fragmentRendered',
   ON_CONFIG = 'config',
   ON_DEBUG_CONFIG = 'debugConfig',
-  ON_VARBIES = 'variables'
+  ON_VARIABLES = 'variables'
 }
 
 
