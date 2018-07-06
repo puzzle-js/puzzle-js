@@ -37,7 +37,7 @@ export class Core extends Module {
 
   }
 
-  @on(EVENT.ON_VARIABLES)
+  @on(EVENT.ON_VARBIES)
   static onVariables(key, model) {
     window[key] = model;
   }

@@ -7,12 +7,12 @@ import {
   REPLACE_ITEM_TYPE,
   RESOURCE_INJECT_TYPE,
   RESOURCE_LOCATION,
-  RESOURCE_TYPE,
   HTTP_STATUS_CODE,
   INJECTABLE
 } from "./enums";
 import {GatewayConfigurator, StorefrontConfigurator} from "./configurator";
 import {Container} from "inversify";
+import {RESOURCE_TYPE} from "./lib/enums";
 
 
 export = {

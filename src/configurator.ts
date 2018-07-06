@@ -8,8 +8,9 @@ import {
   RESOURCE_INJECT_TYPE,
   RESOURCE_JS_EXECUTE_TYPE,
   RESOURCE_LOCATION,
-  RESOURCE_TYPE, TRANSFER_PROTOCOLS
+  TRANSFER_PROTOCOLS
 } from "./enums";
+import {RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "./lib/enums";
 
 const apiEndpointsStructure = struct({
   path: 'string',
@@ -51,12 +52,11 @@ const gatewayRenderStructure = struct({
 
 const gatewayFragmentAssetsStructure = struct({
   name: 'string',
-  type: struct.enum(Object.values(RESOURCE_TYPE)),
-  injectType: struct.enum(Object.values(RESOURCE_INJECT_TYPE)),
   fileName: 'string',
   link: 'string?',
-  location: struct.enum(Object.values(RESOURCE_LOCATION)),
-  executeType: struct.optional(struct.enum(Object.values(RESOURCE_JS_EXECUTE_TYPE)))
+  loadMethod: struct.enum(Object.values(RESOURCE_LOADING_TYPE)),
+  type: struct.enum(Object.values(RESOURCE_TYPE)),
+  dependent: struct.optional(['string'])
 });
 
 const gatewayFragmentDependenctStructure = struct({
@@ -94,6 +94,7 @@ const gatewayStructure = struct({
 });
 
 const storefrontPageStructure = struct({
+  page: 'string?',
   html: 'string',
   url: struct.union(['string', ['string']])
 });

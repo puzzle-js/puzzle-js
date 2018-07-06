@@ -10,12 +10,13 @@ import {
   HTTP_METHODS, HTTP_STATUS_CODE,
   RESOURCE_INJECT_TYPE, RESOURCE_JS_EXECUTE_TYPE,
   RESOURCE_LOCATION,
-  RESOURCE_TYPE, TRANSFER_PROTOCOLS
+  TRANSFER_PROTOCOLS
 } from "../../src/enums";
 import * as path from "path";
 import {IFileResourceAsset} from "../../src/types";
 import faker from "faker";
 import {TLS_CERT, TLS_KEY, TLS_PASS} from "../core.settings";
+import {RESOURCE_TYPE} from "../../src/lib/enums";
 
 const commonGatewayConfiguration: IGatewayBFFConfiguration = {
   api: [],
@@ -83,183 +84,183 @@ describe('BFF', () => {
     });
   });
 
-  it('it should asset execute type when gateway is ready', (done) => {
-    const bff = new GatewayBFF({
-      ...commonGatewayConfiguration,
-      fragments: [
-        {
-          name: 'product',
-          render: {
-            url: '/'
-          },
-          testCookie: 'product-cookie',
-          version: '1.0.0',
-          versions: {
-            '1.0.0': {
-              assets: [
-                {
-                  name: 'bundle',
-                  location: RESOURCE_LOCATION.CONTENT_END,
-                  type: RESOURCE_TYPE.JS,
-                  fileName: 'bundle.min.js',
-                  injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
-                  executeType: RESOURCE_JS_EXECUTE_TYPE.ASYNC
-                }
-              ] as IFileResourceAsset[],
-              dependencies: [],
-              handler: {
-                content(req: any, data: any) {
-                  return {
-                    main: `<div>Rendered Fragment ${data.username}</div>`
-                  };
-                },
-                data(req: any) {
-                  return {
-                    data: {
-                      username: 'ACG'
-                    }
-                  };
-                },
-                placeholder() {
-                  return '';
-                }
-              } as any
-            }
-          }
-        }
-      ]
-    });
+  // it('it should asset execute type when gateway is ready', (done) => {
+  //   const bff = new GatewayBFF({
+  //     ...commonGatewayConfiguration,
+  //     fragments: [
+  //       {
+  //         name: 'product',
+  //         render: {
+  //           url: '/'
+  //         },
+  //         testCookie: 'product-cookie',
+  //         version: '1.0.0',
+  //         versions: {
+  //           '1.0.0': {
+  //             assets: [
+  //               {
+  //                 name: 'bundle',
+  //                 location: RESOURCE_LOCATION.CONTENT_END,
+  //                 type: RESOURCE_TYPE.JS,
+  //                 fileName: 'bundle.min.js',
+  //                 injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
+  //                 executeType: RESOURCE_JS_EXECUTE_TYPE.ASYNC
+  //               }
+  //             ] as IFileResourceAsset[],
+  //             dependencies: [],
+  //             handler: {
+  //               content(req: any, data: any) {
+  //                 return {
+  //                   main: `<div>Rendered Fragment ${data.username}</div>`
+  //                 };
+  //               },
+  //               data(req: any) {
+  //                 return {
+  //                   data: {
+  //                     username: 'ACG'
+  //                   }
+  //                 };
+  //               },
+  //               placeholder() {
+  //                 return '';
+  //               }
+  //             } as any
+  //           }
+  //         }
+  //       }
+  //     ]
+  //   });
+  //
+  //
+  //   bff.init(() => {
+  //     request(commonGatewayConfiguration.url)
+  //       .get('/')
+  //       .expect(200).end((err, res) => {
+  //       const response = res.body as IExposeConfig;
+  //       expect(response.fragments.product.assets[0].executeType).to.eq(RESOURCE_JS_EXECUTE_TYPE.ASYNC);
+  //       bff.server.close();
+  //       done(err);
+  //     });
+  //   });
+  // });
 
+  // it('should export fragment content in preview mode', (done) => {
+  //   const bff = new GatewayBFF({
+  //     ...commonGatewayConfiguration,
+  //     fragments: [
+  //       {
+  //         name: 'product',
+  //         render: {
+  //           url: '/'
+  //         },
+  //         testCookie: 'product-cookie',
+  //         version: '1.0.0',
+  //         versions: {
+  //           '1.0.0': {
+  //             assets: [
+  //               {
+  //                 name: 'bundle',
+  //                 location: RESOURCE_LOCATION.CONTENT_END,
+  //                 type: RESOURCE_TYPE.JS,
+  //                 fileName: 'bundle.min.js',
+  //                 injectType: RESOURCE_INJECT_TYPE.EXTERNAL
+  //               }
+  //             ] as IFileResourceAsset[],
+  //             dependencies: [],
+  //             handler: {
+  //               content(req: any, data: any) {
+  //                 return {
+  //                   main: `<div>Rendered Fragment ${data.username}</div>`
+  //                 };
+  //               },
+  //               data(req: any) {
+  //                 return {
+  //                   data: {
+  //                     username: 'ACG'
+  //                   }
+  //                 };
+  //               },
+  //               placeholder() {
+  //                 return '';
+  //               }
+  //             } as any
+  //           }
+  //         }
+  //       }
+  //     ]
+  //   });
+  //
+  //   bff.init(() => {
+  //     request(commonGatewayConfiguration.url)
+  //       .get('/product/')
+  //       .expect(200)
+  //       .end((err, res) => {
+  //         bff.server.close();
+  //         expect(res.text).to.eq(`<html><head><title>Browsing - product</title></head><body><div id="product"><div>Rendered Fragment ACG</div></div><script puzzle-asset="bundle" src="/product/static/bundle.min.js" type="text/javascript"></script></body></html>`);
+  //         done(err);
+  //       });
+  //   });
+  // });
 
-    bff.init(() => {
-      request(commonGatewayConfiguration.url)
-        .get('/')
-        .expect(200).end((err, res) => {
-        const response = res.body as IExposeConfig;
-        expect(response.fragments.product.assets[0].executeType).to.eq(RESOURCE_JS_EXECUTE_TYPE.ASYNC);
-        bff.server.close();
-        done(err);
-      });
-    });
-  });
-
-  it('should export fragment content in preview mode', (done) => {
-    const bff = new GatewayBFF({
-      ...commonGatewayConfiguration,
-      fragments: [
-        {
-          name: 'product',
-          render: {
-            url: '/'
-          },
-          testCookie: 'product-cookie',
-          version: '1.0.0',
-          versions: {
-            '1.0.0': {
-              assets: [
-                {
-                  name: 'bundle',
-                  location: RESOURCE_LOCATION.CONTENT_END,
-                  type: RESOURCE_TYPE.JS,
-                  fileName: 'bundle.min.js',
-                  injectType: RESOURCE_INJECT_TYPE.EXTERNAL
-                }
-              ] as IFileResourceAsset[],
-              dependencies: [],
-              handler: {
-                content(req: any, data: any) {
-                  return {
-                    main: `<div>Rendered Fragment ${data.username}</div>`
-                  };
-                },
-                data(req: any) {
-                  return {
-                    data: {
-                      username: 'ACG'
-                    }
-                  };
-                },
-                placeholder() {
-                  return '';
-                }
-              } as any
-            }
-          }
-        }
-      ]
-    });
-
-    bff.init(() => {
-      request(commonGatewayConfiguration.url)
-        .get('/product/')
-        .expect(200)
-        .end((err, res) => {
-          bff.server.close();
-          expect(res.text).to.eq(`<html><head><title>Browsing - product</title></head><body><div id="product"><div>Rendered Fragment ACG</div></div><script puzzle-asset="bundle" src="/product/static/bundle.min.js" type="text/javascript"></script></body></html>`);
-          done(err);
-        });
-    });
-  });
-
-  it('should export fragment content in preview mode with desired partial', (done) => {
-    const bff = new GatewayBFF({
-      ...commonGatewayConfiguration,
-      fragments: [
-        {
-          name: 'product',
-          render: {
-            url: '/'
-          },
-          testCookie: 'product-cookie',
-          version: '1.0.0',
-          versions: {
-            '1.0.0': {
-              assets: [
-                {
-                  name: 'bundle',
-                  location: RESOURCE_LOCATION.CONTENT_END,
-                  type: RESOURCE_TYPE.JS,
-                  fileName: 'bundle.min.js',
-                  injectType: RESOURCE_INJECT_TYPE.EXTERNAL
-                }
-              ] as IFileResourceAsset[],
-              dependencies: [],
-              handler: {
-                content(req: any, data: any) {
-                  return {
-                    main: `<div>Rendered Fragment ${data.username}</div>`,
-                    another: `<div>another partial</div>`
-                  };
-                },
-                data(req: any) {
-                  return {
-                    data: {
-                      username: 'ACG'
-                    }
-                  };
-                },
-                placeholder() {
-                  return '';
-                }
-              } as any
-            }
-          }
-        }
-      ]
-    });
-
-    bff.init(() => {
-      request(commonGatewayConfiguration.url)
-        .get('/product/')
-        .query({[PREVIEW_PARTIAL_QUERY_NAME]: 'another'})
-        .expect(200)
-        .end((err, res) => {
-          bff.server.close();
-          expect(res.text).to.eq(`<html><head><title>Browsing - product</title></head><body><div id="product"><div>another partial</div></div><script puzzle-asset="bundle" src="/product/static/bundle.min.js" type="text/javascript"></script></body></html>`);
-          done(err);
-        });
-    });
-  });
+  // it('should export fragment content in preview mode with desired partial', (done) => {
+  //   const bff = new GatewayBFF({
+  //     ...commonGatewayConfiguration,
+  //     fragments: [
+  //       {
+  //         name: 'product',
+  //         render: {
+  //           url: '/'
+  //         },
+  //         testCookie: 'product-cookie',
+  //         version: '1.0.0',
+  //         versions: {
+  //           '1.0.0': {
+  //             assets: [
+  //               {
+  //                 name: 'bundle',
+  //                 location: RESOURCE_LOCATION.CONTENT_END,
+  //                 type: RESOURCE_TYPE.JS,
+  //                 fileName: 'bundle.min.js',
+  //                 injectType: RESOURCE_INJECT_TYPE.EXTERNAL
+  //               }
+  //             ] as IFileResourceAsset[],
+  //             dependencies: [],
+  //             handler: {
+  //               content(req: any, data: any) {
+  //                 return {
+  //                   main: `<div>Rendered Fragment ${data.username}</div>`,
+  //                   another: `<div>another partial</div>`
+  //                 };
+  //               },
+  //               data(req: any) {
+  //                 return {
+  //                   data: {
+  //                     username: 'ACG'
+  //                   }
+  //                 };
+  //               },
+  //               placeholder() {
+  //                 return '';
+  //               }
+  //             } as any
+  //           }
+  //         }
+  //       }
+  //     ]
+  //   });
+  //
+  //   bff.init(() => {
+  //     request(commonGatewayConfiguration.url)
+  //       .get('/product/')
+  //       .query({[PREVIEW_PARTIAL_QUERY_NAME]: 'another'})
+  //       .expect(200)
+  //       .end((err, res) => {
+  //         bff.server.close();
+  //         expect(res.text).to.eq(`<html><head><title>Browsing - product</title></head><body><div id="product"><div>another partial</div></div><script puzzle-asset="bundle" src="/product/static/bundle.min.js" type="text/javascript"></script></body></html>`);
+  //         done(err);
+  //       });
+  //   });
+  // });
 
   it('should export fragment content in stream mode', (done) => {
     const bff = new GatewayBFF({
@@ -611,153 +612,153 @@ describe('BFF', () => {
     });
   });
 
-  it('should export static files', (done) => {
-    const bff = new GatewayBFF({
-      ...commonGatewayConfiguration,
-      fragments: [
-        {
-          name: 'product',
-          render: {
-            url: '/'
-          },
-          testCookie: 'product-cookie',
-          version: '1.0.0',
-          versions: {
-            '1.0.0': {
-              assets: [
-                {
-                  name: 'Product Bundle',
-                  fileName: 'bundle.min.css',
-                  location: RESOURCE_LOCATION.CONTENT_START,
-                  injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
-                  type: RESOURCE_TYPE.CSS
-                }
-              ],
-              dependencies: [],
-              handler: {
-                content(req: any, data: any) {
-                  return {
-                    main: `<div>Rendered Fragment ${data.username}</div>`
-                  };
-                },
-                data(req: any) {
-                  return {
-                    data: {
-                      username: 'ACG'
-                    }
-                  };
-                },
-                placeholder() {
-                  return '';
-                }
-              }as any
-            }
-          }
-        }
-      ]
-    });
+  // it('should export static files', (done) => {
+  //   const bff = new GatewayBFF({
+  //     ...commonGatewayConfiguration,
+  //     fragments: [
+  //       {
+  //         name: 'product',
+  //         render: {
+  //           url: '/'
+  //         },
+  //         testCookie: 'product-cookie',
+  //         version: '1.0.0',
+  //         versions: {
+  //           '1.0.0': {
+  //             assets: [
+  //               {
+  //                 name: 'Product Bundle',
+  //                 fileName: 'bundle.min.css',
+  //                 location: RESOURCE_LOCATION.CONTENT_START,
+  //                 injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
+  //                 type: RESOURCE_TYPE.CSS
+  //               }
+  //             ],
+  //             dependencies: [],
+  //             handler: {
+  //               content(req: any, data: any) {
+  //                 return {
+  //                   main: `<div>Rendered Fragment ${data.username}</div>`
+  //                 };
+  //               },
+  //               data(req: any) {
+  //                 return {
+  //                   data: {
+  //                     username: 'ACG'
+  //                   }
+  //                 };
+  //               },
+  //               placeholder() {
+  //                 return '';
+  //               }
+  //             }as any
+  //           }
+  //         }
+  //       }
+  //     ]
+  //   });
+  //
+  //   bff.init(() => {
+  //     request(commonGatewayConfiguration.url)
+  //       .get('/product/static/bundle.min.css')
+  //       .expect(200)
+  //       .end((err, res) => {
+  //         bff.server.close();
+  //
+  //         expect(res.text).to.include('version1.0.0');
+  //         done(err);
+  //       });
+  //   });
+  // });
 
-    bff.init(() => {
-      request(commonGatewayConfiguration.url)
-        .get('/product/static/bundle.min.css')
-        .expect(200)
-        .end((err, res) => {
-          bff.server.close();
-
-          expect(res.text).to.include('version1.0.0');
-          done(err);
-        });
-    });
-  });
-
-  it('should export static files with cookievalue', (done) => {
-    const bff = new GatewayBFF({
-      ...commonGatewayConfiguration,
-      fragments: [
-        {
-          name: 'product',
-          render: {
-            url: '/'
-          },
-          testCookie: 'product-cookie',
-          version: '1.0.0',
-          versions: {
-            '1.0.0': {
-              assets: [
-                {
-                  name: 'Product Bundle',
-                  fileName: 'bundle.min.css',
-                  location: RESOURCE_LOCATION.CONTENT_START,
-                  injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
-                  type: RESOURCE_TYPE.CSS
-                }
-              ],
-              dependencies: [],
-              handler: {
-                content(req: any, data: any) {
-                  return {
-                    main: `<div>Rendered Fragment ${data.username}</div>`
-                  };
-                },
-                data(req: any) {
-                  return {
-                    data: {
-                      username: 'ACG'
-                    }
-                  };
-                },
-                placeholder() {
-                  return '';
-                }
-              }as any
-            },
-            '1.0.1': {
-              assets: [
-                {
-                  name: 'Product Bundle',
-                  fileName: 'bundle.min.css',
-                  location: RESOURCE_LOCATION.CONTENT_START,
-                  injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
-                  type: RESOURCE_TYPE.CSS
-                }
-              ],
-              dependencies: [],
-              handler: {
-                content(req: any, data: any) {
-                  return {
-                    main: `<div>Rendered Fragment ${data.username}</div>`
-                  };
-                },
-                data(req: any) {
-                  return {
-                    data: {
-                      username: 'ACG'
-                    }
-                  };
-                },
-                placeholder() {
-                  return '';
-                }
-              }as any
-            }
-          }
-        }
-      ]
-    });
-
-    bff.init(() => {
-      request(commonGatewayConfiguration.url)
-        .get('/product/static/bundle.min.css')
-        .set('Cookie', `product-cookie=1.0.1`)
-        .expect(200)
-        .end((err, res) => {
-          bff.server.close();
-
-          expect(res.text).to.include('version1.0.1');
-          done(err);
-        });
-    });
-  });
+  // it('should export static files with cookievalue', (done) => {
+  //   const bff = new GatewayBFF({
+  //     ...commonGatewayConfiguration,
+  //     fragments: [
+  //       {
+  //         name: 'product',
+  //         render: {
+  //           url: '/'
+  //         },
+  //         testCookie: 'product-cookie',
+  //         version: '1.0.0',
+  //         versions: {
+  //           '1.0.0': {
+  //             assets: [
+  //               {
+  //                 name: 'Product Bundle',
+  //                 fileName: 'bundle.min.css',
+  //                 location: RESOURCE_LOCATION.CONTENT_START,
+  //                 injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
+  //                 type: RESOURCE_TYPE.CSS
+  //               }
+  //             ],
+  //             dependencies: [],
+  //             handler: {
+  //               content(req: any, data: any) {
+  //                 return {
+  //                   main: `<div>Rendered Fragment ${data.username}</div>`
+  //                 };
+  //               },
+  //               data(req: any) {
+  //                 return {
+  //                   data: {
+  //                     username: 'ACG'
+  //                   }
+  //                 };
+  //               },
+  //               placeholder() {
+  //                 return '';
+  //               }
+  //             }as any
+  //           },
+  //           '1.0.1': {
+  //             assets: [
+  //               {
+  //                 name: 'Product Bundle',
+  //                 fileName: 'bundle.min.css',
+  //                 location: RESOURCE_LOCATION.CONTENT_START,
+  //                 injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
+  //                 type: RESOURCE_TYPE.CSS
+  //               }
+  //             ],
+  //             dependencies: [],
+  //             handler: {
+  //               content(req: any, data: any) {
+  //                 return {
+  //                   main: `<div>Rendered Fragment ${data.username}</div>`
+  //                 };
+  //               },
+  //               data(req: any) {
+  //                 return {
+  //                   data: {
+  //                     username: 'ACG'
+  //                   }
+  //                 };
+  //               },
+  //               placeholder() {
+  //                 return '';
+  //               }
+  //             }as any
+  //           }
+  //         }
+  //       }
+  //     ]
+  //   });
+  //
+  //   bff.init(() => {
+  //     request(commonGatewayConfiguration.url)
+  //       .get('/product/static/bundle.min.css')
+  //       .set('Cookie', `product-cookie=1.0.1`)
+  //       .expect(200)
+  //       .end((err, res) => {
+  //         bff.server.close();
+  //
+  //         expect(res.text).to.include('version1.0.1');
+  //         done(err);
+  //       });
+  //   });
+  // });
 
   it('should export api endpoints', (done) => {
     const bff = new GatewayBFF({

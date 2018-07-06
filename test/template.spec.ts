@@ -8,14 +8,12 @@ import {
   PUZZLE_LIB_SCRIPT,
   RESOURCE_INJECT_TYPE,
   RESOURCE_JS_EXECUTE_TYPE,
-  RESOURCE_LOCATION,
-  RESOURCE_TYPE
-} from "../src/enums";
+  RESOURCE_LOCATION} from "../src/enums";
 import {createExpressMock} from "./mock/mock";
 import ResourceFactory from "../src/resourceFactory";
 import {PUZZLE_DEBUGGER_LINK} from "../src/config";
 import faker from "faker";
-import {EVENT} from "../src/lib/enums";
+import {EVENT, RESOURCE_TYPE} from "../src/lib/enums";
 
 describe('Template', () => {
   it('should create a new Template instance', () => {

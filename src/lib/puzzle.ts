@@ -1,4 +1,3 @@
-import {Module, ModuleConstructor} from "./module";
 import {EVENT} from "./enums";
 
 export class PuzzleJs {

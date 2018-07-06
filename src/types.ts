@@ -6,11 +6,11 @@ import {
   RESOURCE_INJECT_TYPE,
   RESOURCE_JS_EXECUTE_TYPE,
   RESOURCE_LOCATION,
-  RESOURCE_TYPE,
   TRANSFER_PROTOCOLS
 } from "./enums";
 import {FragmentStorefront} from "./fragment";
 import {Page} from "./page";
+import {RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "./lib/enums";
 
 export interface IFragmentCookieMap {
   name: string;
@@ -63,11 +63,12 @@ export interface IFileResourceDependency extends IFileResource {
 }
 
 export interface IFileResourceAsset extends IFileResource {
-  injectType: RESOURCE_INJECT_TYPE;
   fileName: string;
   link?: string;
-  location: RESOURCE_LOCATION;
-  executeType?: RESOURCE_JS_EXECUTE_TYPE;
+  loadMethod: RESOURCE_LOADING_TYPE;
+  type: RESOURCE_TYPE;
+  name: string;
+  dependent?: string[];
 }
 
 export interface IFileResourceStorefrontDependency extends IFileResource {

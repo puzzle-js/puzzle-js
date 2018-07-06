@@ -14,11 +14,6 @@ export enum RESOURCE_INJECT_TYPE {
   EXTERNAL
 }
 
-export enum RESOURCE_TYPE {
-  CSS,
-  JS
-}
-
 /**
  * Will be changed with PuzzleLib asset injections
  * @deprecated

@@ -18,7 +18,7 @@ export enum EVENT {
   ON_FRAGMENT_RENDERED = 'fragmentRendered',
   ON_CONFIG = 'config',
   ON_DEBUG_CONFIG = 'debugConfig',
-  ON_VARIABLES = 'variables'
+  ON_VARBIES = 'variables'
 }
 
 
@@ -26,20 +26,25 @@ export enum RESOURCE_LOADING_TYPE {
   /**
    * @description Loads resource in head. Visible in page source. Great for small dependencies.
    */
-  ON_RENDER_START,
+  ON_RENDER_START = 'onRenderStart',
 
   /**
    * @description Starts loading resource after fragment rendered. Not visible in page source. It is useful for fragments that should run immediately
    */
-  ON_FRAGMENT_RENDER,
+  ON_FRAGMENT_RENDER = 'onFragmentRender',
 
   /**
    * @description Starts loading resource after all page fragments are visible. Great for performance
    */
-  ON_PAGE_RENDER,
+  ON_PAGE_RENDER = 'onPageRender',
 
   /**
    * @description Starts loading resource after all assets are loaded and injected. Great for marketing scripts and 3rd party tracking tools
    */
-  ON_ALL_ASSETS_LOADED
+  ON_ALL_ASSETS_LOADED = 'onAllAssetsLoaded'
+}
+
+export enum RESOURCE_TYPE {
+  CSS,
+  JS
 }

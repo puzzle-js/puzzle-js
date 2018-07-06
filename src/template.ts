@@ -25,9 +25,7 @@ import {
   HTTP_METHODS, HTTP_STATUS_CODE,
   REPLACE_ITEM_TYPE,
   RESOURCE_INJECT_TYPE, RESOURCE_JS_EXECUTE_TYPE,
-  RESOURCE_LOCATION,
-  RESOURCE_TYPE
-} from "./enums";
+  RESOURCE_LOCATION} from "./enums";
 import ResourceFactory from "./resourceFactory";
 import CleanCSS from "clean-css";
 import md5 from "md5";
@@ -39,8 +37,8 @@ import {Logger} from "./logger";
 import {container, TYPES} from "./base";
 import fs from "fs";
 import path from "path";
-import {IPageLibConfiguration} from "./lib/types";
-import {EVENT} from "./lib/enums";
+import {IPageFragmentConfig, IPageLibAsset, IPageLibConfiguration} from "./lib/types";
+import {EVENT, RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "./lib/enums";
 
 const logger = <Logger>container.get(TYPES.Logger);
 
@@ -178,6 +176,10 @@ export class Template {
     }
   }
 
+  /**
+   * Puzzle lib preparation
+   * @param {boolean} isDebug
+   */
   private injectPuzzleLibAndConfig(isDebug: boolean): void {
     const puzzleLib = fs.readFileSync(path.join(__dirname, `/lib/${isDebug ? 'puzzle_debug.min.js' : 'puzzle.min.js'}`)).toString();
 
@@ -189,12 +191,43 @@ export class Template {
       executeType: RESOURCE_JS_EXECUTE_TYPE.SYNC
     }));
 
+    const fragments = Object.keys(this.fragments);
+
+    const pageFragmentLibConfig = fragments.reduce((pageLibFragments: IPageFragmentConfig[], fragmentName) => {
+      const fragment = this.fragments[fragmentName];
+
+      pageLibFragments.push({
+        name: fragment.name,
+        chunked: fragment.config ? (fragment.shouldWait || (fragment.config.render.static || false)) : false
+      });
+
+      return pageLibFragments;
+    }, []);
+
+
+    const assets = fragments.reduce((pageLibAssets: IPageLibAsset[], fragmentName) => {
+      const fragment = this.fragments[fragmentName];
+
+      fragment.config && fragment.config.assets.forEach((asset) => {
+        pageLibAssets.push({
+          fragment: fragmentName,
+          loadMethod: asset.loadMethod || RESOURCE_LOADING_TYPE.ON_PAGE_RENDER,
+          name: asset.name,
+          dependent: asset.dependent || [],
+          type: asset.type
+        });
+      });
+
+      return pageLibAssets;
+    }, []);
 
     const libConfig = {
       page: this.name,
-      fragments: [],
-      assets: []
+      fragments: pageFragmentLibConfig,
+      assets: assets
     } as IPageLibConfiguration;
+
+    console.log(libConfig);
 
     this.dom('body').append(Template.wrapJsAsset({
       content: `PuzzleJs.emit('${EVENT.ON_CONFIG}','${JSON.stringify(libConfig)}');`,
