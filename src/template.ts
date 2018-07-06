@@ -289,12 +289,6 @@ export class Template {
         headers = fragmentContent.headers;
       }
 
-
-      const modelReplacement = waitedFragmentReplacement.replaceItems.find(item => item.type === REPLACE_ITEM_TYPE.MODEL_SCRIPT);
-      if (modelReplacement) {
-        template = template.replace(`${modelReplacement.key}`, Template.fragmentModelScript(waitedFragmentReplacement.fragment, fragmentContent.model, isDebug));
-      }
-
       waitedFragmentReplacement.replaceItems
         .forEach(replaceItem => {
           if (replaceItem.type === REPLACE_ITEM_TYPE.CONTENT) {
@@ -417,7 +411,7 @@ export class Template {
 
       let output = isDebug ? `<script>PuzzleJs.analytics.fragment('${chunkedReplacement.fragment.name}')</script>` : '';
 
-      output += Template.fragmentModelScript(chunkedReplacement.fragment, fragmentContent.model, isDebug);
+      //output += Template.fragmentModelScript(chunkedReplacement.fragment, fragmentContent.model, isDebug);
 
       fragmentJsReplacements && fragmentJsReplacements.replaceItems.filter(item => item.location === RESOURCE_LOCATION.CONTENT_START).forEach(replaceItem => {
         output += Template.wrapJsAsset(replaceItem);
@@ -429,7 +423,7 @@ export class Template {
             output += `<div style="display: none;" puzzle-fragment="${chunkedReplacement.fragment.name}" puzzle-chunk-key="${replaceItem.key}">${fragmentContent.html[replaceItem.partial] || CONTENT_NOT_FOUND_ERROR}</div>`;
             if (!(replaceItem.key === 'main' && selfReplacing)) {
               // todo replace here
-              output += `<script>$p('[puzzle-chunk="${replaceItem.key}"]','[puzzle-chunk-key="${replaceItem.key}"]');</script>`;
+              output += `<script>PuzzleJs.emit('${EVENT.ON_FRAGMENT_RENDERED}','[puzzle-chunk="${replaceItem.key}"]','[puzzle-chunk-key="${replaceItem.key}"]');</script>`;
             }
           }
         });
@@ -550,14 +544,6 @@ export class Template {
       let contentStart = isDebug ? `<script>PuzzleJs.analytics.fragment('${fragment.name}')</script>` : '';
       let contentEnd = ``;
 
-      const replaceModelKey = `{fragment|${fragment.name}_pageModel}`;
-
-      replaceItems.push({
-        type: REPLACE_ITEM_TYPE.MODEL_SCRIPT,
-        key: replaceModelKey,
-        partial: DEFAULT_MAIN_PARTIAL,
-      });
-
       jsReplacements && jsReplacements.replaceItems.filter(item => item.location === RESOURCE_LOCATION.CONTENT_START).forEach(replaceItem => {
         contentStart += Template.wrapJsAsset(replaceItem);
       });
@@ -565,10 +551,6 @@ export class Template {
       jsReplacements && jsReplacements.replaceItems.filter(item => item.location === RESOURCE_LOCATION.CONTENT_END).forEach(replaceItem => {
         contentEnd += Template.wrapJsAsset(replaceItem);
       });
-
-      if (isDebug) {
-        contentEnd += `<script>PuzzleJs.analytics.fragment('${fragment.name}')</script>`;
-      }
 
       this.dom(contentStart).insertBefore(this.dom(`fragment[from="${fragment.from}"][name="${fragment.name}"]`).first());
       this.dom(contentEnd).insertAfter(this.dom(`fragment[from="${fragment.from}"][name="${fragment.name}"]`).last());
@@ -588,9 +570,9 @@ export class Template {
           }
 
           if (element.parentNode.name !== 'head') {
-            this.dom(element).replaceWith(`${i === 0 ? replaceModelKey : ''}<div id="${fragment.name}" puzzle-fragment="${element.attribs.name}" puzzle-gateway="${element.attribs.from}" ${element.attribs.partial ? 'fragment-partial="' + element.attribs.partial + '"' : ''}>${replaceKey}</div>`);
+            this.dom(element).replaceWith(`<div id="${fragment.name}" puzzle-fragment="${element.attribs.name}" puzzle-gateway="${element.attribs.from}" ${element.attribs.partial ? 'fragment-partial="' + element.attribs.partial + '"' : ''}>${replaceKey}</div>`);
           } else {
-            this.dom(element).replaceWith((i === 0 ? replaceModelKey : '') + replaceKey);
+            this.dom(element).replaceWith(replaceKey);
           }
         });
 

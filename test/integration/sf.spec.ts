@@ -4,11 +4,18 @@ import {Storefront} from "../../src/storefront";
 import request from "supertest";
 import {createGateway} from "../mock/mock";
 import {RENDER_MODE_QUERY_NAME} from "../../src/config";
-import {CONTENT_REPLACE_SCRIPT, EVENTS, FRAGMENT_RENDER_MODES, TRANSFER_PROTOCOLS} from "../../src/enums";
+import {
+  CONTENT_REPLACE_SCRIPT,
+  EVENTS,
+  FRAGMENT_RENDER_MODES, PUZZLE_DEBUG_LIB_SCRIPT,
+  PUZZLE_LIB_SCRIPT,
+  TRANSFER_PROTOCOLS
+} from "../../src/enums";
 import nock from "nock";
 import {IStorefrontConfig} from "../../src/types";
 import faker from "faker";
 import {TLS_CERT, TLS_KEY, TLS_PASS} from "../core.settings";
+import {EVENT} from "../../src/lib/enums";
 
 const commonStorefrontConfiguration = {
   gateways: [],
@@ -97,7 +104,7 @@ describe('Storefront', () => {
           html: '<template><div><html><head></head><body><fragment from="Browsing" name="product"/></div></body></html></template>'
         }
       ]
-    });
+    } as any);
 
     sf.init(() => {
       request('http://localhost:4448')
@@ -110,7 +117,7 @@ describe('Storefront', () => {
             gateway.stopUpdating();
           });
 
-          expect(res.text).to.eq(`<div><html><head>${CONTENT_REPLACE_SCRIPT}</head><body><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main"></div></div><div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Product Content</div><script>$p('[puzzle-chunk="product_main"]','[puzzle-chunk-key="product_main"]');</script></body></html>`);
+          expect(res.text).to.include(`<div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Product Content</div>`);
           done(err);
         });
     });
@@ -162,14 +169,15 @@ describe('Storefront', () => {
           html: '<template><div><html><head></head><body><fragment from="Browsing" name="product"/></div></body></html></template>'
         }
       ]
-    });
+    } as any);
 
     sf.init(() => {
       request('http://localhost:4448')
         .get('/')
         .expect(200)
         .end((err, res) => {
-          expect(res.text).to.eq(`<div><html><head>${CONTENT_REPLACE_SCRIPT}</head><body><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main"></div></div><div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Product Content</div><script>$p('[puzzle-chunk="product_main"]','[puzzle-chunk-key="product_main"]');</script></body></html>`);
+          expect(res.text).to.include(`<div><html><head>${PUZZLE_LIB_SCRIPT}</head><body><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main"></div>`);
+          expect(res.text).to.include(`</div><div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Product Content</div><script>PuzzleJs.emit('${EVENT.ON_FRAGMENT_RENDERED}','[puzzle-chunk="product_main"]','[puzzle-chunk-key="product_main"]');</script>`);
           nock.cleanAll();
           hash_nock(true, 'enabled');
 
@@ -184,7 +192,8 @@ describe('Storefront', () => {
                 });
                 nock.cleanAll();
 
-                expect(res.text).to.eq(`<div><html><head>${CONTENT_REPLACE_SCRIPT}</head><body><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main" puzzle-placeholder="product_main_placeholder">Product Placeholder</div></div><div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Product Content</div><script>$p('[puzzle-chunk="product_main"]','[puzzle-chunk-key="product_main"]');</script></body></html>`);
+                expect(res.text).to.include(`<div><html><head>${PUZZLE_LIB_SCRIPT}</head><body><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main" puzzle-placeholder="product_main_placeholder">Product Placeholder</div>`);
+                expect(res.text).to.include(`</div><div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Product Content</div><script>PuzzleJs.emit('${EVENT.ON_FRAGMENT_RENDERED}','[puzzle-chunk="product_main"]','[puzzle-chunk-key="product_main"]');</script>`);
 
                 done();
               });
@@ -230,7 +239,7 @@ describe('Storefront', () => {
           html: '<template><div><html><head></head><body><fragment from="Browsing" name="product" primary/></div></body></html></template>'
         }
       ]
-    });
+    } as any);
 
     sf.init(() => {
       request('http://localhost:4448')
@@ -243,7 +252,7 @@ describe('Storefront', () => {
             gateway.stopUpdating();
           });
 
-          expect(res.text).to.eq(`<div><html><head/><body><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing">Product Content Not Found</div></body></html></div>`);
+          expect(res.text).to.include(`<div><html><head>${PUZZLE_LIB_SCRIPT}</head><body><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing">Product Content Not Found</div><`);
           done(err);
         });
     });
@@ -290,7 +299,7 @@ describe('Storefront', () => {
           html: `<template><html><head></head><body><fragment from="Browsing" name="${fragment.name}" primary/></div></body></html></template>`
         }
       ]
-    });
+    } as any);
 
     sf.init(() => {
       request('http://localhost:4448')
@@ -302,7 +311,7 @@ describe('Storefront', () => {
             gateway.stopUpdating();
           });
 
-          expect(res.text).to.eq(`<html><head/><body><div id="${fragment.name}" puzzle-fragment="${fragment.name}" puzzle-gateway="Browsing">Fragment: ${fragment.name}</div></body></html>`);
+          expect(res.text).to.include(`<html><head>${PUZZLE_LIB_SCRIPT}</head><body><div id="${fragment.name}" puzzle-fragment="${fragment.name}" puzzle-gateway="Browsing">Fragment: ${fragment.name}</div>`);
           done(err);
         });
     });
