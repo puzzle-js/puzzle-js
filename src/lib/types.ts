@@ -40,3 +40,7 @@ export interface IPageLibConfiguration {
   assets: IPageLibAsset[];
   dependencies: IPageLibDependency[]
 }
+
+export interface IEventListener {
+  [event: string]: Function[];
+}

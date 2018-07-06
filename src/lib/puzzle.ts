@@ -1,4 +1,5 @@
 import {EVENT} from "./enums";
+import {IEventListener} from "./types";
 
 export class PuzzleJs {
   [module: string]: any;
@@ -7,7 +8,7 @@ export class PuzzleJs {
   static DEPENDENCIES = {};
   static LOGO = '';
 
-  private static __LISTENERS = {};
+  private static __LISTENERS: IEventListener = {};
 
   static subscribe(event: EVENT, cb: Function) {
     if (!PuzzleJs.__LISTENERS[event]) {
