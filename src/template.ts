@@ -25,7 +25,8 @@ import {
   HTTP_METHODS, HTTP_STATUS_CODE,
   REPLACE_ITEM_TYPE,
   RESOURCE_INJECT_TYPE, RESOURCE_JS_EXECUTE_TYPE,
-  RESOURCE_LOCATION} from "./enums";
+  RESOURCE_LOCATION
+} from "./enums";
 import ResourceFactory from "./resourceFactory";
 import CleanCSS from "clean-css";
 import md5 from "md5";
@@ -37,7 +38,7 @@ import {Logger} from "./logger";
 import {container, TYPES} from "./base";
 import fs from "fs";
 import path from "path";
-import {IPageFragmentConfig, IPageLibAsset, IPageLibConfiguration} from "./lib/types";
+import {IPageFragmentConfig, IPageLibAsset, IPageLibConfiguration, IPageLibDependency} from "./lib/types";
 import {EVENT, RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "./lib/enums";
 
 const logger = <Logger>container.get(TYPES.Logger);
@@ -221,10 +222,28 @@ export class Template {
       return pageLibAssets;
     }, []);
 
+    const dependencies = fragments.reduce((pageLibDependencies: IPageLibDependency[], fragmentName) => {
+      const fragment = this.fragments[fragmentName];
+
+      fragment.config && fragment.config.dependencies.forEach((dependency) => {
+        if (!pageLibDependencies.find((dependency) => dependency.name === dependency.name) && dependency.link) {
+          pageLibDependencies.push({
+            name: dependency.name,
+            link: dependency.link,
+            type: dependency.type
+          });
+        }
+      });
+
+      return pageLibDependencies;
+    }, []);
+
+
     const libConfig = {
       page: this.name,
       fragments: pageFragmentLibConfig,
-      assets: assets
+      assets,
+      dependencies
     } as IPageLibConfiguration;
 
     this.dom('body').append(Template.wrapJsAsset({

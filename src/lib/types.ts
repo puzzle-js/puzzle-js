@@ -28,8 +28,15 @@ export interface IPageFragmentConfig {
   chunked: boolean;
 }
 
+export interface IPageLibDependency {
+  name: string;
+  link: string;
+  type: RESOURCE_TYPE;
+}
+
 export interface IPageLibConfiguration {
   page: string;
   fragments: IPageFragmentConfig[];
   assets: IPageLibAsset[];
+  dependencies: IPageLibDependency[]
 }
