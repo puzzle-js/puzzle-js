@@ -12,6 +12,7 @@ export class Core extends Module {
   static set _pageConfiguration(value) {
     this.__pageConfiguration = value;
   }
+
   private static __pageConfiguration = {};
 
   static config(pageConfiguration: IPageLibConfiguration) {
@@ -31,10 +32,14 @@ export class Core extends Module {
     PuzzleJs.emit(EVENT.ON_FRAGMENT_RENDERED, fragmentName);
   }
 
-
   @on(EVENT.ON_PAGE_LOAD)
   static pageLoaded() {
 
+  }
+
+  @on(EVENT.ON_VARIABLES)
+  static onVariables(key, model) {
+    window[key] = model;
   }
 
   /**

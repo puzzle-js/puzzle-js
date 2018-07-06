@@ -3,7 +3,12 @@ import {expect} from "chai";
 import {Template} from "../src/template";
 import nock = require("nock");
 import {
-  CONTENT_REPLACE_SCRIPT, FRAGMENT_RENDER_MODES, RESOURCE_INJECT_TYPE, RESOURCE_JS_EXECUTE_TYPE, RESOURCE_LOCATION,
+  CONTENT_REPLACE_SCRIPT,
+  FRAGMENT_RENDER_MODES,
+  PUZZLE_LIB_SCRIPT,
+  RESOURCE_INJECT_TYPE,
+  RESOURCE_JS_EXECUTE_TYPE,
+  RESOURCE_LOCATION,
   RESOURCE_TYPE
 } from "../src/enums";
 import {createExpressMock} from "./mock/mock";
@@ -2652,7 +2657,7 @@ describe('Template', () => {
             },
             end(str: string) {
               try {
-                expect(str).to.eq(`<html><head> <meta name="product" id="1235"><script puzzle-dependency="Product Bundle" src="http://my-test-gateway-chunked.com/product/static/bundle.min.js" type="text/javascript"></script></head><body><div></div></body></html>`);
+                expect(str).to.eq(`<html><head>${PUZZLE_LIB_SCRIPT} <meta name="product" id="1235"><script puzzle-dependency="Product Bundle" src="http://my-test-gateway-chunked.com/product/static/bundle.min.js" type="text/javascript"></script></head><body><div></div></body></html>`);
               } catch (e) {
                 err = e;
               }

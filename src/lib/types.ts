@@ -24,11 +24,9 @@ export interface ICustomPageAsset {
 
 export interface IPageLibConfiguration {
   page: string;
-  fragments: [
-    {
-      name: string;
-      chunked: boolean;
-    }
-  ];
+  fragments: {
+    name: string;
+    chunked: boolean;
+  }[];
   assets: IPageLibAsset[];
 }
