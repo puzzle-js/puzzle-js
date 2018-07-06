@@ -30,6 +30,7 @@ describe('Module - Variables', () => {
     sinon.restore();
     delete global.window;
     PuzzleJs.clearListeners();
+    Variables.variables = {};
   });
 
   it('should create new Info', () => {
@@ -39,37 +40,34 @@ describe('Module - Variables', () => {
   });
 
   it('should set fragment variables', function () {
-    const variables = new Variables();
     const variable = faker.helpers.userCard();
     const fragmentName = faker.random.word();
     window.__fragment_variable = variable;
 
-    variables.set(fragmentName, '__fragment_variable');
+    Variables.set(fragmentName, '__fragment_variable');
 
-    expect(variables.variables[fragmentName]['__fragment_variable']).to.eq(variable);
+    expect(Variables.variables[fragmentName]['__fragment_variable']).to.eq(variable);
   });
 
   it('should print variables', function () {
-    const variables = new Variables();
     const variable = faker.helpers.userCard();
     const fragmentName = faker.random.word();
     const fn = sinon.stub(Util, 'log');
     window.__fragment_variable = variable;
 
-    variables.set(fragmentName, '__fragment_variable');
-    variables.print();
+    Variables.set(fragmentName, '__fragment_variable');
+    Variables.print();
 
     expect(fn.calledWith(variable)).to.true;
   });
 
   it('should define setter getter for variables', function () {
-    const variables = new Variables();
     const variable = {
       fragment: faker.helpers.userCard()
     };
 
-    variables.variables = variable;
+    Variables.variables = variable;
 
-    expect(variables.variables).to.eq(variable);
+    expect(Variables.variables).to.eq(variable);
   });
 });

@@ -2,7 +2,7 @@ import {Module, ModuleConstructor} from "./module";
 import {EVENT} from "./enums";
 
 export class PuzzleJs {
-  [module: string]: object;
+  [module: string]: any;
 
   static PACKAGE_VERSION = '';
   static DEPENDENCIES = {};
@@ -30,9 +30,9 @@ export class PuzzleJs {
     PuzzleJs.__LISTENERS = {};
   }
 
-  inject(modules: { [name: string]: ModuleConstructor }) {
+  inject(modules: { [name: string]: Function }) {
     for (let name in modules) {
-      this[name] = new modules[name]();
+      this[name] = modules[name];
     }
   }
 }

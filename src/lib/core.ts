@@ -5,18 +5,17 @@ import {IPageLibConfiguration} from "./types";
 import {on} from "./decorators";
 
 export class Core extends Module {
-  get pageConfiguration(): IPageLibConfiguration {
-    return this._pageConfiguration;
+  static get _pageConfiguration() {
+    return this.__pageConfiguration;
   }
 
-  set pageConfiguration(value: IPageLibConfiguration) {
-    this._pageConfiguration = value;
+  static set _pageConfiguration(value) {
+    this.__pageConfiguration = value;
   }
+  private static __pageConfiguration = {};
 
-  private _pageConfiguration: IPageLibConfiguration;
-
-  config(pageConfiguration: IPageLibConfiguration) {
-    this.pageConfiguration = pageConfiguration;
+  static config(pageConfiguration: IPageLibConfiguration) {
+    Core.__pageConfiguration = pageConfiguration;
   }
 
   /**
@@ -26,10 +25,16 @@ export class Core extends Module {
    * @param {string} replacementContentSelector
    */
   @on(EVENT.ON_FRAGMENT_RENDERED)
-  load(fragmentName: string, containerSelector: string, replacementContentSelector: string) {
-    this.replace(containerSelector, replacementContentSelector);
+  static load(fragmentName: string, containerSelector: string, replacementContentSelector: string) {
+    this.__replace(containerSelector, replacementContentSelector);
 
     PuzzleJs.emit(EVENT.ON_FRAGMENT_RENDERED, fragmentName);
+  }
+
+
+  @on(EVENT.ON_PAGE_LOAD)
+  static pageLoaded() {
+
   }
 
   /**
@@ -37,15 +42,10 @@ export class Core extends Module {
    * @param {string} containerSelector
    * @param {string} replacementContentSelector
    */
-  private replace(containerSelector: string, replacementContentSelector: string) {
+  private static __replace(containerSelector: string, replacementContentSelector: string) {
     const z = window.document.querySelector(replacementContentSelector);
     const r = z.innerHTML;
     z.parentNode.removeChild(z);
     window.document.querySelector(containerSelector).innerHTML = r;
-  }
-
-  @on(EVENT.ON_PAGE_LOAD)
-  private pageLoaded() {
-
   }
 }

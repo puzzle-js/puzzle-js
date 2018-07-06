@@ -25,6 +25,7 @@ describe('Module - Core', () => {
   afterEach(() => {
     delete global.window;
     PuzzleJs.clearListeners();
+    Core._pageConfiguration = {};
   });
 
   it('should create new Info', () => {
@@ -34,12 +35,11 @@ describe('Module - Core', () => {
   });
 
   it('should register Page configuration', () => {
-    const core = new Core();
     const pageConfiguration = createPageLibConfiguration();
 
-    core.config(pageConfiguration);
+    Core.config(pageConfiguration);
 
-    expect(core.pageConfiguration).to.eq(pageConfiguration);
+    expect(Core._pageConfiguration).to.eq(pageConfiguration);
   });
 
   it('should load fragment and replace its contenst', function () {
@@ -54,9 +54,8 @@ describe('Module - Core', () => {
     fragmentContentContainer.setAttribute('id', fragmentContentId);
     fragmentContentContainer.innerHTML = fragmentContent;
     global.window.document.body.appendChild(fragmentContentContainer);
-    const core = new Core();
 
-    core.load(fragmentName, `#${fragmentContainerId}`, `#${fragmentContentId}`);
+    Core.load(fragmentName, `#${fragmentContainerId}`, `#${fragmentContentId}`);
 
     expect(global.window.document.body.innerHTML).to.eq(`<div id="${fragmentContainerId}">${fragmentContent}</div>`);
   });

@@ -28,24 +28,14 @@ describe('PuzzleLib Decorators', () => {
     PuzzleJs.clearListeners();
   });
 
-  it('should register for events on PuzzleJs', function () {
+  it('should register for events on PuzzleJs', (done) => {
     class Test {
-      blabla: number;
-
-      constructor(){
-        this.blabla = 5;
-      }
-
       @on(EVENT.ON_PAGE_LOAD)
-      pageLoaded(){
-        console.log(this.blabla);
+      static pageLoaded(){
+        done();
       }
     }
-    const test = new Test();
-    const fn = sinon.stub(test, 'pageLoaded');
 
     PuzzleJs.emit(EVENT.ON_PAGE_LOAD);
-
-    expect(fn.called).to.true;
   });
 });

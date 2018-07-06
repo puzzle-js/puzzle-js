@@ -33,12 +33,12 @@ describe('PuzzleJs', () => {
     const puzzle = new PuzzleJs();
     class Module {
       constructor(){}
-      m(){}
+      static m(){}
     }
 
     puzzle.inject({module: Module});
 
-    expect(puzzle.module).to.be.instanceOf(Module);
+    expect(puzzle.module.m).to.eq(Module.m);
   });
 
   it('should register listeners', function () {

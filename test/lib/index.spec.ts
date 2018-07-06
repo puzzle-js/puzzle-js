@@ -29,5 +29,7 @@ describe('PuzzleJs Lib', () => {
     require("../../src/lib");
 
     expect(window.PuzzleJs).to.be.instanceOf(PuzzleJs);
+
+    console.log(window.PuzzleJs.Core);
   });
 });
