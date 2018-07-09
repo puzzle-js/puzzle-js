@@ -25,8 +25,7 @@ import {
   HTTP_METHODS, HTTP_STATUS_CODE,
   REPLACE_ITEM_TYPE,
   RESOURCE_INJECT_TYPE, RESOURCE_JS_EXECUTE_TYPE,
-  RESOURCE_LOCATION,
-  RESOURCE_TYPE
+  RESOURCE_LOCATION
 } from "./enums";
 import ResourceFactory from "./resourceFactory";
 import CleanCSS from "clean-css";
@@ -37,6 +36,10 @@ import {ERROR_CODES, PuzzleError} from "./errors";
 import {benchmark} from "./decorators";
 import {Logger} from "./logger";
 import {container, TYPES} from "./base";
+import fs from "fs";
+import path from "path";
+import {IPageFragmentConfig, IPageLibAsset, IPageLibConfiguration, IPageLibDependency} from "./lib/types";
+import {EVENT, RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "./lib/enums";
 
 const logger = <Logger>container.get(TYPES.Logger);
 
@@ -133,20 +136,42 @@ export class Template {
     const chunkedFragmentsWithoutWait = Object.values(this.fragments).filter(fragment => fragment.config && !fragment.shouldWait && !fragment.config.render.static);
     const staticFragments = Object.values(this.fragments).filter(fragment => fragment.config && fragment.config.render.static);
 
+    // todo kaldir lib bagla
     const replaceScripts = await this.prepareJsAssetLocations();
+
+
     const waitedFragmentReplacements: IReplaceSet[] = this.replaceWaitedFragmentContainers(chunkedFragmentsWithShouldWait, replaceScripts, isDebug);
 
     const chunkReplacements: IReplaceSet[] = this.replaceChunkedFragmentContainers(chunkedFragmentsWithoutWait);
 
     this.replaceUnfetchedFragments(Object.values(this.fragments).filter(fragment => !fragment.config));
 
-    await this.addDependencies();
+    // todo kaldir lib bag
+    //await this.addDependencies();
+
+
     await this.replaceStaticFragments(staticFragments, replaceScripts.filter(replaceSet => replaceSet.fragment.config && replaceSet.fragment.config.render.static));
     await this.appendPlaceholders(chunkReplacements);
+
+
+    /**
+     * @deprecated Combine this with only on render start assets.
+     */
     await this.buildStyleSheets();
+
+
+    this.injectPuzzleLibAndConfig(isDebug);
+
+
     this.replaceEmptyTags();
 
-    return this.buildHandler(TemplateCompiler.compile(Template.clearHtmlContent(this.dom.html())), chunkReplacements, waitedFragmentReplacements, replaceScripts, isDebug);
+    /**
+     * todo Bu kafa olmaz runtimeda debug not debug degismez, handler ici runtime guzel olur.
+     */
+    const puzzleLib = fs.readFileSync(path.join(__dirname, `/lib/${isDebug ? 'puzzle_debug.min.js' : 'puzzle.min.js'}`)).toString();
+    const clearLibOutput = this.dom.html().replace('{puzzleLibContent}', puzzleLib);
+
+    return this.buildHandler(TemplateCompiler.compile(Template.clearHtmlContent(clearLibOutput)), chunkReplacements, waitedFragmentReplacements, replaceScripts, isDebug);
   }
 
   /**
@@ -165,6 +190,123 @@ export class Template {
     }
   }
 
+  /**
+   * Puzzle lib preparation
+   * @param {boolean} isDebug
+   */
+  private injectPuzzleLibAndConfig(isDebug: boolean): void {
+    this.dom('head').prepend(Template.wrapJsAsset({
+      content: `{puzzleLibContent}`,
+      injectType: RESOURCE_INJECT_TYPE.INLINE,
+      name: 'puzzle-lib',
+      link: '',
+      executeType: RESOURCE_JS_EXECUTE_TYPE.SYNC
+    }));
+
+    const fragments = Object.keys(this.fragments);
+
+    const pageFragmentLibConfig = fragments.reduce((pageLibFragments: IPageFragmentConfig[], fragmentName) => {
+      const fragment = this.fragments[fragmentName];
+
+      pageLibFragments.push({
+        name: fragment.name,
+        chunked: fragment.config ? (fragment.shouldWait || (fragment.config.render.static || false)) : false
+      });
+
+      return pageLibFragments;
+    }, []);
+
+
+    const assets = fragments.reduce((pageLibAssets: IPageLibAsset[], fragmentName) => {
+      const fragment = this.fragments[fragmentName];
+
+      fragment.config && fragment.config.assets.forEach((asset) => {
+        pageLibAssets.push({
+          fragment: fragmentName,
+          loadMethod: typeof asset.loadMethod !== 'undefined' ? asset.loadMethod : RESOURCE_LOADING_TYPE.ON_PAGE_RENDER,
+          name: asset.name,
+          dependent: asset.dependent || [],
+          type: asset.type,
+          link: asset.link,
+          preLoaded: false
+        });
+      });
+
+      return pageLibAssets;
+    }, []);
+
+    const dependencies = fragments.reduce((pageLibDependencies: IPageLibDependency[], fragmentName) => {
+      const fragment = this.fragments[fragmentName];
+
+      fragment.config && fragment.config.dependencies.forEach(dependency => {
+        const dependencyData = ResourceFactory.instance.get(dependency.name);
+        if (dependencyData && dependencyData.link && !pageLibDependencies.find(dependency => dependency.name === dependencyData.name)) {
+          pageLibDependencies.push({
+            name: dependency.name,
+            link: dependencyData.link,
+            type: dependency.type,
+            preLoaded: false
+          })
+        }
+      });
+
+      return pageLibDependencies;
+    }, []);
+
+    assets.forEach(asset => {
+      if (asset.loadMethod === RESOURCE_LOADING_TYPE.ON_RENDER_START) {
+        asset.preLoaded = true;
+        if (asset.dependent && asset.dependent.length > 0) {
+          dependencies.forEach(dependency => {
+            if (asset.dependent && asset.dependent.indexOf(dependency.name) > -1 && !dependency.preLoaded) {
+              dependency.preLoaded = true;
+              if (dependency.type === RESOURCE_TYPE.JS) {
+                this.dom('body').append(Template.wrapJsAsset({
+                  content: ``,
+                  injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
+                  name: dependency.name,
+                  link: dependency.link,
+                  executeType: RESOURCE_JS_EXECUTE_TYPE.SYNC
+                }));
+              } else if (dependency.type === RESOURCE_TYPE.CSS) {
+                this.dom('head').append(`<link puzzle-dependency="${dependency.name}" rel="stylesheet" href="${dependency.link}" />`);
+              }
+            }
+          });
+        }
+
+        if (asset.type === RESOURCE_TYPE.JS) {
+          this.dom('body').append(Template.wrapJsAsset({
+            content: ``,
+            injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
+            name: asset.name,
+            link: asset.link,
+            executeType: RESOURCE_JS_EXECUTE_TYPE.SYNC
+          }));
+        }
+      }
+    });
+
+
+    const libConfig = {
+      page: this.name,
+      fragments: pageFragmentLibConfig,
+      assets: assets.filter(asset => asset.type === RESOURCE_TYPE.JS), //css handled by merge cleaning
+      dependencies
+    } as IPageLibConfiguration;
+
+    this.dom('body').append(Template.wrapJsAsset({
+      content: `PuzzleJs.emit('${EVENT.ON_CONFIG}','${JSON.stringify(libConfig)}');`,
+      injectType: RESOURCE_INJECT_TYPE.INLINE,
+      name: 'lib-config',
+      link: '',
+      executeType: RESOURCE_JS_EXECUTE_TYPE.SYNC
+    }));
+
+    if (isDebug) {
+      // todo emit debug model
+    }
+  }
 
   /**
    * Bind user class to page
@@ -245,12 +387,6 @@ export class Template {
         headers = fragmentContent.headers;
       }
 
-
-      const modelReplacement = waitedFragmentReplacement.replaceItems.find(item => item.type === REPLACE_ITEM_TYPE.MODEL_SCRIPT);
-      if (modelReplacement) {
-        template = template.replace(`${modelReplacement.key}`, Template.fragmentModelScript(waitedFragmentReplacement.fragment, fragmentContent.model, isDebug));
-      }
-
       waitedFragmentReplacement.replaceItems
         .forEach(replaceItem => {
           if (replaceItem.type === REPLACE_ITEM_TYPE.CONTENT) {
@@ -263,9 +399,16 @@ export class Template {
     return {template, statusCode, headers};
   }
 
+  /**
+   * Maps fragment response variable model into PuzzleLib
+   * @param {{name: string}} fragment
+   * @param {FragmentModel} fragmentPageModel
+   * @param {boolean} isDebug
+   * @returns {string}
+   */
   static fragmentModelScript(fragment: { name: string }, fragmentPageModel: FragmentModel, isDebug: boolean = false) {
     return fragmentPageModel && Object.keys(fragmentPageModel).length ? `<script>${Object.keys(fragmentPageModel).reduce((modelVariable, key) => {
-      modelVariable += `window['${key}']=window['${key}']||${JSON.stringify(fragmentPageModel[key])};${isDebug ? `PuzzleJs.variables.add('${fragment.name}','${key}');` : ""}`;
+      modelVariable += `PuzzleJs.emit('${EVENT.ON_VARIABLES}', '${fragment.name}', '${key}', '${JSON.stringify(fragmentPageModel[key])}')`;
       return modelVariable;
     }, '')}</script>` : '';
   }
@@ -295,23 +438,12 @@ export class Template {
             res.end();
             this.pageClass._onResponseEnd();
           } else {
-            if (isDebug) {
-              res.send(waitedReplacement.template.replace('</body></html>', () => '<script>PuzzleJs.analytics.end();PuzzleJs.variables.end();</script></body></html>').replace('<head>', () => `<head><script src="${PUZZLE_DEBUGGER_LINK}" type="text/javascript"></script><script>PuzzleJs.fragments.set(${JSON.stringify(this.fragments)})</script>`));
-            } else {
-              res.send(waitedReplacement.template);
-            }
+            res.send(waitedReplacement.template.replace('</body>',() => `<script>PuzzleJs.emit('${EVENT.ON_PAGE_LOAD}');</script></body>`));
             this.pageClass._onResponseEnd();
           }
-
         })();
       };
     } else {
-      let bodyAndAssets = ``;
-      jsReplacements.forEach(replacement => {
-        replacement.replaceItems.filter(item => item.location === RESOURCE_LOCATION.BODY_END).forEach(replaceItem => {
-          bodyAndAssets += Template.wrapJsAsset(replaceItem);
-        });
-      });
       return (req: any, res: any) => {
         this.pageClass._onRequest(req);
         let fragmentedHtml = firstFlushHandler.call(this.pageClass, req).replace('</body>', '').replace('</html>', '');
@@ -336,11 +468,7 @@ export class Template {
             res.end();
             this.pageClass._onResponseEnd();
           } else {
-            if (isDebug) {
-              res.write(waitedReplacement.template.replace('<head>', () => `<head><script src="${PUZZLE_DEBUGGER_LINK}" type="text/javascript"></script><script>PuzzleJs.fragments.set(${JSON.stringify(this.fragments)})</script>`));
-            } else {
-              res.write(waitedReplacement.template);
-            }
+            res.write(waitedReplacement.template);
 
             //Bind flush method to resolved or being resolved promises of chunked replacements
             Object.values(chunkedFragmentReplacements).forEach((chunkedReplacement, x) => {
@@ -349,11 +477,7 @@ export class Template {
 
             //Close stream after all chunked fragments done
             await Promise.all(waitedPromises);
-            if (isDebug) {
-              res.end(`${bodyAndAssets}<script>PuzzleJs.analytics.end();PuzzleJs.variables.end();</script></body></html>`);
-            } else {
-              res.end(`${bodyAndAssets}</body></html>`);
-            }
+            res.end(`<script>PuzzleJs.emit('${EVENT.ON_PAGE_LOAD}');</script></body></html>`);
             this.pageClass._onResponseEnd();
           }
         })();
@@ -389,7 +513,8 @@ export class Template {
           if (replaceItem.type === REPLACE_ITEM_TYPE.CHUNKED_CONTENT) {
             output += `<div style="display: none;" puzzle-fragment="${chunkedReplacement.fragment.name}" puzzle-chunk-key="${replaceItem.key}">${fragmentContent.html[replaceItem.partial] || CONTENT_NOT_FOUND_ERROR}</div>`;
             if (!(replaceItem.key === 'main' && selfReplacing)) {
-              output += `<script>$p('[puzzle-chunk="${replaceItem.key}"]','[puzzle-chunk-key="${replaceItem.key}"]');</script>`;
+              // todo replace here
+              output += `<script>PuzzleJs.emit('${EVENT.ON_FRAGMENT_RENDERED}','${chunkedReplacement.fragment.name}','[puzzle-chunk="${replaceItem.key}"]','[puzzle-chunk-key="${replaceItem.key}"]');</script>`;
             }
           }
         });
@@ -453,10 +578,6 @@ export class Template {
   private replaceChunkedFragmentContainers(chunkedFragments: FragmentStorefront[]) {
     const chunkReplacements: IReplaceSet[] = [];
 
-    if (chunkedFragments.length > 0) {
-      this.dom('head').append(CONTENT_REPLACE_SCRIPT);
-    }
-
     chunkedFragments.forEach(fragment => {
       let replaceItems: IReplaceItem[] = [];
       let fragmentAttributes = {};
@@ -514,14 +635,6 @@ export class Template {
       let contentStart = isDebug ? `<script>PuzzleJs.analytics.fragment('${fragment.name}')</script>` : '';
       let contentEnd = ``;
 
-      const replaceModelKey = `{fragment|${fragment.name}_pageModel}`;
-
-      replaceItems.push({
-        type: REPLACE_ITEM_TYPE.MODEL_SCRIPT,
-        key: replaceModelKey,
-        partial: DEFAULT_MAIN_PARTIAL,
-      });
-
       jsReplacements && jsReplacements.replaceItems.filter(item => item.location === RESOURCE_LOCATION.CONTENT_START).forEach(replaceItem => {
         contentStart += Template.wrapJsAsset(replaceItem);
       });
@@ -529,10 +642,6 @@ export class Template {
       jsReplacements && jsReplacements.replaceItems.filter(item => item.location === RESOURCE_LOCATION.CONTENT_END).forEach(replaceItem => {
         contentEnd += Template.wrapJsAsset(replaceItem);
       });
-
-      if (isDebug) {
-        contentEnd += `<script>PuzzleJs.analytics.fragment('${fragment.name}')</script>`;
-      }
 
       this.dom(contentStart).insertBefore(this.dom(`fragment[from="${fragment.from}"][name="${fragment.name}"]`).first());
       this.dom(contentEnd).insertAfter(this.dom(`fragment[from="${fragment.from}"][name="${fragment.name}"]`).last());
@@ -552,9 +661,9 @@ export class Template {
           }
 
           if (element.parentNode.name !== 'head') {
-            this.dom(element).replaceWith(`${i === 0 ? replaceModelKey : ''}<div id="${fragment.name}" puzzle-fragment="${element.attribs.name}" puzzle-gateway="${element.attribs.from}" ${element.attribs.partial ? 'fragment-partial="' + element.attribs.partial + '"' : ''}>${replaceKey}</div>`);
+            this.dom(element).replaceWith(`<div id="${fragment.name}" puzzle-fragment="${element.attribs.name}" puzzle-gateway="${element.attribs.from}" ${element.attribs.partial ? 'fragment-partial="' + element.attribs.partial + '"' : ''}>${replaceKey}</div>`);
           } else {
-            this.dom(element).replaceWith((i === 0 ? replaceModelKey : '') + replaceKey);
+            this.dom(element).replaceWith(replaceKey);
           }
         });
 
@@ -576,62 +685,63 @@ export class Template {
   private async prepareJsAssetLocations(): Promise<IReplaceAsset[]> {
     const replaceScripts: IReplaceAsset[] = [];
 
-    await Promise.all(Object.keys(this.fragments).map(async (fragmentName) => {
-      const fragment = this.fragments[fragmentName];
-
-      if (fragment.config) {
-        const replaceItems: IReplaceAssetSet[] = [];
-        await Promise.all(fragment.config.assets.filter(asset => asset.type === RESOURCE_TYPE.JS).map(async asset => {
-          let assetContent = null;
-          if (asset.injectType === RESOURCE_INJECT_TYPE.INLINE) {
-            assetContent = await fragment.getAsset(asset.name);
-          }
-          switch (asset.location) {
-            case RESOURCE_LOCATION.HEAD:
-              this.dom('head').append(Template.wrapJsAsset({
-                name: asset.name,
-                injectType: asset.injectType,
-                link: fragment.getAssetPath(asset.name),
-                content: assetContent,
-                executeType: asset.executeType || RESOURCE_JS_EXECUTE_TYPE.SYNC
-              }));
-              break;
-            case RESOURCE_LOCATION.BODY_START:
-              this.dom('body').prepend(Template.wrapJsAsset({
-                name: asset.name,
-                injectType: asset.injectType,
-                link: fragment.getAssetPath(asset.name),
-                content: assetContent,
-                executeType: asset.executeType || RESOURCE_JS_EXECUTE_TYPE.SYNC
-              }));
-              break;
-            case RESOURCE_LOCATION.CONTENT_START:
-            case RESOURCE_LOCATION.CONTENT_END:
-            case RESOURCE_LOCATION.BODY_END:
-              replaceItems.push({
-                content: assetContent,
-                name: asset.name,
-                link: fragment.getAssetPath(asset.name),
-                injectType: asset.injectType,
-                location: asset.location,
-                executeType: asset.executeType || RESOURCE_JS_EXECUTE_TYPE.SYNC
-              });
-              break;
-          }
-
-        }));
-        replaceScripts.push({
-          fragment,
-          replaceItems
-        });
-      }
-    }));
+    // await Promise.all(Object.keys(this.fragments).map(async (fragmentName) => {
+    //   const fragment = this.fragments[fragmentName];
+    //
+    //   if (fragment.config) {
+    //     const replaceItems: IReplaceAssetSet[] = [];
+    //     await Promise.all(fragment.config.assets.filter(asset => asset.type === RESOURCE_TYPE.JS).map(async asset => {
+    //       let assetContent = null;
+    //       if (asset.injectType === RESOURCE_INJECT_TYPE.INLINE) {
+    //         assetContent = await fragment.getAsset(asset.name);
+    //       }
+    //       switch (asset.location) {
+    //         case RESOURCE_LOCATION.HEAD:
+    //           this.dom('head').append(Template.wrapJsAsset({
+    //             name: asset.name,
+    //             injectType: asset.injectType,
+    //             link: fragment.getAssetPath(asset.name),
+    //             content: assetContent,
+    //             executeType: asset.executeType || RESOURCE_JS_EXECUTE_TYPE.SYNC
+    //           }));
+    //           break;
+    //         case RESOURCE_LOCATION.BODY_START:
+    //           this.dom('body').prepend(Template.wrapJsAsset({
+    //             name: asset.name,
+    //             injectType: asset.injectType,
+    //             link: fragment.getAssetPath(asset.name),
+    //             content: assetContent,
+    //             executeType: asset.executeType || RESOURCE_JS_EXECUTE_TYPE.SYNC
+    //           }));
+    //           break;
+    //         case RESOURCE_LOCATION.CONTENT_START:
+    //         case RESOURCE_LOCATION.CONTENT_END:
+    //         case RESOURCE_LOCATION.BODY_END:
+    //           replaceItems.push({
+    //             content: assetContent,
+    //             name: asset.name,
+    //             link: fragment.getAssetPath(asset.name),
+    //             injectType: asset.injectType,
+    //             location: asset.location,
+    //             executeType: asset.executeType || RESOURCE_JS_EXECUTE_TYPE.SYNC
+    //           });
+    //           break;
+    //       }
+    //
+    //     }));
+    //     replaceScripts.push({
+    //       fragment,
+    //       replaceItems
+    //     });
+    //   }
+    // }));
 
     return replaceScripts;
   }
 
 
   /**
+   * @deprecated Combine this for only render_start_css assets
    * Merges, minifies stylesheets and inject them into a page
    * @returns {Promise<void>}
    */

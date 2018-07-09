@@ -1,7 +1,8 @@
 import nodeFetch from "node-fetch";
-import {EVENTS, HTTP_METHODS, RESOURCE_INJECT_TYPE, RESOURCE_TYPE} from "./enums";
+import {EVENTS, HTTP_METHODS, RESOURCE_INJECT_TYPE} from "./enums";
 import {pubsub} from "./util";
 import {IFileResourceStorefrontDependency} from "./types";
+import {RESOURCE_TYPE} from "./lib/enums";
 
 const singletonSymbol = Symbol();
 

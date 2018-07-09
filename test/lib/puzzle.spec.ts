@@ -23,22 +23,15 @@ describe('PuzzleJs', () => {
     PuzzleJs.clearListeners();
   });
 
-  it('It should export class PuzzleJs', () => {
-    const puzzle = new PuzzleJs();
-
-    expect(puzzle).to.be.instanceOf(PuzzleJs);
-  });
-
   it('should has a method for injecting modules', function () {
-    const puzzle = new PuzzleJs();
     class Module {
       constructor(){}
       static m(){}
     }
 
-    puzzle.inject({module: Module});
+    PuzzleJs.inject({module: Module});
 
-    expect(puzzle.module.m).to.eq(Module.m);
+    expect((<any>PuzzleJs)['module'].m).to.eq(Module.m);
   });
 
   it('should register listeners', function () {

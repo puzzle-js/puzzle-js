@@ -14,11 +14,6 @@ export enum RESOURCE_INJECT_TYPE {
   EXTERNAL
 }
 
-export enum RESOURCE_TYPE {
-  CSS,
-  JS
-}
-
 /**
  * Will be changed with PuzzleLib asset injections
  * @deprecated
@@ -59,6 +54,12 @@ export enum RESOURCE_JS_EXECUTE_TYPE {
  * @type {string}
  */
 export const CONTENT_REPLACE_SCRIPT = `<script>function $p(p,c){var z = document.querySelector(c),r = z.innerHTML;z.parentNode.removeChild(z);document.querySelector(p).innerHTML=r}</script>`;
+
+
+export const PUZZLE_LIB_SCRIPT = `<script puzzle-dependency="puzzle-lib" type="text/javascript">{puzzleLib} </script>`;
+export const PUZZLE_DEBUG_LIB_SCRIPT = `<script puzzle-dependency="puzzle-lib" type="text/javascript">{puzzleDebugLib} </script>`;
+
+
 export const DEFAULT_MAIN_PARTIAL = `main`;
 
 export const HEALTHCHECK_PATH = '/healthcheck';

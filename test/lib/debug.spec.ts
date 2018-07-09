@@ -27,6 +27,6 @@ describe('PuzzleJs Debug Lib', () => {
   it('should declare PuzzleJs under window', () => {
     require("../../src/lib/debug");
 
-    expect(window.PuzzleJs).to.be.instanceOf(PuzzleJs);
+    expect(window.PuzzleJs).to.eq(PuzzleJs);
   });
 });

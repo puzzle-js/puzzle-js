@@ -50,7 +50,7 @@ describe('Storefront', () => {
             port: 4444,
             gateways: [],
             dependencies: []
-        });
+        }as any);
 
 
         expect(storefrontInstance.pages[pageConfiguration.url]).to.be.instanceOf(Page);

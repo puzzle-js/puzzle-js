@@ -12,8 +12,8 @@ import {Fragments} from "./modules/fragments";
     Fragments
   };
 
-  window.PuzzleJs = new PuzzleJs();
-  window.PuzzleJs.inject(MODULES);
+  PuzzleJs.inject(MODULES);
+  window.PuzzleJs = PuzzleJs;
 })();
 
 
