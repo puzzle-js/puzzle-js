@@ -31,7 +31,7 @@ describe('Module - Core', () => {
   afterEach(() => {
     delete global.window;
     PuzzleJs.clearListeners();
-    Core._pageConfiguration = undefined;
+    (Core as any)._pageConfiguration = undefined;
   });
 
   it('should create new Info', () => {

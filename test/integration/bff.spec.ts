@@ -16,7 +16,7 @@ import * as path from "path";
 import {IFileResourceAsset} from "../../src/types";
 import faker from "faker";
 import {TLS_CERT, TLS_KEY, TLS_PASS} from "../core.settings";
-import {RESOURCE_TYPE} from "../../src/lib/enums";
+import {EVENT, RESOURCE_TYPE} from "../../src/lib/enums";
 
 const commonGatewayConfiguration: IGatewayBFFConfiguration = {
   api: [],
@@ -482,7 +482,7 @@ describe('BFF', () => {
         .end((err, res) => {
           if (err) throw new (err);
           bff.server.close();
-          expect(res.text).to.include(`<script>window['transaction']=window['transaction']||${JSON.stringify(pageModel)};</script>`);
+          expect(res.text).to.include(`<script>PuzzleJs.emit('${EVENT.ON_VARIABLES}', 'product', 'transaction', '${JSON.stringify(pageModel)}')</script>`);
           done();
         });
     });

@@ -94,8 +94,8 @@ describe('System Tests', function () {
             .end((err, res) => {
               closeInstance(storefrontInstance);
               closeInstance(gatewayInstance);
-              expect(res.text).to.include(`<html><head>${PUZZLE_LIB_SCRIPT}</head><body><div id="example" puzzle-fragment="example" puzzle-gateway="Browsing" puzzle-chunk="example_main"></div>`);
-              expect(res.text).to.include(`<div style="display: none;" puzzle-fragment="example" puzzle-chunk-key="example_main">Fragment Content</div><script>PuzzleJs.emit('${EVENT.ON_FRAGMENT_RENDERED}','[puzzle-chunk="example_main"]','[puzzle-chunk-key="example_main"]');</script></body></html>`);
+              expect(res.text).to.include(`<body><div id="example" puzzle-fragment="example" puzzle-gateway="Browsing" puzzle-chunk="example_main"></div>`);
+              expect(res.text).to.include(`<div style="display: none;" puzzle-fragment="example" puzzle-chunk-key="example_main">Fragment Content</div><script>PuzzleJs.emit('${EVENT.ON_FRAGMENT_RENDERED}','example','[puzzle-chunk="example_main"]','[puzzle-chunk-key="example_main"]');</script>`);
               done(err);
             });
         });
@@ -180,7 +180,7 @@ describe('System Tests', function () {
             .end((err, res) => {
               closeInstance(storefrontInstance);
               closeInstance(gatewayInstance);
-              expect(res.text).to.include(`<html><head>${PUZZLE_LIB_SCRIPT}</head><body><div id="example" puzzle-fragment="example" puzzle-gateway="Browsing" fragment-partial="main">Fragment Content</div>`);
+              expect(res.text).to.include(`<body><div id="example" puzzle-fragment="example" puzzle-gateway="Browsing" fragment-partial="main">Fragment Content</div>`);
               done(err);
             });
         });
@@ -277,7 +277,7 @@ describe('System Tests', function () {
             .end((err, res) => {
               closeInstance(storefrontInstance);
               closeInstance(gatewayInstance);
-              expect(res.text).to.include(`<html><head>${PUZZLE_LIB_SCRIPT}</head><body><div id="example" puzzle-fragment="example" puzzle-gateway="Browsing" fragment-partial="main">Fragment Content</div>`);
+              expect(res.text).to.include(`<div id="example" puzzle-fragment="example" puzzle-gateway="Browsing" fragment-partial="main">Fragment Content</div>`);
               done(err);
             });
         });
@@ -365,7 +365,7 @@ describe('System Tests', function () {
               closeInstance(storefrontInstance);
               closeInstance(gatewayInstance);
               expect(res.header['custom']).to.eq('custom value');
-              expect(res.text).to.include(`<html><head>${PUZZLE_LIB_SCRIPT}</head><body><div id="example" puzzle-fragment="example" puzzle-gateway="Browsing">Fragment Content</div><script puzzle-dependency="lib-config" type="text/javascript">`);
+              expect(res.text).to.include(`<body><div id="example" puzzle-fragment="example" puzzle-gateway="Browsing">Fragment Content</div><script puzzle-dependency="lib-config" type="text/javascript">`);
               done(err);
             });
         });
@@ -648,7 +648,7 @@ describe('System Tests', function () {
         url: 'http://localhost:4451/'
       }],
       dependencies: [],
-    });
+    } as any);
 
     gatewayInstance.init(() => {
       console.log('Gateway is working');

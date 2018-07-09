@@ -438,19 +438,12 @@ export class Template {
             res.end();
             this.pageClass._onResponseEnd();
           } else {
-            res.send(waitedReplacement.template);
+            res.send(waitedReplacement.template.replace('</body>',() => `<script>PuzzleJs.emit('${EVENT.ON_PAGE_LOAD}');</script></body>`));
             this.pageClass._onResponseEnd();
           }
-
         })();
       };
     } else {
-      let bodyAndAssets = ``;
-      jsReplacements.forEach(replacement => {
-        replacement.replaceItems.filter(item => item.location === RESOURCE_LOCATION.BODY_END).forEach(replaceItem => {
-          bodyAndAssets += Template.wrapJsAsset(replaceItem);
-        });
-      });
       return (req: any, res: any) => {
         this.pageClass._onRequest(req);
         let fragmentedHtml = firstFlushHandler.call(this.pageClass, req).replace('</body>', '').replace('</html>', '');
@@ -484,7 +477,7 @@ export class Template {
 
             //Close stream after all chunked fragments done
             await Promise.all(waitedPromises);
-            res.end(`${bodyAndAssets}</body></html>`);
+            res.end(`<script>PuzzleJs.emit('${EVENT.ON_PAGE_LOAD}');</script></body></html>`);
             this.pageClass._onResponseEnd();
           }
         })();

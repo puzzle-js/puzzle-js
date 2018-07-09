@@ -176,8 +176,8 @@ describe('Storefront', () => {
         .get('/')
         .expect(200)
         .end((err, res) => {
-          expect(res.text).to.include(`<div><html><head>${PUZZLE_LIB_SCRIPT}</head><body><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main"></div>`);
-          expect(res.text).to.include(`</div><div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Product Content</div><script>PuzzleJs.emit('${EVENT.ON_FRAGMENT_RENDERED}','[puzzle-chunk="product_main"]','[puzzle-chunk-key="product_main"]');</script>`);
+          expect(res.text).to.include(`<body><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main"></div>`);
+          expect(res.text).to.include(`</div><div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Product Content</div><script>PuzzleJs.emit('${EVENT.ON_FRAGMENT_RENDERED}','product','[puzzle-chunk="product_main"]','[puzzle-chunk-key="product_main"]');</script>`);
           nock.cleanAll();
           hash_nock(true, 'enabled');
 
@@ -192,8 +192,8 @@ describe('Storefront', () => {
                 });
                 nock.cleanAll();
 
-                expect(res.text).to.include(`<div><html><head>${PUZZLE_LIB_SCRIPT}</head><body><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main" puzzle-placeholder="product_main_placeholder">Product Placeholder</div>`);
-                expect(res.text).to.include(`</div><div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Product Content</div><script>PuzzleJs.emit('${EVENT.ON_FRAGMENT_RENDERED}','[puzzle-chunk="product_main"]','[puzzle-chunk-key="product_main"]');</script>`);
+                expect(res.text).to.include(`<body><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main" puzzle-placeholder="product_main_placeholder">Product Placeholder</div>`);
+                expect(res.text).to.include(`</div><div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Product Content</div><script>PuzzleJs.emit('${EVENT.ON_FRAGMENT_RENDERED}','product','[puzzle-chunk="product_main"]','[puzzle-chunk-key="product_main"]');</script>`);
 
                 done();
               });
@@ -252,7 +252,7 @@ describe('Storefront', () => {
             gateway.stopUpdating();
           });
 
-          expect(res.text).to.include(`<div><html><head>${PUZZLE_LIB_SCRIPT}</head><body><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing">Product Content Not Found</div><`);
+          expect(res.text).to.include(`<body><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing">Product Content Not Found</div><`);
           done(err);
         });
     });
@@ -311,7 +311,7 @@ describe('Storefront', () => {
             gateway.stopUpdating();
           });
 
-          expect(res.text).to.include(`<html><head>${PUZZLE_LIB_SCRIPT}</head><body><div id="${fragment.name}" puzzle-fragment="${fragment.name}" puzzle-gateway="Browsing">Fragment: ${fragment.name}</div>`);
+          expect(res.text).to.include(`<body><div id="${fragment.name}" puzzle-fragment="${fragment.name}" puzzle-gateway="Browsing">Fragment: ${fragment.name}</div>`);
           done(err);
         });
     });
