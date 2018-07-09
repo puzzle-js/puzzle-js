@@ -64,7 +64,7 @@ export interface IFileResourceDependency extends IFileResource {
 
 export interface IFileResourceAsset extends IFileResource {
   fileName: string;
-  link?: string;
+  link: string;
   loadMethod: RESOURCE_LOADING_TYPE;
   type: RESOURCE_TYPE;
   name: string;

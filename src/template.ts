@@ -154,11 +154,15 @@ export class Template {
     await this.appendPlaceholders(chunkReplacements);
 
 
-    //todo kaldir lib bagla
-    //await this.buildStyleSheets();
+    /**
+     * @deprecated Combine this with only on render start assets.
+     */
+    await this.buildStyleSheets();
 
 
     this.injectPuzzleLibAndConfig(isDebug);
+
+
     this.replaceEmptyTags();
 
     /**
@@ -191,8 +195,6 @@ export class Template {
    * @param {boolean} isDebug
    */
   private injectPuzzleLibAndConfig(isDebug: boolean): void {
-
-
     this.dom('head').prepend(Template.wrapJsAsset({
       content: `{puzzleLibContent}`,
       injectType: RESOURCE_INJECT_TYPE.INLINE,
@@ -221,10 +223,12 @@ export class Template {
       fragment.config && fragment.config.assets.forEach((asset) => {
         pageLibAssets.push({
           fragment: fragmentName,
-          loadMethod: asset.loadMethod || RESOURCE_LOADING_TYPE.ON_PAGE_RENDER,
+          loadMethod: typeof asset.loadMethod !== 'undefined' ? asset.loadMethod : RESOURCE_LOADING_TYPE.ON_PAGE_RENDER,
           name: asset.name,
           dependent: asset.dependent || [],
-          type: asset.type
+          type: asset.type,
+          link: asset.link,
+          preLoaded: false
         });
       });
 
@@ -234,24 +238,60 @@ export class Template {
     const dependencies = fragments.reduce((pageLibDependencies: IPageLibDependency[], fragmentName) => {
       const fragment = this.fragments[fragmentName];
 
-      fragment.config && fragment.config.dependencies.forEach((dependency) => {
-        if (!pageLibDependencies.find((dependency) => dependency.name === dependency.name) && dependency.link) {
+      fragment.config && fragment.config.dependencies.forEach(dependency => {
+        const dependencyData = ResourceFactory.instance.get(dependency.name);
+        if (dependencyData && dependencyData.link && !pageLibDependencies.find(dependency => dependency.name === dependencyData.name)) {
           pageLibDependencies.push({
             name: dependency.name,
-            link: dependency.link,
-            type: dependency.type
-          });
+            link: dependencyData.link,
+            type: dependency.type,
+            preLoaded: false
+          })
         }
       });
 
       return pageLibDependencies;
     }, []);
 
+    assets.forEach(asset => {
+      if (asset.loadMethod === RESOURCE_LOADING_TYPE.ON_RENDER_START) {
+        asset.preLoaded = true;
+        if (asset.dependent && asset.dependent.length > 0) {
+          dependencies.forEach(dependency => {
+            if (asset.dependent && asset.dependent.indexOf(dependency.name) > -1 && !dependency.preLoaded) {
+              dependency.preLoaded = true;
+              if (dependency.type === RESOURCE_TYPE.JS) {
+                this.dom('body').append(Template.wrapJsAsset({
+                  content: ``,
+                  injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
+                  name: dependency.name,
+                  link: dependency.link,
+                  executeType: RESOURCE_JS_EXECUTE_TYPE.SYNC
+                }));
+              } else if (dependency.type === RESOURCE_TYPE.CSS) {
+                this.dom('head').append(`<link puzzle-dependency="${dependency.name}" rel="stylesheet" href="${dependency.link}" />`);
+              }
+            }
+          });
+        }
+
+        if (asset.type === RESOURCE_TYPE.JS) {
+          this.dom('body').append(Template.wrapJsAsset({
+            content: ``,
+            injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
+            name: asset.name,
+            link: asset.link,
+            executeType: RESOURCE_JS_EXECUTE_TYPE.SYNC
+          }));
+        }
+      }
+    });
+
 
     const libConfig = {
       page: this.name,
       fragments: pageFragmentLibConfig,
-      assets,
+      assets: assets.filter(asset => asset.type === RESOURCE_TYPE.JS), //css handled by merge cleaning
       dependencies
     } as IPageLibConfiguration;
 
@@ -267,7 +307,6 @@ export class Template {
       // todo emit debug model
     }
   }
-
 
   /**
    * Bind user class to page
@@ -709,6 +748,7 @@ export class Template {
 
 
   /**
+   * @deprecated Combine this for only render_start_css assets
    * Merges, minifies stylesheets and inject them into a page
    * @returns {Promise<void>}
    */

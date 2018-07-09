@@ -14,6 +14,9 @@ export interface IPageLibAsset {
   fragment?: string;
   dependent?: string[];
   type: RESOURCE_TYPE;
+  link: string;
+  preLoaded: boolean;
+  defer?: boolean;
 }
 
 export interface ICustomPageAsset {
@@ -32,6 +35,7 @@ export interface IPageLibDependency {
   name: string;
   link: string;
   type: RESOURCE_TYPE;
+  preLoaded: boolean;
 }
 
 export interface IPageLibConfiguration {
