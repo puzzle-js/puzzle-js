@@ -17,8 +17,8 @@ export enum EVENT {
   ON_PAGE_LOAD,
   ON_FRAGMENT_RENDERED,
   ON_CONFIG,
-  ON_DEBUG_CONFIG ,
-  ON_VARIABLES // todo connect variables to lib
+  ON_DEBUG_CONFIG,
+  ON_VARIABLES
 }
 
 
