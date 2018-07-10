@@ -64,16 +64,19 @@ export class Core extends Module {
         asset.preLoaded = true;
         asset.defer = true;
 
-        const dependencyList = asset.dependent ? asset.dependent.reduce((dependencyList, dependencyName) => {
+        asset.dependent && asset.dependent.forEach((dependencyName) => {
           const dependency = Core.__pageConfiguration.dependencies.filter(dependency => dependency.name === dependencyName);
           if (dependency[0] && !dependency[0].preLoaded) {
-            dependencyList.push(dependency[0]);
-            dependency[0].preLoaded = true;
+            if (loadList.indexOf(dependency[0]) === -1) {
+              loadList.push(dependency[0]);
+              dependency[0].preLoaded = true;
+            }
           }
-          return dependencyList;
-        }, []) : [];
+        });
 
-        loadList = dependencyList.concat([asset]);
+        if (loadList.indexOf(asset) === -1) {
+          loadList.push(asset);
+        }
       }
     });
 
