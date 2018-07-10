@@ -9,7 +9,6 @@ export class AssetHelper {
       scriptTag.src = asset.link;
       scriptTag.onload = () => resolve();
       scriptTag.defer = asset.defer || false;
-      console.log('inject asset', scriptTag);
       window.document.body.appendChild(scriptTag);
     });
   }
