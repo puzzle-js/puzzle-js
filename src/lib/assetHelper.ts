@@ -8,7 +8,6 @@ export class AssetHelper {
       scriptTag.attributes['puzzle-asset'] = asset.name;
       scriptTag.src = asset.link;
       scriptTag.onload = () => {
-        console.log('Loaded', asset.name);
         resolve();
       };
       scriptTag.defer = asset.defer || false;
