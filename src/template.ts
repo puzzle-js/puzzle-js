@@ -500,7 +500,7 @@ export class Template {
       const fragmentJsReplacements = jsReplacements.find(jsReplacement => jsReplacement.fragment.name === chunkedReplacement.fragment.name);
       const selfReplacing = chunkedReplacement.fragment.config && chunkedReplacement.fragment.config.render.selfReplace;
 
-      let output = isDebug ? `<script>PuzzleJs.analytics.fragment('${chunkedReplacement.fragment.name}')</script>` : '';
+      let output = '';
 
       output += Template.fragmentModelScript(chunkedReplacement.fragment, fragmentContent.model, isDebug);
 
@@ -523,9 +523,6 @@ export class Template {
         output += Template.wrapJsAsset(replaceItem);
       });
 
-      if (isDebug) {
-        output += `<script>PuzzleJs.analytics.fragment('${chunkedReplacement.fragment.name}')</script>`;
-      }
       this.pageClass._onChunk(output);
       res.write(output);
     };
@@ -632,7 +629,7 @@ export class Template {
       let fragmentAttributes = {};
 
       const jsReplacements = replaceJsAssets.find(jsReplacement => jsReplacement.fragment.name === fragment.name);
-      let contentStart = isDebug ? `<script>PuzzleJs.analytics.fragment('${fragment.name}')</script>` : '';
+      let contentStart = '';
       let contentEnd = ``;
 
       jsReplacements && jsReplacements.replaceItems.filter(item => item.location === RESOURCE_LOCATION.CONTENT_START).forEach(replaceItem => {
