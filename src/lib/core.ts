@@ -36,9 +36,8 @@ export class Core extends Module {
     const onFragmentRenderAssets = Core.__pageConfiguration.assets.filter(asset => asset.fragment === fragmentName && asset.loadMethod === RESOURCE_LOADING_TYPE.ON_FRAGMENT_RENDER && !asset.preLoaded);
 
     const scripts = Core.createLoadQueue(onFragmentRenderAssets);
-    scripts.map(async script => {
-      await AssetHelper.loadJs(script);
-    });
+
+    AssetHelper.loadJsSeries(scripts);
   }
 
   @on(EVENT.ON_PAGE_LOAD)
@@ -46,9 +45,8 @@ export class Core extends Module {
     const onFragmentRenderAssets = Core.__pageConfiguration.assets.filter(asset => asset.loadMethod === RESOURCE_LOADING_TYPE.ON_PAGE_RENDER && !asset.preLoaded);
 
     const scripts = Core.createLoadQueue(onFragmentRenderAssets);
-    scripts.map(async script => {
-      await AssetHelper.loadJs(script);
-    });
+
+    AssetHelper.loadJsSeries(scripts);
   }
 
   @on(EVENT.ON_VARIABLES)
@@ -70,6 +68,7 @@ export class Core extends Module {
             if (loadList.indexOf(dependency[0]) === -1) {
               loadList.push(dependency[0]);
               dependency[0].preLoaded = true;
+              dependency
             }
           }
         });
