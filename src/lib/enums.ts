@@ -14,9 +14,13 @@ export enum LOG_TYPES {
 }
 
 export enum EVENT {
-  ON_PAGE_LOAD = 'page_loaded',
-  ON_FRAGMENT_RENDERED = 'fragment_rendered'
+  ON_PAGE_LOAD,
+  ON_FRAGMENT_RENDERED,
+  ON_CONFIG,
+  ON_DEBUG_CONFIG,
+  ON_VARIABLES
 }
+
 
 export enum RESOURCE_LOADING_TYPE {
   /**
@@ -32,10 +36,15 @@ export enum RESOURCE_LOADING_TYPE {
   /**
    * @description Starts loading resource after all page fragments are visible. Great for performance
    */
-  ON_PAGE_RENDER,
+  ON_PAGE_RENDER
 
   /**
    * @description Starts loading resource after all assets are loaded and injected. Great for marketing scripts and 3rd party tracking tools
    */
-  ON_ALL_ASSETS_LOADED
+  //ON_ALL_ASSETS_LOADED
+}
+
+export enum RESOURCE_TYPE {
+  CSS,
+  JS
 }

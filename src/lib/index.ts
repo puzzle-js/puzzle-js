@@ -6,8 +6,9 @@ import {Core} from "./core";
     Core
   };
 
-  window.PuzzleJs = new PuzzleJs();
-  window.PuzzleJs.inject(MODULES);
+
+  PuzzleJs.inject(MODULES);
+  window.PuzzleJs = PuzzleJs;
 })();
 
 

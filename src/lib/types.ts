@@ -1,9 +1,11 @@
-import {RESOURCE_LOADING_TYPE} from "./enums";
+import {RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "./enums";
 
 import {PuzzleJs} from "./puzzle";
 
 declare global {
-  interface Window { PuzzleJs: PuzzleJs; }
+  interface Window {
+    PuzzleJs: PuzzleJs;
+  }
 }
 
 export interface IPageLibAsset {
@@ -11,6 +13,10 @@ export interface IPageLibAsset {
   loadMethod: RESOURCE_LOADING_TYPE
   fragment?: string;
   dependent?: string[];
+  type: RESOURCE_TYPE;
+  link: string;
+  preLoaded: boolean;
+  defer?: boolean;
 }
 
 export interface ICustomPageAsset {
@@ -20,11 +26,25 @@ export interface ICustomPageAsset {
   dependent?: string;
 }
 
+export interface IPageFragmentConfig {
+  name: string;
+  chunked: boolean;
+}
+
+export interface IPageLibDependency {
+  name: string;
+  link: string;
+  type: RESOURCE_TYPE;
+  preLoaded: boolean;
+}
+
 export interface IPageLibConfiguration {
   page: string;
-  fragments: {
-    name: string;
-    chunked: boolean;
-  };
+  fragments: IPageFragmentConfig[];
   assets: IPageLibAsset[];
+  dependencies: IPageLibDependency[]
+}
+
+export interface IEventListener {
+  [event: string]: Function[];
 }

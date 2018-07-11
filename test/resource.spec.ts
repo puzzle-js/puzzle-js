@@ -2,8 +2,9 @@ import "mocha";
 import {expect} from "chai";
 import nock from "nock";
 import ResourceFactory from "../src/resourceFactory";
-import {RESOURCE_INJECT_TYPE, RESOURCE_TYPE} from "../src/enums";
+import {RESOURCE_INJECT_TYPE} from "../src/enums";
 import request from "supertest";
+import {RESOURCE_TYPE} from "../src/lib/enums";
 
 describe('Resource Factory', () => {
     beforeEach(() => {

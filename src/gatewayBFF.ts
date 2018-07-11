@@ -4,9 +4,8 @@ import {
   CONTENT_REPLACE_SCRIPT,
   DEFAULT_MAIN_PARTIAL,
   FRAGMENT_RENDER_MODES,
-  HTTP_METHODS, HTTP_STATUS_CODE, RESOURCE_JS_EXECUTE_TYPE,
-  RESOURCE_LOCATION,
-  RESOURCE_TYPE
+  HTTP_METHODS, HTTP_STATUS_CODE, RESOURCE_INJECT_TYPE, RESOURCE_JS_EXECUTE_TYPE,
+  RESOURCE_LOCATION
 } from "./enums";
 import {PREVIEW_PARTIAL_QUERY_NAME, RENDER_MODE_QUERY_NAME} from "./config";
 import {FragmentModel, IExposeConfig, IFragmentBFF, IFragmentResponse} from "./types";
@@ -24,6 +23,8 @@ import {Template} from "./template";
 import {Logger} from "./logger";
 import cors from "cors";
 import routeCache from "route-cache";
+import {RESOURCE_TYPE} from "./lib/enums";
+import fs from "fs";
 
 const logger = <Logger>container.get(TYPES.Logger);
 
@@ -155,6 +156,8 @@ export class GatewayBFF {
   }
 
   /**
+   * @deprecated Puzzle Lib will replace this
+   * todo change this to use PuzzleLib
    * Wraps with html template for preview mode
    * @param {string} htmlContent
    * @param {FragmentBFF} fragment
@@ -167,25 +170,17 @@ export class GatewayBFF {
 
     const fragmentVersion = cookieValue && fragment.config.versions[cookieValue] ? fragment.config.versions[cookieValue] : fragment.config.versions[fragment.config.version];
 
+    dom('head').prepend(Template.wrapJsAsset({
+      content: fs.readFileSync(path.join(__dirname, `/lib/puzzle.min.js`)).toString(),
+      injectType: RESOURCE_INJECT_TYPE.INLINE,
+      name: 'puzzle-lib',
+      link: '',
+      executeType: RESOURCE_JS_EXECUTE_TYPE.SYNC
+    }));
+
     fragmentVersion.assets.forEach(asset => {
       if (asset.type === RESOURCE_TYPE.JS) {
-        switch (asset.location) {
-          case RESOURCE_LOCATION.HEAD:
-            dom('head').append(`<script puzzle-asset="${asset.name}" src="/${fragment.name}/static/${asset.fileName}" type="text/javascript"${asset.executeType || RESOURCE_JS_EXECUTE_TYPE.SYNC}></script>`);
-            break;
-          case RESOURCE_LOCATION.CONTENT_START:
-            dom('body').prepend(`<script puzzle-asset="${asset.name}" src="/${fragment.name}/static/${asset.fileName}" type="text/javascript"${asset.executeType || RESOURCE_JS_EXECUTE_TYPE.SYNC}></script>`);
-            break;
-          case RESOURCE_LOCATION.BODY_START:
-            dom('body').prepend(`<script puzzle-asset="${asset.name}" src="/${fragment.name}/static/${asset.fileName}" type="text/javascript"${asset.executeType || RESOURCE_JS_EXECUTE_TYPE.SYNC}></script>`);
-            break;
-          case RESOURCE_LOCATION.CONTENT_END:
-            dom('body').append(`<script puzzle-asset="${asset.name}" src="/${fragment.name}/static/${asset.fileName}" type="text/javascript"${asset.executeType || RESOURCE_JS_EXECUTE_TYPE.SYNC}></script>`);
-            break;
-          case RESOURCE_LOCATION.BODY_END:
-            dom('body').append(`<script puzzle-asset="${asset.name}" src="/${fragment.name}/static/${asset.fileName}" type="text/javascript"${asset.executeType || RESOURCE_JS_EXECUTE_TYPE.SYNC}></script>`);
-            break;
-        }
+        dom('body').append(`<script puzzle-asset="${asset.name}" src="/${fragment.name}/static/${asset.fileName}" type="text/javascript"${RESOURCE_JS_EXECUTE_TYPE.SYNC}></script>`);
       } else if (asset.type === RESOURCE_TYPE.CSS) {
         dom('head').append(`<link puzzle-asset="${asset.name}" rel="stylesheet" href="/${fragment.name}/static/${asset.fileName}" />`);
       }

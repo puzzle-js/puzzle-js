@@ -1,14 +1,15 @@
-import {Module, ModuleConstructor} from "./module";
 import {EVENT} from "./enums";
+import {IEventListener} from "./types";
+
 
 export class PuzzleJs {
-  [module: string]: object;
+  [module: string]: any;
 
   static PACKAGE_VERSION = '';
   static DEPENDENCIES = {};
   static LOGO = '';
 
-  private static __LISTENERS = {};
+  private static __LISTENERS: IEventListener = {};
 
   static subscribe(event: EVENT, cb: Function) {
     if (!PuzzleJs.__LISTENERS[event]) {
@@ -18,17 +19,21 @@ export class PuzzleJs {
     }
   }
 
-  static emit(event: EVENT, data?: any) {
+  static emit(event: EVENT, ...data: any[]) {
     if (PuzzleJs.__LISTENERS[event]) {
       for (let listener of PuzzleJs.__LISTENERS[event]) {
-        listener(data);
+        listener.apply(null, data);
       }
     }
   }
 
-  inject(modules: { [name: string]: ModuleConstructor }) {
+  static clearListeners() {
+    PuzzleJs.__LISTENERS = {};
+  }
+
+  static inject(modules: { [name: string]: Function }) {
     for (let name in modules) {
-      this[name] = new modules[name]();
+      (PuzzleJs as any)[name] = modules[name];
     }
   }
 }

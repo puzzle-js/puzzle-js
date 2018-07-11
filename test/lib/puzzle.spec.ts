@@ -20,24 +20,18 @@ describe('PuzzleJs', () => {
 
   afterEach(() => {
     delete global.window;
-  });
-
-  it('It should export class PuzzleJs', () => {
-    const puzzle = new PuzzleJs();
-
-    expect(puzzle).to.be.instanceOf(PuzzleJs);
+    PuzzleJs.clearListeners();
   });
 
   it('should has a method for injecting modules', function () {
-    const puzzle = new PuzzleJs();
     class Module {
       constructor(){}
-      m(){}
+      static m(){}
     }
 
-    puzzle.inject({module: Module});
+    PuzzleJs.inject({module: Module});
 
-    expect(puzzle.module).to.be.instanceOf(Module);
+    expect((<any>PuzzleJs)['module'].m).to.eq(Module.m);
   });
 
   it('should register listeners', function () {
