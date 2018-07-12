@@ -86,3 +86,7 @@ export enum TRANSFER_PROTOCOLS {
   SPDY = 'spdy/3.1',
   HTTP1 = 'http/1.1'
 }
+
+export enum CONTENT_ENCODING_TYPES {
+  BROTLI = 'br'
+}

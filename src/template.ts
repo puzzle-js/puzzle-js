@@ -760,9 +760,7 @@ export class Template {
       const cssAssets = fragment.config.assets.filter(asset => asset.type === RESOURCE_TYPE.CSS);
 
       for (let asset of cssAssets) {
-        console.log('downloading asset:' + asset.name);
         const assetContent = await fragment.getAsset(asset.name);
-        console.log('downloaded asset:' + asset.name);
 
         if (assetContent) {
           styleSheets.push(assetContent);
@@ -770,12 +768,10 @@ export class Template {
       }
     }
 
-    console.log('styles counted' + styleSheets.length);
     let output = _CleanCss.minify(styleSheets.join(''));
     if (output.styles.length > 0) {
       const styleHash = md5(output.styles);
       const path = `/static/${this.name}.min.css`;
-      console.log('adding route');
       pubsub.emit(EVENTS.ADD_ROUTE, {
         path: path,
         method: HTTP_METHODS.GET,

@@ -40,7 +40,6 @@ export class Server {
 
 
     pubsub.on(EVENTS.ADD_ROUTE, (e: { path: string, method: HTTP_METHODS, handler: (req: Request, res: Response, next: NextFunction) => any }) => {
-      console.log('css emit event', e.path);
       this.addRoute(
         e.path,
         e.method,
