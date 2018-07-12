@@ -128,7 +128,7 @@ export class GatewayBFF {
    * @returns {Promise<IFragmentResponse>}
    */
   async renderFragment(req: any, fragmentName: string, renderMode: FRAGMENT_RENDER_MODES = FRAGMENT_RENDER_MODES.PREVIEW, partial: string, res: any, cookieValue?: string): Promise<void> {
-    const fragment = this.fragments[fragmentName]
+    const fragment = this.fragments[fragmentName];
     if (fragment) {
       const fragmentContent = await fragment.render(req, res, cookieValue);
 
@@ -143,12 +143,17 @@ export class GatewayBFF {
         res.set(prop, gatewayContent.$headers[prop]);
       }
 
-      res.status(HTTP_STATUS_CODE.OK);
-
       if (renderMode === FRAGMENT_RENDER_MODES.STREAM) {
+        res.status(HTTP_STATUS_CODE.OK);
         res.json(gatewayContent.content);
       } else {
-        res.send(this.wrapFragmentContent(gatewayContent.content[partial].toString(), fragment, cookieValue, gatewayContent.$model));
+        if(gatewayContent.$status === HTTP_STATUS_CODE.MOVED_PERMANENTLY && gatewayContent.$headers && gatewayContent.$headers['location']){
+          res.status(gatewayContent.$status);
+          res.end();
+        }else {
+          res.status(HTTP_STATUS_CODE.OK);
+          res.send(this.wrapFragmentContent(gatewayContent.content[partial].toString(), fragment, cookieValue, gatewayContent.$model));
+        }
       }
     } else {
       throw new Error(`Failed to find fragment: ${fragmentName}`);
@@ -156,8 +161,6 @@ export class GatewayBFF {
   }
 
   /**
-   * @deprecated Puzzle Lib will replace this
-   * todo change this to use PuzzleLib
    * Wraps with html template for preview mode
    * @param {string} htmlContent
    * @param {FragmentBFF} fragment
