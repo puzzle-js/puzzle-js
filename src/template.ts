@@ -391,7 +391,7 @@ export class Template {
         .forEach(replaceItem => {
           if (replaceItem.type === REPLACE_ITEM_TYPE.CONTENT) {
             let fragmentInject = fragmentContent.html[replaceItem.partial] || CONTENT_NOT_FOUND_ERROR;
-            template = template.replace(replaceItem.key, () => fragmentInject);
+            template = template.replace(replaceItem.key, () => fragmentInject + Template.fragmentModelScript(waitedFragmentReplacement.fragment, fragmentContent.model, isDebug));
           }
         });
     }

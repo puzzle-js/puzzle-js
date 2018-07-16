@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Supported BROTLI for assets
 
+# [3.2.1] - 09-07-2018
+### Fixed
+- Fixed waited fragment page models
+
 # [3.0.1] - 09-07-2018
 ### Changed
 - Changed how assets are being loaded.
