@@ -12,9 +12,9 @@ export class Page {
   private rawHtml: string;
   private fragmentCookieList: IFragmentCookieMap[] = [];
 
-  constructor(html: string, gatewayMap: IGatewayMap, name: string) {
+  constructor(html: string, gatewayMap: IGatewayMap, private name: string) {
     this.rawHtml = html;
-    this.template = new Template(html, name);
+    this.template = new Template(html, this.name);
     this.gatewayDependencies = this.template.getDependencies();
 
     this.preparePageDependencies(gatewayMap);
@@ -31,9 +31,14 @@ export class Page {
     const handlerVersion = this.getHandlerVersion(req);
     const isDebug = DEBUG_INFORMATION || (req.query && req.query.hasOwnProperty(DEBUG_QUERY_NAME));
     if (!this.responseHandlers[handlerVersion]) {
+      console.log('--------------');
+      console.log("PAGE", this.name);
+      console.trace();
+      console.log('--------------');
       this.template.load();
       this.responseHandlers[handlerVersion] = await this.template.compile(req.cookies, isDebug);
     }
+    
     this.responseHandlers[handlerVersion](req, res);
   }
 

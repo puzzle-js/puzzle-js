@@ -160,6 +160,10 @@ export class Template {
     await this.buildStyleSheets();
 
 
+    console.log('--------------');
+    console.log("TEMPLATE", this.name);
+    console.trace();
+    console.log('--------------');
     this.injectPuzzleLibAndConfig(isDebug);
 
 
