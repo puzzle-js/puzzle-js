@@ -69,16 +69,16 @@ import {RESOURCE_TYPE} from "../src/lib/enums";
                 });
             });
 
-            it('should render fragment which is static without calling data', done => {
-                const fragmentConfig = JSON.parse(JSON.stringify(commonFragmentBffConfiguration));
-                fragmentConfig.render.static = true;
-                fragmentConfig.versions.test.handler.content = (req: any, data: any) => `${data} was here`;
-                fragmentConfig.versions.test.handler.data = (req: any) => {
-                    throw new Error("It shouldn't call data for static fragments");
-                };
-                const fragment = new FragmentBFF(fragmentConfig);
-                fragment.render({}, {}).then(data => done()).catch(done);
-            });
+            // it('should render fragment which is static without calling data', done => {
+            //     const fragmentConfig = JSON.parse(JSON.stringify(commonFragmentBffConfiguration));
+            //     fragmentConfig.render.static = true;
+            //     fragmentConfig.versions.test.handler.content = (req: any, data: any) => `${data} was here`;
+            //     fragmentConfig.versions.test.handler.data = (req: any) => {
+            //         throw new Error("It shouldn't call data for static fragments");
+            //     };
+            //     const fragment = new FragmentBFF(fragmentConfig);
+            //     fragment.render({}, {}).then(data => done()).catch(done);
+            // });
 
             it('should throw at render when failing to find version', done => {
                 const fragmentConfig = JSON.parse(JSON.stringify(commonFragmentBffConfiguration));

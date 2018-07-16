@@ -44,24 +44,20 @@ export class FragmentBFF extends Fragment {
     const handler = this.handler[targetVersion];
     const clearedRequest = this.clearRequest(req);
     if (handler) {
-      if (this.config.render.static) {
-        return handler.content(clearedRequest, null);
-      } else {
-        if (handler.data) {
-          const dataResponse = await handler.data(clearedRequest);
-          if (dataResponse.data) {
-            const renderedPartials = handler.content(clearedRequest, dataResponse.data);
-            delete dataResponse.data;
-            return {
-              ...renderedPartials,
-              ...dataResponse
-            };
-          } else {
-            return dataResponse;
-          }
+      if (handler.data) {
+        const dataResponse = await handler.data(clearedRequest);
+        if (dataResponse.data) {
+          const renderedPartials = handler.content(clearedRequest, dataResponse.data);
+          delete dataResponse.data;
+          return {
+            ...renderedPartials,
+            ...dataResponse
+          };
         } else {
-          throw new Error(`Failed to find data handler for fragment. Fragment: ${this.config.name}, Version: ${version || this.config.version}`);
+          return dataResponse;
         }
+      } else {
+        throw new Error(`Failed to find data handler for fragment. Fragment: ${this.config.name}, Version: ${version || this.config.version}`);
       }
     } else {
       throw new Error(`Failed to find fragment version. Fragment: ${this.config.name}, Version: ${version || this.config.version}`);
