@@ -305,9 +305,9 @@ describe('System Tests', function () {
       }
     });
     gatewayConfigurator.config({
-      port: 4451,
+      port: 4453,
       name: 'Browsing',
-      url: 'http://localhost:4451/',
+      url: 'http://localhost:4453/',
       fragments: [
         {
           name: 'example',
@@ -338,10 +338,10 @@ describe('System Tests', function () {
           html: '<template><html><head></head><body><fragment from="Browsing" name="example" primary></fragment></body></html></template>'
         }
       ],
-      port: 4450,
+      port: 4454,
       gateways: [{
         name: 'Browsing',
-        url: 'http://localhost:4451/'
+        url: 'http://localhost:4453/'
       }],
       dependencies: [],
     } as any);
@@ -609,9 +609,9 @@ describe('System Tests', function () {
       }
     });
     gatewayConfigurator.config({
-      port: 4451,
+      port: 4455,
       name: 'Browsing',
-      url: 'http://localhost:4451/',
+      url: 'http://localhost:4455/',
       fragments: [
         {
           name: 'example',
@@ -642,10 +642,10 @@ describe('System Tests', function () {
           html: '<template><html><head></head><body><fragment from="Browsing" name="example" primary></fragment></body></html></template>'
         }
       ],
-      port: 4450,
+      port: 4457,
       gateways: [{
         name: 'Browsing',
-        url: 'http://localhost:4451/'
+        url: 'http://localhost:4455/'
       }],
       dependencies: [],
     } as any);

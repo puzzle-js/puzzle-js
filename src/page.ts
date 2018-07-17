@@ -31,19 +31,13 @@ export class Page {
     const handlerVersion = this.getHandlerVersion(req);
     const isDebug = DEBUG_INFORMATION || (req.query && req.query.hasOwnProperty(DEBUG_QUERY_NAME));
     if (!this.responseHandlers[handlerVersion]) {
-      console.log('--------------');
-      console.log("PAGE", this.name);
-      console.trace();
-      console.log('--------------');
-      this.template.load();
       this.responseHandlers[handlerVersion] = await this.template.compile(req.cookies, isDebug);
     }
-    
+
     this.responseHandlers[handlerVersion](req, res);
   }
 
   async preLoad() {
-    this.template.load();
     this.responseHandlers['__preLoad'] = await this.template.compile({}, false);
   }
 

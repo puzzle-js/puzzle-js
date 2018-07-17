@@ -9,9 +9,11 @@ import path from "path";
 import {container, TYPES} from "./base";
 import {Logger} from "./logger";
 import {decompress} from "iltorb";
+import {HttpClient} from "./client";
 
 
 const logger = <Logger>container.get(TYPES.Logger);
+const httpClient = <HttpClient>container.get(TYPES.Client);
 
 export class Fragment {
   name: string;
@@ -225,26 +227,22 @@ export class FragmentStorefront extends Fragment {
 
     const routeRequest = req && parsedRequest ? `${parsedRequest.pathname.replace('/' + this.name, '')}?${querystring.stringify(query)}` : `/?${querystring.stringify(query)}`;
 
-    //todo pass cookies too
-    return fetch(`${this.fragmentUrl}${routeRequest}`, requestConfiguration)
-      .then(async res => {
-        const responseBody = await res.json();
-        return {
-          status: responseBody.$status || res.status,
-          headers: responseBody.$headers || {},
-          html: responseBody,
-          model: responseBody.$model || {}
-        };
-      })
-      .catch(err => {
-        logger.error(`Failed to get contents for fragment: ${this.name}`, err);
-        return {
-          status: 500,
-          html: {},
-          headers: {},
-          model: {}
-        };
-      });
+    return httpClient.get(`${this.fragmentUrl}${routeRequest}`, {json: true, ...requestConfiguration}).then(res => {
+      return {
+        status: res.data.$status || res.response.statusCode,
+        headers: res.data.$headers || {},
+        html: res.data,
+        model: res.data.$model || {}
+      };
+    }).catch(err => {
+      logger.error(`Failed to get contents for fragment: ${this.name}`, err);
+      return {
+        status: 500,
+        html: {},
+        headers: {},
+        model: {}
+      };
+    });
   }
 
   /**

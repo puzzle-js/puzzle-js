@@ -1,6 +1,6 @@
 {
   "name": "@trendyol/puzzlejs",
-  "version": "3.2.3",
+  "version": "3.3.0",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "logo": "https://image.ibb.co/jM29on/puzzlelogo.png",
@@ -22,6 +22,7 @@
     "@types/morgan": "^1.7.35",
     "@types/nock": "^9.1.3",
     "@types/node-fetch": "^1.6.8",
+    "@types/request": "^2.47.1",
     "@types/sinon": "^5.0.1",
     "@types/spdy": "^3.4.4",
     "@types/supertest": "^2.0.4",
@@ -74,6 +75,7 @@
     "morgan": "^1.9.0",
     "node-fetch": "^2.1.2",
     "reflect-metadata": "^0.1.12",
+    "request": "^2.87.0",
     "route-cache": "^0.4.4",
     "spdy": "^3.4.7",
     "superstruct": "^0.5.4",

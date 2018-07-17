@@ -6,9 +6,10 @@ import {Logger} from "./logger";
 import {IExposeConfig, IGatewayConfiguration} from "./types";
 import Timer = NodeJS.Timer;
 import {container, TYPES} from "./base";
+import {HttpClient} from "./client";
 
 const logger = <Logger>container.get(TYPES.Logger);
-
+const httpClient = <HttpClient>container.get(TYPES.Client);
 
 export class GatewayStorefrontInstance {
   events: EventEmitter = new EventEmitter();
@@ -21,7 +22,7 @@ export class GatewayStorefrontInstance {
   constructor(gatewayConfig: IGatewayConfiguration) {
     this.name = gatewayConfig.name;
     this.url = gatewayConfig.url;
-
+    httpClient.init('PuzzleJs Storefront');
 
     this.assetUrl = gatewayConfig.assetUrl;
 

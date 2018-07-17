@@ -121,6 +121,8 @@ export class Template {
    * @returns {Promise<IFragmentEndpointHandler>}
    */
   async compile(testCookies: ICookieMap, isDebug: boolean = false): Promise<IFragmentEndpointHandler> {
+    this.load();
+
     if (Object.keys(this.fragments).length === 0) {
       this.replaceEmptyTags();
       const singleFlushHandlerWithoutFragments = TemplateCompiler.compile(Template.clearHtmlContent(this.dom.html()));
@@ -136,9 +138,10 @@ export class Template {
     const chunkedFragmentsWithoutWait = Object.values(this.fragments).filter(fragment => fragment.config && !fragment.shouldWait && !fragment.config.render.static);
     const staticFragments = Object.values(this.fragments).filter(fragment => fragment.config && fragment.config.render.static);
 
+    this.injectPuzzleLibAndConfig(isDebug);
+
     // todo kaldir lib bagla
     const replaceScripts = await this.prepareJsAssetLocations();
-
 
     const waitedFragmentReplacements: IReplaceSet[] = this.replaceWaitedFragmentContainers(chunkedFragmentsWithShouldWait, replaceScripts, isDebug);
 
@@ -149,23 +152,13 @@ export class Template {
     // todo kaldir lib bag
     //await this.addDependencies();
 
-
     await this.replaceStaticFragments(staticFragments, replaceScripts.filter(replaceSet => replaceSet.fragment.config && replaceSet.fragment.config.render.static));
     await this.appendPlaceholders(chunkReplacements);
-
 
     /**
      * @deprecated Combine this with only on render start assets.
      */
     await this.buildStyleSheets();
-
-
-    console.log('--------------');
-    console.log("TEMPLATE", this.name);
-    console.trace();
-    console.log('--------------');
-    this.injectPuzzleLibAndConfig(isDebug);
-
 
     this.replaceEmptyTags();
 
