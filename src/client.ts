@@ -17,8 +17,8 @@ const AGENT_CONFIGURATION = {
 export class HttpClient {
   private httpAgent: http.Agent;
   private httpsAgent: https.Agent;
-  private httpClient: request.RequestAPI<request.Request, request.CoreOptions, request.RequiredUriUrl>;
-  private httpsClient: request.RequestAPI<request.Request, request.CoreOptions, request.RequiredUriUrl>;
+  private static httpClient: request.RequestAPI<request.Request, request.CoreOptions, request.RequiredUriUrl>;
+  private static httpsClient: request.RequestAPI<request.Request, request.CoreOptions, request.RequiredUriUrl>;
 
   constructor() {
     this.httpAgent = new http.Agent(AGENT_CONFIGURATION);
@@ -26,8 +26,9 @@ export class HttpClient {
   }
 
   init(clientName: string, options?: request.CoreOptions) {
-    this.httpClient = request.defaults({
+    HttpClient.httpClient = request.defaults({
       agent: this.httpAgent,
+      //forever: true,
       encoding: 'utf8',
       ...options,
       headers: {
@@ -35,20 +36,25 @@ export class HttpClient {
       },
     });
 
-    this.httpsClient = request.defaults({
+    HttpClient.httpsClient = request.defaults({
       agent: this.httpsAgent,
+      //forever: true,
       encoding: 'utf8',
       ...options,
       headers: {
-        'user-agent': clientName || 'PuzzleJs Https Client'
+        'user-agent': clientName || 'PuzzleJs Http Client'
       },
     });
+
   }
 
   get(requestUrl: string, options?: request.CoreOptions): Promise<{ response: request.Response, data: any }> {
-    if(!this.httpClient && !this.httpsClient) this.init('PuzzleJs Default Client');
+    if(!HttpClient.httpClient && !HttpClient.httpsClient){
+      console.error('Creating new agent for pool');
+      this.init('PuzzleJs Default Client');
+    }
 
-    const client = requestUrl.startsWith('https') ? this.httpsClient : this.httpClient;
+    const client = requestUrl.startsWith('https') ? HttpClient.httpsClient : HttpClient.httpClient;
 
     return new Promise(function (resolve, reject) {
       client
@@ -69,9 +75,9 @@ export class HttpClient {
 
 
   post(requestUrl: string, data?: object, options?: request.CoreOptions): Promise<{ response: request.Response, data: any }> {
-    if(!this.httpClient && !this.httpsClient) this.init('PuzzleJs Default Client');
+    if(!HttpClient.httpClient && !HttpClient.httpsClient) this.init('PuzzleJs Default Client');
 
-    const client = requestUrl.startsWith('https') ? this.httpsClient : this.httpClient;
+    const client = requestUrl.startsWith('https') ? HttpClient.httpsClient : HttpClient.httpClient;
 
     return new Promise(function (resolve, reject) {
       client
