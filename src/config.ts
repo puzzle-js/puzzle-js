@@ -20,6 +20,7 @@ export const CHEERIO_CONFIGURATION = loadConfigurationFromEnv('CHEERIO_CONFIGURA
     recognizeSelfClosing: true,
     xmlMode: true,
     lowerCaseAttributeNames: true,
+    decodeEntities: false
 };
 export const TEMPLATE_FRAGMENT_TAG_NAME = loadConfigurationFromEnv('TEMPLATE_FRAGMENT_TAG_NAME') || 'fragment';
 export const DEFAULT_GZIP_EXTENSIONS = loadConfigurationFromEnv('DEFAULT_GZIP_EXTENSIONS', true) || ['.js', '.css'];
