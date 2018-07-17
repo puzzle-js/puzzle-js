@@ -12,6 +12,7 @@ import {
 import {GatewayConfigurator, StorefrontConfigurator} from "./configurator";
 import {Container} from "inversify";
 import {RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "./lib/enums";
+import "base";
 
 
 export = {

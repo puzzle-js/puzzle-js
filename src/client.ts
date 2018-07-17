@@ -67,6 +67,7 @@ export class HttpClient {
     });
   }
 
+
   post(requestUrl: string, data?: object, options?: request.CoreOptions): Promise<{ response: request.Response, data: any }> {
     if(!this.httpClient && !this.httpsClient) this.init('PuzzleJs Default Client');
 
