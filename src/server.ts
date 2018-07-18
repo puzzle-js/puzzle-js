@@ -24,7 +24,8 @@ const morganLoggingLevels = [
   'REQ: :method :url',
   'RES: :status :response-time ms',
   'UA: :user-agent',
-  'correlation-id: :req[correlation-id]'
+  'x-correlationId: :req[x-correlationId]',
+  'x-agentname: :req[x-agentname]',
 ];
 
 @injectable()
