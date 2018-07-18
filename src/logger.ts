@@ -81,7 +81,7 @@ Object.keys(logLevels).forEach(level => {
 /**
  * Register to error events
  */
-if (process.env.production) {
+if (process.env.NODE_ENV === 'production') {
   process
     .on('unhandledRejection', (reason, p) => {
       logger.error('UN_HANDLED_REJECTION', reason, p);
