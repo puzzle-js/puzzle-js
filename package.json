@@ -1,6 +1,6 @@
 {
   "name": "@trendyol/puzzlejs",
-  "version": "3.4.3",
+  "version": "3.4.4",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "logo": "https://image.ibb.co/jM29on/puzzlelogo.png",
@@ -67,7 +67,7 @@
     "compression": "^1.7.2",
     "cookie-parser": "latest",
     "cors": "^2.8.4",
-    "dsmcdn": "^1.4.3",
+    "dsmcdn": "^1.4.4",
     "express": "^4.16.3",
     "helmet": "latest",
     "iltorb": "^2.3.2",
