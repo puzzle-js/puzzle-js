@@ -10,9 +10,10 @@ import {container, TYPES} from "./base";
 import {Server} from "./server";
 import {IGatewayMap, IPageMap, IStorefrontConfig} from "./types";
 import ResourceFactory from "./resourceFactory";
-import {GATEWAY_PREPERATION_CHECK_INTERVAL, PUZZLE_DEBUGGER_LINK} from "./config";
+import {GATEWAY_PREPERATION_CHECK_INTERVAL, PUZZLE_DEBUGGER_LINK, TEMP_FOLDER} from "./config";
 import {StorefrontConfigurator} from "./configurator";
 import path from "path";
+import fs from "fs";
 
 const logger = <Logger>container.get(TYPES.Logger);
 
@@ -76,6 +77,9 @@ export class Storefront {
   }
 
   private bootstrap() {
+    if (!fs.existsSync(TEMP_FOLDER)){
+      fs.mkdirSync(TEMP_FOLDER);
+    }
     this.server.useProtocolOptions(this.config.spdy);
     this.createStorefrontPagesAndGateways();
   }

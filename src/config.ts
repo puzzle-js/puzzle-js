@@ -1,10 +1,12 @@
+const path = require('path');
+
 const loadConfigurationFromEnv = (name: string, isObject: boolean = false) => {
-    const environmentVariable = process.env[name];
-    if (isObject) {
-        return environmentVariable ? JSON.parse(environmentVariable) : undefined;
-    } else {
-        return environmentVariable;
-    }
+  const environmentVariable = process.env[name];
+  if (isObject) {
+    return environmentVariable ? JSON.parse(environmentVariable) : undefined;
+  } else {
+    return environmentVariable;
+  }
 };
 
 
@@ -16,11 +18,11 @@ export const PREVIEW_PARTIAL_QUERY_NAME = loadConfigurationFromEnv('PREVIEW_PART
 export const API_ROUTE_PREFIX = loadConfigurationFromEnv('API_ROUTE_PREFIX') || 'api';
 export const GATEWAY_PREPERATION_CHECK_INTERVAL = +loadConfigurationFromEnv('GATEWAY_PREPERATION_CHECK_INTERVAL') || 200;
 export const CHEERIO_CONFIGURATION = loadConfigurationFromEnv('CHEERIO_CONFIGURATION', true) || {
-    normalizeWhitespace: true,
-    recognizeSelfClosing: true,
-    xmlMode: true,
-    lowerCaseAttributeNames: true,
-    decodeEntities: false
+  normalizeWhitespace: true,
+  recognizeSelfClosing: true,
+  xmlMode: true,
+  lowerCaseAttributeNames: true,
+  decodeEntities: false
 };
 export const TEMPLATE_FRAGMENT_TAG_NAME = loadConfigurationFromEnv('TEMPLATE_FRAGMENT_TAG_NAME') || 'fragment';
 export const DEFAULT_GZIP_EXTENSIONS = loadConfigurationFromEnv('DEFAULT_GZIP_EXTENSIONS', true) || ['.js', '.css'];
@@ -28,4 +30,18 @@ export const DEBUG_QUERY_NAME = loadConfigurationFromEnv('DEBUG_QUERY_NAME') || 
 export const PUZZLE_DEBUGGER_LINK = loadConfigurationFromEnv('PUZZLE_DEBUGGER_LINK') || '/static/puzzle_debug.js';
 export const DEBUG_INFORMATION = loadConfigurationFromEnv('DEBUG_INFORMATION') || process.env.NODE_ENV !== 'production' || false;
 export const NO_COMPRESS_QUERY_NAME = loadConfigurationFromEnv('NO_COMPRESS_QUERY_NAME') || '__noCompress';
-export const NON_SELF_CLOSING_TAGS = ['div','span', 'p'];
+export const NON_SELF_CLOSING_TAGS = ['div', 'span', 'p'];
+
+
+export const CDN_OPTIONS = {
+  environment: process.env.ENVIRONMENT,
+  team: 'mobileweb',
+  user: 'frontend',
+  password: process.env.CDN_PASSWORD,
+  path: 'https://static.dsmcdn.com',
+  getFilePath(fileName: string){
+    return `${CDN_OPTIONS.path}/${CDN_OPTIONS.user}/${CDN_OPTIONS.team}/${CDN_OPTIONS.environment}/${fileName}`;
+  }
+};
+
+export const TEMP_FOLDER = path.join(process.cwd(), '/~temp');

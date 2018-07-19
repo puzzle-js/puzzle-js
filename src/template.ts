@@ -2,10 +2,11 @@ import {FragmentStorefront} from "./fragment";
 import cheerio from "cheerio";
 import {TemplateCompiler} from "./templateCompiler";
 import {
+  CDN_OPTIONS,
   CHEERIO_CONFIGURATION,
   CONTENT_NOT_FOUND_ERROR,
   NON_SELF_CLOSING_TAGS,
-  PUZZLE_DEBUGGER_LINK,
+  PUZZLE_DEBUGGER_LINK, TEMP_FOLDER,
   TEMPLATE_FRAGMENT_TAG_NAME
 } from "./config";
 import {
@@ -40,6 +41,7 @@ import fs from "fs";
 import path from "path";
 import {IPageFragmentConfig, IPageLibAsset, IPageLibConfiguration, IPageLibDependency} from "./lib/types";
 import {EVENT, RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "./lib/enums";
+import dsmcdn from "dsmcdn";
 
 const logger = <Logger>container.get(TYPES.Logger);
 
@@ -435,7 +437,7 @@ export class Template {
             res.end();
             this.pageClass._onResponseEnd();
           } else {
-            res.send(waitedReplacement.template.replace('</body>',() => `<script>PuzzleJs.emit('${EVENT.ON_PAGE_LOAD}');</script></body>`));
+            res.send(waitedReplacement.template.replace('</body>', () => `<script>PuzzleJs.emit('${EVENT.ON_PAGE_LOAD}');</script></body>`));
             this.pageClass._onResponseEnd();
           }
         })();
@@ -740,47 +742,46 @@ export class Template {
    * @returns {Promise<void>}
    */
   private async buildStyleSheets() {
-    const _CleanCss = new CleanCSS({
-      level: {
-        1: {
-          all: true
+    return new Promise(async (resolve, reject) => {
+      const _CleanCss = new CleanCSS({
+        level: {
+          1: {
+            all: true
+          }
+        }
+      } as any);
+
+      let styleSheets: string[] = [];
+
+
+      for (let fragment of Object.values(this.fragments)) {
+        if (!fragment.config) continue;
+
+        const cssAssets = fragment.config.assets.filter(asset => asset.type === RESOURCE_TYPE.CSS);
+
+        for (let asset of cssAssets) {
+          const assetContent = await fragment.getAsset(asset.name);
+
+          if (assetContent) {
+            styleSheets.push(assetContent);
+          }
         }
       }
-    } as any);
 
-    let styleSheets: string[] = [];
+      let output = _CleanCss.minify(styleSheets.join(''));
+      if (output.styles.length > 0) {
+        const styleHash = md5(output.styles);
+        const fileName = `${this.name}.${styleHash}.min.css`;
+        const filePath = path.join(TEMP_FOLDER, fileName);
 
-
-    for (let fragment of Object.values(this.fragments)) {
-      if (!fragment.config) return;
-
-      const cssAssets = fragment.config.assets.filter(asset => asset.type === RESOURCE_TYPE.CSS);
-
-      for (let asset of cssAssets) {
-        const assetContent = await fragment.getAsset(asset.name);
-
-        if (assetContent) {
-          styleSheets.push(assetContent);
-        }
+        fs.writeFileSync(filePath, output.styles, 'utf8');
+        dsmcdn.upload(filePath, CDN_OPTIONS, () => {
+          this.dom('head').append(`<link puzzle-dependency="dynamic" rel="stylesheet" href="${CDN_OPTIONS.getFilePath(fileName)}" />`);
+          resolve();
+        });
+      } else {
+        resolve();
       }
-    }
-
-    let output = _CleanCss.minify(styleSheets.join(''));
-    if (output.styles.length > 0) {
-      const styleHash = md5(output.styles);
-      const path = `/static/${this.name}.min.css`;
-      pubsub.emit(EVENTS.ADD_ROUTE, {
-        path: path,
-        method: HTTP_METHODS.GET,
-        handler(req: any, res: any) {
-          res.set('content-type', 'text/css');
-          res.set('cache-control', 'public, max-age=31557600');
-          res.send(output.styles);
-        }
-      });
-
-      this.dom('head').append(`<link puzzle-dependency="dynamic" rel="stylesheet" href="${path}?v=${styleHash}" />`);
-    }
+    })
   }
 }
-
