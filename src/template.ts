@@ -770,11 +770,15 @@ export class Template {
 
       let output = _CleanCss.minify(styleSheets.join(''));
       if (output.styles.length > 0) {
+
+
+
         const styleHash = md5(output.styles);
         const fileName = `${this.name}.${styleHash}.min.css`;
         const filePath = path.join(TEMP_FOLDER, fileName);
 
         fs.writeFileSync(filePath, output.styles, 'utf8');
+        console.log('BUILD Sytle', filePath);
         dsmcdn.upload(filePath, CDN_OPTIONS, () => {
           this.dom('head').append(`<link puzzle-dependency="dynamic" rel="stylesheet" href="${CDN_OPTIONS.getFilePath(fileName)}" />`);
           resolve();
