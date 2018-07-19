@@ -38,7 +38,7 @@ export class Page {
   }
 
   async preLoad() {
-    this.responseHandlers['__preLoad'] = await this.template.compile({}, false);
+    this.responseHandlers[this.getHandlerVersion({cookies: {}, query: {}})] = await this.template.compile({}, false);
   }
 
   /**

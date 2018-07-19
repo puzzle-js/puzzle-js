@@ -1708,9 +1708,9 @@ dot-prop@^4.1.0:
   dependencies:
     is-obj "^1.0.0"
 
-dsmcdn@^1.3.0:
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/dsmcdn/-/dsmcdn-1.3.0.tgz#fc763a21e1605a9c7d40a4cad91a63d75028094f"
+dsmcdn@^1.3.1:
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/dsmcdn/-/dsmcdn-1.3.1.tgz#3bd95ecb893cee686665a6ebda82ecb3034d3605"
   dependencies:
     async "^2.6.0"
     ftp "^0.3.10"
