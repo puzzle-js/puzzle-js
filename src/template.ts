@@ -407,7 +407,7 @@ export class Template {
    */
   static fragmentModelScript(fragment: { name: string }, fragmentPageModel: FragmentModel, isDebug: boolean = false) {
     return fragmentPageModel && Object.keys(fragmentPageModel).length ? `<script>${Object.keys(fragmentPageModel).reduce((modelVariable, key) => {
-      modelVariable += `PuzzleJs.emit('${EVENT.ON_VARIABLES}', '${fragment.name}', '${key}', '${JSON.stringify(fragmentPageModel[key])}')`;
+      modelVariable += `PuzzleJs.emit("${EVENT.ON_VARIABLES}", "${fragment.name}", "${key}", "${JSON.stringify(fragmentPageModel[key])}")`;
       return modelVariable;
     }, '')}</script>` : '';
   }
@@ -778,7 +778,6 @@ export class Template {
         const filePath = path.join(TEMP_FOLDER, fileName);
 
         fs.writeFileSync(filePath, output.styles, 'utf8');
-        console.log('BUILD Sytle', filePath);
         dsmcdn.upload(filePath, CDN_OPTIONS, () => {
           this.dom('head').append(`<link puzzle-dependency="dynamic" rel="stylesheet" href="${CDN_OPTIONS.getFilePath(fileName)}" />`);
           resolve();
