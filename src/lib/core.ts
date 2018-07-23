@@ -50,7 +50,7 @@ export class Core extends Module {
   }
 
   @on(EVENT.ON_VARIABLES)
-  static onVariables(fragmentName: string, configKey: string, configData: string) {
+  static onVariables(fragmentName: string, configKey: string, configData: object) {
     window[configKey] = configData;
   }
 

@@ -56,7 +56,7 @@ describe('Module - Core', () => {
     const variableName = faker.random.word();
     const fragmentName = faker.random.word();
 
-    Core.onVariables(fragmentName, variableName, JSON.stringify(windowModel));
+    Core.onVariables(fragmentName, variableName, windowModel);
 
     console.log(window[variableName]);
 
