@@ -51,7 +51,7 @@ export class Core extends Module {
 
   @on(EVENT.ON_VARIABLES)
   static onVariables(fragmentName: string, configKey: string, configData: string) {
-    window[configKey] = JSON.parse(configData);
+    window[configKey] = configData;
   }
 
   static createLoadQueue(assets: IPageLibAsset[]) {
