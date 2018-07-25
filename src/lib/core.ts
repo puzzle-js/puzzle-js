@@ -68,7 +68,6 @@ export class Core extends Module {
             if (loadList.indexOf(dependency[0]) === -1) {
               loadList.push(dependency[0]);
               dependency[0].preLoaded = true;
-              dependency
             }
           }
         });
