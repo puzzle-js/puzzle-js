@@ -42,9 +42,8 @@ describe('Module - Variables', () => {
   it('should set fragment variables', function () {
     const variable = faker.helpers.userCard();
     const fragmentName = faker.random.word();
-    window.__fragment_variable = variable;
 
-    Variables.set(fragmentName, '__fragment_variable');
+    Variables.set(fragmentName, '__fragment_variable', variable);
 
     expect(Variables.variables[fragmentName]['__fragment_variable']).to.eq(variable);
   });
@@ -55,7 +54,7 @@ describe('Module - Variables', () => {
     const fn = sinon.stub(Util, 'log');
     window.__fragment_variable = variable;
 
-    Variables.set(fragmentName, '__fragment_variable');
+    Variables.set(fragmentName, '__fragment_variable', variable);
     Variables.print();
 
     expect(fn.calledWith(variable)).to.true;

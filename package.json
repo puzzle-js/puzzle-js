@@ -96,7 +96,8 @@
       "coverage/**",
       "demo",
       "src/types",
-      "**/*.js"
+      "**/*.js",
+      "src/lib/modules/analytics.ts"
     ],
     "reporter": [
       "text"

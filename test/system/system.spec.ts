@@ -365,7 +365,7 @@ describe('System Tests', function () {
               closeInstance(storefrontInstance);
               closeInstance(gatewayInstance);
               expect(res.header['custom']).to.eq('custom value');
-              expect(res.text).to.include(`<body><div id="example" puzzle-fragment="example" puzzle-gateway="Browsing">Fragment Content</div><script puzzle-dependency="lib-config" type="text/javascript">`);
+              expect(res.text).to.include(`<body><div id="example" puzzle-fragment="example" puzzle-gateway="Browsing">Fragment Content</div>`);
               done(err);
             });
         });
