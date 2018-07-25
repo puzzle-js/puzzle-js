@@ -194,14 +194,6 @@ export class Template {
    * @param {boolean} isDebug
    */
   private injectPuzzleLibAndConfig(isDebug: boolean): void {
-    this.dom('head').prepend(Template.wrapJsAsset({
-      content: `{puzzleLibContent}`,
-      injectType: RESOURCE_INJECT_TYPE.INLINE,
-      name: 'puzzle-lib',
-      link: '',
-      executeType: RESOURCE_JS_EXECUTE_TYPE.SYNC
-    }));
-
     const fragments = Object.keys(this.fragments);
 
     const pageFragmentLibConfig = fragments.reduce((pageLibFragments: IPageFragmentConfig[], fragmentName) => {
@@ -294,13 +286,14 @@ export class Template {
       dependencies
     } as IPageLibConfiguration;
 
-    this.dom('body').append(Template.wrapJsAsset({
-      content: `PuzzleJs.emit('${EVENT.ON_CONFIG}','${JSON.stringify(libConfig)}');`,
+    this.dom('head').prepend(Template.wrapJsAsset({
+      content: `{puzzleLibContent}PuzzleJs.emit('${EVENT.ON_RENDER_START}');PuzzleJs.emit('${EVENT.ON_CONFIG}','${JSON.stringify(libConfig)}');`,
       injectType: RESOURCE_INJECT_TYPE.INLINE,
-      name: 'lib-config',
+      name: 'puzzle-lib',
       link: '',
       executeType: RESOURCE_JS_EXECUTE_TYPE.SYNC
     }));
+
 
     if (isDebug) {
       // todo emit debug model
@@ -352,8 +345,7 @@ export class Template {
           return script;
         }, '') : '';
 
-        this.dom(element).replaceWith(`<div id="${fragment.name}" puzzle-fragment="${fragment.name}" puzzle-gateway="${fragment.from}" fragment-partial="${element.attribs.partial || 'main'}">${fragmentContent.html[partial] || CONTENT_NOT_FOUND_ERROR}</div>${fragmentScripts}`);
-
+        this.dom(element).replaceWith(`<div id="${fragment.name}" puzzle-fragment="${fragment.name}" puzzle-gateway="${fragment.from}" fragment-partial="${element.attribs.partial || 'main'}">${fragmentContent.html[partial] || CONTENT_NOT_FOUND_ERROR}</div>${fragmentScripts}<script>PuzzleJs.emit('${EVENT.ON_FRAGMENT_RENDERED}','${fragment.name}');</script>`);
       });
     }
   }
@@ -657,7 +649,7 @@ export class Template {
           }
 
           if (element.parentNode.name !== 'head') {
-            this.dom(element).replaceWith(`<div id="${fragment.name}" puzzle-fragment="${element.attribs.name}" puzzle-gateway="${element.attribs.from}" ${element.attribs.partial ? 'fragment-partial="' + element.attribs.partial + '"' : ''}>${replaceKey}</div>`);
+            this.dom(element).replaceWith(`<div id="${fragment.name}" puzzle-fragment="${element.attribs.name}" puzzle-gateway="${element.attribs.from}" ${element.attribs.partial ? 'fragment-partial="' + element.attribs.partial + '"' : ''}>${replaceKey}</div><script>PuzzleJs.emit('${EVENT.ON_FRAGMENT_RENDERED}','${fragment.name}');</script>`);
           } else {
             this.dom(element).replaceWith(replaceKey);
           }

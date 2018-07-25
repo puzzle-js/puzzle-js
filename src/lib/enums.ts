@@ -18,7 +18,17 @@ export enum EVENT {
   ON_FRAGMENT_RENDERED,
   ON_CONFIG,
   ON_DEBUG_CONFIG,
-  ON_VARIABLES
+  ON_VARIABLES,
+  ON_RENDER_START
+}
+
+export enum TIME_LABELS {
+  HTML_TRANSFER_STARTED = 'html-transfer-start',
+  HTML_TRANSFER_ENDED = 'html-transfer-end',
+  FRAGMENT_RENDER_START = 'fragment-render-started-',
+  FRAGMENT_RENDER_END = 'fragment-render-ended-',
+  FRAGMENT_MEASUREMENT = 'fragment-total-',
+  FRAGMENT_MEASUREMENT_RESPONSE_START_TIME = 'fragment-response-start-'
 }
 
 

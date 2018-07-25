@@ -3,13 +3,15 @@ import {Core} from "./core";
 import {Info} from "./modules/info";
 import {Variables} from "./modules/variables";
 import {Fragments} from "./modules/fragments";
+import {Analytics} from "./modules/analytics";
 
 (function () {
   const MODULES = {
     Core,
     Info,
     Variables,
-    Fragments
+    Fragments,
+    Analytics
   };
 
   PuzzleJs.inject(MODULES);

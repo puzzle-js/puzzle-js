@@ -27,8 +27,10 @@ export class Core extends Module {
    * @param {string} replacementContentSelector
    */
   @on(EVENT.ON_FRAGMENT_RENDERED)
-  static load(fragmentName: string, containerSelector: string, replacementContentSelector: string) {
-    Core.__replace(containerSelector, replacementContentSelector);
+  static load(fragmentName: string, containerSelector?: string, replacementContentSelector?: string) {
+    if (containerSelector && replacementContentSelector) {
+      Core.__replace(containerSelector, replacementContentSelector);
+    }
   }
 
   @on(EVENT.ON_FRAGMENT_RENDERED)

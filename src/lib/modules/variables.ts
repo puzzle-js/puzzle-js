@@ -26,6 +26,7 @@ export class Variables extends Module {
         Util.wrapGroup('PuzzleJs', fragmentName, () => {
           Object.keys(Variables.variables[fragmentName]).forEach(configKey => {
             Util.wrapGroup('PuzzleJs', configKey, () => {
+
               Util.log(Variables.variables[fragmentName][configKey]);
             }, LOG_COLORS.YELLOW);
           });
@@ -34,10 +35,12 @@ export class Variables extends Module {
     });
   }
 
-  static set(fragmentName: string, varName: string) {
+
+  @on(EVENT.ON_VARIABLES)
+  static set(fragmentName: string, varName: string, configData: object) {
     if (!Variables.variables[fragmentName]) {
       Variables.variables[fragmentName] = {};
     }
-    Variables.variables[fragmentName][varName] = window[varName];
+    Variables.variables[fragmentName][varName] = configData;
   }
 }
