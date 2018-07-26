@@ -1,6 +1,6 @@
 {
   "name": "@trendyol/puzzlejs",
-  "version": "3.5.0",
+  "version": "3.6.0",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "logo": "https://image.ibb.co/jM29on/puzzlelogo.png",
@@ -97,7 +97,8 @@
       "demo",
       "src/types",
       "**/*.js",
-      "src/lib/modules/analytics.ts"
+      "src/lib/modules/analytics.ts",
+      "src/lib/modules/storage.ts"
     ],
     "reporter": [
       "text"

@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+# [3.6.0] - 26-07-2018
+### Added
+- Storage module for debugging application cache into PuzzleLib
+
 # [3.5.0] - 25-07-2018
 ### Fixed
 - Fragment loaded for static and waited fragments
