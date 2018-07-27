@@ -30,15 +30,17 @@ export class Page {
   async handle(req: { cookies: ICookieObject, query: { [name: string]: string } }, res: object) {
     const handlerVersion = this.getHandlerVersion(req);
     const isDebug = DEBUG_INFORMATION || (req.query && req.query.hasOwnProperty(DEBUG_QUERY_NAME));
-    if (!this.responseHandlers[handlerVersion]) {
-      this.responseHandlers[handlerVersion] = await this.template.compile(req.cookies, isDebug);
+    if (typeof this.responseHandlers[handlerVersion] === "undefined") {
+      this.responseHandlers[handlerVersion] = this.template.compile(req.cookies, isDebug);
     }
 
-    this.responseHandlers[handlerVersion](req, res);
+    (await this.responseHandlers[handlerVersion])(req, res);
   }
 
   async preLoad() {
-    this.responseHandlers[this.getHandlerVersion({cookies: {}, query: {}})] = await this.template.compile({}, false);
+    const preLoadHandler = this.getHandlerVersion({cookies: {}, query: {}});
+    this.responseHandlers[preLoadHandler] = this.template.compile({}, false);
+    await this.responseHandlers[preLoadHandler];
   }
 
   /**
