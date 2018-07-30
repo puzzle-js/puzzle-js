@@ -1,6 +1,6 @@
 {
   "name": "@trendyol/puzzlejs",
-  "version": "3.6.1",
+  "version": "3.7.0",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "logo": "https://image.ibb.co/jM29on/puzzlelogo.png",
@@ -52,8 +52,8 @@
   "scripts": {
     "prepublish": "yarn build",
     "build": "tsc && gulp build && node_modules/.bin/webpack --config ./src/lib/webpack.config.js && gulp prepareLib",
-    "test": "nyc --check-coverage --lines=90 cross-env NODE_ENV=production mocha -r ts-node/register  --recursive 'test/**/*.spec.ts'",
-    "test:lib": "nyc -n 'src/lib/**/*.ts' --check-coverage --lines=90  cross-env NODE_ENV=production mocha -r ts-node/register  --recursive 'test/lib/**/*.spec.ts'",
+    "test": "nyc --check-coverage --lines=85 cross-env NODE_ENV=production mocha -r ts-node/register  --recursive 'test/**/*.spec.ts'",
+    "test:lib": "nyc -n 'src/lib/**/*.ts' --check-coverage --lines=85  cross-env NODE_ENV=production mocha -r ts-node/register  --recursive 'test/lib/**/*.spec.ts'",
     "test:watch": "cross-env NODE_ENV=production mocha --watch --require ts-node/register --watch-extensions ts,tsx --recursive 'test/**/*.spec.ts'",
     "test:watch:lib": "cross-env NODE_ENV=production mocha --watch --require ts-node/register --watch-extensions ts,tsx --recursive 'test/lib/**/*.spec.ts'",
     "publish:beta": "yarn publish --tag=beta",
@@ -67,7 +67,6 @@
     "compression": "^1.7.2",
     "cookie-parser": "latest",
     "cors": "^2.8.4",
-    "dsmcdn": "^1.5.1",
     "express": "^4.16.3",
     "helmet": "latest",
     "iltorb": "^2.3.2",

@@ -41,7 +41,6 @@ import fs from "fs";
 import path from "path";
 import {IPageFragmentConfig, IPageLibAsset, IPageLibConfiguration, IPageLibDependency} from "./lib/types";
 import {EVENT, RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "./lib/enums";
-import dsmcdn from "dsmcdn";
 
 const logger = <Logger>container.get(TYPES.Logger);
 
@@ -143,7 +142,7 @@ export class Template {
     this.injectPuzzleLibAndConfig(isDebug);
 
     // todo kaldir lib bagla
-    const replaceScripts = await this.prepareJsAssetLocations();
+    const replaceScripts: any[] = [];
 
     const waitedFragmentReplacements: IReplaceSet[] = this.replaceWaitedFragmentContainers(chunkedFragmentsWithShouldWait, replaceScripts, isDebug);
 
@@ -260,7 +259,7 @@ export class Template {
                   executeType: RESOURCE_JS_EXECUTE_TYPE.SYNC
                 }));
               } else if (dependency.type === RESOURCE_TYPE.CSS) {
-                this.dom('head').append(`<link puzzle-dependency="${dependency.name}" rel="stylesheet" href="${dependency.link}" />`);
+                //this.dom('head').append(`<link puzzle-dependency="${dependency.name}" rel="stylesheet" href="${dependency.link}" />`);
               }
             }
           });
@@ -666,67 +665,6 @@ export class Template {
     return waitedFragmentReplacements;
   }
 
-  /**
-   * Prepares JS asset replacements and replaces HEAD, BODY_START
-   * @returns {Promise<IReplaceAsset[]>}
-   */
-  private async prepareJsAssetLocations(): Promise<IReplaceAsset[]> {
-    const replaceScripts: IReplaceAsset[] = [];
-
-    // await Promise.all(Object.keys(this.fragments).map(async (fragmentName) => {
-    //   const fragment = this.fragments[fragmentName];
-    //
-    //   if (fragment.config) {
-    //     const replaceItems: IReplaceAssetSet[] = [];
-    //     await Promise.all(fragment.config.assets.filter(asset => asset.type === RESOURCE_TYPE.JS).map(async asset => {
-    //       let assetContent = null;
-    //       if (asset.injectType === RESOURCE_INJECT_TYPE.INLINE) {
-    //         assetContent = await fragment.getAsset(asset.name);
-    //       }
-    //       switch (asset.location) {
-    //         case RESOURCE_LOCATION.HEAD:
-    //           this.dom('head').append(Template.wrapJsAsset({
-    //             name: asset.name,
-    //             injectType: asset.injectType,
-    //             link: fragment.getAssetPath(asset.name),
-    //             content: assetContent,
-    //             executeType: asset.executeType || RESOURCE_JS_EXECUTE_TYPE.SYNC
-    //           }));
-    //           break;
-    //         case RESOURCE_LOCATION.BODY_START:
-    //           this.dom('body').prepend(Template.wrapJsAsset({
-    //             name: asset.name,
-    //             injectType: asset.injectType,
-    //             link: fragment.getAssetPath(asset.name),
-    //             content: assetContent,
-    //             executeType: asset.executeType || RESOURCE_JS_EXECUTE_TYPE.SYNC
-    //           }));
-    //           break;
-    //         case RESOURCE_LOCATION.CONTENT_START:
-    //         case RESOURCE_LOCATION.CONTENT_END:
-    //         case RESOURCE_LOCATION.BODY_END:
-    //           replaceItems.push({
-    //             content: assetContent,
-    //             name: asset.name,
-    //             link: fragment.getAssetPath(asset.name),
-    //             injectType: asset.injectType,
-    //             location: asset.location,
-    //             executeType: asset.executeType || RESOURCE_JS_EXECUTE_TYPE.SYNC
-    //           });
-    //           break;
-    //       }
-    //
-    //     }));
-    //     replaceScripts.push({
-    //       fragment,
-    //       replaceItems
-    //     });
-    //   }
-    // }));
-
-    return replaceScripts;
-  }
-
 
   /**
    * @deprecated Combine this for only render_start_css assets
@@ -744,39 +682,38 @@ export class Template {
       } as any);
 
       let styleSheets: string[] = [];
-
+      const injectionDependencyNames: string[] = [];
 
       for (let fragment of Object.values(this.fragments)) {
         if (!fragment.config) continue;
 
+
         const cssAssets = fragment.config.assets.filter(asset => asset.type === RESOURCE_TYPE.CSS);
+        const cssDependencies = fragment.config.dependencies.filter(dependency => dependency.type === RESOURCE_TYPE.CSS);
 
         for (let asset of cssAssets) {
           const assetContent = await fragment.getAsset(asset.name);
 
           if (assetContent) {
             styleSheets.push(assetContent);
+            injectionDependencyNames.push(asset.name);
+          }
+        }
+
+        for (let dependency of cssDependencies) {
+          if (!injectionDependencyNames.includes(dependency.name)) {
+            injectionDependencyNames.push(dependency.name);
+            styleSheets.push(await ResourceFactory.instance.getRawContent(dependency.name))
           }
         }
       }
 
-      let output = _CleanCss.minify(styleSheets.join(''));
-      if (output.styles.length > 0) {
-
-
-
-        const styleHash = md5(output.styles);
-        const fileName = `${this.name}.${styleHash}.min.css`;
-        const filePath = path.join(TEMP_FOLDER, fileName);
-
-        fs.writeFileSync(filePath, output.styles, 'utf8');
-        dsmcdn.upload(filePath, CDN_OPTIONS, () => {
-          this.dom('head').append(`<link puzzle-dependency="dynamic" rel="stylesheet" href="${CDN_OPTIONS.getFilePath(fileName)}" />`);
-          resolve();
-        });
-      } else {
-        resolve();
+      if (styleSheets.length > 0) {
+        let output = _CleanCss.minify(styleSheets.join(''));
+        const addEscapeCharacters = output.styles.replace(/content:"/g, 'content:"\\');
+        this.dom('head').append(`<style puzzle-dependency="dynamic-css" dependency-list="${injectionDependencyNames.join(',')}">${addEscapeCharacters}</style>`);
       }
+      resolve();
     })
   }
 }
