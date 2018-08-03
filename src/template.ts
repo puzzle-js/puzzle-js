@@ -61,9 +61,8 @@ export class Template {
    */
   public load(): void {
     const templateMatch = TemplateCompiler.TEMPLATE_CONTENT_REGEX.exec(this.rawHtml);
-
     if (templateMatch) {
-      this.dom = cheerio.load(templateMatch[1], CHEERIO_CONFIGURATION);
+      this.dom = cheerio.load(Template.replaceCustomScripts(templateMatch[1], true), CHEERIO_CONFIGURATION);
     } else {
       throw new PuzzleError(ERROR_CODES.TEMPLATE_NOT_FOUND);
     }
@@ -167,7 +166,7 @@ export class Template {
      * todo Bu kafa olmaz runtimeda debug not debug degismez, handler ici runtime guzel olur.
      */
     const puzzleLib = fs.readFileSync(path.join(__dirname, `/lib/${isDebug ? 'puzzle_debug.min.js' : 'puzzle.min.js'}`)).toString();
-    const clearLibOutput = this.dom.html().replace('{puzzleLibContent}', puzzleLib);
+    const clearLibOutput = Template.replaceCustomScripts(this.dom.html().replace('{puzzleLibContent}', puzzleLib), false);
 
     return this.buildHandler(TemplateCompiler.compile(Template.clearHtmlContent(clearLibOutput)), chunkReplacements, waitedFragmentReplacements, replaceScripts, isDebug);
   }
@@ -715,5 +714,11 @@ export class Template {
       }
       resolve();
     })
+  }
+
+  private static replaceCustomScripts(template: string, encode: boolean) {
+    return encode ?
+      template.replace(/<puzzle-script>/g, '<!--custom-script').replace(/<\/puzzle-script>/g, '/custom-script-->') :
+      template.replace(/<!--custom-script/g, '<script>').replace(/\/custom-script-->/g, '</script>');
   }
 }
