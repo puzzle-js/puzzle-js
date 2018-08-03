@@ -4,7 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-# [3.8.0] - 26-07-2018
+# [3.9.0] - 03-08-2018
+### Added
+- `originalurl` key added to headers for api requests
+
+# [3.8.0] - 03-08-2018
 ### Added
 - `<puzzle-script>` can be used to inline scripts without any parse error
 
