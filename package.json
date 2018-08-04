@@ -40,7 +40,7 @@
     "supertest": "^3.0.0",
     "ts-loader": "^4.4.2",
     "ts-node": "^5.0.1",
-    "typescript": "^2.7.2",
+    "typescript": "^3.0.1",
     "typings": "^2.1.1",
     "webpack": "^4.14.0",
     "webpack-cli": "^3.0.8"
@@ -51,7 +51,7 @@
   },
   "scripts": {
     "prepublish": "yarn build",
-    "build": "tsc && gulp build && node_modules/.bin/webpack --config ./src/lib/webpack.config.js && gulp prepareLib",
+    "build": "node_modules/.bin/tsc && gulp build && node_modules/.bin/webpack --config ./src/lib/webpack.config.js && gulp prepareLib",
     "test": "nyc --check-coverage --lines=85 cross-env NODE_ENV=production mocha -r ts-node/register  --recursive 'test/**/*.spec.ts'",
     "test:lib": "nyc -n 'src/lib/**/*.ts' --check-coverage --lines=85  cross-env NODE_ENV=production mocha -r ts-node/register  --recursive 'test/lib/**/*.spec.ts'",
     "test:watch": "cross-env NODE_ENV=production mocha --watch --require ts-node/register --watch-extensions ts,tsx --recursive 'test/**/*.spec.ts'",

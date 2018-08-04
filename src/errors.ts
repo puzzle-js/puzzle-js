@@ -6,7 +6,7 @@ export enum ERROR_CODES {
     FAILED_TO_COMPILE_TEMPLATE
 }
 
-const ERROR_MESSAGES: { [name: string]: () => string; } = Object.freeze({
+const ERROR_MESSAGES: { [name: string]: (...args: string[]) => string; } = Object.freeze({
     [ERROR_CODES.TEMPLATE_NOT_FOUND]: () => 'Template not found in html file',
     [ERROR_CODES.MULTIPLE_PRIMARY_FRAGMENTS]: () => 'Multiple primary fragments are not allowed',
     [ERROR_CODES.CONFIGURATION_BASE_VALIDATION_ERROR]: () => 'Use StorefrontConfiguration or GatewayConfiguration',
