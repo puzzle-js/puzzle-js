@@ -9,15 +9,15 @@
 To install PuzzleJs with Yarn or Npm, simply:
 
 ```bash
-yarn add @trendyol/puzzlejs
+yarn add puzzle-microfrontends
 ```
 
 ```bash
-npm install --save @trendyol/puzzlejs
+npm install --save puzzle-microfrontends
 ```
 
 Then you can start using it
 
 ```js
-const PuzzleJs = require('@trendyol/puzzlejs');
+const PuzzleJs = require('puzzle-microfrontends');
 ```
