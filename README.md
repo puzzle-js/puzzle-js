@@ -14,7 +14,7 @@ The traditional model is very inefficient for modern websites.
 * Multiple teams working on the same code makes everything harder to manage.
 * Time to first byte is as fast as the slowest api.
 * When backend is collecting data user browser is wasting time waiting for first byte.
-* Features can't be online as soon as it is fully developed and tested because of other teams futures are not ready yet.
+* Features can't be online as soon as it is fully developed and tested because of other teams features are not ready yet.
 * You can't use different technologies expect from the existing one.
 * You can't scale specific process because you are dependent to whole system.
 
