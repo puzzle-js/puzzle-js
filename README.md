@@ -4,7 +4,7 @@
 Frontend microservices framework for scalable and blazing fast websites.
 
 [![Build Status](https://travis-ci.com/Acanguven/PuzzleJs.svg?token=P2s8WVyVNPJgtfCf4E5i&branch=master)](https://travis-ci.com/Acanguven/Puzzle-Reworked)
-[![npm version](https://badge.fury.io/js/ty-puzzlejs.svg)](https://www.npmjs.com/package/puzzle-microfrontends)
+[![npm version](https://badge.fury.io/js/puzzle-microfrontends.svg)](https://www.npmjs.com/package/puzzle-microfrontends)
 
 
 PuzzleJs makes it easy to create gateways and storefront projects that talk each other. It is inspired by Facebook's [BigPipe](https://www.facebook.com/notes/facebook-engineering/bigpipe-pipelining-web-pages-for-high-performance/389414033919/), developed with lots of great features and passion.
