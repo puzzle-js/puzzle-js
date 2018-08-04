@@ -3,26 +3,17 @@ import {expect} from "chai";
 import {Template} from "../src/template";
 import nock = require("nock");
 import {
-<<<<<<< HEAD
   CONTENT_REPLACE_SCRIPT,
   FRAGMENT_RENDER_MODES, PUZZLE_DEBUG_LIB_SCRIPT,
   PUZZLE_LIB_SCRIPT,
   RESOURCE_INJECT_TYPE,
   RESOURCE_JS_EXECUTE_TYPE,
   RESOURCE_LOCATION} from "../src/enums";
-=======
-    CONTENT_REPLACE_SCRIPT, FRAGMENT_RENDER_MODES, RESOURCE_INJECT_TYPE, RESOURCE_JS_EXECUTE_TYPE, RESOURCE_LOCATION,
-    RESOURCE_TYPE
-} from "../src/enums";
->>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
 import {createExpressMock} from "./mock/mock";
 import ResourceFactory from "../src/resourceFactory";
 import {PUZZLE_DEBUGGER_LINK} from "../src/config";
 import faker from "faker";
-<<<<<<< HEAD
 import {EVENT, RESOURCE_TYPE} from "../src/lib/enums";
-=======
->>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
 
 describe('Template', () => {
   it('should create a new Template instance', () => {
@@ -541,7 +532,6 @@ describe('Template', () => {
             </template>
         `);
 
-<<<<<<< HEAD
     template.getDependencies();
 
     template.fragments.product.update({
@@ -576,33 +566,6 @@ describe('Template', () => {
       name: randomDependency,
       content: `console.log('5')`,
       type: RESOURCE_TYPE.JS
-=======
-        template.getDependencies();
-
-        template.fragments.product.update({
-            render: {
-                url: '/',
-                static: true
-            },
-            dependencies: [],
-            assets: [],
-            testCookie: 'test',
-            version: '1.0.0'
-        }, 'http://my-test-gateway-static-2.com');
-
-        template.compile({}, true).then(handler => {
-            handler({}, createExpressMock({
-                write(str: string) {
-                    expect(str).to.eq(null);
-                },
-                end(str: string) {
-                    expect(str).to.eq(`<html><head><script src="${PUZZLE_DEBUGGER_LINK}" type="text/javascript"></script><script>PuzzleJs.fragments.set({"product":{"name":"product","primary":false,"shouldWait":false,"from":"Browsing","fragmentUrl":"http://my-test-gateway-static-2.com/product","config":{"render":{"url":"/","static":true},"dependencies":[],"assets":[],"testCookie":"test","version":"1.0.0"}}})</script></head><body><div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" fragment-partial="main"><script>console.log('Fragment Part does not exists')</script></div></div><script>PuzzleJs.analytics.end();PuzzleJs.variables.end();</script></body></html>`);
-                    done();
-                },
-                status: () => ''
-            }));
-        });
->>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
     });
 
     let scope = nock('http://my-test-gateway.com')
@@ -630,7 +593,6 @@ describe('Template', () => {
                 </template>
             `);
 
-<<<<<<< HEAD
     template.getDependencies();
 
     template.fragments.product.update({
@@ -664,42 +626,6 @@ describe('Template', () => {
         },
         status: () => ''
       }));
-=======
-        template.getDependencies();
-
-        template.fragments.product.update({
-            render: {
-                url: '/'
-            },
-            dependencies: [
-                {
-                    name: randomDependency,
-                    type: RESOURCE_TYPE.JS
-                }
-            ],
-            assets: [],
-            testCookie: 'test',
-            version: '1.0.0'
-        }, 'http://my-test-gateway.com');
-
-
-        template.compile({}).then(handler => {
-            handler({}, createExpressMock({
-                write(str: string) {
-
-                },
-                end(str: string) {
-                    try {
-                        expect(str).to.eq(`<html><head><script puzzle-dependency="${randomDependency}" type="text/javascript">console.log('5')</script></head><body><div> <div id="product" puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div></div></body></html>`);
-                        done();
-                    } catch (e) {
-                        done(e);
-                    }
-                },
-                status: () => ''
-            }));
-        });
->>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
     });
   });
    **/
@@ -755,7 +681,6 @@ describe('Template', () => {
                         </template>
                     `);
 
-<<<<<<< HEAD
         template.getDependencies();
 
         template.fragments.product.update({
@@ -801,53 +726,6 @@ describe('Template', () => {
 
 
         const template = new Template(`
-=======
-                template.getDependencies();
-
-                template.fragments.product.update({
-                    render: {
-                        url: '/'
-                    },
-                    dependencies: [],
-                    assets: [],
-                    testCookie: 'test',
-                    version: '1.0.0'
-                }, 'http://my-test-gateway.com');
-
-
-                template.compile({}).then(handler => {
-                    handler({}, createExpressMock({
-                        write(str: string) {
-
-                        },
-                        end(str: string) {
-                            try {
-                                expect(str).to.eq(`<div> <div id="product" puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div></div>`);
-                                done();
-                            } catch (e) {
-                                done(e);
-                            }
-                        },
-                        status: () => ''
-                    }));
-                });
-
-            });
-
-            it('should respond with single flush, shouldwait with partial', (done) => {
-                let scope = nock('http://my-test-gateway.com')
-                    .get('/product/')
-                    .query({
-                        __renderMode: FRAGMENT_RENDER_MODES.STREAM
-                    })
-                    .reply(200, {
-                        main: 'Trendyol',
-                        gallery: 'List of great products'
-                    });
-
-
-                const template = new Template(`
->>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
                     <template>
                         <div>
                             <fragment from="Browsing" name="product" shouldWait></fragment>
@@ -858,7 +736,6 @@ describe('Template', () => {
                     </template>
                 `);
 
-<<<<<<< HEAD
         template.getDependencies();
 
         template.fragments.product.update({
@@ -909,58 +786,6 @@ describe('Template', () => {
 
 
         const template = new Template(`
-=======
-                template.getDependencies();
-
-                template.fragments.product.update({
-                    render: {
-                        url: '/'
-                    },
-                    dependencies: [],
-                    assets: [],
-                    testCookie: 'test',
-                    version: '1.0.0'
-                }, 'http://my-test-gateway.com');
-
-
-                template.compile({}).then(handler => {
-                    handler({}, createExpressMock({
-                        write(str: string) {
-
-                        },
-                        end(str: string) {
-                            try {
-                                expect(str).to.eq(`<div> <div id="product" puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div></div><div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" fragment-partial="gallery">List of great products</div></div>`);
-                                done();
-                            } catch (e) {
-                                done(e);
-                            }
-                        },
-                        status: () => ''
-                    }));
-                });
-            });
-
-            it('should respond with single flush, multiple shouldwaits with partial', (done) => {
-                let scope = nock('http://my-test-gateway.com')
-                    .get('/product/')
-                    .query({
-                        __renderMode: FRAGMENT_RENDER_MODES.STREAM
-                    })
-                    .reply(200, {
-                        main: 'Trendyol',
-                    })
-                    .get('/product2/')
-                    .query({
-                        __renderMode: FRAGMENT_RENDER_MODES.STREAM
-                    })
-                    .reply(200, {
-                        main: 'List of great products',
-                    });
-
-
-                const template = new Template(`
->>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
                 <template>
                     <div>
                         <fragment from="Browsing" name="product" shouldWait></fragment>
@@ -971,7 +796,6 @@ describe('Template', () => {
                 </template>
             `);
 
-<<<<<<< HEAD
         template.getDependencies();
 
         template.fragments.product.update({
@@ -1025,61 +849,6 @@ describe('Template', () => {
 
 
         const template = new Template(`
-=======
-                template.getDependencies();
-
-                template.fragments.product.update({
-                    render: {
-                        url: '/'
-                    },
-                    dependencies: [],
-                    assets: [],
-                    testCookie: 'test',
-                    version: '1.0.0'
-                }, 'http://my-test-gateway.com');
-
-                template.fragments.product2.update({
-                    render: {
-                        url: '/'
-                    },
-                    dependencies: [],
-                    assets: [],
-                    testCookie: 'test',
-                    version: '1.0.0'
-                }, 'http://my-test-gateway.com');
-
-
-                template.compile({}).then(handler => {
-                    handler({}, createExpressMock({
-                        write(str: string) {
-
-                        },
-                        end(str: string) {
-                            try {
-                                expect(str).to.eq(`<div> <div id="product" puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div></div><div> <div id="product2" puzzle-fragment="product2" puzzle-gateway="Browsing">List of great products</div></div>`);
-                                done();
-                            } catch (e) {
-                                done(e);
-                            }
-                        },
-                        status: () => ''
-                    }));
-                });
-            });
-
-            it('should print default content not found error if partial is not being served', done => {
-                let scope = nock('http://my-test-gateway.com')
-                    .get('/product/')
-                    .query({
-                        __renderMode: FRAGMENT_RENDER_MODES.STREAM
-                    })
-                    .reply(200, {
-                        main: 'Trendyol',
-                    });
-
-
-                const template = new Template(`
->>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
                 <template>
                     <div>
                         <fragment from="Browsing" name="product" shouldWait></fragment>
@@ -1090,7 +859,6 @@ describe('Template', () => {
                 </template>
             `);
 
-<<<<<<< HEAD
         template.getDependencies();
 
         template.fragments.product.update({
@@ -1143,60 +911,6 @@ describe('Template', () => {
 
 
         const template = new Template(`
-=======
-                template.getDependencies();
-
-                template.fragments.product.update({
-                    render: {
-                        url: '/'
-                    },
-                    dependencies: [],
-                    assets: [],
-                    testCookie: 'test',
-                    version: '1.0.0'
-                }, 'http://my-test-gateway.com');
-
-
-                template.compile({}).then(handler => {
-                    handler({}, createExpressMock({
-                        write(str: string) {
-
-                        },
-                        end(str: string) {
-                            try {
-                                expect(str).to.eq(`<div> <div id="product" puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div></div><div><div puzzle-fragment="product2" puzzle-gateway="Browsing"><script>console.log('Fragment Part does not exists')</script></div></div>`);
-                                done();
-                            } catch (e) {
-                                done(e);
-                            }
-                        },
-                        status: () => ''
-                    }));
-                });
-            });
-
-            it('should respond correctly when multiple gateways and single fragment from each', done => {
-                let scope = nock('http://my-test-gateway.com')
-                    .get('/product/')
-                    .query({
-                        __renderMode: FRAGMENT_RENDER_MODES.STREAM
-                    })
-                    .reply(200, {
-                        main: 'Trendyol',
-                    });
-
-                let scope2 = nock('http://my-test-gateway2.com')
-                    .get('/header/')
-                    .query({
-                        __renderMode: FRAGMENT_RENDER_MODES.STREAM
-                    })
-                    .reply(200, {
-                        main: 'Header Content',
-                    });
-
-
-                const template = new Template(`
->>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
                 <template>
                     <div>
                         <fragment from="Browsing" name="product" shouldWait></fragment>
@@ -1207,7 +921,6 @@ describe('Template', () => {
                 </template>
             `);
 
-<<<<<<< HEAD
         template.getDependencies();
 
         template.fragments.product.update({
@@ -1246,48 +959,6 @@ describe('Template', () => {
             },
             status: () => ''
           }));
-=======
-                template.getDependencies();
-
-                template.fragments.product.update({
-                    render: {
-                        url: '/'
-                    },
-                    dependencies: [],
-                    assets: [],
-                    testCookie: 'test',
-                    version: '1.0.0'
-                }, 'http://my-test-gateway.com');
-
-                template.fragments.header.update({
-                    render: {
-                        url: '/'
-                    },
-                    dependencies: [],
-                    assets: [],
-                    testCookie: 'test',
-                    version: '1.0.0'
-                }, 'http://my-test-gateway2.com');
-
-
-                template.compile({}).then(handler => {
-                    handler({}, createExpressMock({
-                        write(str: string) {
-
-                        },
-                        end(str: string) {
-                            try {
-                                expect(str).to.eq(`<div> <div id="product" puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div></div><div> <div id="header" puzzle-fragment="header" puzzle-gateway="Common">Header Content</div></div>`);
-                                done();
-                            } catch (e) {
-                                done(e);
-                            }
-                        },
-                        status: () => ''
-                    }));
-                });
-            });
->>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
         });
       });
     });
@@ -1469,7 +1140,6 @@ describe('Template', () => {
                     </template>
                 `);
 
-<<<<<<< HEAD
         template.getDependencies();
 
         template.fragments.product.update({
@@ -1546,84 +1216,6 @@ describe('Template', () => {
 
 
         const template = new Template(`
-=======
-                template.getDependencies();
-
-                template.fragments.product.update({
-                    render: {
-                        url: '/',
-                    },
-                    dependencies: [],
-                    assets: [],
-                    testCookie: 'test',
-                    version: '1.0.0'
-                }, 'http://my-test-gateway-chunked-2.com');
-
-                template.fragments.header.update({
-                    render: {
-                        url: '/',
-                    },
-                    dependencies: [],
-                    assets: [],
-                    testCookie: 'test',
-                    version: '1.0.0'
-                }, 'http://my-test-gateway-chunked-2.com');
-
-                template.fragments.footer.update({
-                    render: {
-                        url: '/',
-                    },
-                    dependencies: [],
-                    assets: [],
-                    testCookie: 'test',
-                    version: '1.0.0'
-                }, 'http://my-test-gateway-chunked-2.com');
-
-                let err: boolean | null = null;
-                let chunks: string[] = [];
-
-                template.compile({}).then(handler => {
-                    handler({}, createExpressMock({
-                        write(str: string) {
-                            chunks.push(str);
-                        },
-                        end(str: string) {
-                            chunks.push(str);
-                            try {
-                                expect(chunks[0]).to.eq(`<html><head> <meta product="bag"/> <script>function $p(p,c){var z = document.querySelector(c),r = z.innerHTML;z.parentNode.removeChild(z);document.querySelector(p).innerHTML=r}</script></head><body> <div id="header" puzzle-fragment="header" puzzle-gateway="Browsing">Header Content</div><div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol Product Content</div></div><div id="footer" puzzle-fragment="footer" puzzle-gateway="Browsing" puzzle-chunk="footer_main"></div>`);
-                                expect(chunks[1]).to.eq(`<div style="display: none;" puzzle-fragment="footer" puzzle-chunk-key="footer_main">Footer Content</div><script>$p('[puzzle-chunk="footer_main"]','[puzzle-chunk-key="footer_main"]');</script>`);
-                                expect(chunks[2]).to.eq(`</body></html>`);
-                            } catch (e) {
-                                err = e;
-                            }
-                            done(err);
-                        },
-                        set(headerName: string, value: string) {
-
-                        },
-                        status: () => ''
-                    }));
-                });
-            });
-
-            it('should respond same fragment multiple chunked partial', done => {
-                let scope = nock('http://my-test-gateway-chunked-3.com')
-                    .get('/product/')
-                    .query({
-                        __renderMode: FRAGMENT_RENDER_MODES.STREAM
-                    })
-                    .reply(200, {
-                        main: 'Trendyol Product Content',
-                        footer: 'Footer Content',
-                        header: 'Header Content',
-                        side: 'Side Content'
-                    })
-                    .get('/product/placeholder')
-                    .reply(200, 'product content placeholder');
-
-
-                const template = new Template(`
->>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
                     <template>
                         <html>
                             <head>
@@ -1708,7 +1300,6 @@ describe('Template', () => {
                     </template>
                 `);
 
-<<<<<<< HEAD
         template.getDependencies();
 
         template.fragments['product-not-exists'].update({
@@ -1743,44 +1334,6 @@ describe('Template', () => {
               expect(statusCode).to.eq(404);
             }
           }));
-=======
-                template.getDependencies();
-
-                template.fragments['product-not-exists'].update({
-                    render: {
-                        url: '/',
-                        placeholder: false
-                    },
-                    dependencies: [],
-                    assets: [],
-                    testCookie: 'test',
-                    version: '1.0.0'
-                }, 'http://my-test-gateway-chunked.com');
-
-                let err: boolean | null = null;
-                let chunks: string[] = [];
-
-                template.compile({}).then(handler => {
-                    handler({}, createExpressMock({
-                        write(str: string) {
-                            chunks.push(str);
-                        },
-                        end(str: string) {
-                            chunks.push(str);
-                            try {
-                                expect(str).to.eq(`<html><head></head><body><div> <div id="product-not-exists" puzzle-fragment="product-not-exists" puzzle-gateway="Browsing">Trendyol</div></div></body></html>`);
-                            } catch (e) {
-                                err = e;
-                            }
-                            done(err);
-                        },
-                        status(statusCode: number) {
-                            expect(statusCode).to.eq(404);
-                        }
-                    }));
-                });
-            });
->>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
         });
       });
     });
@@ -1823,51 +1376,8 @@ describe('Template', () => {
           .get('/product/static/bundle.min.js')
           .reply(200, productScript);
 
-<<<<<<< HEAD
 
         const template = new Template(`
-=======
-        describe('JS Asset locations', () => {
-            it('should return html comment not existing asset', () => {
-                expect(Template.wrapJsAsset({
-                    link: null,
-                    injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
-                    name: 'Nope',
-                    content: null,
-                    executeType: RESOURCE_JS_EXECUTE_TYPE.SYNC
-                })).to.eq(`<!-- Failed to inject asset: Nope -->`);
-            });
-
-            it('should wrap js assets based on execute type', () => {
-                const name = faker.random.word();
-                const link = faker.random.word();
-
-                expect(Template.wrapJsAsset({
-                    link,
-                    injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
-                    name,
-                    content: null,
-                    executeType: RESOURCE_JS_EXECUTE_TYPE.ASYNC
-                })).to.eq(`<script puzzle-dependency="${name}" src="${link}" type="text/javascript"${RESOURCE_JS_EXECUTE_TYPE.ASYNC}> </script>`);
-            });
-
-            it('should append asset locations for normal fragment, HEAD - External', (done) => {
-                const productScript = `console.log('Product Script')`;
-
-                const scope = nock('http://my-test-gateway-chunked.com')
-                    .get('/product/')
-                    .query({
-                        __renderMode: FRAGMENT_RENDER_MODES.STREAM
-                    })
-                    .reply(200, {
-                        main: 'Trendyol',
-                    })
-                    .get('/product/static/bundle.min.js')
-                    .reply(200, productScript);
-
-
-                const template = new Template(`
->>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
                     <template>
                         <html>
                             <head>
@@ -2891,7 +2401,6 @@ describe('Template', () => {
                     </template>
                 `);
 
-<<<<<<< HEAD
         template.getDependencies();
 
         template.fragments.product.update({
@@ -2951,67 +2460,6 @@ describe('Template', () => {
 
 
         const template = new Template(`
-=======
-                template.getDependencies();
-
-                template.fragments.product.update({
-                    render: {
-                        url: '/',
-                        placeholder: false
-                    },
-                    dependencies: [],
-                    assets: [
-                        {
-                            name: 'Product Bundle',
-                            fileName: 'bundle.min.js',
-                            type: RESOURCE_TYPE.JS,
-                            injectType: RESOURCE_INJECT_TYPE.INLINE,
-                            location: RESOURCE_LOCATION.CONTENT_END
-                        }
-                    ],
-                    testCookie: 'test',
-                    version: '1.0.0'
-                }, 'http://my-test-gateway-chunked.com');
-
-                let err: boolean | null = null;
-
-                template.compile({}).then(handler => {
-                    handler({}, createExpressMock({
-                        write(str: string) {
-
-                        },
-                        end(str: string) {
-                            try {
-                                expect(str).to.eq(`<html><head></head><body><div> <div id="product" puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div><script puzzle-dependency="Product Bundle" type="text/javascript">console.log('Product Script')</script></div></body></html>`);
-                            } catch (e) {
-                                err = e;
-                            }
-                            done(err);
-                        },
-                        set(headerName: string, value: string) {
-
-                        }
-                    }));
-                });
-            });
-
-            it('should append asset location for fragment, BODY_START - External', (done) => {
-                const productScript = `console.log('Product Script')`;
-
-                const scope = nock('http://my-test-gateway-chunked.com')
-                    .get('/product/')
-                    .query({
-                        __renderMode: FRAGMENT_RENDER_MODES.STREAM
-                    })
-                    .reply(200, {
-                        main: 'Trendyol',
-                    })
-                    .get('/product/static/bundle.min.js')
-                    .reply(200, productScript);
-
-
-                const template = new Template(`
->>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
                     <template>
                         <html>
                             <head>

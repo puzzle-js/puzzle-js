@@ -196,35 +196,11 @@ describe('Api', function () {
     api.registerEndpoints(server);
 
 
-<<<<<<< HEAD
     supertest(server.app)
       .get(`/api/browsing/${firstParam}/${secondParam}`)
       .expect(200)
       .end(() => {
       });
   });
-=======
-    it('should resolve handler when not provided', () => {
-        expect(() => {
-            const api = new Api({
-                liveVersion: '1.0.0',
-                name: 'browsing',
-                testCookie: 'browsing-version',
-                versions: {
-                    '1.0.0': {
-                        endpoints: [
-                            {
-                                method: HTTP_METHODS.GET,
-                                path: '/history',
-                                controller: 'test',
-                                middlewares: []
-                            }
-                        ]
-                    }
-                }
-            });
-        }).to.throw();
-    });
->>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
 });
 

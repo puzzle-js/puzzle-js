@@ -6,11 +6,7 @@ import {
   RESOURCE_INJECT_TYPE,
   RESOURCE_JS_EXECUTE_TYPE,
   RESOURCE_LOCATION,
-<<<<<<< HEAD
   TRANSFER_PROTOCOLS
-=======
-  RESOURCE_TYPE
->>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
 } from "./enums";
 import {FragmentStorefront} from "./fragment";
 import {Page} from "./page";
@@ -26,7 +22,6 @@ export interface IFragment {
 }
 
 export interface IFragmentBFFRender {
-<<<<<<< HEAD
   static?: boolean; //todo bunun yenilenen versiyonu
   url: string | string[];
   routeCache?: number;
@@ -35,16 +30,6 @@ export interface IFragmentBFFRender {
   cacheControl?: string;
   placeholder?: boolean;
   timeout?: number;
-=======
-    static?: boolean; //todo bunun yenilenen versiyonu
-    url: string | string[];
-    routeCache?: number;
-    selfReplace?: boolean;
-    middlewares?: [ (req: Request, res: Response, next: NextFunction) => any | string];
-    cacheControl?: string;
-    placeholder?: boolean;
-    timeout?: number;
->>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
 }
 
 export interface IFragmentHandler {
@@ -78,20 +63,12 @@ export interface IFileResourceDependency extends IFileResource {
 }
 
 export interface IFileResourceAsset extends IFileResource {
-<<<<<<< HEAD
   fileName: string;
   link: string;
   loadMethod: RESOURCE_LOADING_TYPE;
   type: RESOURCE_TYPE;
   name: string;
   dependent?: string[];
-=======
-    injectType: RESOURCE_INJECT_TYPE;
-    fileName: string;
-    link?: string;
-    location: RESOURCE_LOCATION;
-    executeType?: RESOURCE_JS_EXECUTE_TYPE;
->>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
 }
 
 export interface IFileResourceStorefrontDependency extends IFileResource {
@@ -181,7 +158,6 @@ export interface ICookieObject {
 }
 
 export interface IFragmentContentResponse {
-<<<<<<< HEAD
   status: number;
   html: {
     [name: string]: string;
@@ -190,16 +166,6 @@ export interface IFragmentContentResponse {
     [name: string]: string;
   },
   model: FragmentModel
-=======
-    status: number;
-    html: {
-        [name: string]: string;
-    };
-    headers: {
-        [name: string]: string;
-    },
-    model: FragmentModel
->>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
 }
 
 export interface IPageDependentGateways {
@@ -218,14 +184,9 @@ export interface IPageDependentGateways {
 }
 
 export interface IPageConfiguration {
-<<<<<<< HEAD
   html: string;
   url: string | string[];
   name: string;
-=======
-    html: string;
-    url: string | string[];
->>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
 }
 
 export interface IPageMap {
@@ -279,21 +240,12 @@ export interface IReplaceSet {
 }
 
 export interface IReplaceAssetSet {
-<<<<<<< HEAD
   link: string | undefined | null;
   content: string | undefined | null;
   name: string;
   location: RESOURCE_LOCATION;
   injectType: RESOURCE_INJECT_TYPE;
   executeType: RESOURCE_JS_EXECUTE_TYPE;
-=======
-    link: string | undefined | null;
-    content: string | undefined | null;
-    name: string;
-    location: RESOURCE_LOCATION;
-    injectType: RESOURCE_INJECT_TYPE;
-    executeType: RESOURCE_JS_EXECUTE_TYPE;
->>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
 }
 
 export interface IReplaceAsset {
@@ -319,7 +271,6 @@ export interface IApiHandlerModule {
 }
 
 export interface IWrappingJsAsset {
-<<<<<<< HEAD
   injectType: RESOURCE_INJECT_TYPE;
   name: string;
   link: string | null | undefined;
@@ -334,26 +285,6 @@ export interface IFragmentResponse {
     [name: string]: string;
   },
   $model: FragmentModel
-=======
-    injectType: RESOURCE_INJECT_TYPE;
-    name: string;
-    link: string | null | undefined;
-    content: string | null | undefined;
-    executeType: RESOURCE_JS_EXECUTE_TYPE;
-}
-
-export interface IFragmentResponse {
-    content: string;
-    $status: number;
-    $headers: {
-        [name: string]: string;
-    },
-    $model: FragmentModel
-}
-
-export interface FragmentModel {
-    [name: string]: any
->>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
 }
 
 export interface FragmentModel {
