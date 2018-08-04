@@ -119,7 +119,7 @@ gateway.init(() => {
 
 ```
 
-Now you gateway is ready to respond requests.
+Now your gateway is ready to respond requests.
 
 Your configuration file will be exported from [http://localhost:4444/](http://localhost:4444/).
 
@@ -201,6 +201,6 @@ storefront.init(() => {
 });
 ```
 
-Now you website is ready. Checkout [http://localhost:4445/](http://localhost:4445/)
+Now your website is ready. Check out [http://localhost:4445/](http://localhost:4445/)
 
 Please check [full guide](./guide.md) for all great features PuzzleJs has.

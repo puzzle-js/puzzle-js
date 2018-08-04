@@ -58,5 +58,11 @@ Read the [guide](./docs/guide.md) to familiarize yourself with how PuzzleJs work
 
 ### [Changelog](./CHANGELOG.md)
 
+### Showcase
+
+<a href="https://m.trendyol.com" title="Trendyol" target="_blank">
+    <img src="http://i64.tinypic.com/x2qcmb.png" width="80">
+</a>
+
 ### Contributions
 Feel free to contribute to PuzzleJs, please read [Contributions](./docs/contributions.md) for detailed information.
