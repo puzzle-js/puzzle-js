@@ -4,8 +4,12 @@ import "../src/base";
 import {FragmentBFF, FragmentStorefront} from "../src/fragment";
 import {IExposeFragment} from "../src/types";
 import nock from "nock";
+<<<<<<< HEAD
 import {FRAGMENT_RENDER_MODES, RESOURCE_INJECT_TYPE, RESOURCE_LOCATION} from "../src/enums";
 import {RESOURCE_TYPE} from "../src/lib/enums";
+=======
+import {FRAGMENT_RENDER_MODES, RESOURCE_INJECT_TYPE, RESOURCE_LOCATION, RESOURCE_TYPE} from "../src/enums";
+>>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
 
     describe('Fragment', () => {
         describe('BFF', () => {

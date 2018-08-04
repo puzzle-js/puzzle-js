@@ -27,11 +27,19 @@ export enum RESOURCE_LOCATION {
 }
 
 export enum REPLACE_ITEM_TYPE {
+<<<<<<< HEAD
   ASSET,
   CONTENT,
   PLACEHOLDER,
   CHUNKED_CONTENT,
   MODEL_SCRIPT
+=======
+    ASSET,
+    CONTENT,
+    PLACEHOLDER,
+    CHUNKED_CONTENT,
+    MODEL_SCRIPT
+>>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
 }
 
 export enum HTTP_METHODS {
@@ -48,11 +56,20 @@ export enum RESOURCE_JS_EXECUTE_TYPE {
   SYNC = ''
 }
 
+<<<<<<< HEAD
 /**
  * PuzzleLib will replace this feature.
  * @deprecated
  * @type {string}
  */
+=======
+export enum RESOURCE_JS_EXECUTE_TYPE {
+    ASYNC = 'async',
+    DEFER = 'defer',
+    SYNC = ''
+}
+
+>>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
 export const CONTENT_REPLACE_SCRIPT = `<script>function $p(p,c){var z = document.querySelector(c),r = z.innerHTML;z.parentNode.removeChild(z);document.querySelector(p).innerHTML=r}</script>`;
 
 

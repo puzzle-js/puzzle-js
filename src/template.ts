@@ -2,11 +2,17 @@ import {FragmentStorefront} from "./fragment";
 import cheerio from "cheerio";
 import {TemplateCompiler} from "./templateCompiler";
 import {
+<<<<<<< HEAD
   CDN_OPTIONS,
   CHEERIO_CONFIGURATION,
   CONTENT_NOT_FOUND_ERROR,
   NON_SELF_CLOSING_TAGS,
   PUZZLE_DEBUGGER_LINK, TEMP_FOLDER,
+=======
+  CHEERIO_CONFIGURATION,
+  CONTENT_NOT_FOUND_ERROR,
+  PUZZLE_DEBUGGER_LINK,
+>>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
   TEMPLATE_FRAGMENT_TAG_NAME
 } from "./config";
 import {
@@ -26,7 +32,12 @@ import {
   HTTP_METHODS, HTTP_STATUS_CODE,
   REPLACE_ITEM_TYPE,
   RESOURCE_INJECT_TYPE, RESOURCE_JS_EXECUTE_TYPE,
+<<<<<<< HEAD
   RESOURCE_LOCATION
+=======
+  RESOURCE_LOCATION,
+  RESOURCE_TYPE
+>>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
 } from "./enums";
 import ResourceFactory from "./resourceFactory";
 import CleanCSS from "clean-css";
@@ -37,10 +48,13 @@ import {ERROR_CODES, PuzzleError} from "./errors";
 import {benchmark} from "./decorators";
 import {Logger} from "./logger";
 import {container, TYPES} from "./base";
+<<<<<<< HEAD
 import fs from "fs";
 import path from "path";
 import {IPageFragmentConfig, IPageLibAsset, IPageLibConfiguration, IPageLibDependency} from "./lib/types";
 import {EVENT, RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "./lib/enums";
+=======
+>>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
 
 const logger = <Logger>container.get(TYPES.Logger);
 
@@ -50,7 +64,11 @@ export class Template {
   fragments: { [name: string]: FragmentStorefront } = {};
   pageClass: TemplateClass = new TemplateClass();
 
+<<<<<<< HEAD
   constructor(public rawHtml: string, private name?: string) {
+=======
+  constructor(public rawHtml: string) {
+>>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
     this.load();
     this.bindPageClass();
     this.pageClass._onCreate();
@@ -61,8 +79,14 @@ export class Template {
    */
   public load(): void {
     const templateMatch = TemplateCompiler.TEMPLATE_CONTENT_REGEX.exec(this.rawHtml);
+<<<<<<< HEAD
     if (templateMatch) {
       this.dom = cheerio.load(Template.replaceCustomScripts(templateMatch[1], true), CHEERIO_CONFIGURATION);
+=======
+
+    if (templateMatch) {
+      this.dom = cheerio.load(templateMatch[1], CHEERIO_CONFIGURATION);
+>>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
     } else {
       throw new PuzzleError(ERROR_CODES.TEMPLATE_NOT_FOUND);
     }
@@ -121,10 +145,14 @@ export class Template {
    * @returns {Promise<IFragmentEndpointHandler>}
    */
   async compile(testCookies: ICookieMap, isDebug: boolean = false): Promise<IFragmentEndpointHandler> {
+<<<<<<< HEAD
     this.load();
 
     if (Object.keys(this.fragments).length === 0) {
       this.replaceEmptyTags();
+=======
+    if (Object.keys(this.fragments).length === 0) {
+>>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
       const singleFlushHandlerWithoutFragments = TemplateCompiler.compile(Template.clearHtmlContent(this.dom.html()));
       return this.buildHandler(singleFlushHandlerWithoutFragments, [], [], [], isDebug);
     }
@@ -138,17 +166,22 @@ export class Template {
     const chunkedFragmentsWithoutWait = Object.values(this.fragments).filter(fragment => fragment.config && !fragment.shouldWait && !fragment.config.render.static);
     const staticFragments = Object.values(this.fragments).filter(fragment => fragment.config && fragment.config.render.static);
 
+<<<<<<< HEAD
     this.injectPuzzleLibAndConfig(isDebug);
 
     // todo kaldir lib bagla
     const replaceScripts: any[] = [];
 
+=======
+    const replaceScripts = await this.prepareJsAssetLocations();
+>>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
     const waitedFragmentReplacements: IReplaceSet[] = this.replaceWaitedFragmentContainers(chunkedFragmentsWithShouldWait, replaceScripts, isDebug);
 
     const chunkReplacements: IReplaceSet[] = this.replaceChunkedFragmentContainers(chunkedFragmentsWithoutWait);
 
     this.replaceUnfetchedFragments(Object.values(this.fragments).filter(fragment => !fragment.config));
 
+<<<<<<< HEAD
     // todo kaldir lib bag
     //await this.addDependencies();
 
@@ -169,6 +202,14 @@ export class Template {
     const clearLibOutput = Template.replaceCustomScripts(this.dom.html().replace('{puzzleLibContent}', puzzleLib), false);
 
     return this.buildHandler(TemplateCompiler.compile(Template.clearHtmlContent(clearLibOutput)), chunkReplacements, waitedFragmentReplacements, replaceScripts, isDebug);
+=======
+    await this.addDependencies();
+    await this.replaceStaticFragments(staticFragments, replaceScripts.filter(replaceSet => replaceSet.fragment.config && replaceSet.fragment.config.render.static));
+    await this.appendPlaceholders(chunkReplacements);
+    await this.buildStyleSheets();
+
+    return this.buildHandler(TemplateCompiler.compile(Template.clearHtmlContent(this.dom.html())), chunkReplacements, waitedFragmentReplacements, replaceScripts, isDebug);
+>>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
   }
 
   /**
@@ -184,10 +225,66 @@ export class Template {
     } else {
       //todo handle error
       return `<!-- Failed to inject asset: ${asset.name} -->`;
+<<<<<<< HEAD
+=======
+    }
+  }
+
+
+  /**
+   * Bind user class to page
+   */
+  private bindPageClass(): void {
+    const scriptMatch = TemplateCompiler.PAGE_CLASS_CONTENT_REGEX.exec(this.rawHtml);
+    if (scriptMatch) {
+      const pageClass = eval(scriptMatch[1]);
+      pageClass.__proto__ = new TemplateClass();
+      this.pageClass = pageClass;
     }
   }
 
   /**
+   * Appends placeholders to reserved locations
+   * @param {IChunkedReplacementSet[]} chunkedReplacements
+   * @returns {Promise<void>}
+   */
+  private async appendPlaceholders(chunkedReplacements: IChunkedReplacementSet[]) {
+    for (let replacement of chunkedReplacements) {
+      const placeholders = replacement.replaceItems.filter(item => item.type === REPLACE_ITEM_TYPE.PLACEHOLDER);
+      for (let placeholderReplacement of placeholders) {
+        const placeholderContent = await replacement.fragment.getPlaceholder();
+        this.dom(`[puzzle-placeholder="${placeholderReplacement.key}"]`).append(placeholderContent);
+      }
+    }
+  }
+
+  /**
+   * Replaces static fragments with their content on vDOM
+   * @param {FragmentStorefront[]} fragments
+   * @param {IReplaceAsset[]} replaceAssets
+   * @returns {Promise<void>}
+   */
+  private async replaceStaticFragments(fragments: FragmentStorefront[], replaceAssets: IReplaceAsset[]): Promise<void> {
+    for (let fragment of fragments) {
+      const fragmentContent: IFragmentContentResponse = await fragment.getContent();
+      this.dom(`fragment[name="${fragment.name}"][from="${fragment.from}"]`).each((i, element) => {
+        const partial = this.dom(element).attr('partial') || 'main';
+        const assets = replaceAssets.find(set => set.fragment.name === fragment.name);
+        let fragmentScripts = assets ? assets.replaceItems.reduce((script, replaceItem) => {
+          script += Template.wrapJsAsset(replaceItem);
+
+          return script;
+        }, '') : '';
+
+        this.dom(element).replaceWith(`<div id="${fragment.name}" puzzle-fragment="${fragment.name}" puzzle-gateway="${fragment.from}" fragment-partial="${element.attribs.partial || 'main'}">${fragmentContent.html[partial] || CONTENT_NOT_FOUND_ERROR}</div>${fragmentScripts}`);
+
+      });
+>>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
+    }
+  }
+
+  /**
+<<<<<<< HEAD
    * Puzzle lib preparation
    * @param {boolean} isDebug
    */
@@ -662,15 +759,423 @@ export class Template {
     });
 
     return waitedFragmentReplacements;
+=======
+   * Replaces waited fragments with their content on first flush string.
+   * @param {IReplaceSet[]} waitedFragments
+   * @param {string} template
+   * @param req
+   * @param isDebug
+   * @returns {Promise<IWaitedResponseFirstFlush>}
+   */
+  @benchmark(isDebug(), logger.info)
+  private async replaceWaitedFragments(waitedFragments: IReplaceSet[], template: string, req: any, isDebug: boolean): Promise<IWaitedResponseFirstFlush> {
+    let statusCode = HTTP_STATUS_CODE.OK;
+    let headers = {};
+
+    for (let waitedFragmentReplacement of waitedFragments) {
+      const fragmentContent = await waitedFragmentReplacement.fragment.getContent(waitedFragmentReplacement.fragmentAttributes, req);
+      if (waitedFragmentReplacement.fragment.primary) {
+        statusCode = fragmentContent.status;
+        headers = fragmentContent.headers;
+      }
+
+
+      const modelReplacement = waitedFragmentReplacement.replaceItems.find(item => item.type === REPLACE_ITEM_TYPE.MODEL_SCRIPT);
+      if (modelReplacement) {
+        template = template.replace(`${modelReplacement.key}`, Template.fragmentModelScript(waitedFragmentReplacement.fragment, fragmentContent.model, isDebug));
+      }
+
+      waitedFragmentReplacement.replaceItems
+        .forEach(replaceItem => {
+          if (replaceItem.type === REPLACE_ITEM_TYPE.CONTENT) {
+            let fragmentInject = fragmentContent.html[replaceItem.partial] || CONTENT_NOT_FOUND_ERROR;
+            template = template.replace(replaceItem.key, () => fragmentInject);
+          }
+        });
+    }
+
+    return {template, statusCode, headers};
+  }
+
+  static fragmentModelScript(fragment: { name: string }, fragmentPageModel: FragmentModel, isDebug: boolean = false) {
+    return fragmentPageModel && Object.keys(fragmentPageModel).length ? `<script>${Object.keys(fragmentPageModel).reduce((modelVariable, key) => {
+      modelVariable += `window['${key}']=window['${key}']||${JSON.stringify(fragmentPageModel[key])};${isDebug ? `PuzzleJs.variables.add('${fragment.name}','${key}');` : ""}`;
+      return modelVariable;
+    }, '')}</script>` : '';
+  }
+
+  /**
+   * Creates a request handler from the compilation output. Express requests drops to return of this method
+   * @param {Function} firstFlushHandler
+   * @param {IReplaceSet[]} chunkedFragmentReplacements
+   * @param {IReplaceSet[]} waitedFragments
+   * @param {IReplaceAsset[]} jsReplacements
+   * @param isDebug
+   * @returns {(req: any, res: any) => void}
+   */
+  private buildHandler(firstFlushHandler: Function, chunkedFragmentReplacements: IReplaceSet[], waitedFragments: IReplaceSet[] = [], jsReplacements: IReplaceAsset[] = [], isDebug: boolean) {
+    //todo primary fragment test et
+    if (chunkedFragmentReplacements.length === 0) {
+      return (req: any, res: any) => {
+        this.pageClass._onRequest(req);
+        let fragmentedHtml = firstFlushHandler.call(this.pageClass, req);
+        (async () => {
+          const waitedReplacement = await this.replaceWaitedFragments(waitedFragments, fragmentedHtml, req, isDebug);
+          for (let prop in waitedReplacement.headers) {
+            res.set(prop, waitedReplacement.headers[prop]);
+          }
+          res.status(waitedReplacement.statusCode);
+          if (waitedReplacement.statusCode === HTTP_STATUS_CODE.MOVED_PERMANENTLY) {
+            res.end();
+            this.pageClass._onResponseEnd();
+          } else {
+            if (isDebug) {
+              res.send(waitedReplacement.template.replace('</body></html>', () => '<script>PuzzleJs.analytics.end();PuzzleJs.variables.end();</script></body></html>').replace('<head>', () => `<head><script src="${PUZZLE_DEBUGGER_LINK}" type="text/javascript"></script><script>PuzzleJs.fragments.set(${JSON.stringify(this.fragments)})</script>`));
+            } else {
+              res.send(waitedReplacement.template);
+            }
+            this.pageClass._onResponseEnd();
+          }
+
+        })();
+      };
+    } else {
+      let bodyAndAssets = ``;
+      jsReplacements.forEach(replacement => {
+        replacement.replaceItems.filter(item => item.location === RESOURCE_LOCATION.BODY_END).forEach(replaceItem => {
+          bodyAndAssets += Template.wrapJsAsset(replaceItem);
+        });
+      });
+      return (req: any, res: any) => {
+        this.pageClass._onRequest(req);
+        let fragmentedHtml = firstFlushHandler.call(this.pageClass, req).replace('</body>', '').replace('</html>', '');
+        res.set('transfer-encoding', 'chunked');
+        res.set('content-type', 'text/html; charset=UTF-8');
+        (async () => {
+          const waitedPromises: Promise<any>[] = [];
+
+          //Fire requests in parallel
+          const waitedReplacementPromise = this.replaceWaitedFragments(waitedFragments, fragmentedHtml, req, isDebug);
+          for (let chunkedReplacement of chunkedFragmentReplacements) {
+            waitedPromises.push(chunkedReplacement.fragment.getContent(chunkedReplacement.fragmentAttributes, req));
+          }
+
+          //Wait for first flush
+          const waitedReplacement = await waitedReplacementPromise;
+          for (let prop in waitedReplacement.headers) {
+            res.set(prop, waitedReplacement.headers[prop]);
+          }
+          res.status(waitedReplacement.statusCode);
+          if (waitedReplacement.statusCode === HTTP_STATUS_CODE.MOVED_PERMANENTLY) {
+            res.end();
+            this.pageClass._onResponseEnd();
+          } else {
+            if (isDebug) {
+              res.write(waitedReplacement.template.replace('<head>', () => `<head><script src="${PUZZLE_DEBUGGER_LINK}" type="text/javascript"></script><script>PuzzleJs.fragments.set(${JSON.stringify(this.fragments)})</script>`));
+            } else {
+              res.write(waitedReplacement.template);
+            }
+
+            //Bind flush method to resolved or being resolved promises of chunked replacements
+            Object.values(chunkedFragmentReplacements).forEach((chunkedReplacement, x) => {
+              waitedPromises[x].then(this.flush(chunkedReplacement, jsReplacements, res, isDebug));
+            });
+
+            //Close stream after all chunked fragments done
+            await Promise.all(waitedPromises);
+            if (isDebug) {
+              res.end(`${bodyAndAssets}<script>PuzzleJs.analytics.end();PuzzleJs.variables.end();</script></body></html>`);
+            } else {
+              res.end(`${bodyAndAssets}</body></html>`);
+            }
+            this.pageClass._onResponseEnd();
+          }
+        })();
+      };
+    }
   }
 
 
   /**
+   * Flushes incoming fragment response
+   * @param {IReplaceSet} chunkedReplacement
+   * @param {IReplaceAsset[]} jsReplacements
+   * @param res
+   * @param isDebug
+   * @returns {(fragmentContent: IFragmentContentResponse) => void}
+   */
+  private flush(chunkedReplacement: IReplaceSet, jsReplacements: IReplaceAsset[], res: any, isDebug: boolean) {
+    return (fragmentContent: IFragmentContentResponse) => {
+
+      const fragmentJsReplacements = jsReplacements.find(jsReplacement => jsReplacement.fragment.name === chunkedReplacement.fragment.name);
+      const selfReplacing = chunkedReplacement.fragment.config && chunkedReplacement.fragment.config.render.selfReplace;
+
+      let output = isDebug ? `<script>PuzzleJs.analytics.fragment('${chunkedReplacement.fragment.name}')</script>` : '';
+
+      output += Template.fragmentModelScript(chunkedReplacement.fragment, fragmentContent.model, isDebug);
+
+      fragmentJsReplacements && fragmentJsReplacements.replaceItems.filter(item => item.location === RESOURCE_LOCATION.CONTENT_START).forEach(replaceItem => {
+        output += Template.wrapJsAsset(replaceItem);
+      });
+
+      chunkedReplacement.replaceItems
+        .forEach(replaceItem => {
+          if (replaceItem.type === REPLACE_ITEM_TYPE.CHUNKED_CONTENT) {
+            output += `<div style="display: none;" puzzle-fragment="${chunkedReplacement.fragment.name}" puzzle-chunk-key="${replaceItem.key}">${fragmentContent.html[replaceItem.partial] || CONTENT_NOT_FOUND_ERROR}</div>`;
+            if (!(replaceItem.key === 'main' && selfReplacing)) {
+              output += `<script>$p('[puzzle-chunk="${replaceItem.key}"]','[puzzle-chunk-key="${replaceItem.key}"]');</script>`;
+            }
+          }
+        });
+
+      fragmentJsReplacements && fragmentJsReplacements.replaceItems.filter(item => item.location === RESOURCE_LOCATION.CONTENT_END).forEach(replaceItem => {
+        output += Template.wrapJsAsset(replaceItem);
+      });
+
+      if (isDebug) {
+        output += `<script>PuzzleJs.analytics.fragment('${chunkedReplacement.fragment.name}')</script>`;
+      }
+      this.pageClass._onChunk(output);
+      res.write(output);
+    };
+  }
+
+  /**
+   * Clears html content from empty spaces
+   * @param {string} str
+   * @returns {string}
+   */
+  private static clearHtmlContent(str: string) {
+    return str.replace(/>\s+</g, "><").trim();
+  }
+
+  /**
+   * Replaces unfetched fragments with empty div error
+   * @param {FragmentStorefront[]} fragments
+   */
+  @benchmark(isDebug(), logger.info)
+  private replaceUnfetchedFragments(fragments: FragmentStorefront[]) {
+    fragments.forEach(fragment => {
+      this.dom(`fragment[from="${fragment.from}"][name="${fragment.name}"]`).replaceWith(`<div puzzle-fragment="${fragment.name}" puzzle-gateway="${fragment.from}">${CONTENT_NOT_FOUND_ERROR}</div>`);
+    });
+  }
+
+  /**
+   * Adds required dependencies
+   */
+  private async addDependencies() {
+    let injectedDependencies: string[] = [];
+
+    await Promise.all(Object.values(this.fragments).map(async fragment => {
+      if (fragment.config) {
+        await Promise.all(Object.values(fragment.config.dependencies).map(async dependency => {
+          if (injectedDependencies.indexOf(dependency.name) == -1) {
+            injectedDependencies.push(dependency.name);
+            this.dom('head').append(await ResourceFactory.instance.getDependencyContent(dependency.name, dependency.injectType));
+          }
+        }));
+      }
+    }));
+  }
+
+  /**
+   * Creates chunked fragment containers
+   * @param {FragmentStorefront[]} chunkedFragments
+   * @returns {IReplaceSet[]}
+   */
+  @benchmark(isDebug(), logger.info)
+  private replaceChunkedFragmentContainers(chunkedFragments: FragmentStorefront[]) {
+    const chunkReplacements: IReplaceSet[] = [];
+
+    if (chunkedFragments.length > 0) {
+      this.dom('head').append(CONTENT_REPLACE_SCRIPT);
+    }
+
+    chunkedFragments.forEach(fragment => {
+      let replaceItems: IReplaceItem[] = [];
+      let fragmentAttributes = {};
+      this.dom(`fragment[from="${fragment.from}"][name="${fragment.name}"]`)
+        .each((i, element) => {
+          const partial = element.attribs.partial || 'main';
+          const contentKey = fragment.name + '_' + partial;
+          let replaceItem = {
+            type: REPLACE_ITEM_TYPE.CHUNKED_CONTENT,
+            partial: partial,
+            key: contentKey,
+          };
+          if (partial === 'main') {
+            fragmentAttributes = element.attribs;
+          }
+          replaceItems.push(replaceItem);
+          if (fragment.config && fragment.config.render.placeholder && replaceItem.partial === 'main') {
+            let placeholderContentKey = contentKey + '_placeholder';
+            replaceItems.push({
+              type: REPLACE_ITEM_TYPE.PLACEHOLDER,
+              partial: partial,
+              key: placeholderContentKey
+            });
+            this.dom(element).replaceWith(`<div id="${fragment.name}" puzzle-fragment="${element.attribs.name}" puzzle-gateway="${element.attribs.from}" ${element.attribs.partial ? 'fragment-partial="' + element.attribs.partial + '"' : ''} puzzle-chunk="${contentKey}" puzzle-placeholder="${placeholderContentKey}"></div>`);
+          } else {
+            this.dom(element).replaceWith(`<div id="${fragment.name}" puzzle-fragment="${element.attribs.name}" puzzle-gateway="${element.attribs.from}" ${element.attribs.partial ? 'fragment-partial="' + element.attribs.partial + '"' : ''} puzzle-chunk="${contentKey}"> </div>`);
+          }
+        });
+
+      chunkReplacements.push({
+        fragment,
+        replaceItems,
+        fragmentAttributes
+      });
+    });
+
+    return chunkReplacements;
+  }
+
+  /**
+   * Creates containers for fragments should be waited
+   * @param {FragmentStorefront[]} fragmentsShouldBeWaited
+   * @param {IReplaceAsset[]} replaceJsAssets
+   * @returns {IReplaceSet[]}
+   */
+  @benchmark(isDebug(), logger.info)
+  private replaceWaitedFragmentContainers(fragmentsShouldBeWaited: FragmentStorefront[], replaceJsAssets: IReplaceAsset[], isDebug: boolean) {
+    const waitedFragmentReplacements: IReplaceSet[] = [];
+
+    fragmentsShouldBeWaited.forEach(fragment => {
+      let replaceItems: IReplaceItem[] = [];
+      let fragmentAttributes = {};
+
+      const jsReplacements = replaceJsAssets.find(jsReplacement => jsReplacement.fragment.name === fragment.name);
+      let contentStart = isDebug ? `<script>PuzzleJs.analytics.fragment('${fragment.name}')</script>` : '';
+      let contentEnd = ``;
+
+      const replaceModelKey = `{fragment|${fragment.name}_pageModel}`;
+
+      replaceItems.push({
+        type: REPLACE_ITEM_TYPE.MODEL_SCRIPT,
+        key: replaceModelKey,
+        partial: DEFAULT_MAIN_PARTIAL,
+      });
+
+      jsReplacements && jsReplacements.replaceItems.filter(item => item.location === RESOURCE_LOCATION.CONTENT_START).forEach(replaceItem => {
+        contentStart += Template.wrapJsAsset(replaceItem);
+      });
+
+      jsReplacements && jsReplacements.replaceItems.filter(item => item.location === RESOURCE_LOCATION.CONTENT_END).forEach(replaceItem => {
+        contentEnd += Template.wrapJsAsset(replaceItem);
+      });
+
+      if (isDebug) {
+        contentEnd += `<script>PuzzleJs.analytics.fragment('${fragment.name}')</script>`;
+      }
+
+      this.dom(contentStart).insertBefore(this.dom(`fragment[from="${fragment.from}"][name="${fragment.name}"]`).first());
+      this.dom(contentEnd).insertAfter(this.dom(`fragment[from="${fragment.from}"][name="${fragment.name}"]`).last());
+
+
+      this.dom(`fragment[from="${fragment.from}"][name="${fragment.name}"]`)
+        .each((i, element) => {
+          let replaceKey = `{fragment|${element.attribs.name}_${element.attribs.from}_${element.attribs.partial || 'main'}}`;
+          const partial = element.attribs.partial || 'main';
+          replaceItems.push({
+            type: REPLACE_ITEM_TYPE.CONTENT,
+            key: replaceKey,
+            partial: partial,
+          });
+          if (partial === 'main') {
+            fragmentAttributes = element.attribs;
+          }
+
+          if (element.parentNode.name !== 'head') {
+            this.dom(element).replaceWith(`${i === 0 ? replaceModelKey : ''}<div id="${fragment.name}" puzzle-fragment="${element.attribs.name}" puzzle-gateway="${element.attribs.from}" ${element.attribs.partial ? 'fragment-partial="' + element.attribs.partial + '"' : ''}>${replaceKey}</div>`);
+          } else {
+            this.dom(element).replaceWith((i === 0 ? replaceModelKey : '') + replaceKey);
+          }
+        });
+
+
+      waitedFragmentReplacements.push({
+        fragment,
+        replaceItems,
+        fragmentAttributes
+      });
+    });
+
+    return waitedFragmentReplacements;
+  }
+
+  /**
+   * Prepares JS asset replacements and replaces HEAD, BODY_START
+   * @returns {Promise<IReplaceAsset[]>}
+   */
+  private async prepareJsAssetLocations(): Promise<IReplaceAsset[]> {
+    const replaceScripts: IReplaceAsset[] = [];
+
+    await Promise.all(Object.keys(this.fragments).map(async (fragmentName) => {
+      const fragment = this.fragments[fragmentName];
+
+      if (fragment.config) {
+        const replaceItems: IReplaceAssetSet[] = [];
+        await Promise.all(fragment.config.assets.filter(asset => asset.type === RESOURCE_TYPE.JS).map(async asset => {
+          let assetContent = null;
+          if (asset.injectType === RESOURCE_INJECT_TYPE.INLINE) {
+            assetContent = await fragment.getAsset(asset.name);
+          }
+          switch (asset.location) {
+            case RESOURCE_LOCATION.HEAD:
+              this.dom('head').append(Template.wrapJsAsset({
+                name: asset.name,
+                injectType: asset.injectType,
+                link: fragment.getAssetPath(asset.name),
+                content: assetContent,
+                executeType: asset.executeType || RESOURCE_JS_EXECUTE_TYPE.SYNC
+              }));
+              break;
+            case RESOURCE_LOCATION.BODY_START:
+              this.dom('body').prepend(Template.wrapJsAsset({
+                name: asset.name,
+                injectType: asset.injectType,
+                link: fragment.getAssetPath(asset.name),
+                content: assetContent,
+                executeType: asset.executeType || RESOURCE_JS_EXECUTE_TYPE.SYNC
+              }));
+              break;
+            case RESOURCE_LOCATION.CONTENT_START:
+            case RESOURCE_LOCATION.CONTENT_END:
+            case RESOURCE_LOCATION.BODY_END:
+              replaceItems.push({
+                content: assetContent,
+                name: asset.name,
+                link: fragment.getAssetPath(asset.name),
+                injectType: asset.injectType,
+                location: asset.location,
+                executeType: asset.executeType || RESOURCE_JS_EXECUTE_TYPE.SYNC
+              });
+              break;
+          }
+
+        }));
+        replaceScripts.push({
+          fragment,
+          replaceItems
+        });
+      }
+    }));
+
+    return replaceScripts;
+>>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
+  }
+
+
+  /**
+<<<<<<< HEAD
    * @deprecated Combine this for only render_start_css assets
+=======
+>>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
    * Merges, minifies stylesheets and inject them into a page
    * @returns {Promise<void>}
    */
   private async buildStyleSheets() {
+<<<<<<< HEAD
     return new Promise(async (resolve, reject) => {
       const _CleanCss = new CleanCSS({
         level: {
@@ -682,10 +1187,22 @@ export class Template {
 
       let styleSheets: string[] = [];
       const injectionDependencyNames: string[] = [];
+=======
+    const _CleanCss = new CleanCSS({
+      level: {
+        1: {
+          all: true
+        }
+      }
+    } as any);
+
+    let styleSheets: string[] = [];
+>>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
 
       for (let fragment of Object.values(this.fragments)) {
         if (!fragment.config) continue;
 
+<<<<<<< HEAD
 
         const cssAssets = fragment.config.assets.filter(asset => asset.type === RESOURCE_TYPE.CSS);
         const cssDependencies = fragment.config.dependencies.filter(dependency => dependency.type === RESOURCE_TYPE.CSS);
@@ -697,7 +1214,21 @@ export class Template {
             styleSheets.push(assetContent);
             injectionDependencyNames.push(asset.name);
           }
+=======
+    for (let fragment of Object.values(this.fragments)) {
+      if (!fragment.config) return;
+
+      const cssAssets = fragment.config.assets.filter(asset => asset.type === RESOURCE_TYPE.CSS);
+
+      for (let asset of cssAssets) {
+        const assetContent = await fragment.getAsset(asset.name);
+
+        if (assetContent) {
+          styleSheets.push(assetContent);
+>>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
         }
+      }
+    }
 
         for (let dependency of cssDependencies) {
           if (!injectionDependencyNames.includes(dependency.name)) {
@@ -707,6 +1238,7 @@ export class Template {
         }
       }
 
+<<<<<<< HEAD
       if (styleSheets.length > 0) {
         let output = _CleanCss.minify(styleSheets.join(''));
         const addEscapeCharacters = output.styles.replace(/content:"/g, 'content:"\\');
@@ -720,5 +1252,22 @@ export class Template {
     return encode ?
       template.replace(/<puzzle-script>/g, '<!--custom-script').replace(/<\/puzzle-script>/g, '/custom-script-->') :
       template.replace(/<!--custom-script/g, '<script>').replace(/\/custom-script-->/g, '</script>');
+=======
+    let output = _CleanCss.minify(styleSheets.join(''));
+    if (output.styles.length > 0) {
+      const styleHash = md5(output.styles);
+      const path = `/static/${styleHash}.min.css`;
+      pubsub.emit(EVENTS.ADD_ROUTE, {
+        path: path,
+        method: HTTP_METHODS.GET,
+        handler(req: any, res: any) {
+          res.set('content-type', 'text/css');
+          res.send(output.styles);
+        }
+      });
+
+      this.dom('head').append(`<link puzzle-dependency="dynamic" rel="stylesheet" href="${path}" />`);
+    }
+>>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
   }
 }

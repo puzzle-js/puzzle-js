@@ -164,7 +164,11 @@
   }
 
   PuzzleInfo.prototype.logo = function () {
+<<<<<<< HEAD
     console.log('%c       ', 'font-size: 400px; background: url(https://image.ibb.co/jM29on/puzzlelogo.png) no-repeat;');
+=======
+    console.log('%c       ', 'font-size: 400px; background: url(https://camo.githubusercontent.com/77c4a5c7adc5f0d99a319130498e5a44a2c50e01/68747470733a2f2f696d6167652e6962622e636f2f6a4d32396f6e2f70757a7a6c656c6f676f2e706e67) no-repeat;');
+>>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
   };
 
   function PuzzleVariables() {

@@ -8,9 +8,14 @@ import {
   RESOURCE_INJECT_TYPE,
   RESOURCE_JS_EXECUTE_TYPE,
   RESOURCE_LOCATION,
+<<<<<<< HEAD
   TRANSFER_PROTOCOLS
 } from "./enums";
 import {RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "./lib/enums";
+=======
+  RESOURCE_TYPE
+} from "./enums";
+>>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
 
 const apiEndpointsStructure = struct({
   path: 'string',
@@ -41,6 +46,7 @@ const apiStructure = struct({
 });
 
 const gatewayRenderStructure = struct({
+<<<<<<< HEAD
   url: struct.union(['string', ['string']]),
   static: 'boolean?',
   selfReplace: 'boolean?',
@@ -57,6 +63,24 @@ const gatewayFragmentAssetsStructure = struct({
   loadMethod: struct.enum(Object.values(RESOURCE_LOADING_TYPE)),
   type: struct.enum(Object.values(RESOURCE_TYPE)),
   dependent: struct.optional(['string'])
+=======
+    url: struct.union(['string', ['string']]),
+    static: 'boolean?',
+    selfReplace: 'boolean?',
+    placeholder: 'boolean?',
+    timeout: 'number?',
+    middlewares: struct.optional(['string']),
+    routeCache: 'number?'
+});
+
+const gatewayFragmentAssetsStructure = struct({
+    name: 'string',
+    type: struct.enum(Object.values(RESOURCE_TYPE)),
+    injectType: struct.enum(Object.values(RESOURCE_INJECT_TYPE)),
+    fileName: 'string',
+    location: struct.enum(Object.values(RESOURCE_LOCATION)),
+    executeType: struct.optional(struct.enum(Object.values(RESOURCE_JS_EXECUTE_TYPE)))
+>>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
 });
 
 const gatewayFragmentDependenctStructure = struct({
@@ -94,9 +118,14 @@ const gatewayStructure = struct({
 });
 
 const storefrontPageStructure = struct({
+<<<<<<< HEAD
   page: 'string?',
   html: 'string',
   url: struct.union(['string', ['string']])
+=======
+    html: 'string',
+    url: struct.union(['string', ['string']])
+>>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
 });
 
 const storefrontGatewaysStructure = struct({

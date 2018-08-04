@@ -6,6 +6,7 @@ import {Logger} from "./logger";
 import {IExposeConfig, IGatewayConfiguration} from "./types";
 import Timer = NodeJS.Timer;
 import {container, TYPES} from "./base";
+<<<<<<< HEAD
 import {HttpClient} from "./client";
 
 const logger = <Logger>container.get(TYPES.Logger);
@@ -18,6 +19,23 @@ export class GatewayStorefrontInstance {
   name: string;
   url: string;
   private intervalId: Timer | null | number = null;
+=======
+
+const logger = <Logger>container.get(TYPES.Logger);
+
+
+export class GatewayStorefrontInstance {
+  events: EventEmitter = new EventEmitter();
+  config: IExposeConfig | undefined;
+  assetUrl: string | undefined;
+  name: string;
+  url: string;
+  private intervalId: Timer | null | number = null;
+
+  constructor(gatewayConfig: IGatewayConfiguration) {
+    this.name = gatewayConfig.name;
+    this.url = gatewayConfig.url;
+>>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
 
   constructor(gatewayConfig: IGatewayConfiguration) {
     this.name = gatewayConfig.name;

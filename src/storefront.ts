@@ -17,6 +17,8 @@ import fs from "fs";
 
 const logger = <Logger>container.get(TYPES.Logger);
 
+const logger = <Logger>container.get(TYPES.Logger);
+
 
 @sealed
 export class Storefront {
@@ -42,6 +44,7 @@ export class Storefront {
       this.config = storefrontConfig;
     }
 
+<<<<<<< HEAD
     this.bootstrap();
   }
 
@@ -63,6 +66,23 @@ export class Storefront {
         this.server.listen(this.config.port, () => {
           logger.info(`Storefront is listening on port ${this.config.port}`);
           cb && cb();
+=======
+    /**
+     * Creates gateway pages, pages and subscribes event to gateways to track ready status
+     */
+    private createStorefrontPagesAndGateways() {
+        this.config.gateways.forEach(gatewayConfiguration => {
+            const gateway = new GatewayStorefrontInstance(gatewayConfiguration);
+            gateway.events.once(EVENTS.GATEWAY_READY, () => {
+                this.gatewaysReady++;
+            });
+            gateway.startUpdating();
+            this.gateways[gatewayConfiguration.name] = gateway;
+        });
+
+        this.config.pages.forEach(pageConfiguration => {
+            this.pages[pageConfiguration.url.toString()] = new Page(pageConfiguration.html, this.gateways);
+>>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
         });
       } else {
         throw err;
@@ -80,6 +100,7 @@ export class Storefront {
     if (!fs.existsSync(TEMP_FOLDER)){
       fs.mkdirSync(TEMP_FOLDER);
     }
+<<<<<<< HEAD
     this.server.useProtocolOptions(this.config.spdy);
     this.createStorefrontPagesAndGateways();
   }
@@ -105,6 +126,46 @@ export class Storefront {
   private async waitForGateways(cb: Function) {
     while (Object.keys(this.gateways).length != this.gatewaysReady) {
       await wait(GATEWAY_PREPERATION_CHECK_INTERVAL);
+=======
+
+    /**
+     * Registers provided dependencies in storefront configuration
+     * @param {Function} cb
+     */
+    private registerDependencies(cb: Function) {
+        this.config.dependencies.forEach(dependency => {
+            ResourceFactory.instance.registerDependencies(dependency);
+        });
+
+        cb();
+    }
+
+    /**
+     * Adds healthcheck route.
+     * @param {Function} cb
+     */
+    private addHealthCheckRoute(cb: Function) {
+        this.server.addRoute(HEALTHCHECK_PATH, HTTP_METHODS.GET, (req, res) => {
+            res.status(HTTP_STATUS_CODE.OK).end();
+        });
+
+        cb();
+    }
+
+    /**
+     * Adds page routes then connects with page instance responsible for it.
+     * @param {Function} cb
+     */
+    private addPageRoute(cb: Function) {
+        this.config.pages.forEach(page => {
+            const targetPage = page.url.toString();
+            this.server.addRoute(page.url, HTTP_METHODS.GET, (req, res) => {
+                this.pages[targetPage].handle(req, res);
+            });
+        });
+
+        cb();
+>>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
     }
     cb(null);
   }

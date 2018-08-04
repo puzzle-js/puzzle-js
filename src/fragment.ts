@@ -8,12 +8,17 @@ import url from "url";
 import path from "path";
 import {container, TYPES} from "./base";
 import {Logger} from "./logger";
+<<<<<<< HEAD
 import {decompress} from "iltorb";
 import {HttpClient} from "./client";
 
 
 const logger = <Logger>container.get(TYPES.Logger);
 const httpClient = <HttpClient>container.get(TYPES.Client);
+=======
+
+const logger = <Logger>container.get(TYPES.Logger);
+>>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
 
 export class Fragment {
   name: string;
@@ -80,6 +85,7 @@ export class FragmentBFF extends Fragment {
     } else {
       throw new Error(`Failed to find fragment version. Fragment: ${this.config.name}, Version: ${version || this.config.version}`);
     }
+<<<<<<< HEAD
   }
 
   /**
@@ -93,6 +99,25 @@ export class FragmentBFF extends Fragment {
       delete clearedReq.query[RENDER_MODE_QUERY_NAME];
       delete clearedReq.query[PREVIEW_PARTIAL_QUERY_NAME];
       delete clearedReq.query[DEBUG_QUERY_NAME];
+=======
+
+    /**
+     * Purifies req.path, req.query from Puzzle elements.
+     * @param req
+     * @returns {*}
+     */
+    private clearRequest(req: any) {
+        const clearedReq = Object.assign({}, req);
+        if (req.query) {
+            delete clearedReq.query[RENDER_MODE_QUERY_NAME];
+            delete clearedReq.query[PREVIEW_PARTIAL_QUERY_NAME];
+            delete clearedReq.query[DEBUG_QUERY_NAME];
+        }
+        if (req.path) {
+            clearedReq.path = req.path.replace(`/${this.name}`, '');
+        }
+        return clearedReq;
+>>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
     }
     if (req.path) {
       clearedReq.path = req.path.replace(`/${this.name}`, '');
@@ -179,6 +204,7 @@ export class FragmentStorefront extends Fragment {
      *  },
      *  status: gateway status response code
      * }
+<<<<<<< HEAD
    * @param attribs
    * @param req
    * @returns {Promise<IFragmentContentResponse>}
@@ -193,6 +219,30 @@ export class FragmentStorefront extends Fragment {
         model: {}
       };
     }
+=======
+     * @param attribs
+     * @returns {Promise<IFragmentContentResponse>}
+     */
+    async getContent(attribs: any = {}, req?: { url: string, headers: { [name: string]: string } }): Promise<IFragmentContentResponse> {
+        if (!this.config) {
+            logger.error(new Error(`No config provided for fragment: ${this.name}`));
+            return {
+                status: 500,
+                html: {},
+                headers: {},
+                model: {}
+            };
+        }
+
+        let query = {
+            ...attribs,
+            __renderMode: FRAGMENT_RENDER_MODES.STREAM
+        };
+
+        let parsedRequest;
+        let requestConfiguration: any = {
+            timeout: this.config.render.timeout || DEFAULT_CONTENT_TIMEOUT,
+>>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
 
     let query = {
       ...attribs,
@@ -211,14 +261,60 @@ export class FragmentStorefront extends Fragment {
           ...query,
           ...parsedRequest.query,
         };
+<<<<<<< HEAD
       }
       if (req.headers) {
         requestConfiguration.headers = req.headers;
         requestConfiguration.headers.originalUrl = req.url;
       }
+=======
+
+        if (req) {
+            if (req.url) {
+                parsedRequest = url.parse(req.url, true) as { pathname: string, query: object };
+                query = {
+                    ...query,
+                    ...parsedRequest.query,
+                };
+            }
+            if (req.headers) {
+                requestConfiguration.headers = req.headers;
+            }
+        }
+
+        delete query.from;
+        delete query.name;
+        delete query.partial;
+        delete query.primary;
+        delete query.shouldwait;
+
+        const routeRequest = req && parsedRequest ? `${parsedRequest.pathname.replace('/' + this.name, '')}?${querystring.stringify(query)}` : `/?${querystring.stringify(query)}`;
+
+        //todo pass cookies too
+        return fetch(`${this.fragmentUrl}${routeRequest}`, requestConfiguration)
+            .then(async res => {
+                const responseBody = await res.json();
+                return {
+                    status: responseBody.$status || res.status,
+                    headers: responseBody.$headers || {},
+                    html: responseBody,
+                    model: responseBody.$model || {}
+                };
+            })
+            .catch(err => {
+                logger.error(`Failed to get contents for fragment: ${this.name}`, err);
+                return {
+                    status: 500,
+                    html: {},
+                    headers: {},
+                    model: {}
+                };
+            });
+>>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
     }
 
 
+<<<<<<< HEAD
     delete query.from;
     delete query.name;
     delete query.partial;
@@ -254,6 +350,20 @@ export class FragmentStorefront extends Fragment {
     if (!this.config) {
       logger.error(new Error(`No config provided for fragment: ${this.name}`));
       return null;
+=======
+        const asset = this.config.assets.find(asset => asset.name === name);
+        if (!asset) {
+            logger.error(new Error(`Asset not declared in fragments asset list: ${name}`));
+            return null;
+        }
+
+        return fetch(asset.link || `${this.fragmentUrl}/static/${asset.fileName}`).then(async res => {
+            return await res.text();
+        }).catch(e => {
+            logger.error(new Error(`Failed to fetch asset from gateway: ${this.fragmentUrl}/static/${asset.fileName}`));
+            return null;
+        });
+>>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
     }
 
     const asset = this.config.assets.find(asset => asset.name === name);
@@ -290,9 +400,13 @@ export class FragmentStorefront extends Fragment {
 
     const asset = this.config.assets.find(asset => asset.name === name);
 
+<<<<<<< HEAD
     if (!asset) {
       logger.error(new Error(`Asset not declared in fragments asset list: ${name}`));
       return null;
+=======
+        return asset.link || `${this.assetUrl || this.fragmentUrl}/static/${asset.fileName}`;
+>>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
     }
 
     return asset.link || `${this.assetUrl || this.fragmentUrl}/static/${asset.fileName}`;

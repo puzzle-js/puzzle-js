@@ -17,6 +17,7 @@ import "base";
 
 
 export = {
+<<<<<<< HEAD
   StorefrontConfigurator,
   GatewayConfigurator,
   Gateway: GatewayBFF,
@@ -33,4 +34,21 @@ export = {
     INJECTABLE
   },
   container: <Container>container
+=======
+    StorefrontConfigurator,
+    GatewayConfigurator,
+    Gateway: GatewayBFF,
+    Storefront,
+    logger: Logger,
+    ENUMS: {
+        FRAGMENT_RENDER_MODES,
+        RESOURCE_INJECT_TYPE,
+        RESOURCE_TYPE,
+        RESOURCE_LOCATION,
+        REPLACE_ITEM_TYPE,
+        HTTP_METHODS,
+        HTTP_STATUS_CODE,
+        INJECTABLE
+    }
+>>>>>>> bd34369b87f7ac0f3b0aeeae9f08e0e5b4fbde59
 };
