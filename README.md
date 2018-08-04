@@ -25,7 +25,7 @@ The traditional model is very inefficient for modern websites.
 * **Easy** You can easily create a gateway or storefront and connect them by providing a configuration file.
 * **Independent** You can use any technology on your gateways, PuzzleJs is fully independent from your technologies. ReactJs, Vue or anything else.
 * **Scalable** PuzzleJs can create storefront and gateways independent from each other. So you can easily scale single project on Dockerized environments.
-* **Fail-Safe** When you suggestion api is down, PuzzleJs guarantees your product page is still working without suggested items.
+* **Fail-Safe** When your api required by a fragment is down, PuzzleJs guarantees other page fragments are still working.
 
 ### Getting Started
 
