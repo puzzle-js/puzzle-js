@@ -3,12 +3,17 @@
 * [Puzzle Architecture](#architecture)
     * [Storefront](#storefront-application)
     * [Gateway](#gateway-application)
+    * [Fragments](#fragments)
 * [Installing PuzzleJs](#installing-puzzlejs)
 * [Storefront](#storefront)
     * [Creating Storefront](#creating-storefront)
     * [Gateway](#gateway-definition)
         * [Best route to gateway](#best-route-to-gateway)
     * [Page](#page)
+        *   [Templating](#templating)
+            * [Page Scripts](#page-scripts)
+            * [Template](#template)
+* [Configurator](#configurator)
 
 ## Architecture
 
@@ -28,7 +33,7 @@ Storefront is the main application that handles requests coming from user's brow
 Whenever a storefront Application starts, PuzzleJs executes some steps before creating http server to handle requests.
 
 1. Fetch configuration from gateways
-2. Parse page html files to detect fragments
+2. Parse page html files to detect [fragments](#fragments)
 3. Compile html files into javascript functions based on configurations fetched from gateways.
 
 After compiling html files into javascript functions it creates a http server. Whenever a request comes, response is sent with several steps.
@@ -44,6 +49,11 @@ Gateway is the application where you can implement your fragments and apis. It i
 
 * Rendering fragments
 * Public Apis
+
+
+### Fragments
+
+
 
 ## Installing PuzzleJs
 
@@ -125,6 +135,128 @@ When browser wants to access gateway, it should use its public link. But wheneve
 }
 ```
 
+#### Page
 
+Page configuration defines how PuzzleJs will respond to mathing routes.
 
+| Property | Type | Required | Description |
+|-|-|-|-|
+| name | string | True | Port to listen |
+| url | string or string[] or regex or regex[] | True | PuzzleJs uses ExpressJs for routing, check [ExpressJs documentation](https://expressjs.com/en/guide/routing.html) for advanced usage |
+| html | string | True | html content of page. Please check [Templating](#templating) for detailed info |
+
+##### Templating
+
+PuzzleJs templates are consist of two parts. `<script>` is the controller of the page, `<template>` is controlled content.
+A simple template example.
+```html
+<script>
+  module.exports = {
+    onCreate(){
+        this.cacheBuster = Date.now();
+    }
+    onRequest(req){
+        //Each page has its own scope.
+        this.rand = Math.random();
+        //Or you can change req, it will be exposed to <template>
+    }
+  }
+</script>
+<template>
+    <!DOCTYPE html>
+    <html>
+        <head>
+            <title>Page Version: ${this.cacheBuster}</title>
+        </head>
+        <body>
+            <div>Random: ${this.rand}</div>
+            <div>Requested Url: ${req.url}</div>
+            <fragment from="GatewayName" name="header"></fragment>
+            <div>
+                <h1>Content</h1>
+                <fragment from="AnotherGatewayName" name="content"></footer>
+            </div>
+        </body>
+    </html>
+</template>
+```
+
+###### Page Scripts
+
+PuzzleJs creates a page instance where you can add listeners to some events and change scope variables. Page scripts are **optional**. You will still be able to access request or this with template expressions.
+
+These are the events you can use.
+
+| Name | params | When it is triggered |
+| - | - | - |
+| onCreate | () | When PuzzleJs starts compiling the page for the first time |
+| onRequest | ([req](https://expressjs.com/en/api.html#req)) | on each request |
+| onChunk | (string) | on each chunk sent |
+| onResponseEnd | () | on all chunks sent, connection closed |
+
+###### Template
+
+PuzzleJs compiles this part of html into executable javascript function. Read [Compiling](#html-to-js-compiling) for more information about this process. You can use PuzzleJs expressions inside this part to access page instance or request.
+
+**Expressions**
+Expressions can be written with `${expression}`. It can be multiple line too.
+```html
+<template>
+    <html>
+        <head></head>
+        <body>
+            Requested Url: ${req.url}
+        </body>
+    </html>
+</template>
+```
+
+Expressions also support conditional statements, and few loop statements. Full support list: `if, for, else, switch}`
+
+Example if
+```html
+<div>
+    ${if(this.rand > 5){}
+        <div>It is higher than 5</div>
+    ${}}
+</div>
+```
+
+Example for
+```html
+<div>
+    ${for(var x = 0; x < this.rand; x++){}
+        <div>Iterator: ${x}</div>
+    ${}}
+</div>
+```
+
+**Fragments**
+
+You can use `<fragment>` tag to define fragments. It has some attributes.
+
+| name | required | example | description |
+| - | - | - | - |
+| name | true | name="fragment-name" | Name of the fragment (it has to be exactly the name you defined on your gateway) |
+| from | true | from="gateway-name" | Name of the gateway fragment will be fetched from |
+| shouldWait | false | shouldWait | PuzzleJs will wait for this fragment to send first response. Check [Fragment Types](#fragment-types) |
+| primary | false | primary | PuzzleJs will wait for this fragment, and reflect its status code too. There can be only one primary fragment on each page. Check [Fragment Types](#fragment-types) |
+| partial | false | partial="meta" | If a fragment wants to content into two different places you can use `partial`. Common usage: A product fragment which has product html but also has meta tags for it. Default partial is **main**
+
+Partial Example
+```html
+<html>
+    <head></head>
+    <body>
+        <header>
+            <fragment from="Gateway" name="Product" partial="header-content"></fragment>
+        </header>
+        <main>
+            <fragment from="Gateway" name="Product"></fragment>
+        </main>
+    </body>
+</html>
+```
+
+## Configurator
 
