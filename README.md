@@ -54,7 +54,10 @@ Please check the [guide](./docs/guide.md) for full documentation.
 ### Documentation
 Read the [guide](./docs/guide.md) to familiarize yourself with how PuzzleJs works.
 
+* [Puzzle Architecture](./docs/guide.md#architecture)
 * [Installing PuzzleJs](./docs/guide.md#installing-puzzlejs)
+* [Storefront](./docs/guide.md#storefront)
+
 
 ### [Changelog](./CHANGELOG.md)
 
