@@ -33,15 +33,4 @@ export const NO_COMPRESS_QUERY_NAME = loadConfigurationFromEnv('NO_COMPRESS_QUER
 export const NON_SELF_CLOSING_TAGS = ['div', 'span', 'p'];
 
 
-export const CDN_OPTIONS = {
-  environment: process.env.ENVIRONMENT,
-  team: 'mobileweb',
-  user: 'frontend',
-  password: process.env.CDN_PASSWORD,
-  path: 'https://static.dsmcdn.com',
-  getFilePath(fileName: string){
-    return `${CDN_OPTIONS.path}/${CDN_OPTIONS.user}/${CDN_OPTIONS.team}/${CDN_OPTIONS.environment}/${fileName}`;
-  }
-};
-
 export const TEMP_FOLDER = path.join(process.cwd(), '/~temp');
