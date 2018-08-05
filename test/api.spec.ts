@@ -161,7 +161,7 @@ describe('Api', function () {
 
   it('should respond with originalurl in headers', (done) => {
     const server = new Server();
-    const firstParam = faker.random.word();
+    const firstParam = faker.random.number();
     const secondParam = faker.random.number();
 
     const handler = {
