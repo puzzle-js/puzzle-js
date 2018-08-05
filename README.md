@@ -11,21 +11,21 @@ PuzzleJs makes it easy to create gateways and storefront projects that talk each
 
 ### Why?
 The traditional model is very inefficient for modern websites.
-* Multiple teams working on the same code makes everything harder to manage.
+* Multiple teams working on the same code make everything harder to manage.
 * Time to first byte is as fast as the slowest api.
-* When backend is collecting data user browser is wasting time waiting for first byte.
-* Features can't be online as soon as it is fully developed and tested because of other teams features are not ready yet.
-* You can't use different technologies expect from the existing one.
-* You can't scale specific process because you are dependent to whole system.
+* While backend is collecting data, user browser is wasting time waiting for first byte.
+* Features can't be online as soon as it is fully developed and tested, because other teams' features are not ready yet.
+* You can't use different technologies except from the existing one.
+* You can't scale specific process, because you are dependent to whole system.
 
 ### Features
-* **First Time To Byte** PuzzleJs compiles html template into javascript function on compile time. This operation is fully independent from the request so PuzzleJs can send the first chunk using this function.
-* **Seo Friendly** PuzzleJs is fully SEO friendly as everything is being prepared and rendered on server side.
+* **First Time To Byte** PuzzleJs compiles html template into javascript function on compile time. This operation is fully independent from the request, so PuzzleJs can send the first chunk using this function.
+* **Seo Friendly** PuzzleJs is fully SEO friendly, as everything is prepared and rendered on server side.
 * **Extensibility** It is easy to extend PuzzleJs with your custom functions.
 * **Easy** You can easily create a gateway or storefront and connect them by providing a configuration file.
 * **Independent** You can use any technology on your gateways, PuzzleJs is fully independent from your technologies. ReactJs, Vue or anything else.
 * **Scalable** PuzzleJs can create storefront and gateways independent from each other. So you can easily scale single project on Dockerized environments.
-* **Fail-Safe** When your api required by a fragment is down, PuzzleJs guarantees other page fragments are still working.
+* **Fail-Safe** When your api required by a fragment is down, PuzzleJs guarantees other page fragments will be still working.
 
 ### Getting Started
 
@@ -47,8 +47,8 @@ Please check the [guide](./docs/guide.md) for full documentation.
 4. Storefront compiles html into in memory javascript function for fastest template rendering.
 
 *On Request*
-1. Storefront sends a chunked response with the compiled function but not closes the connection. Users are now able to see your website with static contents and placeholders. It also sends backend requests to gateways to recieve rendered fragments.
-2. When any fragment recieved from gateway it sends it to browser as a chunk and replaces previously sended placeholder with the content.
+1. Storefront sends a chunked response with the compiled function but doesn't close the connection. Users are now able to see your website with static contents and placeholders. It also sends backend requests to gateways to recieve rendered fragments.
+2. After any fragment is recieved from gateway, it sends it to browser as a chunk and replaces previously sended placeholder with the content.
 3. When all fragments are sent, PuzzleJs closes connection.
 
 ### Documentation
