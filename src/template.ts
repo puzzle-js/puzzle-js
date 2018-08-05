@@ -2,7 +2,6 @@ import {FragmentStorefront} from "./fragment";
 import cheerio from "cheerio";
 import {TemplateCompiler} from "./templateCompiler";
 import {
-  CDN_OPTIONS,
   CHEERIO_CONFIGURATION,
   CONTENT_NOT_FOUND_ERROR,
   NON_SELF_CLOSING_TAGS,

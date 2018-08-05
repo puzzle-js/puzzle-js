@@ -161,18 +161,18 @@ describe('Api', function () {
 
   it('should respond with originalurl in headers', (done) => {
     const server = new Server();
+    const firstParam = faker.random.word();
+    const secondParam = faker.random.number();
 
     const handler = {
       'test': (req: any, res: any) => {
         expect(req.headers.originalurl).to.eq(`/${firstParam}/${secondParam}`);
-        console.log(req.path);
         res.end('working');
         done();
       }
     };
 
-    const firstParam = faker.random.word();
-    const secondParam = faker.random.number();
+
 
     const api = new Api({
       liveVersion: '1.0.0',
