@@ -59,6 +59,8 @@ Read the [guide](./docs/guide.md) to familiarize yourself with how PuzzleJs work
 * [Puzzle Architecture](./docs/guide.md#architecture)
 * [Installing PuzzleJs](./docs/guide.md#installing-puzzlejs)
 * [Storefront](./docs/guide.md#storefront)
+* [Configurator](./docs/guide.md#configurator)
+* [Core Configuration](./docs/guide.md#core-configuration)
 
 
 ### [Changelog](./CHANGELOG.md)
