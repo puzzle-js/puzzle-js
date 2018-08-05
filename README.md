@@ -1,4 +1,6 @@
-![PuzzleJs](https://image.ibb.co/jM29on/puzzlelogo.png)
+<p align="center">
+<img src="https://image.ibb.co/jM29on/puzzlelogo.png" alt="PuzzleJs Logo" width="300" />
+</p>
 
 # PuzzleJs Framework
 Frontend microservices framework for scalable and blazing fast websites.
