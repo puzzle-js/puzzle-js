@@ -108,10 +108,11 @@ You can provide configuration as object or you can use [Configurator](#configura
 As fragment requests are between storefront and gateways at back-end, we can optimize it for best network performance. It is really useful if you are using Kubernetes etc.
 
 Lets assume two applications running on different port on same host.
-|Name|Public|Inner|
-|-|-|-|
-|Storefront|https://storefront.com|https://127.0.0.1:4444|
-|Gateway|https://gateway.com|https://127.0.0.1:4445|
+
+| Name | Public | Inner |
+| - | - | - |
+| Storefront | https://storefront.com | https://127.0.0.1:4444 |
+| Gateway | https://gateway.com | https://127.0.0.1:4445 |
 
 When browser wants to access gateway it should use its public link. But whenever storefront wants to access gateway it can use localhost. So, for the best performance we can use this config for gateways.
 ```js
