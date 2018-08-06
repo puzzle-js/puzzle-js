@@ -1,6 +1,6 @@
 {
   "name": "puzzle-microfrontends",
-  "version": "3.9.5",
+  "version": "3.9.6",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "logo": "https://image.ibb.co/jM29on/puzzlelogo.png",
@@ -52,6 +52,7 @@
     "email": "ahmetcanguven44@gmail.com"
   },
   "scripts": {
+    "prepublish": "yarn build",
     "build": "node_modules/.bin/tsc && gulp build && node_modules/.bin/webpack --config ./src/lib/webpack.config.js && gulp prepareLib",
     "test": "nyc --check-coverage --lines=85 cross-env NODE_ENV=production mocha -r ts-node/register  --recursive 'test/**/*.spec.ts'",
     "test:lib": "nyc -n 'src/lib/**/*.ts' --check-coverage --lines=85  cross-env NODE_ENV=production mocha -r ts-node/register  --recursive 'test/lib/**/*.spec.ts'",
