@@ -1073,7 +1073,7 @@ describe('BFF', () => {
 
     it('should return original url preview mode', (done) => {
         const pageModel = faker.helpers.createTransaction();
-        const urlpath = faker.random.word();
+        const urlpath = faker.random.number();
         const queryString = `?${urlpath}=${urlpath}`;
         const handler = {
             content() {
@@ -1101,7 +1101,7 @@ describe('BFF', () => {
                 {
                     name: 'product',
                     render: {
-                        url: `/${urlpath}`
+                        url: `/*`
                     },
                     testCookie: 'product-cookie',
                     version: '1.0.0',
