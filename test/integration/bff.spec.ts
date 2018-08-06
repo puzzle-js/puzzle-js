@@ -1070,4 +1070,61 @@ describe('BFF', () => {
         })
     });
   });
+
+    it('should return original url preview mode', (done) => {
+        const pageModel = faker.helpers.createTransaction();
+        const urlpath = faker.random.word();
+        const queryString = `?${urlpath}=${urlpath}`;
+        const handler = {
+            content() {
+                return {
+                    main: `<div>${faker.random.words()}</div>`
+                };
+            },
+            data(req) {
+              expect(req.headers.originalurl).to.eq(`/${urlpath}${queryString}`);
+                return {
+                    data: faker.random.word(),
+                    $model: {
+                        transaction: pageModel
+                    }
+                };
+            },
+            placeholder() {
+                return '';
+            }
+        }as any;
+
+        const bff = new GatewayBFF({
+            ...commonGatewayConfiguration,
+            fragments: [
+                {
+                    name: 'product',
+                    render: {
+                        url: `/${urlpath}`
+                    },
+                    testCookie: 'product-cookie',
+                    version: '1.0.0',
+                    versions: {
+                        '1.0.0': {
+                            assets: [],
+                            dependencies: [],
+                            handler
+                        }
+                    }
+                }
+            ]
+        });
+
+        bff.init(() => {
+            request(commonGatewayConfiguration.url)
+                .get(`/product/${urlpath}${queryString}`)
+                .expect(200)
+                .end((err, res) => {
+                    if (err) throw new Error(err);
+                    bff.server.close();
+                    done();
+                });
+        });
+    });
 });
