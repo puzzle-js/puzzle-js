@@ -531,7 +531,7 @@ configurator.config({
 
 ## Core Configuration
 
-PuzzleJs has some inner configurations which you can't change using any Storefront or Gateway configuration. There are core configurations that changes how PuzzleJs will work. They can be changes using envrionment variables
+PuzzleJs has some inner configurations you can't change using any Storefront or Gateway configuration. They can be changes using envrionment variables
 
 | Env Variable Name | Default | Description |
 | - | - | - |
