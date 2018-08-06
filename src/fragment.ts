@@ -9,6 +9,7 @@ import path from "path";
 import {container, TYPES} from "./base";
 import {Logger} from "./logger";
 import {decompress} from "iltorb";
+import {Request, Response} from 'express';
 import {HttpClient} from "./client";
 
 
@@ -183,7 +184,7 @@ export class FragmentStorefront extends Fragment {
    * @param req
    * @returns {Promise<IFragmentContentResponse>}
    */
-  async getContent(attribs: any = {}, req?: { url: string, headers: { [name: string]: string } }): Promise<IFragmentContentResponse> {
+  async getContent(attribs: any = {}, req?: Request): Promise<IFragmentContentResponse> {
     if (!this.config) {
       logger.error(new Error(`No config provided for fragment: ${this.name}`));
       return {
@@ -206,10 +207,10 @@ export class FragmentStorefront extends Fragment {
 
     if (req) {
       if (req.url) {
-        parsedRequest = url.parse(req.url, true) as { pathname: string, query: object };
+        parsedRequest = url.parse(req.url) as { pathname: string };
         query = {
           ...query,
-          ...parsedRequest.query,
+          ...req.query,
         };
       }
       if (req.headers) {
