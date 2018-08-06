@@ -1,3 +1,7 @@
 language: node_js
 node_js:
   - "8"
+deploy:
+  provider: npm
+  email: "ahmetcanguven44@gmail.com"
+  api_key: "c52779bc-fbe0-4fad-8bbe-c6c9b74fcea2"
