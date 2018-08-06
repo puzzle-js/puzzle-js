@@ -476,7 +476,7 @@ With this feature that you can easily manage your configuration on a seperate fi
 | Name | Description |
 | - | - |
 | Middleware | Used for adding express middlewares |
-| Handler | Used for custom handlers, read [Handlers](#handlers) |
+| Handler | Used for custom handlers, read [Handler](#handler) |
 | Custom | Can be used for anything |
 
 ### Handler
