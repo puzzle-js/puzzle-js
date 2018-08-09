@@ -11,6 +11,7 @@ import {Logger} from "./logger";
 import {decompress} from "iltorb";
 import {Request, Response} from 'express';
 import {HttpClient} from "./client";
+import {ERROR_CODES, PuzzleError} from "./errors";
 
 
 const logger = <Logger>container.get(TYPES.Logger);
@@ -236,7 +237,7 @@ export class FragmentStorefront extends Fragment {
         model: res.data.$model || {}
       };
     }).catch(err => {
-      logger.error(`Failed to get contents for fragment: ${this.name}`, err);
+      throw new PuzzleError(ERROR_CODES.FAILED_TO_GET_FRAGMENT_CONTENT, this.name, `${this.fragmentUrl}${routeRequest}`);
       return {
         status: 500,
         html: {},
