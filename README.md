@@ -5,7 +5,7 @@
 # PuzzleJs Framework
 Front-end microservices framework for scalable and blazing fast websites.
 
-[![Build Status](https://travis-ci.com/Acanguven/PuzzleJs.svg?token=P2s8WVyVNPJgtfCf4E5i&branch=master)](https://travis-ci.com/Acanguven/Puzzle-Reworked)
+[![Build Status](https://travis-ci.com/puzzle-js/PuzzleJs.svg?branch=master)](https://travis-ci.com/puzzle-js/PuzzleJs)
 [![npm version](https://badge.fury.io/js/puzzle-microfrontends.svg)](https://www.npmjs.com/package/puzzle-microfrontends)
 
 ## *New documentation and demo is under development*
