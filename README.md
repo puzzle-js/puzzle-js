@@ -10,7 +10,7 @@ Front-end microservices framework for scalable and blazing fast websites.
 
 ## *New documentation and demo is under development*
 
-## [Demo](https://github.com/puzzle-js/PuzzleJs-Demo)
+## [Live Demo](http://178.128.201.193:4444/) - [Repository](https://github.com/puzzle-js/PuzzleJs-Demo)
 
 PuzzleJs makes it easy to create gateways and storefront projects that talk each other. It is inspired by Facebook's [BigPipe](https://www.facebook.com/notes/facebook-engineering/bigpipe-pipelining-web-pages-for-high-performance/389414033919/), developed with lots of great features and passion.
 
