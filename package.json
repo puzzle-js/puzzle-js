@@ -69,6 +69,7 @@
     "compression": "^1.7.2",
     "cookie-parser": "latest",
     "cors": "^2.8.4",
+    "dnscache": "^1.0.1",
     "express": "^4.16.3",
     "helmet": "latest",
     "iltorb": "^2.3.2",
@@ -81,11 +82,11 @@
     "route-cache": "^0.4.4",
     "spdy": "^3.4.7",
     "superstruct": "^0.5.4",
-    "uuid": "^3.2.1",
-    "winston": "^3.0.0-rc1",
     "ts-loader": "^4.4.2",
     "ts-node": "^5.0.1",
     "typescript": "^3.0.1",
+    "uuid": "^3.2.1",
+    "winston": "^3.0.0-rc1",
     "winston-graylog2": "^1.0.0"
   },
   "nyc": {
@@ -110,4 +111,3 @@
     "all": true
   }
 }
-

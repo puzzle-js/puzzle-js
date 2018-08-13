@@ -3,6 +3,7 @@ import https from "https";
 import {injectable} from "inversify";
 import request from "request";
 
+
 export interface IRequestOptions {
   timeout: number;
   method: string;
@@ -49,7 +50,7 @@ export class HttpClient {
   }
 
   get(requestUrl: string, options?: request.CoreOptions): Promise<{ response: request.Response, data: any }> {
-    if(!HttpClient.httpClient && !HttpClient.httpsClient){
+    if (!HttpClient.httpClient && !HttpClient.httpsClient) {
       console.error('Creating new agent for pool');
       this.init('PuzzleJs Default Client');
     }
@@ -75,7 +76,7 @@ export class HttpClient {
 
 
   post(requestUrl: string, data?: object, options?: request.CoreOptions): Promise<{ response: request.Response, data: any }> {
-    if(!HttpClient.httpClient && !HttpClient.httpsClient) this.init('PuzzleJs Default Client');
+    if (!HttpClient.httpClient && !HttpClient.httpsClient) this.init('PuzzleJs Default Client');
 
     const client = requestUrl.startsWith('https') ? HttpClient.httpsClient : HttpClient.httpClient;
 
