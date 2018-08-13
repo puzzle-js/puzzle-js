@@ -22,7 +22,7 @@ container.bind<HttpClient>(TYPES.Client).to(HttpClient);
 
 dnscache({
   enable: true,
-  ttl: 3000,
+  ttl: 2000,
   cachesize: 1000
 });
 
