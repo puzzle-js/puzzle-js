@@ -66,7 +66,7 @@ Fragments are small html contents which can work standalone and has independent 
 
 ![Fragment Example](https://i.gyazo.com/ea17e2485308b0319a82e00eba303161.png)
 
-There are 5 fragments in this page. They are fully different applications independent from each other and communicating others through a shared publish-subscribe bus.
+There are 5 fragments in this page. They are completely different applications independent from each other and communicating others through a shared publish-subscribe bus.
 
 Fragments can have multiple parts. Same fragment can put content into header and footer or even a meta tag. Check [Template](#template)
 
@@ -95,13 +95,13 @@ Chunked fragments are sent after initial chunk whenever they are ready. You can 
     </body>
 </html>
 ```
-There two hex numbers in stream (0xf3, 0xa2). They are representing the size of the chunk. Lets assume that second chunk is sent after 600ms. Browser already parsed and rendered contents of the first chunk. Whenever second chunk is arrived browser parses it too and render it's contents.
+There two hex numbers in stream (0xf3, 0xa2). They are representing the size of the chunk. Lets assume that second chunk is sent after 600ms. Browser already parsed and rendered contents of the first chunk. Whenever second chunk is arrived browser parses it too and renders it's contents.
 
 Chunked fragments are sent after the initial chunk. Like the example above `<div>Chunked Div</div>` is a chunked fragment
 
 ##### ShouldWait Fragments
 
-ShoudWait fragment are the fragments that should be waited and injected into initial chunk. Lets assume a page with 2 fragments. One is shouldWait and the other is chunked.
+ShoudWait fragments are the fragments that should be waited and injected into initial chunk. Let's assume a page with 2 fragments. One is shouldWait and the other is chunked.
 ```html
 0xf3
 <html>
@@ -213,7 +213,7 @@ When browser wants to access gateway, it should use its public link. But wheneve
 
 #### Page
 
-Page configuration defines how PuzzleJs will respond to mathing routes.
+Page configuration defines how PuzzleJs will respond to matching routes.
 
 | Property | Type | Required | Description |
 |-|-|-|-|
@@ -402,7 +402,7 @@ Configurator will throw error telling you that port should be `number` not `stri
 ### Dependency Injection
 Custom objects can be injected into configuration.
 
-Lets assume we want to inject middleware into api. We can do it without configurator like this
+Let's assume we want to inject middleware into api. We can do it without configurator like this
 
 ```js
 new Gateway({
@@ -471,7 +471,7 @@ configurator.config({
 
 const gateway = new Gateway(configurator);
 ```
-With this feature that you can easily manage your configuration on a seperate file. There are 3 types of injectables.
+With this feature, you can easily manage your configuration on a separate file. There are 3 types of injectables.
 
 | Name | Description |
 | - | - |
@@ -481,7 +481,7 @@ With this feature that you can easily manage your configuration on a seperate fi
 
 ### Handler
 
-Whenever a custom handler is not provided for a api or fragment, PuzzleJs tries to require its module by itself. Lets assume an api like this exists on gateway.
+Whenever a custom handler is not provided for an api or fragment, PuzzleJs tries to require its module by itself. Let's assume an api like this exists on gateway.
 ```js
 {
   name: "api-example",
@@ -500,7 +500,7 @@ Whenever a custom handler is not provided for a api or fragment, PuzzleJs tries 
   }
 }
 ```
-PuzzleJs tries to `handler = require('./src/api/api-example/1.0.0/index.js');` and whenever a request comes it will try to run `handler.getItems(req, res)`. If that module doesn't exists it will throw an error. But you can also provide custom handlers using [dependency injection](#dependency-injection) feature of Configurator.
+PuzzleJs tries to `handler = require('./src/api/api-example/1.0.0/index.js');` and whenever a request comes it will try to run `handler.getItems(req, res)`. If that module doesn't exist, it will throw an error. But you can also provide custom handlers using [dependency injection](#dependency-injection) feature of Configurator.
 ```js
 const configurator = new GatewayConfigurator();
 configurator.register("{customhandler}", ENUMS.INJECTABLE.HANDLER, {
@@ -531,7 +531,7 @@ configurator.config({
 
 ## Core Configuration
 
-PuzzleJs has some inner configurations you can't change using any Storefront or Gateway configuration. They can be changes using envrionment variables
+PuzzleJs has some inner configurations you can't change using any Storefront or Gateway configuration. They can be changed using envrionment variables
 
 | Env Variable Name | Default | Description |
 | - | - | - |
