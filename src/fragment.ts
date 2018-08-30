@@ -53,7 +53,7 @@ export class FragmentBFF extends Fragment {
         try {
           dataResponse = await handler.data(clearedRequest);
         } catch (e) {
-          logger.error(`Failed to fetch data for fragment ${this.config.name}`, req.url, req.query, req.params,req.headers);
+          logger.error(`Failed to fetch data for fragment ${this.config.name}`, req.url, req.query, req.params, req.headers, e);
           return {
             $status: 500
           }
