@@ -151,8 +151,13 @@ export class GatewayBFF {
           res.status(gatewayContent.$status);
           res.end();
         }else {
-          res.status(HTTP_STATUS_CODE.OK);
-          res.send(this.wrapFragmentContent(gatewayContent.content[partial].toString(), fragment, cookieValue, gatewayContent.$model));
+          if(gatewayContent.content[partial]){
+            res.status(HTTP_STATUS_CODE.OK);
+            res.send(this.wrapFragmentContent(gatewayContent.content[partial].toString(), fragment, cookieValue, gatewayContent.$model));
+          }else{
+            res.status(HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR);
+            res.send(`Partial ${partial} doesn't exist in fragment response`);
+          }
         }
       }
     } else {
