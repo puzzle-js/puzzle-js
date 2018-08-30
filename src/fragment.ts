@@ -43,13 +43,21 @@ export class FragmentBFF extends Fragment {
    * @param {string} version
    * @returns {Promise<HandlerDataResponse>}
    */
-  async render(req: object, res: any, version?: string): Promise<HandlerDataResponse> {
+  async render(req: { url: string, headers: object }, res: any, version?: string): Promise<HandlerDataResponse> {
     const targetVersion = version || this.config.version;
     const handler = this.handler[targetVersion];
     const clearedRequest = this.clearRequest(req);
     if (handler) {
       if (handler.data) {
-        const dataResponse = await handler.data(clearedRequest);
+        let dataResponse;
+        try {
+          dataResponse = await handler.data(clearedRequest);
+        } catch (e) {
+          logger.error(`Failed to fetch data for fragment ${this.config.name}`, req.url, req.headers);
+          return {
+            $status: 500
+          }
+        }
         if (dataResponse.data) {
           const renderedPartials = handler.content(clearedRequest, dataResponse.data);
           delete dataResponse.data;
