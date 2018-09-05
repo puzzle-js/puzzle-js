@@ -245,7 +245,7 @@ export class FragmentStorefront extends Fragment {
         model: res.data.$model || {}
       };
     }).catch(err => {
-      throw new PuzzleError(ERROR_CODES.FAILED_TO_GET_FRAGMENT_CONTENT, this.name, `${this.fragmentUrl}${routeRequest}`);
+      throw new PuzzleError(ERROR_CODES.FAILED_TO_GET_FRAGMENT_CONTENT, this.name, `${this.fragmentUrl}${routeRequest}`, err);
       return {
         status: 500,
         html: {},
