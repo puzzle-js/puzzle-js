@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+# [3.11.0] - 17-09-2018
+### Changed
+- 400 responses will be warning level
+- 500 responses will be error level
+- All exceptions will be printed on console when there is no `DISABLE_CONSOLE_ERROR` config.
+
 # [3.10.0] - 013-08-2018
 ### Added
 - dnscache wrapper with 2000 ms ttl.
