@@ -24,7 +24,7 @@ const alignedWithColorsAndTime = winston.format.combine(
  */
 const createTransports = () => {
   const transports = [];
-  if (process.env.NODE_ENV !== 'production') {
+  if(!process.env.DISABLE_CONSOLE_ERROR){
     transports.push(new winston.transports.Console({
       level: process.env.logLevel || 'warn',
       handleExceptions: false,
@@ -32,7 +32,9 @@ const createTransports = () => {
       colorize: true,
       format: alignedWithColorsAndTime
     }));
-  } else if (process.env.GRAYLOG_HOST && process.env.GRAYLOG_PORT && process.env.GRAYLOG_HOSTNAME && process.env.GRAYLOG_FACILITY) {
+  }
+
+  if (process.env.GRAYLOG_HOST && process.env.GRAYLOG_PORT && process.env.GRAYLOG_HOSTNAME && process.env.GRAYLOG_FACILITY) {
     transports.push(new WinstonGraylog2({
       name: 'Graylog',
       level: process.env.logLevel || 'warn',
@@ -104,7 +106,13 @@ export class Logger {
   }
 
   write(message: string) {
-    const level = message.match(/RES: [4|5]/) ? 'error' : 'info';
+    let level = 'info';
+    if (message.match(/RES: [4]/)) {
+      level = 'warn'
+    } else if (message.match(/RES: [5]/)) {
+      level = 'error'
+    }
+
     logger[level](message);
   }
 }
