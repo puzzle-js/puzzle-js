@@ -75,7 +75,7 @@ export class GatewayBFF {
     ], err => {
       if (!err) {
         logger.info(`Gateway is listening on port ${this.config.port}`);
-        this.server.listen(this.config.port, cb);
+        this.server.listen(this.config.port, cb, this.config.ipv4);
       } else {
         throw err;
       }

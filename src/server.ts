@@ -115,17 +115,21 @@ export class Server {
    * Starts server
    * @param {number} port
    * @param {Function} cb
+   * @param ipv4
    */
-  public listen(port: number, cb?: Function) {
+  public listen(port: number, cb?: Function, ipv4?: boolean) {
+    const args: any[] = [port];
+    if (ipv4) {
+      args.push('0.0.0.0');
+    }
+    args.push((e: Error) => {
+      cb && cb(e);
+    });
     if (this.spdyConfiguration) {
       this.server = spdy.createServer(this.spdyConfiguration, this.app);
-      this.server.listen(port, (e: Error) => {
-        cb && cb(e);
-      });
+      this.server.listen.apply(this.server, args);
     } else {
-      this.server = this.app.listen(port, (e: Error) => {
-        cb && cb(e);
-      });
+      this.server = this.app.listen.apply(this.app, args);
     }
   }
 
