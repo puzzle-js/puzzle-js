@@ -87,6 +87,7 @@ const gatewayStructure = struct({
   fragments: [gatewayFragmentStructure],
   api: [apiStructure],
   port: 'number',
+  ipv4: 'boolean?',
   isMobile: 'boolean?',
   fragmentsFolder: 'string',
   corsDomains: struct.optional(['string']),
@@ -113,6 +114,7 @@ const storefrontDependencyStructure = struct({
 const storefrontStructure = struct({
   gateways: [storefrontGatewaysStructure],
   port: 'number',
+  ipv4: 'boolean?',
   pages: [storefrontPageStructure],
   pollInterval: 'number?',
   dependencies: [storefrontDependencyStructure],

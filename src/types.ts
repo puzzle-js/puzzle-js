@@ -140,6 +140,7 @@ export interface IGatewayBFFConfiguration extends IGatewayConfiguration {
   fragments: IFragmentBFF[];
   api: IApiConfig[];
   port: number;
+  ipv4?: boolean;
   isMobile?: boolean;
   fragmentsFolder: string;
   corsDomains?: string[];
@@ -217,6 +218,7 @@ export interface INodeSpdyConfiguration {
 export interface IStorefrontConfig {
   gateways: IGatewayConfiguration[];
   port: number;
+  ipv4?: boolean;
   pages: IPageConfiguration[];
   pollInterval?: number;
   dependencies: IFileResourceStorefrontDependency[];

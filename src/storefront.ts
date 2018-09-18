@@ -63,7 +63,7 @@ export class Storefront {
         this.server.listen(this.config.port, () => {
           logger.info(`Storefront is listening on port ${this.config.port}`);
           cb && cb();
-        });
+        }, this.config.ipv4);
       } else {
         throw err;
       }

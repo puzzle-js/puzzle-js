@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+
+# [3.12.0] - 17-09-2018
+### Added
+- ipv4 support added. Nodejs Docs [Docs](https://nodejs.org/api/net.html#net_server_listen_port_host_backlog_callback)
+
+
 # [3.11.0] - 17-09-2018
 ### Changed
 - 400 responses will be warning level
