@@ -72,12 +72,14 @@ export class Storefront {
 
   private preLoadPages(cb: Function) {
     Promise.all(Object.values(this.pages).map(async (page) => {
+      logger.info(`Preloading page: ${page.name}`);
       await page.preLoad();
+      logger.info(`Preloaded page: ${page.name}`);
     })).then(() => cb());
   }
 
   private bootstrap() {
-    if (!fs.existsSync(TEMP_FOLDER)){
+    if (!fs.existsSync(TEMP_FOLDER)) {
       fs.mkdirSync(TEMP_FOLDER);
     }
     this.server.useProtocolOptions(this.config.spdy);
@@ -133,6 +135,7 @@ export class Storefront {
    */
   private registerDependencies(cb: Function) {
     this.config.dependencies.forEach(dependency => {
+      logger.info(`Registering Dependency: ${dependency.name}`);
       ResourceFactory.instance.registerDependencies(dependency);
     });
 
@@ -144,6 +147,7 @@ export class Storefront {
    * @param {Function} cb
    */
   private addHealthCheckRoute(cb: Function) {
+    logger.info(`Registering healthcheck route: ${HEALTHCHECK_PATH}`);
     this.server.addRoute(HEALTHCHECK_PATH, HTTP_METHODS.GET, (req, res) => {
       res.status(HTTP_STATUS_CODE.OK).end();
     });
@@ -158,6 +162,7 @@ export class Storefront {
   private addPageRoute(cb: Function) {
     this.config.pages.forEach(page => {
       const targetPage = page.url.toString();
+      logger.info(`Adding page ${page.name} route: ${targetPage}`);
       this.server.addRoute(page.url, HTTP_METHODS.GET, (req, res) => {
         this.pages[targetPage].handle(req, res);
       });
