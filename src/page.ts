@@ -3,6 +3,11 @@ import {GatewayStorefrontInstance} from "./gatewayStorefront";
 import {EVENTS} from "./enums";
 import {ICookieObject, IFragmentCookieMap, IGatewayMap, IPageDependentGateways, IResponseHandlers} from "./types";
 import {DEBUG_INFORMATION, DEBUG_QUERY_NAME} from "./config";
+import {container, TYPES} from "./base";
+import {Logger} from "./logger";
+
+const logger = <Logger>container.get(TYPES.Logger);
+
 
 export class Page {
   ready = false;
@@ -12,7 +17,7 @@ export class Page {
   private rawHtml: string;
   private fragmentCookieList: IFragmentCookieMap[] = [];
 
-  constructor(html: string, gatewayMap: IGatewayMap, private name: string) {
+  constructor(html: string, gatewayMap: IGatewayMap, public name: string) {
     this.rawHtml = html;
     this.template = new Template(html, this.name);
     this.gatewayDependencies = this.template.getDependencies();
@@ -31,6 +36,7 @@ export class Page {
     const handlerVersion = this.getHandlerVersion(req);
     const isDebug = DEBUG_INFORMATION || (req.query && req.query.hasOwnProperty(DEBUG_QUERY_NAME));
     if (typeof this.responseHandlers[handlerVersion] === "undefined") {
+      logger.info(`Compiling page: ${this.name}`);
       this.responseHandlers[handlerVersion] = this.template.compile(req.cookies, isDebug);
     }
 
