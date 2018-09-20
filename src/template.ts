@@ -120,9 +120,11 @@ export class Template {
    * @returns {Promise<IFragmentEndpointHandler>}
    */
   async compile(testCookies: ICookieMap, isDebug: boolean = false): Promise<IFragmentEndpointHandler> {
+    logger.info(`[Compiling Page ${this.name}]`, 'Creating virtual dom');
     this.load();
 
     if (Object.keys(this.fragments).length === 0) {
+      logger.info(`[Compiling Page ${this.name}]`, 'No fragments detected, implementing single flush handler');
       this.replaceEmptyTags();
       const singleFlushHandlerWithoutFragments = TemplateCompiler.compile(Template.clearHtmlContent(this.dom.html()));
       return this.buildHandler(singleFlushHandlerWithoutFragments, [], [], [], isDebug);
@@ -137,13 +139,16 @@ export class Template {
     const chunkedFragmentsWithoutWait = Object.values(this.fragments).filter(fragment => fragment.config && !fragment.shouldWait && !fragment.config.render.static);
     const staticFragments = Object.values(this.fragments).filter(fragment => fragment.config && fragment.config.render.static);
 
+    logger.info(`[Compiling Page ${this.name}]`, 'Injecting Puzzle Lib to head');
     this.injectPuzzleLibAndConfig(isDebug);
 
     // todo kaldir lib bagla
     const replaceScripts: any[] = [];
 
+    logger.info(`[Compiling Page ${this.name}]`, 'Adding containers for waited fragments');
     const waitedFragmentReplacements: IReplaceSet[] = this.replaceWaitedFragmentContainers(chunkedFragmentsWithShouldWait, replaceScripts, isDebug);
 
+    logger.info(`[Compiling Page ${this.name}]`, 'Adding containers for chunked fragments');
     const chunkReplacements: IReplaceSet[] = this.replaceChunkedFragmentContainers(chunkedFragmentsWithoutWait);
 
     this.replaceUnfetchedFragments(Object.values(this.fragments).filter(fragment => !fragment.config));
@@ -151,9 +156,14 @@ export class Template {
     // todo kaldir lib bag
     //await this.addDependencies();
 
+    logger.info(`[Compiling Page ${this.name}]`, 'Replacing static contents with their real contents');
     await this.replaceStaticFragments(staticFragments, replaceScripts.filter(replaceSet => replaceSet.fragment.config && replaceSet.fragment.config.render.static));
+
+    logger.info(`[Compiling Page ${this.name}]`, 'Adding placeholders for chunked fragments');
     await this.appendPlaceholders(chunkReplacements);
 
+
+    logger.info(`[Compiling Page ${this.name}]`, 'Combining and minifying page styles');
     /**
      * @deprecated Combine this with only on render start assets.
      */
@@ -167,6 +177,7 @@ export class Template {
     const puzzleLib = fs.readFileSync(path.join(__dirname, `/lib/${isDebug ? 'puzzle_debug.min.js' : 'puzzle.min.js'}`)).toString();
     const clearLibOutput = Template.replaceCustomScripts(this.dom.html().replace('{puzzleLibContent}', puzzleLib), false);
 
+    logger.info(`[Compiling Page ${this.name}]`, 'Sending virtual dom to compiler');
     return this.buildHandler(TemplateCompiler.compile(Template.clearHtmlContent(clearLibOutput)), chunkReplacements, waitedFragmentReplacements, replaceScripts, isDebug);
   }
 

@@ -50,7 +50,6 @@ export class GatewayStorefrontInstance {
    * Fetches gateway condifuration and calls this.bind
    */
   private async fetch() {
-    logger.info(`Trying to connect gateway: ${this.name}`);
     try {
       const res = await fetch(this.url);
       const json = await res.json();

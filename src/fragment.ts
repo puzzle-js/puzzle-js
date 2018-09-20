@@ -160,6 +160,8 @@ export class FragmentStorefront extends Fragment {
    * @returns {Promise<string>}
    */
   async getPlaceholder(): Promise<string> {
+    logger.info(`Trying to get placeholder of fragment: ${this.name}`);
+
     if (!this.config) {
       logger.error(new Error(`No config provided for fragment: ${this.name}`));
       return '';
@@ -173,6 +175,7 @@ export class FragmentStorefront extends Fragment {
     return fetch(`${this.fragmentUrl}/placeholder`)
       .then(res => res.text())
       .then(html => {
+        logger.info(`Received placeholder contents of fragment: ${this.name}`);
         return html;
       })
       .catch(err => {
@@ -194,6 +197,7 @@ export class FragmentStorefront extends Fragment {
    * @returns {Promise<IFragmentContentResponse>}
    */
   async getContent(attribs: any = {}, req?: Request): Promise<IFragmentContentResponse> {
+    logger.info(`Trying to get contents of fragment: ${this.name}`);
     if (!this.config) {
       logger.error(new Error(`No config provided for fragment: ${this.name}`));
       return {
@@ -238,6 +242,7 @@ export class FragmentStorefront extends Fragment {
     const routeRequest = req && parsedRequest ? `${parsedRequest.pathname.replace('/' + this.name, '')}?${querystring.stringify(query)}` : `/?${querystring.stringify(query)}`;
 
     return httpClient.get(`${this.fragmentUrl}${routeRequest}`, {json: true, ...requestConfiguration}).then(res => {
+      logger.info(`Received fragment contents of ${this.name} with status code ${res.response.statusCode}`);
       return {
         status: res.data.$status || res.response.statusCode,
         headers: res.data.$headers || {},
@@ -261,6 +266,8 @@ export class FragmentStorefront extends Fragment {
    * @returns {Promise<string>}
    */
   async getAsset(name: string) {
+    logger.info(`Trying to get asset: ${name}`);
+
     if (!this.config) {
       logger.error(new Error(`No config provided for fragment: ${this.name}`));
       return null;
@@ -273,6 +280,7 @@ export class FragmentStorefront extends Fragment {
     }
 
     return fetch(asset.link || `${this.fragmentUrl}/static/${asset.fileName}`).then(async res => {
+      logger.info(`Asset received: ${name}`);
       const encoding = res.headers.get('content-encoding');
 
       switch (encoding) {

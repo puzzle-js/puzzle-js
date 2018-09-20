@@ -51,6 +51,7 @@ export class Storefront {
    */
   @callableOnce
   public init(cb?: Function) {
+    logger.info('Starting Puzzle Storefront');
     async.series([
       this.registerDependencies.bind(this),
       this.waitForGateways.bind(this),
