@@ -6,7 +6,7 @@ import * as path from "path";
 import {EVENTS, HTTP_METHODS, TRANSFER_PROTOCOLS} from "../src/enums";
 import * as fs from "fs";
 import {pubsub} from "../src/util";
-import {TLS_CERT, TLS_KEY, TLS_PASS} from "./core.settings";
+import {TLS_CERT, TLS_CERT_SET, TLS_KEY, TLS_PASS} from "./core.settings";
 import faker from "faker";
 import {NO_COMPRESS_QUERY_NAME} from "../src/config";
 
@@ -162,8 +162,8 @@ describe('Server', () => {
     const response = faker.random.words();
     http2Server.useProtocolOptions({
       passphrase: TLS_PASS,
-      key: TLS_KEY,
-      cert: TLS_CERT,
+      key: TLS_CERT_SET.private,
+      cert: TLS_CERT_SET.cert,
       protocols: [TRANSFER_PROTOCOLS.H2, TRANSFER_PROTOCOLS.SPDY, TRANSFER_PROTOCOLS.HTTP1]
     });
 
@@ -174,6 +174,29 @@ describe('Server', () => {
     http2Server.listen(TEST_CONFIG.TEST_PORT, () => {
       request(TEST_CONFIG.TEST_URL.replace('http', 'https')).get('/').expect(200).end((err, res: Response) => {
         http2Server.close();
+        expect(res.text).to.eq(response);
+        done(err);
+      });
+    });
+  });
+
+  it('should use https when key cert provided', (done) => {
+    const httpsServer = new Server();
+    const response = faker.random.words();
+    httpsServer.useProtocolOptions({
+      passphrase: TLS_PASS,
+      key: TLS_CERT_SET.private,
+      cert: TLS_CERT_SET.cert,
+      protocols: [TRANSFER_PROTOCOLS.HTTP1]
+    });
+
+    httpsServer.addRoute('/', HTTP_METHODS.GET, (req, res) => {
+      res.end(response);
+    });
+
+    httpsServer.listen(TEST_CONFIG.TEST_PORT, () => {
+      request(TEST_CONFIG.TEST_URL.replace('http', 'https')).get('/').expect(200).end((err, res: Response) => {
+        httpsServer.close();
         expect(res.text).to.eq(response);
         done(err);
       });
