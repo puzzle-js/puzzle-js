@@ -22,6 +22,7 @@ import spdy from "spdy";
 const morganLoggingLevels = [
   'Date: [:date[clf]]',
   'IP: :remote-addr',
+  'Client-IP: :req[client-ip]',
   'REQ: :method :url',
   'RES: :status :response-time ms',
   'UA: :user-agent',
