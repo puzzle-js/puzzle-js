@@ -144,6 +144,7 @@ export interface IGatewayBFFConfiguration extends IGatewayConfiguration {
   isMobile?: boolean;
   fragmentsFolder: string;
   corsDomains?: string[];
+  corsMaxAge?: number;
   spdy?: ISpdyConfiguration;
 }
 

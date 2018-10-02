@@ -91,6 +91,7 @@ const gatewayStructure = struct({
   isMobile: 'boolean?',
   fragmentsFolder: 'string',
   corsDomains: struct.optional(['string']),
+  corsMaxAge: 'number?',
   spdy: struct.optional(spdyStructure)
 });
 

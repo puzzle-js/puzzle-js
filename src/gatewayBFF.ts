@@ -294,7 +294,8 @@ export class GatewayBFF {
     this.server.addUse(null, cors(
       {
         origin: this.config.corsDomains || ['*'],
-        credentials: true
+        credentials: true,
+        maxAge: this.config.corsMaxAge || undefined
       }
     ));
 
