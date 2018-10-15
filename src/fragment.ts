@@ -131,6 +131,7 @@ export class FragmentStorefront extends Fragment {
   primary = false;
   shouldWait = false;
   from: string;
+  gatewayPath!: string;
   public fragmentUrl: string | undefined;
   public assetUrl: string | undefined;
 
@@ -151,6 +152,11 @@ export class FragmentStorefront extends Fragment {
       this.assetUrl = url.resolve(assetUrl, this.name);
     }
     this.fragmentUrl = url.resolve(gatewayUrl, this.name);
+
+    const hostname = url.parse(gatewayUrl).hostname;
+    if (hostname) {
+      this.gatewayPath = hostname;
+    }
 
     this.config = config;
   }
@@ -187,11 +193,11 @@ export class FragmentStorefront extends Fragment {
   /**
    * Fetches fragment content as promise, fetches from gateway
    * Returns {
-     *  html: {
-     *    Partials
-     *  },
-     *  status: gateway status response code
-     * }
+   *  html: {
+   *    Partials
+   *  },
+   *  status: gateway status response code
+   * }
    * @param attribs
    * @param req
    * @returns {Promise<IFragmentContentResponse>}
@@ -229,6 +235,7 @@ export class FragmentStorefront extends Fragment {
       if (req.headers) {
         requestConfiguration.headers = req.headers;
         requestConfiguration.headers.originalUrl = req.url;
+        requestConfiguration.headers.gateway = this.gatewayPath;
       }
     }
 
