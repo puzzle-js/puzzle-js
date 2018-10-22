@@ -51,7 +51,11 @@ export class GatewayStorefrontInstance {
    */
   private async fetch() {
     try {
-      const res = await fetch(this.url);
+      const res = await fetch(this.url, {
+        headers: {
+          gateway: this.name
+        }
+      });
       const json = await res.json();
       this.update(json);
     } catch (e) {

@@ -178,7 +178,11 @@ export class FragmentStorefront extends Fragment {
       return '';
     }
 
-    return fetch(`${this.fragmentUrl}/placeholder`)
+    return fetch(`${this.fragmentUrl}/placeholder`, {
+      headers: {
+        gateway: this.gatewayPath
+      }
+    })
       .then(res => res.text())
       .then(html => {
         logger.info(`Received placeholder contents of fragment: ${this.name}`);
@@ -286,7 +290,11 @@ export class FragmentStorefront extends Fragment {
       return null;
     }
 
-    return fetch(asset.link || `${this.fragmentUrl}/static/${asset.fileName}`).then(async res => {
+    return fetch(asset.link || `${this.fragmentUrl}/static/${asset.fileName}`, {
+      headers: {
+        gateway: this.gatewayPath
+      }
+    }).then(async res => {
       logger.info(`Asset received: ${name}`);
       const encoding = res.headers.get('content-encoding');
 
