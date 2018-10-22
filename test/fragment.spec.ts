@@ -377,7 +377,7 @@ import {RESOURCE_TYPE} from "../src/lib/enums";
                             type: RESOURCE_TYPE.JS
                         }
                     ]
-                }, 'https://different.com/', 'https://differentLink.com/');
+                }, 'https://different.com/', 'gateway','https://differentLink.com/');
 
 
                 const assetPath = fragment.getAssetPath('product-bundle');

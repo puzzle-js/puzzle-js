@@ -134,6 +134,7 @@ export class FragmentStorefront extends Fragment {
   gatewayPath!: string;
   public fragmentUrl: string | undefined;
   public assetUrl: string | undefined;
+  private gatewayName: string;
 
   constructor(name: string, from: string) {
     super({name});
@@ -145,9 +146,10 @@ export class FragmentStorefront extends Fragment {
    * Updates fragment configuration
    * @param {IExposeFragment} config
    * @param {string} gatewayUrl
+   * @param gatewayName
    * @param {string | undefined} assetUrl
    */
-  update(config: IExposeFragment, gatewayUrl: string, assetUrl?: string | undefined) {
+  update(config: IExposeFragment, gatewayUrl: string, gatewayName: string, assetUrl?: string | undefined) {
     if (assetUrl) {
       this.assetUrl = url.resolve(assetUrl, this.name);
     }
@@ -157,6 +159,8 @@ export class FragmentStorefront extends Fragment {
     if (hostname) {
       this.gatewayPath = hostname;
     }
+
+    this.gatewayName = gatewayName;
 
     this.config = config;
   }
@@ -178,9 +182,10 @@ export class FragmentStorefront extends Fragment {
       return '';
     }
 
+    console.log(this.gatewayName);
     return fetch(`${this.fragmentUrl}/placeholder`, {
       headers: {
-        gateway: this.gatewayPath
+        gateway: this.gatewayName
       }
     })
       .then(res => res.text())
@@ -239,9 +244,10 @@ export class FragmentStorefront extends Fragment {
       if (req.headers) {
         requestConfiguration.headers = req.headers;
         requestConfiguration.headers.originalUrl = req.url;
-        requestConfiguration.headers.gateway = this.gatewayPath;
       }
     }
+
+    requestConfiguration.headers = {...requestConfiguration.headers, gateway: this.gatewayName} || {gateway: this.gatewayName};
 
 
     delete query.from;
@@ -292,7 +298,7 @@ export class FragmentStorefront extends Fragment {
 
     return fetch(asset.link || `${this.fragmentUrl}/static/${asset.fileName}`, {
       headers: {
-        gateway: this.gatewayPath
+        gateway: this.gatewayName
       }
     }).then(async res => {
       logger.info(`Asset received: ${name}`);

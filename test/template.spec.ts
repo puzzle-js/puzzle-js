@@ -8,7 +8,8 @@ import {
   PUZZLE_LIB_SCRIPT,
   RESOURCE_INJECT_TYPE,
   RESOURCE_JS_EXECUTE_TYPE,
-  RESOURCE_LOCATION} from "../src/enums";
+  RESOURCE_LOCATION
+} from "../src/enums";
 import {createExpressMock} from "./mock/mock";
 import ResourceFactory from "../src/resourceFactory";
 import {PUZZLE_DEBUGGER_LINK} from "../src/config";
@@ -219,7 +220,11 @@ describe('Template', () => {
   it('should not close restricted empty tags', (done) => {
     const productScript = `console.log('Product Script')`;
 
-    const scope = nock('http://my-test-gateway-chunked.com')
+    const scope = nock('http://my-test-gateway-chunked.com',{
+      reqheaders: {
+        gateway: 'gateway'
+      }
+    })
       .get('/product/')
       .query({
         __renderMode: FRAGMENT_RENDER_MODES.STREAM
@@ -256,7 +261,7 @@ describe('Template', () => {
       assets: [],
       testCookie: 'test',
       version: '1.0.0'
-    }, 'http://my-test-gateway-chunked.com');
+    }, 'http://my-test-gateway-chunked.com', 'gateway');
 
     let err: boolean | null = null;
 
@@ -313,7 +318,11 @@ describe('Template', () => {
   });
 
   it('should parse static config fragments and inject them into first flush', (done) => {
-    let scope = nock('http://my-test-gateway-static.com')
+    let scope = nock('http://my-test-gateway-static.com',{
+      reqheaders: {
+        gateway: 'gateway'
+      }
+    })
       .get('/product/')
       .query({
         __renderMode: FRAGMENT_RENDER_MODES.STREAM
@@ -342,7 +351,7 @@ describe('Template', () => {
       assets: [],
       testCookie: 'test',
       version: '1.0.0'
-    }, 'http://my-test-gateway-static.com');
+    }, 'http://my-test-gateway-static.com', 'gateway');
 
     template.compile({}).then(handler => {
       handler({}, createExpressMock({
@@ -359,7 +368,11 @@ describe('Template', () => {
   });
 
   it('should parse static config fragments and inject them into first flush with assets', (done) => {
-    let scope = nock('http://my-test-gateway-static.com')
+    let scope = nock('http://my-test-gateway-static.com',{
+      reqheaders: {
+        gateway: 'gateway'
+      }
+    })
       .get('/product/')
       .query({
         __renderMode: FRAGMENT_RENDER_MODES.STREAM
@@ -396,7 +409,7 @@ describe('Template', () => {
       ] as any,
       testCookie: 'test',
       version: '1.0.0'
-    }, 'http://my-test-gateway-static.com');
+    }, 'http://my-test-gateway-static.com', 'gateway');
 
     template.compile({}).then(handler => {
       handler({}, createExpressMock({
@@ -413,7 +426,11 @@ describe('Template', () => {
   });
 
   it('should not close div tags automatically', (done) => {
-    let scope = nock('http://my-test-gateway-static.com')
+    let scope = nock('http://my-test-gateway-static.com',{
+      reqheaders: {
+        gateway: 'gateway'
+      }
+    })
       .get('/product/')
       .query({
         __renderMode: FRAGMENT_RENDER_MODES.STREAM
@@ -443,7 +460,7 @@ describe('Template', () => {
       assets: [],
       testCookie: 'test',
       version: '1.0.0'
-    }, 'http://my-test-gateway-static.com');
+    }, 'http://my-test-gateway-static.com', 'gateway');
 
     template.compile({}).then(handler => {
       handler({}, createExpressMock({
@@ -460,7 +477,11 @@ describe('Template', () => {
   });
 
   it('should render content not found static fragment that doesnt exists', (done) => {
-    let scope = nock('http://my-test-gateway-static-2.com')
+    let scope = nock('http://my-test-gateway-static-2.com',{
+      reqheaders: {
+        gateway: 'gateway'
+      }
+    })
       .get('/product/')
       .query({
         __renderMode: FRAGMENT_RENDER_MODES.STREAM
@@ -489,7 +510,7 @@ describe('Template', () => {
       assets: [],
       testCookie: 'test',
       version: '1.0.0'
-    }, 'http://my-test-gateway-static-2.com');
+    }, 'http://my-test-gateway-static-2.com', 'gateway');
 
     template.compile({}).then(handler => {
       handler({}, createExpressMock({
@@ -507,7 +528,11 @@ describe('Template', () => {
   });
 
   it('should render content in debug mode with debug script', (done) => {
-    let scope = nock('http://my-test-gateway-static-2.com')
+    let scope = nock('http://my-test-gateway-static-2.com',{
+      reqheaders: {
+        gateway: 'gateway'
+      }
+    })
       .get('/product/')
       .query({
         __renderMode: FRAGMENT_RENDER_MODES.STREAM
@@ -543,7 +568,7 @@ describe('Template', () => {
       assets: [],
       testCookie: 'test',
       version: '1.0.0'
-    }, 'http://my-test-gateway-static-2.com');
+    }, 'http://my-test-gateway-static-2.com', 'gateway');
 
     template.compile({}, true).then(handler => {
       handler({}, createExpressMock({
@@ -560,7 +585,7 @@ describe('Template', () => {
   });
 
   /** @deprecated
-  it('should inject fragment dependencies succesfully', (done) => {
+   it('should inject fragment dependencies succesfully', (done) => {
     let randomDependency = `dep_${Math.random()}`;
     ResourceFactory.instance.registerDependencies({
       name: randomDependency,
@@ -663,7 +688,11 @@ describe('Template', () => {
       });
 
       it('should respond with single flush, shouldwait without partial', (done) => {
-        let scope = nock('http://my-test-gateway.com')
+        let scope = nock('http://my-test-gateway.com',{
+          reqheaders: {
+            gateway: 'gateway'
+          }
+        })
           .get('/product/')
           .query({
             __renderMode: FRAGMENT_RENDER_MODES.STREAM
@@ -691,7 +720,7 @@ describe('Template', () => {
           assets: [],
           testCookie: 'test',
           version: '1.0.0'
-        }, 'http://my-test-gateway.com');
+        }, 'http://my-test-gateway.com', 'gateway');
 
 
         template.compile({}).then(handler => {
@@ -714,7 +743,11 @@ describe('Template', () => {
       });
 
       it('should respond with single flush, shouldwait with partial', (done) => {
-        let scope = nock('http://my-test-gateway.com')
+        let scope = nock('http://my-test-gateway.com',{
+          reqheaders: {
+            gateway: 'gateway'
+          }
+        })
           .get('/product/')
           .query({
             __renderMode: FRAGMENT_RENDER_MODES.STREAM
@@ -746,7 +779,7 @@ describe('Template', () => {
           assets: [],
           testCookie: 'test',
           version: '1.0.0'
-        }, 'http://my-test-gateway.com');
+        }, 'http://my-test-gateway.com', 'gateway');
 
 
         template.compile({}).then(handler => {
@@ -768,7 +801,11 @@ describe('Template', () => {
       });
 
       it('should respond with single flush, multiple shouldwaits with partial', (done) => {
-        let scope = nock('http://my-test-gateway.com')
+        let scope = nock('http://my-test-gateway.com',{
+          reqheaders: {
+            gateway: 'gateway'
+          }
+        })
           .get('/product/')
           .query({
             __renderMode: FRAGMENT_RENDER_MODES.STREAM
@@ -806,7 +843,7 @@ describe('Template', () => {
           assets: [],
           testCookie: 'test',
           version: '1.0.0'
-        }, 'http://my-test-gateway.com');
+        }, 'http://my-test-gateway.com', 'gateway');
 
         template.fragments.product2.update({
           render: {
@@ -816,7 +853,7 @@ describe('Template', () => {
           assets: [],
           testCookie: 'test',
           version: '1.0.0'
-        }, 'http://my-test-gateway.com');
+        }, 'http://my-test-gateway.com', 'gateway');
 
 
         template.compile({}).then(handler => {
@@ -838,7 +875,11 @@ describe('Template', () => {
       });
 
       it('should print default content not found error if partial is not being served', done => {
-        let scope = nock('http://my-test-gateway.com')
+        let scope = nock('http://my-test-gateway.com',{
+          reqheaders: {
+            gateway: 'gateway'
+          }
+        })
           .get('/product/')
           .query({
             __renderMode: FRAGMENT_RENDER_MODES.STREAM
@@ -869,7 +910,7 @@ describe('Template', () => {
           assets: [],
           testCookie: 'test',
           version: '1.0.0'
-        }, 'http://my-test-gateway.com');
+        }, 'http://my-test-gateway.com', 'gateway');
 
 
         template.compile({}).then(handler => {
@@ -891,7 +932,11 @@ describe('Template', () => {
       });
 
       it('should respond correctly when multiple gateways and single fragment from each', done => {
-        let scope = nock('http://my-test-gateway.com')
+        let scope = nock('http://my-test-gateway.com',{
+          reqheaders: {
+            gateway: 'gateway'
+          }
+        })
           .get('/product/')
           .query({
             __renderMode: FRAGMENT_RENDER_MODES.STREAM
@@ -900,7 +945,11 @@ describe('Template', () => {
             main: 'Trendyol',
           });
 
-        let scope2 = nock('http://my-test-gateway2.com')
+        let scope2 = nock('http://my-test-gateway2.com',{
+          reqheaders: {
+            gateway: 'gateway2'
+          }
+        })
           .get('/header/')
           .query({
             __renderMode: FRAGMENT_RENDER_MODES.STREAM
@@ -931,7 +980,7 @@ describe('Template', () => {
           assets: [],
           testCookie: 'test',
           version: '1.0.0'
-        }, 'http://my-test-gateway.com');
+        }, 'http://my-test-gateway.com', 'gateway');
 
         template.fragments.header.update({
           render: {
@@ -941,7 +990,7 @@ describe('Template', () => {
           assets: [],
           testCookie: 'test',
           version: '1.0.0'
-        }, 'http://my-test-gateway2.com');
+        }, 'http://my-test-gateway2.com', 'gateway2');
 
 
         template.compile({}).then(handler => {
@@ -965,7 +1014,11 @@ describe('Template', () => {
 
     describe('With Chunks', () => {
       it('should respond chunked correctly without placeholders', done => {
-        let scope = nock('http://my-test-gateway-chunked.com')
+        let scope = nock('http://my-test-gateway-chunked.com',{
+          reqheaders: {
+            gateway: 'gateway'
+          }
+        })
           .get('/product/')
           .query({
             __renderMode: FRAGMENT_RENDER_MODES.STREAM
@@ -1001,7 +1054,7 @@ describe('Template', () => {
           assets: [],
           testCookie: 'test',
           version: '1.0.0'
-        }, 'http://my-test-gateway-chunked.com');
+        }, 'http://my-test-gateway-chunked.com', 'gateway');
 
         let err: boolean | null = null;
         let chunks: string[] = [];
@@ -1030,7 +1083,11 @@ describe('Template', () => {
       });
 
       it('should respond chunked correctly with placeholders', done => {
-        let scope = nock('http://my-test-gateway-chunked.com')
+        let scope = nock('http://my-test-gateway-chunked.com',{
+          reqheaders: {
+            gateway: 'gateway'
+          }
+        })
           .get('/product/')
           .query({
             __renderMode: FRAGMENT_RENDER_MODES.STREAM
@@ -1068,7 +1125,7 @@ describe('Template', () => {
           assets: [],
           testCookie: 'test',
           version: '1.0.0'
-        }, 'http://my-test-gateway-chunked.com');
+        }, 'http://my-test-gateway-chunked.com', 'gateway');
 
         let err: boolean | null = null;
         let chunks: string[] = [];
@@ -1098,7 +1155,11 @@ describe('Template', () => {
       });
 
       it('should respond one single wait one chunked fragment', done => {
-        let scope = nock('http://my-test-gateway-chunked-2.com')
+        let scope = nock('http://my-test-gateway-chunked-2.com',{
+          reqheaders: {
+            gateway: 'gateway'
+          }
+        }).log(console.log)
           .get('/product/')
           .query({
             __renderMode: FRAGMENT_RENDER_MODES.STREAM
@@ -1150,7 +1211,7 @@ describe('Template', () => {
           assets: [],
           testCookie: 'test',
           version: '1.0.0'
-        }, 'http://my-test-gateway-chunked-2.com');
+        }, 'http://my-test-gateway-chunked-2.com', 'gateway');
 
         template.fragments.header.update({
           render: {
@@ -1160,7 +1221,7 @@ describe('Template', () => {
           assets: [],
           testCookie: 'test',
           version: '1.0.0'
-        }, 'http://my-test-gateway-chunked-2.com');
+        }, 'http://my-test-gateway-chunked-2.com', 'gateway');
 
         template.fragments.footer.update({
           render: {
@@ -1170,7 +1231,7 @@ describe('Template', () => {
           assets: [],
           testCookie: 'test',
           version: '1.0.0'
-        }, 'http://my-test-gateway-chunked-2.com');
+        }, 'http://my-test-gateway-chunked-2.com', 'gateway');
 
         let err: boolean | null = null;
         let chunks: string[] = [];
@@ -1200,7 +1261,11 @@ describe('Template', () => {
       });
 
       it('should respond same fragment multiple chunked partial', done => {
-        let scope = nock('http://my-test-gateway-chunked-3.com')
+        let scope = nock('http://my-test-gateway-chunked-3.com', {
+          reqheaders: {
+            gateway: 'gateway'
+          }
+        })
           .get('/product/')
           .query({
             __renderMode: FRAGMENT_RENDER_MODES.STREAM
@@ -1244,7 +1309,7 @@ describe('Template', () => {
           assets: [],
           testCookie: 'test',
           version: '1.0.0'
-        }, 'http://my-test-gateway-chunked-3.com');
+        }, 'http://my-test-gateway-chunked-3.com', 'gateway');
 
 
         let err: boolean | null = null;
@@ -1275,7 +1340,11 @@ describe('Template', () => {
       });
 
       it('should respond without primary content statuscode', done => {
-        let scope = nock('http://my-test-gateway-chunked.com')
+        let scope = nock('http://my-test-gateway-chunked.com', {
+          reqheaders: {
+            gateway: 'gateway'
+          }
+        })
           .get('/product-not-exists/')
           .query({
             __renderMode: FRAGMENT_RENDER_MODES.STREAM
@@ -1311,7 +1380,7 @@ describe('Template', () => {
           assets: [],
           testCookie: 'test',
           version: '1.0.0'
-        }, 'http://my-test-gateway-chunked.com');
+        }, 'http://my-test-gateway-chunked.com', 'gateway');
 
         let err: boolean | null = null;
         let chunks: string[] = [];
