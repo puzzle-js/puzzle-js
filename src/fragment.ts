@@ -182,7 +182,6 @@ export class FragmentStorefront extends Fragment {
       return '';
     }
 
-    console.log(this.gatewayName);
     return fetch(`${this.fragmentUrl}/placeholder`, {
       headers: {
         gateway: this.gatewayName
