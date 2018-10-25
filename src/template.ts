@@ -343,18 +343,32 @@ export class Template {
    */
   private async replaceStaticFragments(fragments: FragmentStorefront[], replaceAssets: IReplaceAsset[]): Promise<void> {
     for (let fragment of fragments) {
-      const fragmentContent: IFragmentContentResponse = await fragment.getContent();
-      this.dom(`fragment[name="${fragment.name}"][from="${fragment.from}"]`).each((i, element) => {
-        const partial = this.dom(element).attr('partial') || 'main';
+      const partialElements : any = [];
+      let mainElement : any = null;
+        this.dom(`fragment[name="${fragment.name}"][from="${fragment.from}"]`).each((i, element) => {
+          if(this.dom(element).attr('partial') && this.dom(element).attr('partial') !== "main"){
+            partialElements.push(element);
+          }
+          else{
+            mainElement = element;
+          }
+        });
+
         const assets = replaceAssets.find(set => set.fragment.name === fragment.name);
         let fragmentScripts = assets ? assets.replaceItems.reduce((script, replaceItem) => {
-          script += Template.wrapJsAsset(replaceItem);
-
-          return script;
+            script += Template.wrapJsAsset(replaceItem);
+            return script;
         }, '') : '';
 
-        this.dom(element).replaceWith(`<div id="${fragment.name}" puzzle-fragment="${fragment.name}" puzzle-gateway="${fragment.from}" fragment-partial="${element.attribs.partial || 'main'}">${fragmentContent.html[partial] || CONTENT_NOT_FOUND_ERROR}</div>${fragmentScripts}<script>PuzzleJs.emit('${EVENT.ON_FRAGMENT_RENDERED}','${fragment.name}');</script>`);
+      const processedAttributes = TemplateCompiler.processExpression(mainElement.attribs, this.pageClass);
+      const fragmentContent: IFragmentContentResponse = await fragment.getContent(processedAttributes);
+
+      this.dom(mainElement).replaceWith(`<div id="${fragment.name}" puzzle-fragment="${fragment.name}" puzzle-gateway="${fragment.from}" fragment-partial="${'main'}">${fragmentContent.html['main'] || CONTENT_NOT_FOUND_ERROR}</div>${fragmentScripts}<script>PuzzleJs.emit('${EVENT.ON_FRAGMENT_RENDERED}','${fragment.name}');</script>`);
+
+      partialElements.forEach((i : number, element : any) => {
+        this.dom(element).replaceWith(`<div id="${fragment.name}" puzzle-fragment="${fragment.name}" puzzle-gateway="${fragment.from}" fragment-partial="${element.attribs.partial}">${fragmentContent.html[element.attribs.partial] || CONTENT_NOT_FOUND_ERROR}</div>${fragmentScripts}<script>PuzzleJs.emit('${EVENT.ON_FRAGMENT_RENDERED}','${fragment.name}');</script>`);
       });
+
     }
   }
 
@@ -380,7 +394,7 @@ export class Template {
     let headers = {};
 
     for (let waitedFragmentReplacement of waitedFragments) {
-      const fragmentContent = await waitedFragmentReplacement.fragment.getContent(waitedFragmentReplacement.fragmentAttributes, req);
+      const fragmentContent = await waitedFragmentReplacement.fragment.getContent(TemplateCompiler.processExpression(waitedFragmentReplacement.fragmentAttributes, this.pageClass, req), req);
       if (waitedFragmentReplacement.fragment.primary) {
         statusCode = fragmentContent.status;
         headers = fragmentContent.headers;
@@ -454,7 +468,7 @@ export class Template {
           //Fire requests in parallel
           const waitedReplacementPromise = this.replaceWaitedFragments(waitedFragments, fragmentedHtml, req, isDebug);
           for (let chunkedReplacement of chunkedFragmentReplacements) {
-            waitedPromises.push(chunkedReplacement.fragment.getContent(chunkedReplacement.fragmentAttributes, req));
+            waitedPromises.push(chunkedReplacement.fragment.getContent(TemplateCompiler.processExpression(chunkedReplacement.fragmentAttributes, this.pageClass, req), req));
           }
 
           //Wait for first flush
