@@ -135,7 +135,7 @@ export class Template {
         chunkedFragmentsWithoutWait -> Fragments that doesn't need to waited. Flushes after first request.
         staticFragments -> Contents are prepared on compile time. Req independent
      */
-    const chunkedFragmentsWithShouldWait = Object.values(this.fragments).filter(fragment => fragment.config && fragment.shouldWait);
+    const chunkedFragmentsWithShouldWait = Object.values(this.fragments).filter(fragment => fragment.config && fragment.shouldWait && !fragment.config.render.static);
     const chunkedFragmentsWithoutWait = Object.values(this.fragments).filter(fragment => fragment.config && !fragment.shouldWait && !fragment.config.render.static);
     const staticFragments = Object.values(this.fragments).filter(fragment => fragment.config && fragment.config.render.static);
 
