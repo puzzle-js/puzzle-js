@@ -6,6 +6,25 @@ export class TemplateCompiler {
   static TEMPLATE_CONTENT_REGEX: RegExp = /<template>(.*?)<\/template>/mis;
   static PAGE_CLASS_CONTENT_REGEX: RegExp = /<script>(.*?)<\/script>(.*)<template>/mis;
 
+
+    /**
+     * Process object values and convert it using binding object.
+     * @param expression
+     * @param binding
+     * @param req
+     * */
+  static processExpression(expression: { [key: string]: any }, binding : any, req?: any) {
+    const processedExpression : { [key: string]: any } = Object.assign({}, expression);
+    Object.keys(processedExpression).forEach( (key) => {
+      if(this.isExpression(processedExpression[key])){
+        const expressionVariable = processedExpression[key].split('${')[1].split('}')[0];
+          processedExpression[key] = (new Function("req", `return ${expressionVariable}`)).apply(binding, [req]);
+      }
+    });
+    return processedExpression;
+  }
+
+
   /**
    * Checks if there is any string interpolation.
    * @param {string} template
