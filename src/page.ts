@@ -35,8 +35,9 @@ export class Page {
   async handle(req: { cookies: ICookieObject, query: { [name: string]: string } }, res: object) {
     const handlerVersion = this.getHandlerVersion(req);
     const isDebug = DEBUG_INFORMATION || (req.query && req.query.hasOwnProperty(DEBUG_QUERY_NAME));
+
     if (typeof this.responseHandlers[handlerVersion] === "undefined") {
-      logger.info(`Compiling page: ${this.name}`);
+      logger.info(`Compiling page: ${this.name}`, 'Cookie Key:', handlerVersion);
       this.responseHandlers[handlerVersion] = this.template.compile(req.cookies, isDebug);
     }
 
