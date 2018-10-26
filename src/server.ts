@@ -165,6 +165,10 @@ export class Server {
     this.app.use(bodyParser.urlencoded({extended: true}));
     this.app.use(bodyParser.json());
     this.app.use(cookieParser());
-    this.app.use(compression());
+    this.app.use(compression({
+      filter(req: any) {
+        return !req.query[NO_COMPRESS_QUERY_NAME];
+      }
+    }));
   }
 }
