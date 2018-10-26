@@ -393,8 +393,9 @@ export class Template {
     let statusCode = HTTP_STATUS_CODE.OK;
     let headers = {};
 
-    for (let waitedFragmentReplacement of waitedFragments) {
+    await Promise.all(waitedFragments.map(async waitedFragmentReplacement => {
       const fragmentContent = await waitedFragmentReplacement.fragment.getContent(TemplateCompiler.processExpression(waitedFragmentReplacement.fragmentAttributes, this.pageClass, req), req);
+
       if (waitedFragmentReplacement.fragment.primary) {
         statusCode = fragmentContent.status;
         headers = fragmentContent.headers;
@@ -407,7 +408,7 @@ export class Template {
             template = template.replace(replaceItem.key, () => fragmentInject + Template.fragmentModelScript(waitedFragmentReplacement.fragment, fragmentContent.model, isDebug));
           }
         });
-    }
+    }));
 
     return {template, statusCode, headers};
   }
