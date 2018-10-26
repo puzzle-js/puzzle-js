@@ -31,6 +31,7 @@ export const PUZZLE_DEBUGGER_LINK = loadConfigurationFromEnv('PUZZLE_DEBUGGER_LI
 export const DEBUG_INFORMATION = loadConfigurationFromEnv('DEBUG_INFORMATION') || process.env.NODE_ENV !== 'production' || false;
 export const NO_COMPRESS_QUERY_NAME = loadConfigurationFromEnv('NO_COMPRESS_QUERY_NAME') || '__noCompress';
 export const NON_SELF_CLOSING_TAGS = ['div', 'span', 'p'];
+export const PUZZLE_MAX_SOCKETS = +loadConfigurationFromEnv('MAX_SOCKETS') || Infinity;
 
 
 export const TEMP_FOLDER = path.join(process.cwd(), '/~temp');

@@ -13,7 +13,7 @@ import {GatewayConfigurator, StorefrontConfigurator} from "./configurator";
 import {Container} from "inversify";
 import {RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "./lib/enums";
 import "base";
-
+import {httpAgent, httpsAgent} from "./client";
 
 
 export = {
@@ -22,6 +22,10 @@ export = {
   Gateway: GatewayBFF,
   Storefront,
   logger: Logger,
+  agents: {
+    httpAgent,
+    httpsAgent
+  },
   ENUMS: {
     FRAGMENT_RENDER_MODES,
     RESOURCE_INJECT_TYPE,

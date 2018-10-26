@@ -2,6 +2,7 @@ import http from "http";
 import https from "https";
 import {injectable} from "inversify";
 import request from "request";
+import {PUZZLE_MAX_SOCKETS} from "./config";
 
 
 export interface IRequestOptions {
@@ -11,8 +12,11 @@ export interface IRequestOptions {
 
 const AGENT_CONFIGURATION = {
   keepAlive: true,
-  maxSockets: Infinity,
+  maxSockets: PUZZLE_MAX_SOCKETS,
 };
+
+export const httpAgent = new http.Agent(AGENT_CONFIGURATION);
+export const httpsAgent = new https.Agent(AGENT_CONFIGURATION);
 
 @injectable()
 export class HttpClient {
@@ -22,9 +26,10 @@ export class HttpClient {
   private static httpsClient: request.RequestAPI<request.Request, request.CoreOptions, request.RequiredUriUrl>;
 
   constructor() {
-    this.httpAgent = new http.Agent(AGENT_CONFIGURATION);
-    this.httpsAgent = new https.Agent(AGENT_CONFIGURATION);
+    this.httpAgent = httpAgent;
+    this.httpsAgent = httpsAgent;
   }
+
 
   init(clientName: string, options?: request.CoreOptions) {
     HttpClient.httpClient = request.defaults({
