@@ -13,10 +13,13 @@ import https from "https";
 import {pubsub} from "./util";
 import compression from "compression";
 import {injectable} from "inversify";
-import path from "path";
-import {DEFAULT_GZIP_EXTENSIONS, NO_COMPRESS_QUERY_NAME} from "./config";
+import {
+  GLOBAL_REQUEST_TIMEOUT,
+  NO_COMPRESS_QUERY_NAME
+} from "./config";
 import {INodeSpdyConfiguration, ISpdyConfiguration} from "./types";
 import spdy from "spdy";
+import timeout from "connect-timeout";
 
 
 const morganLoggingLevels = [
@@ -160,6 +163,7 @@ export class Server {
    * @returns {boolean}
    */
   private addMiddlewares() {
+    this.app.use(timeout(GLOBAL_REQUEST_TIMEOUT));
     this.app.use(morgan(morganLoggingLevels.join('||'), {stream: Logger.prototype}));
     this.app.use(helmet());
     this.app.use(bodyParser.urlencoded({extended: true}));

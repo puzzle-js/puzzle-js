@@ -1,6 +1,6 @@
 {
   "name": "puzzle-microfrontends",
-  "version": "3.17.4",
+  "version": "3.18.0",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "logo": "https://image.ibb.co/jM29on/puzzlelogo.png",
@@ -63,10 +63,12 @@
     "lint": "echo lint"
   },
   "dependencies": {
+    "@types/connect-timeout": "^0.0.33",
     "async": "^2.6.0",
     "cheerio": "^1.0.0-rc.2",
     "clean-css": "^4.1.11",
     "compression": "^1.7.2",
+    "connect-timeout": "^1.9.0",
     "cookie-parser": "latest",
     "cors": "^2.8.4",
     "dnscache": "^1.0.1",
@@ -111,4 +113,3 @@
     "all": true
   }
 }
-

@@ -36,6 +36,7 @@ export class HttpClient {
       agent: this.httpAgent,
       //forever: true,
       encoding: 'utf8',
+      gzip: true,
       ...options,
       headers: {
         'user-agent': clientName || 'PuzzleJs Http Client'
@@ -46,6 +47,7 @@ export class HttpClient {
       agent: this.httpsAgent,
       //forever: true,
       encoding: 'utf8',
+      gzip: true,
       ...options,
       headers: {
         'user-agent': clientName || 'PuzzleJs Http Client'
