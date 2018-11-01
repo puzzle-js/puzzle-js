@@ -422,7 +422,7 @@ export class Template {
    */
   static fragmentModelScript(fragment: { name: string }, fragmentPageModel: FragmentModel, isDebug: boolean = false) {
     return fragmentPageModel && Object.keys(fragmentPageModel).length ? `<script>${Object.keys(fragmentPageModel).reduce((modelVariable, key) => {
-      modelVariable += `PuzzleJs.emit("${EVENT.ON_VARIABLES}", "${fragment.name}", "${key}", ${JSON.stringify(fragmentPageModel[key])})`;
+      modelVariable += `PuzzleJs.emit("${EVENT.ON_VARIABLES}", "${fragment.name}", "${key}", ${JSON.stringify(fragmentPageModel[key])});`;
       return modelVariable;
     }, '')}</script>` : '';
   }

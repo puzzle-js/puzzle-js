@@ -482,7 +482,7 @@ describe('BFF', () => {
         .end((err, res) => {
           if (err) throw new (err);
           bff.server.close();
-          expect(res.text).to.include(`<script>PuzzleJs.emit("${EVENT.ON_VARIABLES}", "product", "transaction", ${JSON.stringify(pageModel)})</script>`);
+          expect(res.text).to.include(`<script>PuzzleJs.emit("${EVENT.ON_VARIABLES}", "product", "transaction", ${JSON.stringify(pageModel)});</script>`);
           done();
         });
     });
