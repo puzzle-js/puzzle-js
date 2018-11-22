@@ -257,7 +257,7 @@ export class FragmentStorefront extends Fragment {
 
     const routeRequest = req && parsedRequest ? `${parsedRequest.pathname.replace('/' + this.name, '')}?${querystring.stringify(query)}` : `/?${querystring.stringify(query)}`;
 
-    return httpClient.get(`${this.fragmentUrl}${routeRequest}`, {json: true, ...requestConfiguration}).then(res => {
+    return httpClient.get(`${this.fragmentUrl}${routeRequest}`, {json: true, gzip:true, ...requestConfiguration}).then(res => {
       logger.info(`Received fragment contents of ${this.name} with status code ${res.response.statusCode}`);
       return {
         status: res.data.$status || res.response.statusCode,
