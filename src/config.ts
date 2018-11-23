@@ -10,10 +10,10 @@ const loadConfigurationFromEnv = (name: string, isObject: boolean = false) => {
 };
 
 
-export const DEFAULT_POLLING_INTERVAL = +loadConfigurationFromEnv('DEFAULT_POLLING_INTERVAL') || 1250;
+export const DEFAULT_POLLING_INTERVAL = +loadConfigurationFromEnv('DEFAULT_POLLING_INTERVAL') || 10000;
 export const CONTENT_NOT_FOUND_ERROR = loadConfigurationFromEnv('CONTENT_NOT_FOUND_ERROR') || `<script>console.log('Fragment Part does not exists')</script>`;
-export const DEFAULT_CONTENT_TIMEOUT = +loadConfigurationFromEnv('DEFAULT_CONTENT_TIMEOUT') || 5000;
-export const GLOBAL_REQUEST_TIMEOUT = loadConfigurationFromEnv('GLOBAL_REQUEST_TIMEOUT') || '5s';
+export const DEFAULT_CONTENT_TIMEOUT = +loadConfigurationFromEnv('DEFAULT_CONTENT_TIMEOUT') || 2800;
+export const GLOBAL_REQUEST_TIMEOUT = +loadConfigurationFromEnv('GLOBAL_REQUEST_TIMEOUT') || 3100;
 export const RENDER_MODE_QUERY_NAME = loadConfigurationFromEnv('RENDER_MODE_QUERY_NAME') || '__renderMode';
 export const PREVIEW_PARTIAL_QUERY_NAME = loadConfigurationFromEnv('PREVIEW_PARTIAL_QUERY_NAME') || '__partial';
 export const API_ROUTE_PREFIX = loadConfigurationFromEnv('API_ROUTE_PREFIX') || 'api';
@@ -33,6 +33,9 @@ export const DEBUG_INFORMATION = loadConfigurationFromEnv('DEBUG_INFORMATION') |
 export const NO_COMPRESS_QUERY_NAME = loadConfigurationFromEnv('NO_COMPRESS_QUERY_NAME') || '__noCompress';
 export const NON_SELF_CLOSING_TAGS = ['div', 'span', 'p'];
 export const PUZZLE_MAX_SOCKETS = +loadConfigurationFromEnv('MAX_SOCKETS') || Infinity;
+
+export const USE_HELMET = loadConfigurationFromEnv('USE_HELMET') || false;
+export const USE_MORGAN = loadConfigurationFromEnv('USE_MORGAN') || false;
 
 
 export const TEMP_FOLDER = path.join(process.cwd(), '/~temp');

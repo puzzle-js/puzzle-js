@@ -32,22 +32,14 @@ export class Page {
    * @param {object} res
    * @returns {Promise<void>}
    */
-  async handle(req: { cookies: ICookieObject, query: { [name: string]: string } }, res: object) {
-    const handlerVersion = this.getHandlerVersion(req);
+  handle(req: { cookies: ICookieObject, query: { [name: string]: string } }, res: object) {
     const isDebug = DEBUG_INFORMATION || (req.query && req.query.hasOwnProperty(DEBUG_QUERY_NAME));
-
-    if (typeof this.responseHandlers[handlerVersion] === "undefined") {
-      logger.info(`Compiling page: ${this.name}`, 'Cookie Key:', handlerVersion);
-      this.responseHandlers[handlerVersion] = this.template.compile(req.cookies, isDebug);
-    }
-
-    (await this.responseHandlers[handlerVersion])(req, res);
+    this.responseHandlers[`_${isDebug}`](req, res);
   }
 
   async preLoad() {
-    const preLoadHandler = this.getHandlerVersion({cookies: {}, query: {}});
-    this.responseHandlers[preLoadHandler] = this.template.compile({}, false);
-    await this.responseHandlers[preLoadHandler];
+    this.responseHandlers[`_true`] = await this.template.compile({}, true);
+    this.responseHandlers[`_false`] = await this.template.compile({}, false);
   }
 
   /**
@@ -79,6 +71,7 @@ export class Page {
   }
 
   /**
+   * @deprecated
    * Based on test cookies returns handler key
    * @param {{cookies: ICookieObject}} req
    * @returns {string}
@@ -122,7 +115,7 @@ export class Page {
   private gatewayUpdated(gateway: GatewayStorefrontInstance) {
     this.updateFragmentsConfig(gateway);
     this.template.load();
-    this.responseHandlers = {};
+    this.preLoad();
   }
 
   /**

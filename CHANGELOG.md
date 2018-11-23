@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+# [3.19.0] - 23-11-2018 (Performance upgrades)
+### Changed
+- `GLOBAL_REQUEST_TIMEOUT` is now miliseconds and using inter http timeout.
+- `helmet` is now optional with env `USE_HELMET`.
+- `morgan` is now optional with env `USE_MORGAN`.
+- Errors are not going to stdout by default. Use config `ENABLE_CONSOLE_ERROR`.
+### Removed
+- Fragment versions are now removed.
+
+
 # [3.18.1] - 01-11-2018
 ### Changed
 - Fixed `fragmentModelScript` missing semicolon added for each script closing

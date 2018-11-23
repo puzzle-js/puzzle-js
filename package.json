@@ -1,6 +1,6 @@
 {
   "name": "puzzle-microfrontends",
-  "version": "3.18.2",
+  "version": "3.19.0",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "logo": "https://image.ibb.co/jM29on/puzzlelogo.png",
@@ -68,7 +68,6 @@
     "cheerio": "^1.0.0-rc.2",
     "clean-css": "^4.1.11",
     "compression": "^1.7.2",
-    "connect-timeout": "^1.9.0",
     "cookie-parser": "latest",
     "cors": "^2.8.4",
     "dnscache": "^1.0.1",

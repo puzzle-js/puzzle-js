@@ -3,7 +3,7 @@ import {expect} from "chai";
 import {Storefront} from "../../src/storefront";
 import request from "supertest";
 import {createGateway} from "../mock/mock";
-import {RENDER_MODE_QUERY_NAME} from "../../src/config";
+import {DEFAULT_POLLING_INTERVAL, RENDER_MODE_QUERY_NAME} from "../../src/config";
 import {
   CONTENT_REPLACE_SCRIPT,
   EVENTS,
@@ -171,6 +171,8 @@ describe('Storefront', () => {
       ]
     } as any);
 
+
+
     sf.init(() => {
       request('http://localhost:4448')
         .get('/')
@@ -182,26 +184,27 @@ describe('Storefront', () => {
           hash_nock(true, 'enabled');
 
           sf.gateways['Browsing'].events.once(EVENTS.GATEWAY_UPDATED, () => {
-            request('http://localhost:4448')
-              .get('/')
-              .expect(200)
-              .end((err, res) => {
-                sf.server.close();
-                Object.values(sf.gateways).forEach(gateway => {
-                  gateway.stopUpdating();
+            setTimeout(() => {
+              request('http://localhost:4448')
+                .get('/')
+                .expect(200)
+                .end((err, res) => {
+                  sf.server.close();
+                  Object.values(sf.gateways).forEach(gateway => {
+                    gateway.stopUpdating();
+                  });
+                  nock.cleanAll();
+
+                  expect(res.text).to.include(`<body><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main" puzzle-placeholder="product_main_placeholder">Product Placeholder</div>`);
+                  expect(res.text).to.include(`</div><div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Product Content</div><script>PuzzleJs.emit('${EVENT.ON_FRAGMENT_RENDERED}','product','[puzzle-chunk="product_main"]','[puzzle-chunk-key="product_main"]');</script>`);
+
+                  done();
                 });
-                nock.cleanAll();
-
-                expect(res.text).to.include(`<body><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main" puzzle-placeholder="product_main_placeholder">Product Placeholder</div>`);
-                expect(res.text).to.include(`</div><div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Product Content</div><script>PuzzleJs.emit('${EVENT.ON_FRAGMENT_RENDERED}','product','[puzzle-chunk="product_main"]','[puzzle-chunk-key="product_main"]');</script>`);
-
-                done();
-              });
-
+            }, 500);
           });
         });
     });
-  });
+  }).timeout(DEFAULT_POLLING_INTERVAL + 2000);
 
   it('should respond with same status code gateway returned for primary fragments', (done) => {
     const scope = createGateway('Browsing', 'http://localhost:4446', {

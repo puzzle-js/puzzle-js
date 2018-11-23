@@ -9,6 +9,7 @@ import {IFileResourceAsset} from "../src/types";
 import {GatewayBFF} from "../src/gatewayBFF";
 import {GatewayConfigurator} from "../src/configurator";
 import {RESOURCE_TYPE} from "../src/lib/enums";
+import {DEFAULT_POLLING_INTERVAL} from "../src/config";
 
 describe('Gateway', () => {
   describe('BFF', () => {
@@ -386,7 +387,7 @@ describe('Gateway', () => {
     });
 
     it('should fire gateway ready updated event when hash changed', function (done) {
-      this.timeout(5000);
+      this.timeout(DEFAULT_POLLING_INTERVAL + 2000);
       const gateway = new GatewayStorefrontInstance(commonGatewayStorefrontConfiguration);
       gateway.startUpdating();
 

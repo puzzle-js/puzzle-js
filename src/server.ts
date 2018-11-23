@@ -15,11 +15,10 @@ import compression from "compression";
 import {injectable} from "inversify";
 import {
   GLOBAL_REQUEST_TIMEOUT,
-  NO_COMPRESS_QUERY_NAME
+  NO_COMPRESS_QUERY_NAME, USE_HELMET, USE_MORGAN
 } from "./config";
 import {INodeSpdyConfiguration, ISpdyConfiguration} from "./types";
 import spdy from "spdy";
-import timeout from "connect-timeout";
 
 
 const morganLoggingLevels = [
@@ -36,7 +35,7 @@ const morganLoggingLevels = [
 @injectable()
 export class Server {
   app: Express;
-  server: Http.Server | spdy.Server | null;
+  server!: Http.Server | spdy.Server | null;
   private spdyConfiguration: INodeSpdyConfiguration;
 
 
@@ -144,6 +143,9 @@ export class Server {
         this.server = this.app.listen.apply(this.app, args);
       }
     }
+    if(this.server) {
+      this.server.setTimeout(GLOBAL_REQUEST_TIMEOUT);
+    }
   }
 
   /**
@@ -163,9 +165,8 @@ export class Server {
    * @returns {boolean}
    */
   private addMiddlewares() {
-    this.app.use(timeout(GLOBAL_REQUEST_TIMEOUT));
-    this.app.use(morgan(morganLoggingLevels.join('||'), {stream: Logger.prototype}));
-    this.app.use(helmet());
+    if(USE_MORGAN) this.app.use(morgan(morganLoggingLevels.join('||'), {stream: Logger.prototype}));
+    if(USE_HELMET) this.app.use(helmet());
     this.app.use(bodyParser.urlencoded({extended: true}));
     this.app.use(bodyParser.json());
     this.app.use(cookieParser());

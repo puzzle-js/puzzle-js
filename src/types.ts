@@ -227,7 +227,7 @@ export interface IStorefrontConfig {
 }
 
 export interface IResponseHandlers {
-  [versionsHash: string]: Promise<(req: object, res: object) => void>;
+  [versionsHash: string]:(req: object, res: object) => void;
 }
 
 export interface IReplaceItem {

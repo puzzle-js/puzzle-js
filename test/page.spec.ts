@@ -266,43 +266,43 @@ describe('Page', () => {
         });
     });
 
-    it('should compile page with fragments cookies', done => {
-        const commonGatewayStorefrontConfiguration = {
-            name: 'Browsing',
-            url: 'http://browsing-gw.com',
-            config: {
-                hash: '44',
-                fragments: {
-                    header: {
-                        version: '1.0.0',
-                        render: {
-                            url: '/'
-                        },
-                        assets: [],
-                        dependencies: [],
-                        testCookie: 'test_1'
-                    }
-                }
-            }
-        };
-        createGateway(commonGatewayStorefrontConfiguration.name, commonGatewayStorefrontConfiguration.url, commonGatewayStorefrontConfiguration.config, true);
-        const gateway = new GatewayStorefrontInstance(commonGatewayStorefrontConfiguration);
-        const template = fs.readFileSync(path.join(__dirname, './templates/fragmented2.html'), 'utf8');
-        const newPage = new Page(template, {
-            Browsing: gateway
-        });
-
-        gateway.events.on(EVENTS.GATEWAY_READY, async () => {
-            await newPage.handle({
-                cookies: {
-                    a: 'acg was here',
-                    test_1: 'special'
-                }
-            }, createExpressMock());
-            expect(newPage.responseHandlers).to.haveOwnProperty('{test_1_special}');
-            done();
-        });
-    });
+    // it('should compile page with fragments cookies', done => {
+    //     const commonGatewayStorefrontConfiguration = {
+    //         name: 'Browsing',
+    //         url: 'http://browsing-gw.com',
+    //         config: {
+    //             hash: '44',
+    //             fragments: {
+    //                 header: {
+    //                     version: '1.0.0',
+    //                     render: {
+    //                         url: '/'
+    //                     },
+    //                     assets: [],
+    //                     dependencies: [],
+    //                     testCookie: 'test_1'
+    //                 }
+    //             }
+    //         }
+    //     };
+    //     createGateway(commonGatewayStorefrontConfiguration.name, commonGatewayStorefrontConfiguration.url, commonGatewayStorefrontConfiguration.config, true);
+    //     const gateway = new GatewayStorefrontInstance(commonGatewayStorefrontConfiguration);
+    //     const template = fs.readFileSync(path.join(__dirname, './templates/fragmented2.html'), 'utf8');
+    //     const newPage = new Page(template, {
+    //         Browsing: gateway
+    //     });
+    //
+    //     gateway.events.on(EVENTS.GATEWAY_READY, async () => {
+    //         await newPage.handle({
+    //             cookies: {
+    //                 a: 'acg was here',
+    //                 test_1: 'special'
+    //             }
+    //         }, createExpressMock());
+    //         expect(newPage.responseHandlers).to.haveOwnProperty('{test_1_special}');
+    //         done();
+    //     });
+    // });
 
     it('should compile page without fragments cookies (default version)', done => {
         const commonGatewayStorefrontConfiguration = {
@@ -331,12 +331,9 @@ describe('Page', () => {
         });
 
         gateway.events.on(EVENTS.GATEWAY_READY, async () => {
-            await newPage.handle({
-                cookies: {
-                    a: 'acg was here',
-                }
-            }, createExpressMock());
-            expect(newPage.responseHandlers).to.haveOwnProperty('{test_1_1.0.0}');
+            await newPage.preLoad();
+            expect(newPage.responseHandlers).to.haveOwnProperty('_true');
+            expect(newPage.responseHandlers).to.haveOwnProperty('_false');
             done();
         });
     });
