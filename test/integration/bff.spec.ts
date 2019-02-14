@@ -39,7 +39,7 @@ describe('BFF', () => {
 
     bff.init(() => {
       request(commonGatewayConfiguration.url)
-        .get('/healthcheck')
+        .get('/liveness')
         .expect(200).end((err) => {
         bff.server.close();
         done(err);
@@ -61,7 +61,7 @@ describe('BFF', () => {
 
     bff.init(() => {
       request(commonGatewayConfiguration.url.replace('http', 'https'))
-        .get('/healthcheck')
+        .get('/liveness')
         .expect(200)
         .end((err) => {
           bff.server.close();

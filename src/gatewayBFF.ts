@@ -44,6 +44,7 @@ export class GatewayBFF {
   private config: IGatewayBFFConfiguration;
   private fragments: { [name: string]: FragmentBFF } = {};
   private apis: { [name: string]: Api } = {};
+  public ready: boolean = true;
 
   /**
    * Gateway constructor
@@ -71,7 +72,8 @@ export class GatewayBFF {
       this.addStaticRoutes.bind(this),
       this.addFragmentRoutes.bind(this),
       this.addConfigurationRoute.bind(this),
-      this.addHealthCheckRoute.bind(this)
+      this.addHealthCheckRoute.bind(this),
+      this.addReadyCheckRoute.bind(this)
     ], err => {
       if (!err) {
         logger.info(`Gateway is listening on port ${this.config.port}`);
@@ -283,10 +285,17 @@ export class GatewayBFF {
    * @param {Function} cb
    */
   private addHealthCheckRoute(cb: Function) {
-    this.server.addRoute('/healthcheck', HTTP_METHODS.GET, (req, res) => {
+    this.server.addRoute('/liveness', HTTP_METHODS.GET, (req, res) => {
       res.status(200).end();
     });
 
+    cb();
+  }
+
+  private addReadyCheckRoute(cb: Function){
+    this.server.addRoute('/readiness', HTTP_METHODS.GET, (req, res) => {
+      res.status( this.ready ? 200 : 500 ).end();
+    });
     cb();
   }
 
