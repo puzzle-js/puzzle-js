@@ -44,7 +44,7 @@ export class GatewayBFF {
   private config: IGatewayBFFConfiguration;
   private fragments: { [name: string]: FragmentBFF } = {};
   private apis: { [name: string]: Api } = {};
-  public ready: boolean = true;
+  public ready: boolean = false;
 
   /**
    * Gateway constructor
@@ -294,7 +294,7 @@ export class GatewayBFF {
 
   private addReadyCheckRoute(cb: Function){
     this.server.addRoute('/readiness', HTTP_METHODS.GET, (req, res) => {
-      res.status( this.ready ? 200 : 500 ).end();
+      res.status( this.ready ? 200 : 404 ).end();
     });
     cb();
   }
