@@ -173,6 +173,14 @@
     "@types/node" "*"
     "@types/tough-cookie" "*"
 
+"@types/response-time@^2.3.3":
+  version "2.3.3"
+  resolved "https://registry.yarnpkg.com/@types/response-time/-/response-time-2.3.3.tgz#a9a28857428ed15fd7f405d9c2dc50f70236826a"
+  integrity sha512-tsA7/pERe3uMI9jY8rpzjx6KgFmcrF8zj2jd3C6uBhoyhtWg28V7KjZur4QWIWINoGKcrSXoO44EuuoJGBF5tg==
+  dependencies:
+    "@types/express" "*"
+    "@types/node" "*"
+
 "@types/serve-static@*":
   version "1.13.2"
   resolved "https://registry.yarnpkg.com/@types/serve-static/-/serve-static-1.13.2.tgz#f5ac4d7a6420a99a6a45af4719f4dcd8cd907a48"
@@ -1610,7 +1618,7 @@ depd@1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/depd/-/depd-1.1.1.tgz#5783b4e1c459f06fa5ca27f991f3d06e7a310359"
 
-depd@~1.1.1, depd@~1.1.2:
+depd@~1.1.0, depd@~1.1.1, depd@~1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/depd/-/depd-1.1.2.tgz#9bcd52e14c097763e749b274c4346ed2e560b5a9"
 
@@ -4821,6 +4829,14 @@ resolve@^1.1.6, resolve@^1.1.7:
   resolved "https://registry.yarnpkg.com/resolve/-/resolve-1.8.1.tgz#82f1ec19a423ac1fbd080b0bab06ba36e84a7a26"
   dependencies:
     path-parse "^1.0.5"
+
+response-time@^2.3.2:
+  version "2.3.2"
+  resolved "https://registry.yarnpkg.com/response-time/-/response-time-2.3.2.tgz#ffa71bab952d62f7c1d49b7434355fbc68dffc5a"
+  integrity sha1-/6cbq5UtYvfB1Jt0NDVfvGjf/Fo=
+  dependencies:
+    depd "~1.1.0"
+    on-headers "~1.0.1"
 
 restore-cursor@^1.0.1:
   version "1.0.1"

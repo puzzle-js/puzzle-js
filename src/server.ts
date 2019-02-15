@@ -13,6 +13,7 @@ import https from "https";
 import {pubsub} from "./util";
 import compression from "compression";
 import {injectable} from "inversify";
+import responseTime from "response-time";
 import {
   GLOBAL_REQUEST_TIMEOUT,
   NO_COMPRESS_QUERY_NAME, USE_HELMET, USE_MORGAN
@@ -165,6 +166,7 @@ export class Server {
    * @returns {boolean}
    */
   private addMiddlewares() {
+    this.app.use(responseTime());
     if(USE_MORGAN) this.app.use(morgan(morganLoggingLevels.join('||'), {stream: Logger.prototype}));
     if(USE_HELMET) this.app.use(helmet());
     this.app.use(bodyParser.urlencoded({extended: true}));

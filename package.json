@@ -1,6 +1,6 @@
 {
   "name": "puzzle-microfrontends",
-  "version": "3.19.2",
+  "version": "3.19.3",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "logo": "https://image.ibb.co/jM29on/puzzlelogo.png",
@@ -64,6 +64,7 @@
   },
   "dependencies": {
     "@types/connect-timeout": "^0.0.33",
+    "@types/response-time": "^2.3.3",
     "async": "^2.6.0",
     "cheerio": "^1.0.0-rc.2",
     "clean-css": "^4.1.11",
@@ -80,6 +81,7 @@
     "node-fetch": "^2.1.2",
     "reflect-metadata": "^0.1.12",
     "request": "^2.87.0",
+    "response-time": "^2.3.2",
     "route-cache": "^0.4.4",
     "spdy": "^3.4.7",
     "superstruct": "^0.5.4",
