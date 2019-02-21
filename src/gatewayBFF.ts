@@ -72,7 +72,7 @@ export class GatewayBFF {
       this.addStaticRoutes.bind(this),
       this.addFragmentRoutes.bind(this),
       this.addConfigurationRoute.bind(this),
-      this.addHealthCheckRoute.bind(this),
+      this.addHealthCheckRoutes.bind(this),
       this.addReadyCheckRoute.bind(this)
     ], err => {
       if (!err) {
@@ -284,8 +284,8 @@ export class GatewayBFF {
    * Adds healthcheck route
    * @param {Function} cb
    */
-  private addHealthCheckRoute(cb: Function) {
-    this.server.addRoute('/liveness', HTTP_METHODS.GET, (req, res) => {
+  private addHealthCheckRoutes(cb: Function) {
+    this.server.addRoute(['/liveness', '/healthcheck'], HTTP_METHODS.GET, (req, res) => {
       res.status(200).end();
     });
 
