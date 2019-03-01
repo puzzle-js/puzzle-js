@@ -70,10 +70,9 @@ export class GatewayBFF {
       this.addPlaceholderRoutes.bind(this),
       this.addApiRoutes.bind(this),
       this.addStaticRoutes.bind(this),
-      this.addFragmentRoutes.bind(this),
-      this.addConfigurationRoute.bind(this),
       this.addHealthCheckRoutes.bind(this),
-      this.addReadyCheckRoute.bind(this)
+      this.addFragmentRoutes.bind(this),
+      this.addConfigurationRoute.bind(this)
     ], err => {
       if (!err) {
         logger.info(`Gateway is listening on port ${this.config.port}`);
@@ -285,16 +284,8 @@ export class GatewayBFF {
    * @param {Function} cb
    */
   private addHealthCheckRoutes(cb: Function) {
-    this.server.addRoute(['/liveness', '/healthcheck'], HTTP_METHODS.GET, (req, res) => {
+    this.server.addRoute(['/liveness', '/healthcheck', '/readiness'], HTTP_METHODS.GET, (req, res) => {
       res.status(200).end();
-    });
-
-    cb();
-  }
-
-  private addReadyCheckRoute(cb: Function){
-    this.server.addRoute('/readiness', HTTP_METHODS.GET, (req, res) => {
-      res.status( this.ready ? 200 : 404 ).end();
     });
     cb();
   }
