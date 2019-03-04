@@ -56,9 +56,9 @@ export class Storefront {
       this.registerDependencies.bind(this),
       this.waitForGateways.bind(this),
       this.registerDebugScripts.bind(this),
+      this.addHealthCheckRoute.bind(this),      
       this.preLoadPages.bind(this),
-      this.addPageRoute.bind(this),
-      this.addHealthCheckRoute.bind(this)
+      this.addPageRoute.bind(this)
     ], err => {
       if (!err) {
         this.server.listen(this.config.port, () => {
