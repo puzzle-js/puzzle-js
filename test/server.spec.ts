@@ -6,9 +6,10 @@ import * as path from "path";
 import {EVENTS, HTTP_METHODS, TRANSFER_PROTOCOLS} from "../src/enums";
 import * as fs from "fs";
 import {pubsub} from "../src/util";
-import {TLS_CERT, TLS_CERT_SET, TLS_KEY, TLS_PASS} from "./core.settings";
+import {TLS_CERT_SET, TLS_PASS} from "./core.settings";
 import faker from "faker";
 import {NO_COMPRESS_QUERY_NAME} from "../src/config";
+import {ICustomHeader} from "../src/types";
 
 const TEST_CONFIG = {
   TEST_PORT: 3242,
@@ -240,4 +241,48 @@ describe('Server', () => {
       });
     });
   });
+
+
+  it('should add custom headers' , (done) => {
+    const customHeaders : ICustomHeader[] = [
+        {key: "k1", value: "v1"},
+        {key: "k2", value: "v2"},
+        {key: "k3", value: "v3"},
+        {key: "k4", value: 4},
+        {key: "k5", value: 5},
+    ];
+    server.addCustomHeaders(customHeaders);
+      server.listen(TEST_CONFIG.TEST_PORT, () => {
+          request(TEST_CONFIG.TEST_URL).get('/lorem.css').query({[NO_COMPRESS_QUERY_NAME]: 'true'}).expect(200).end((err, res) => {
+              customHeaders.forEach( (customHeader) => {
+                expect(res.header[customHeader.key]).to.eq(customHeader.value.toString());
+              });
+              done();
+          });
+      });
+  });
+
+  it('should add custom headers from env', (done) => {
+      const tmpEnv = process.env;
+      const env: any = {
+          v1: 'v1envval',
+          v2: 'v2envval'
+      };
+      const customHeaders : ICustomHeader[] = [
+          {key: "k1", value: "v1", isEnv: true},
+          {key: "k2", value: "v2", isEnv: true},
+      ];
+      process.env = env;
+      server.addCustomHeaders(customHeaders);
+      server.listen(TEST_CONFIG.TEST_PORT, () => {
+        request(TEST_CONFIG.TEST_URL).get('/lorem.css').query({[NO_COMPRESS_QUERY_NAME]: 'true'}).expect(200).end((err, res) => {
+          customHeaders.forEach( (customHeader) => {
+              expect(res.header[customHeader.key]).to.eq(env[customHeader.value].toString());
+          });
+          process.env = tmpEnv;
+          done();
+        });
+      });
+  });
+
 });

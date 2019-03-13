@@ -146,6 +146,7 @@ export interface IGatewayBFFConfiguration extends IGatewayConfiguration {
   corsDomains?: string[];
   corsMaxAge?: number;
   spdy?: ISpdyConfiguration;
+  customHeaders?: ICustomHeader[];
 }
 
 export interface IExposeConfig {
@@ -224,6 +225,7 @@ export interface IStorefrontConfig {
   pollInterval?: number;
   dependencies: IFileResourceStorefrontDependency[];
   spdy?: ISpdyConfiguration;
+  customHeaders?: ICustomHeader[];
 }
 
 export interface IResponseHandlers {
@@ -294,3 +296,8 @@ export interface FragmentModel {
   [name: string]: any
 }
 
+export interface ICustomHeader {
+ key: string;
+ isEnv?: boolean;
+ value: string | number;
+}

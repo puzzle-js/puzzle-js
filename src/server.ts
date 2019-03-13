@@ -18,7 +18,7 @@ import {
   GLOBAL_REQUEST_TIMEOUT,
   NO_COMPRESS_QUERY_NAME, USE_HELMET, USE_MORGAN
 } from "./config";
-import {INodeSpdyConfiguration, ISpdyConfiguration} from "./types";
+import {ICustomHeader, INodeSpdyConfiguration, ISpdyConfiguration} from "./types";
 import spdy from "spdy";
 
 
@@ -149,6 +149,24 @@ export class Server {
     }
   }
 
+  /**
+   * Adds custom headers
+   * @param {Array<ICustomHeader>} customHeaders
+   */
+  public addCustomHeaders(customHeaders?: ICustomHeader[]) {
+    if(customHeaders) {
+      this.addUse(null,(req, res, next) => {
+        customHeaders.forEach( (customHeader) => {
+          let value: string | undefined = customHeader.value.toString();
+          if(customHeader.isEnv && process.env[value]){
+              value = process.env[value];
+          }
+          res.header(customHeader.key, value);
+        });
+        next();
+      });
+    }
+  }
   /**
    * Clears instances, stops listening
    */
