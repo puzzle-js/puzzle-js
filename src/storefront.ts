@@ -56,7 +56,8 @@ export class Storefront {
       this.registerDependencies.bind(this),
       this.waitForGateways.bind(this),
       this.registerDebugScripts.bind(this),
-      this.addHealthCheckRoute.bind(this),      
+      this.addCustomHeaders.bind(this),
+      this.addHealthCheckRoute.bind(this),
       this.preLoadPages.bind(this),
       this.addPageRoute.bind(this)
     ], err => {
@@ -155,6 +156,16 @@ export class Storefront {
 
     cb();
   }
+
+    /**
+     * Adds custom headers
+     * @param {Function} cb
+     */
+
+    private addCustomHeaders(cb: Function) {
+        this.server.addCustomHeaders(this.config.customHeaders);
+        cb();
+    }
 
   /**
    * Adds page routes then connects with page instance responsible for it.

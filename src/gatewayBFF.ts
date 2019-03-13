@@ -5,14 +5,13 @@ import {
   DEFAULT_MAIN_PARTIAL,
   FRAGMENT_RENDER_MODES,
   HTTP_METHODS, HTTP_STATUS_CODE, RESOURCE_INJECT_TYPE, RESOURCE_JS_EXECUTE_TYPE,
-  RESOURCE_LOCATION
 } from "./enums";
 import {PREVIEW_PARTIAL_QUERY_NAME, RENDER_MODE_QUERY_NAME} from "./config";
 import {FragmentModel, IExposeConfig, IFragmentBFF, IFragmentResponse} from "./types";
 import md5 from "md5";
 import async from "async";
 import path from "path";
-import express, {NextFunction, Request, Response} from "express";
+import express from "express";
 import {Server} from "./server";
 import {container, TYPES} from "./base";
 import cheerio from "cheerio";
@@ -67,6 +66,7 @@ export class GatewayBFF {
   public init(cb?: Function) {
     async.series([
       this.addCorsPlugin.bind(this),
+      this.addCustomHeaders.bind(this),
       this.addPlaceholderRoutes.bind(this),
       this.addApiRoutes.bind(this),
       this.addStaticRoutes.bind(this),
@@ -314,6 +314,15 @@ export class GatewayBFF {
     cb();
   }
 
+  /**
+   * Adds custom headers
+   * @param {Function} cb
+   */
+
+  private addCustomHeaders(cb: Function) {
+    this.server.addCustomHeaders(this.config.customHeaders);
+    cb();
+  }
   /**
    * Starts gateway and configures dependencies
    */
