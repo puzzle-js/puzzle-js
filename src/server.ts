@@ -153,7 +153,7 @@ export class Server {
    * Adds custom headers
    * @param {Array<ICustomHeader>} customHeaders
    */
-  public addCustomHeaders(customHeaders?: [ICustomHeader]) {
+  public addCustomHeaders(customHeaders?: ICustomHeader[]) {
     if(customHeaders) {
       this.addUse(null,(req, res, next) => {
         customHeaders.forEach( (customHeader) => {

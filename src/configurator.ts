@@ -6,8 +6,6 @@ import {
   HTTP_METHODS,
   INJECTABLE,
   RESOURCE_INJECT_TYPE,
-  RESOURCE_JS_EXECUTE_TYPE,
-  RESOURCE_LOCATION,
   TRANSFER_PROTOCOLS
 } from "./enums";
 import {RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "./lib/enums";
@@ -26,6 +24,12 @@ const spdyStructure = struct({
   cert: struct.optional(struct.union(['string', 'buffer'])),
   passphrase: 'string',
   protocols: [struct.enum(Object.values(TRANSFER_PROTOCOLS))],
+});
+
+const customHeaderStructure = struct({
+    key: 'string',
+    value: struct.union(['string', 'number']),
+    isEnv: 'boolean?'
 });
 
 const apiVersionStructure = struct({
@@ -92,7 +96,8 @@ const gatewayStructure = struct({
   fragmentsFolder: 'string',
   corsDomains: struct.optional(['string']),
   corsMaxAge: 'number?',
-  spdy: struct.optional(spdyStructure)
+  spdy: struct.optional(spdyStructure),
+  customHeaders: struct.optional([customHeaderStructure])
 });
 
 const storefrontPageStructure = struct({
@@ -119,10 +124,9 @@ const storefrontStructure = struct({
   pages: [storefrontPageStructure],
   pollInterval: 'number?',
   dependencies: [storefrontDependencyStructure],
-  spdy: struct.optional(spdyStructure)
+  spdy: struct.optional(spdyStructure),
+  customHeaders: struct.optional([customHeaderStructure])
 });
-
-
 @sealed
 export class Configurator {
   configuration: IGatewayBFFConfiguration | IStorefrontConfig;
