@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+# [3.20.0] - 23-03-2019
+### Added
+- Added support for post pattern
+
 # [3.19.0] - 23-11-2018 (Performance upgrades)
 ### Changed
 - `GLOBAL_REQUEST_TIMEOUT` is now miliseconds and using inter http timeout.

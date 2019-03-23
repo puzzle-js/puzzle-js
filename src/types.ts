@@ -83,6 +83,7 @@ export interface IFragmentBFFVersion {
 }
 
 export interface IFragmentBFF extends IFragment {
+  prg?: boolean;
   versions: {
     [version: string]: IFragmentBFFVersion
   };
@@ -95,6 +96,7 @@ export interface IExposeFragment {
   version: string;
   testCookie: string;
   render: IFragmentBFFRender;
+  prg: boolean;
   assets: IFileResourceAsset[];
   dependencies: IFileResourceDependency[];
 }
