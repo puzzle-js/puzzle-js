@@ -20,7 +20,7 @@ describe('Gateway', () => {
       isMobile: true,
       port: 4446,
       url: 'http://localhost:4446/',
-      fragmentsFolder: ''
+      fragmentsFolder: '',
     };
 
     it('should create new gateway', () => {
@@ -116,6 +116,7 @@ describe('Gateway', () => {
         fragments: {
           'boutique-list': {
             assets: [],
+            prg: false,
             dependencies: [],
             render: {
               url: '/'
