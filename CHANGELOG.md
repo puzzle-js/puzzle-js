@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 # [3.20.0] - 23-03-2019
 ### Added
-- Added support for prg pattern
+- Added support for post pattern
 
 # [3.19.0] - 23-11-2018 (Performance upgrades)
 ### Changed
