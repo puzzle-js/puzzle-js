@@ -178,6 +178,9 @@ export class Storefront {
       this.server.addRoute(page.url, HTTP_METHODS.GET, (req, res) => {
         this.pages[targetPage].handle(req, res);
       });
+      this.server.addRoute(page.url, HTTP_METHODS.POST, (req, res) => {
+        this.pages[targetPage].prg(req, res);
+      });
     });
 
     cb();

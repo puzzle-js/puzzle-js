@@ -80,6 +80,7 @@ const gatewayFragmentVersionStructure = struct({
 const gatewayFragmentStructure = struct({
   name: 'string',
   testCookie: 'string',
+  prg: struct.optional('boolean'),
   render: gatewayRenderStructure,
   version: 'string',
   versions: struct.dict(['string', gatewayFragmentVersionStructure])

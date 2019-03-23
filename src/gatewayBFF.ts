@@ -102,13 +102,13 @@ export class GatewayBFF {
   private createExposeConfig(): IExposeConfig {
     return {
       fragments: this.config.fragments.reduce((fragmentList: { [name: string]: IExposeFragment }, fragment) => {
-        //todo test cookieler calismiyor, versiyonlara gore build edilmeli asset ve dependency configleri
         fragmentList[fragment.name] = {
           version: fragment.version,
           render: fragment.render,
           assets: fragment.versions[fragment.version].assets,
           dependencies: fragment.versions[fragment.version].dependencies,
           testCookie: fragment.testCookie,
+          prg: !!fragment.prg
         };
 
         this.fragments[fragment.name] = new FragmentBFF(fragment);

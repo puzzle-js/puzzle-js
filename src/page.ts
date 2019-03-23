@@ -5,6 +5,7 @@ import {ICookieObject, IFragmentCookieMap, IGatewayMap, IPageDependentGateways, 
 import {DEBUG_INFORMATION, DEBUG_QUERY_NAME} from "./config";
 import {container, TYPES} from "./base";
 import {Logger} from "./logger";
+import express from "express";
 
 const logger = <Logger>container.get(TYPES.Logger);
 
@@ -16,6 +17,7 @@ export class Page {
   private template: Template;
   private rawHtml: string;
   private fragmentCookieList: IFragmentCookieMap[] = [];
+  private prgEnabled = false;
 
   constructor(html: string, gatewayMap: IGatewayMap, public name: string) {
     this.rawHtml = html;
@@ -35,6 +37,14 @@ export class Page {
   handle(req: { cookies: ICookieObject, query: { [name: string]: string } }, res: object) {
     const isDebug = DEBUG_INFORMATION || (req.query && req.query.hasOwnProperty(DEBUG_QUERY_NAME));
     this.responseHandlers[`_${isDebug}`](req, res);
+  }
+
+  prg(req: express.Request, res: express.Response) {
+    if (this.prgEnabled) {
+      res.redirect(303, req.path);
+    } else {
+      res.status(404).end();
+    }
   }
 
   async preLoad() {
@@ -107,6 +117,12 @@ export class Page {
     return cookieList;
   }
 
+  private updatePrgStatus() {
+    this.prgEnabled = Object
+      .values(this.gatewayDependencies.fragments)
+      .some(fragment => !!(fragment.instance.config && fragment.instance.config.prg && fragment.instance.primary))
+  }
+
 
   /**
    * Called on GATEWAY_UPDATED
@@ -115,6 +131,8 @@ export class Page {
   private gatewayUpdated(gateway: GatewayStorefrontInstance) {
     this.updateFragmentsConfig(gateway);
     this.template.load();
+
+    this.updatePrgStatus();
     this.preLoad();
   }
 
