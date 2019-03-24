@@ -39,11 +39,11 @@ export class Page {
     this.responseHandlers[`_${isDebug}`](req, res);
   }
 
-  post(req: express.Request, res: express.Response) {
+  post(req: express.Request, res: express.Response, next: express.NextFunction) {
     if (this.prgEnabled) {
       res.redirect(303, req.path);
     } else {
-      res.status(404).end();
+      next();
     }
   }
 
