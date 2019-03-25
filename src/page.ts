@@ -131,7 +131,6 @@ export class Page {
   private gatewayUpdated(gateway: GatewayStorefrontInstance) {
     this.updateFragmentsConfig(gateway);
     this.template.load();
-
     this.updatePrgStatus();
     this.preLoad();
   }
@@ -155,7 +154,7 @@ export class Page {
   private gatewayReady(gateway: GatewayStorefrontInstance) {
     this.gatewayDependencies.gateways[gateway.name].ready = true;
     this.updateFragmentsConfig(gateway);
-
+    this.updatePrgStatus();
     this.checkPageReady();
   }
 }
