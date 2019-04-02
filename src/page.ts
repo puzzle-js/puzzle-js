@@ -41,7 +41,7 @@ export class Page {
 
   post(req: express.Request, res: express.Response, next: express.NextFunction) {
     if (this.prgEnabled) {
-      res.redirect(303, req.path);
+      res.redirect(303, req.originalUrl);
     } else {
       next();
     }
