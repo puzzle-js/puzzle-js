@@ -1,14 +1,14 @@
 {
   "name": "puzzle-microfrontends",
-  "version": "3.20.5",
+  "version": "3.21.0",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "logo": "https://image.ibb.co/jM29on/puzzlelogo.png",
   "license": "MIT",
-  "homepage": "https://acanguven.github.io/PuzzleJs/",
+  "homepage": "https://puzzle-js.github.io/puzzle-js/",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Acanguven/PuzzleJs"
+    "url": "https://github.com/puzzle-js/puzzle-js"
   },
   "devDependencies": {
     "@types/async": "^2.0.49",
