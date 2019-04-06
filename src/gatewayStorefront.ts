@@ -7,6 +7,7 @@ import {IExposeConfig, IGatewayConfiguration} from "./types";
 import Timer = NodeJS.Timer;
 import {container, TYPES} from "./base";
 import {HttpClient} from "./client";
+import warden from "puzzle-warden";
 
 const logger = <Logger>container.get(TYPES.Logger);
 const httpClient = <HttpClient>container.get(TYPES.Client);
@@ -72,11 +73,24 @@ export class GatewayStorefrontInstance {
       logger.info(`Gateway is ready: ${this.name}`);
       this.config = data;
       this.events.emit(EVENTS.GATEWAY_READY, this);
+      this.connectWarden(data);
     } else {
       if (data.hash !== this.config.hash) {
         logger.info(`Gateway is updated: ${this.name}`);
         this.config = data;
         this.events.emit(EVENTS.GATEWAY_UPDATED, this);
+        this.connectWarden(data);
+      }
+    }
+  }
+
+  private connectWarden(data: IExposeConfig) {
+    for (const key in data.fragments) {
+      const fragment = data.fragments[key];
+      if (fragment.warden && fragment.warden.identifier) {
+        warden.register(key, fragment.warden);
+      } else {
+        warden.unregisterRoute(key);
       }
     }
   }

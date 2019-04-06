@@ -108,7 +108,8 @@ export class GatewayBFF {
           assets: fragment.versions[fragment.version].assets,
           dependencies: fragment.versions[fragment.version].dependencies,
           testCookie: fragment.testCookie,
-          prg: !!fragment.prg
+          prg: !!fragment.prg,
+          warden: fragment.warden
         };
 
         this.fragments[fragment.name] = new FragmentBFF(fragment);
@@ -148,14 +149,14 @@ export class GatewayBFF {
         res.status(HTTP_STATUS_CODE.OK);
         res.json(gatewayContent.content);
       } else {
-        if(gatewayContent.$status === HTTP_STATUS_CODE.MOVED_PERMANENTLY && gatewayContent.$headers && gatewayContent.$headers['location']){
+        if (gatewayContent.$status === HTTP_STATUS_CODE.MOVED_PERMANENTLY && gatewayContent.$headers && gatewayContent.$headers['location']) {
           res.status(gatewayContent.$status);
           res.end();
-        }else {
-          if(gatewayContent.content[partial]){
+        } else {
+          if (gatewayContent.content[partial]) {
             res.status(HTTP_STATUS_CODE.OK);
             res.send(this.wrapFragmentContent(gatewayContent.content[partial].toString(), fragment, cookieValue, gatewayContent.$model));
-          }else{
+          } else {
             res.status(HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR);
             res.send(`Partial ${partial} doesn't exist in fragment response`);
           }
@@ -323,6 +324,7 @@ export class GatewayBFF {
     this.server.addCustomHeaders(this.config.customHeaders);
     cb();
   }
+
   /**
    * Starts gateway and configures dependencies
    */

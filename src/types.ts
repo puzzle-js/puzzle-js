@@ -11,6 +11,7 @@ import {
 import {FragmentStorefront} from "./fragment";
 import {Page} from "./page";
 import {RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "./lib/enums";
+import {RouteConfiguration} from "puzzle-warden/dist/request-manager";
 
 export interface IFragmentCookieMap {
   name: string;
@@ -89,6 +90,7 @@ export interface IFragmentBFF extends IFragment {
   };
   version: string;
   testCookie: string;
+  warden?: RouteConfiguration
   render: IFragmentBFFRender;
 }
 
@@ -96,7 +98,8 @@ export interface IExposeFragment {
   version: string;
   testCookie: string;
   render: IFragmentBFFRender;
-  prg: boolean;
+  prg?: boolean;
+  warden?: RouteConfiguration
   assets: IFileResourceAsset[];
   dependencies: IFileResourceDependency[];
 }

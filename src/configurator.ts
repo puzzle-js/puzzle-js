@@ -27,9 +27,9 @@ const spdyStructure = struct({
 });
 
 const customHeaderStructure = struct({
-    key: 'string',
-    value: struct.union(['string', 'number']),
-    isEnv: 'boolean?'
+  key: 'string',
+  value: struct.union(['string', 'number']),
+  isEnv: 'boolean?'
 });
 
 const apiVersionStructure = struct({
@@ -77,11 +77,13 @@ const gatewayFragmentVersionStructure = struct({
   handler: 'string?'
 });
 
+
 const gatewayFragmentStructure = struct({
   name: 'string',
   testCookie: 'string',
   prg: struct.optional('boolean'),
   render: gatewayRenderStructure,
+  warden: struct.optional('object'),
   version: 'string',
   versions: struct.dict(['string', gatewayFragmentVersionStructure])
 });
@@ -128,6 +130,7 @@ const storefrontStructure = struct({
   spdy: struct.optional(spdyStructure),
   customHeaders: struct.optional([customHeaderStructure])
 });
+
 @sealed
 export class Configurator {
   configuration: IGatewayBFFConfiguration | IStorefrontConfig;

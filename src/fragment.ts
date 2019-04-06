@@ -29,6 +29,7 @@ export class FragmentBFF extends Fragment {
   public config: IFragmentBFF;
   private handler: { [version: string]: IFragmentHandler } = {};
 
+
   constructor(config: IFragmentBFF) {
     super({name: config.name});
     this.config = config;
@@ -246,7 +247,10 @@ export class FragmentStorefront extends Fragment {
       }
     }
 
-    requestConfiguration.headers = {...requestConfiguration.headers, gateway: this.gatewayName} || {gateway: this.gatewayName};
+    requestConfiguration.headers = {
+      ...requestConfiguration.headers,
+      gateway: this.gatewayName
+    } || {gateway: this.gatewayName};
 
 
     delete query.from;
@@ -257,7 +261,10 @@ export class FragmentStorefront extends Fragment {
 
     const routeRequest = req && parsedRequest ? `${parsedRequest.pathname.replace('/' + this.name, '')}?${querystring.stringify(query)}` : `/?${querystring.stringify(query)}`;
 
-    return httpClient.get(`${this.fragmentUrl}${routeRequest}`, {json: true, gzip:true, ...requestConfiguration}).then(res => {
+    return httpClient.get(`${this.fragmentUrl}${routeRequest}`, {
+      json: true,
+      gzip: true, ...requestConfiguration
+    }, this.name).then(res => {
       logger.info(`Received fragment contents of ${this.name} with status code ${res.response.statusCode}`);
       return {
         status: res.data.$status || res.response.statusCode,

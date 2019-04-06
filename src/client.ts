@@ -1,8 +1,9 @@
 import http from "http";
 import https from "https";
 import {injectable} from "inversify";
-import request from "request";
-import {PUZZLE_MAX_SOCKETS} from "./config";
+import request, {CoreOptions} from "request";
+import {PUZZLE_MAX_SOCKETS, WARDEN_ENABLED} from "./config";
+import warden from "puzzle-warden";
 
 
 export interface IRequestOptions {
@@ -24,6 +25,7 @@ export class HttpClient {
   private httpsAgent: https.Agent;
   private static httpClient: request.RequestAPI<request.Request, request.CoreOptions, request.RequiredUriUrl>;
   private static httpsClient: request.RequestAPI<request.Request, request.CoreOptions, request.RequiredUriUrl>;
+  private defaultOptions: CoreOptions;
 
   constructor() {
     this.httpAgent = httpAgent;
@@ -32,31 +34,26 @@ export class HttpClient {
 
 
   init(clientName: string, options?: request.CoreOptions) {
+    this.defaultOptions = {
+      encoding: 'utf8',
+      gzip: true,
+      ...options,
+      headers: {
+        'user-agent': clientName || 'PuzzleJs Http Client'
+      },
+    };
+
     HttpClient.httpClient = request.defaults({
-      agent: this.httpAgent,
-      //forever: true,
-      encoding: 'utf8',
-      gzip: true,
-      ...options,
-      headers: {
-        'user-agent': clientName || 'PuzzleJs Http Client'
-      },
+      ...this.defaultOptions,
+      agent: httpAgent
     });
-
     HttpClient.httpsClient = request.defaults({
-      agent: this.httpsAgent,
-      //forever: true,
-      encoding: 'utf8',
-      gzip: true,
-      ...options,
-      headers: {
-        'user-agent': clientName || 'PuzzleJs Http Client'
-      },
+      ...this.defaultOptions,
+      agent: httpsAgent
     });
-
   }
 
-  get(requestUrl: string, options?: request.CoreOptions): Promise<{ response: request.Response, data: any }> {
+  get(requestUrl: string, options?: request.CoreOptions, fragmentName?: string): Promise<{ response: request.Response, data: any }> {
     if (!HttpClient.httpClient && !HttpClient.httpsClient) {
       console.error('Creating new agent for pool');
       this.init('PuzzleJs Default Client');
@@ -65,24 +62,29 @@ export class HttpClient {
     const client = requestUrl.startsWith('https') ? HttpClient.httpsClient : HttpClient.httpClient;
 
     return new Promise(function (resolve, reject) {
-      client
-        .get({
-            url: requestUrl,
-            ...options
-          },
-          (err, response, data) => {
-            if (err) reject(err);
+      const requestOptions = {
+        url: requestUrl,
+        method: 'get',
+        ...options
+      }  as any;
+      const cb: request.RequestCallback = (err, response, data) => {
+        if (err) reject(err);
 
-            resolve({
-              response,
-              data
-            });
-          });
+        resolve({
+          response,
+          data
+        });
+      };
+      if (WARDEN_ENABLED && fragmentName && warden.isRouteRegistered(fragmentName)) {
+        warden.request(fragmentName, requestOptions, cb);
+      } else {
+        client(requestOptions, cb);
+      }
     });
   }
 
 
-  post(requestUrl: string, data?: object, options?: request.CoreOptions): Promise<{ response: request.Response, data: any }> {
+  post(requestUrl: string, data?: object, options?: request.CoreOptions, fragmentName?: string): Promise<{ response: request.Response, data: any }> {
     if (!HttpClient.httpClient && !HttpClient.httpsClient) this.init('PuzzleJs Default Client');
 
     const client = requestUrl.startsWith('https') ? HttpClient.httpsClient : HttpClient.httpClient;
