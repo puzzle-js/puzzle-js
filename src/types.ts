@@ -99,6 +99,12 @@ export interface IExposeFragment {
   prg: boolean;
   assets: IFileResourceAsset[];
   dependencies: IFileResourceDependency[];
+  passiveVersions?: {
+    [version: string]: {
+      assets: IFileResourceAsset[],
+      dependencies: IFileResourceDependency[]
+    }
+  }
 }
 
 export interface IGatewayMap {
