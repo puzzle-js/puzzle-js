@@ -1,3 +1,4 @@
+import "mocha";
 import {Api} from "../src/api";
 import {expect} from "chai";
 import {HTTP_METHODS} from "../src/enums";

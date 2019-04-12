@@ -99,6 +99,12 @@ export interface IExposeFragment {
   prg: boolean;
   assets: IFileResourceAsset[];
   dependencies: IFileResourceDependency[];
+  passiveVersions?: {
+    [version: string]: {
+      assets: IFileResourceAsset[],
+      dependencies: IFileResourceDependency[]
+    }
+  }
 }
 
 export interface IGatewayMap {
@@ -231,7 +237,7 @@ export interface IStorefrontConfig {
 }
 
 export interface IResponseHandlers {
-  [versionsHash: string]:(req: object, res: object) => void;
+  [versionsHash: string]: IFragmentEndpointHandler | Promise<IFragmentEndpointHandler>;
 }
 
 export interface IReplaceItem {

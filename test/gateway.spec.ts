@@ -122,7 +122,13 @@ describe('Gateway', () => {
               url: '/'
             },
             version: 'test',
-            testCookie: 'fragment_test'
+            testCookie: 'fragment_test',
+            passiveVersions: {
+              test2: {
+                assets: [],
+                dependencies: []
+              }
+            }
           }
         }
       });
