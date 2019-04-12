@@ -123,7 +123,7 @@ export class Server {
    * @param ipv4
    */
   public listen(port: number, cb?: Function, ipv4?: boolean) {
-    const args: any[] = [port];
+    const args: any = [port];
     if (ipv4) {
       args.push('0.0.0.0');
     }

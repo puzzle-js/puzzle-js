@@ -1,5 +1,5 @@
 import fetch from "node-fetch";
-import {HandlerDataResponse, IFragmentContentResponse} from "./types";
+import {HandlerDataResponse, IFileResourceAsset, IFragmentContentResponse} from "./types";
 import {CONTENT_ENCODING_TYPES, FRAGMENT_RENDER_MODES} from "./enums";
 import * as querystring from "querystring";
 import {DEBUG_QUERY_NAME, DEFAULT_CONTENT_TIMEOUT, PREVIEW_PARTIAL_QUERY_NAME, RENDER_MODE_QUERY_NAME} from "./config";
@@ -45,7 +45,7 @@ export class FragmentBFF extends Fragment {
    */
   async render(req: { url: string, headers: object, query: object, params: object }, res: any, version?: string): Promise<HandlerDataResponse> {
     const targetVersion = version || this.config.version;
-    const handler = this.handler[targetVersion];
+    const handler = this.handler[targetVersion] || this.handler[this.config.version];
     const clearedRequest = this.clearRequest(req);
     if (handler) {
       if (handler.data) {
@@ -246,7 +246,10 @@ export class FragmentStorefront extends Fragment {
       }
     }
 
-    requestConfiguration.headers = {...requestConfiguration.headers, gateway: this.gatewayName} || {gateway: this.gatewayName};
+    requestConfiguration.headers = {
+      ...requestConfiguration.headers,
+      gateway: this.gatewayName
+    } || {gateway: this.gatewayName};
 
 
     delete query.from;
@@ -257,7 +260,10 @@ export class FragmentStorefront extends Fragment {
 
     const routeRequest = req && parsedRequest ? `${parsedRequest.pathname.replace('/' + this.name, '')}?${querystring.stringify(query)}` : `/?${querystring.stringify(query)}`;
 
-    return httpClient.get(`${this.fragmentUrl}${routeRequest}`, {json: true, gzip:true, ...requestConfiguration}).then(res => {
+    return httpClient.get(`${this.fragmentUrl}${routeRequest}`, {
+      json: true,
+      gzip: true, ...requestConfiguration
+    }).then(res => {
       logger.info(`Received fragment contents of ${this.name} with status code ${res.response.statusCode}`);
       return {
         status: res.data.$status || res.response.statusCode,
@@ -281,7 +287,7 @@ export class FragmentStorefront extends Fragment {
    * @param {string} name
    * @returns {Promise<string>}
    */
-  async getAsset(name: string) {
+  async getAsset(name: string, targetVersion: string) {
     logger.info(`Trying to get asset: ${name}`);
 
     if (!this.config) {
@@ -289,7 +295,14 @@ export class FragmentStorefront extends Fragment {
       return null;
     }
 
-    const asset = this.config.assets.find(asset => asset.name === name);
+    let fragmentVersion: { assets: IFileResourceAsset[] } = this.config;
+
+    if (targetVersion !== this.config.version && this.config.passiveVersions && this.config.passiveVersions[targetVersion]) {
+      fragmentVersion = this.config.passiveVersions[targetVersion];
+    }
+
+    const asset = fragmentVersion.assets.find(asset => asset.name === name);
+
     if (!asset) {
       logger.error(new Error(`Asset not declared in fragments asset list: ${name}`));
       return null;
