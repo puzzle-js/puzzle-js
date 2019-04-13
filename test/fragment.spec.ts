@@ -43,7 +43,7 @@ describe('Fragment', () => {
         return {data: 'acg'};
       };
       const fragment = new FragmentBFF(fragmentConfig);
-      const response = await fragment.render({}, {});
+      const response = await fragment.render({} as any, {});
       expect(response).to.deep.eq({
         main: `acg was here`
       });
@@ -63,7 +63,7 @@ describe('Fragment', () => {
       const fragmentConfig = JSON.parse(JSON.stringify(commonFragmentBffConfiguration));
       fragmentConfig.versions.test.handler.content = (req: any, data: any) => `${data} was here`;
       const fragment = new FragmentBFF(fragmentConfig);
-      fragment.render({}, {}).then(data => done(data)).catch(e => {
+      fragment.render({} as any, {}).then(data => done(data)).catch(e => {
         expect(e.message).to.include('Failed to find data handler');
         done();
       });
@@ -78,7 +78,7 @@ describe('Fragment', () => {
         return {data: 'acg'};
       };
       const fragment = new FragmentBFF(fragmentConfig);
-      fragment.render({}, {}, 'no_version').then((data: {main: string}) => {
+      fragment.render({} as any, {}, 'no_version').then(data => {
         expect(data.main).to.include('was here');
         done();
       });
@@ -137,7 +137,7 @@ describe('Fragment', () => {
       const fragment = new FragmentBFF(fragmentConfig);
 
       try {
-        await fragment.render({}, {}, '123');
+        await fragment.render({} as any, {}, '123');
       } catch (err) {
         return;
       }
@@ -165,7 +165,7 @@ describe('Fragment', () => {
 
     it('should update fragment configuration', () => {
       const fragment = new FragmentStorefront('product', 'test');
-      fragment.update(commonFragmentConfig, 'http://local.gatewaysimulator.com');
+      fragment.update(commonFragmentConfig, 'http://local.gatewaysimulator.com', '');
 
       expect(fragment.config).to.deep.eq(commonFragmentConfig);
     });
@@ -176,7 +176,7 @@ describe('Fragment', () => {
         .get('/product/placeholder')
         .reply(200, placeholderContent);
       const fragment = new FragmentStorefront('product', 'test');
-      fragment.update(commonFragmentConfig, 'http://local.gatewaysimulator.com');
+      fragment.update(commonFragmentConfig, 'http://local.gatewaysimulator.com','');
 
       const placeholder = await fragment.getPlaceholder();
       expect(placeholder).to.eq(placeholderContent);
@@ -184,7 +184,7 @@ describe('Fragment', () => {
 
     it('should return empty placeholder on any exception', async () => {
       const fragment = new FragmentStorefront('product', 'test');
-      fragment.update(commonFragmentConfig, 'http://local.gatewaysimulator.com');
+      fragment.update(commonFragmentConfig, 'http://local.gatewaysimulator.com','');
 
       const placeholder = await fragment.getPlaceholder();
       expect(placeholder).to.eq('');
@@ -199,7 +199,7 @@ describe('Fragment', () => {
         .query({__renderMode: FRAGMENT_RENDER_MODES.STREAM})
         .reply(200, fragmentContent);
       const fragment = new FragmentStorefront('product', 'test');
-      fragment.update(commonFragmentConfig, 'http://local.gatewaysimulator.com');
+      fragment.update(commonFragmentConfig, 'http://local.gatewaysimulator.com','');
 
       const content = await fragment.getContent();
       expect(content.html).to.deep.eq(fragmentContent);
@@ -214,7 +214,7 @@ describe('Fragment', () => {
         .query({__renderMode: FRAGMENT_RENDER_MODES.STREAM, custom: 'Trendyol'})
         .reply(200, fragmentContent);
       const fragment = new FragmentStorefront('product', 'test');
-      fragment.update(commonFragmentConfig, 'http://local.gatewaysimulator.com');
+      fragment.update(commonFragmentConfig, 'http://local.gatewaysimulator.com','');
 
 
       const content = await fragment.getContent({custom: 'Trendyol'});
@@ -241,12 +241,12 @@ describe('Fragment', () => {
           name: 'product-bundle',
           injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
           type: RESOURCE_TYPE.JS
-        }
+        }as any
       ];
 
-      fragment.update(fragmentContent, 'http://asset-serving-test.com');
+      fragment.update(fragmentContent, 'http://asset-serving-test.com','');
 
-      const scriptContent = await fragment.getAsset('product-bundle');
+      const scriptContent = await fragment.getAsset('product-bundle', '1.0.0');
 
       expect(scriptContent).to.eq(productScript);
 
@@ -277,7 +277,7 @@ describe('Fragment', () => {
         testCookie: 'fragment',
         dependencies: [],
         assets: []
-      }, '');
+      }, '', '');
 
       fragment.getPlaceholder().then(placeholder => {
         try {
@@ -310,7 +310,7 @@ describe('Fragment', () => {
     it('should log and return null asset when no fragment config exists', (done) => {
       const fragment = new FragmentStorefront('product', 'test');
 
-      fragment.getAsset('nope').then(asset => {
+      fragment.getAsset('nope', '1.0.0').then(asset => {
         try {
           expect(asset).to.eq(null);
           done();
@@ -340,7 +340,7 @@ describe('Fragment', () => {
         testCookie: 'fragment',
         dependencies: [],
         assets: []
-      }, '');
+      }, '', '');
 
 
       const assetPath = fragment.getAssetPath('nope');
@@ -366,7 +366,7 @@ describe('Fragment', () => {
             name: 'product-bundle',
             injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
             type: RESOURCE_TYPE.JS
-          }
+          } as any
         ]
       }, 'https://different.com/', 'gateway', 'https://differentLink.com/');
 
@@ -395,7 +395,7 @@ describe('Fragment', () => {
             name: 'product-bundle',
             injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
             type: RESOURCE_TYPE.JS
-          }
+          } as any
         ]
       }, 'https://different.com/', 'https://differentLink.com/');
 
@@ -417,10 +417,10 @@ describe('Fragment', () => {
         testCookie: 'fragment',
         dependencies: [],
         assets: [],
-      }, '');
+      }, '', '');
 
 
-      fragment.getAsset('nope').then(asset => {
+      fragment.getAsset('nope', '1.0.0').then(asset => {
         try {
           expect(asset).to.eq(null);
           done();

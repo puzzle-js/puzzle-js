@@ -286,6 +286,7 @@ export class FragmentStorefront extends Fragment {
   /**
    * Returns asset content
    * @param {string} name
+   * @param targetVersion
    * @returns {Promise<string>}
    */
   async getAsset(name: string, targetVersion: string) {

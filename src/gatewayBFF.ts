@@ -109,7 +109,6 @@ export class GatewayBFF {
           dependencies: fragment.versions[fragment.version].dependencies,
           testCookie: fragment.testCookie,
           prg: !!fragment.prg,
-          warden: fragment.warden,
           passiveVersions: Object.keys(fragment.versions).filter(v => v !== fragment.version).reduce((versionInfo, version) => (
             {
               ...versionInfo,
@@ -120,6 +119,10 @@ export class GatewayBFF {
             }
           ), {})
         };
+
+        if (fragment.warden) {
+          fragmentList[fragment.name].warden = fragment.warden;
+        }
 
         this.fragments[fragment.name] = new FragmentBFF(fragment);
 
@@ -333,6 +336,7 @@ export class GatewayBFF {
     this.server.addCustomHeaders(this.config.customHeaders);
     cb();
   }
+
   /**
    * Starts gateway and configures dependencies
    */
