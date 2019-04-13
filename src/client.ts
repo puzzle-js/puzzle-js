@@ -2,7 +2,7 @@ import http from "http";
 import https from "https";
 import {injectable} from "inversify";
 import request, {CoreOptions} from "request";
-import {PUZZLE_MAX_SOCKETS, WARDEN_ENABLED} from "./config";
+import {PUZZLE_MAX_SOCKETS} from "./config";
 import warden from "puzzle-warden";
 
 
@@ -53,7 +53,7 @@ export class HttpClient {
     });
   }
 
-  get(requestUrl: string, options?: request.CoreOptions, fragmentName?: string): Promise<{ response: request.Response, data: any }> {
+  get(requestUrl: string, fragmentName: string, options?: request.CoreOptions): Promise<{ response: request.Response, data: any }> {
     if (!HttpClient.httpClient && !HttpClient.httpsClient) {
       console.error('Creating new agent for pool');
       this.init('PuzzleJs Default Client');
@@ -66,7 +66,7 @@ export class HttpClient {
         url: requestUrl,
         method: 'get',
         ...options
-      }  as any;
+      } as any;
       const cb: request.RequestCallback = (err, response, data) => {
         if (err) reject(err);
 
@@ -75,7 +75,8 @@ export class HttpClient {
           data
         });
       };
-      if (WARDEN_ENABLED && fragmentName && warden.isRouteRegistered(fragmentName)) {
+
+      if (warden.isRouteRegistered(fragmentName)) {
         warden.request(fragmentName, requestOptions, cb);
       } else {
         client(requestOptions, cb);
@@ -84,7 +85,7 @@ export class HttpClient {
   }
 
 
-  post(requestUrl: string, data?: object, options?: request.CoreOptions, fragmentName?: string): Promise<{ response: request.Response, data: any }> {
+  post(requestUrl: string, fragmentName: string, data?: object, options?: request.CoreOptions): Promise<{ response: request.Response, data: any }> {
     if (!HttpClient.httpClient && !HttpClient.httpsClient) this.init('PuzzleJs Default Client');
 
     const client = requestUrl.startsWith('https') ? HttpClient.httpsClient : HttpClient.httpClient;

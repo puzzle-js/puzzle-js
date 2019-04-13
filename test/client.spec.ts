@@ -20,7 +20,7 @@ describe('Http(s) Client', function () {
       .get('/test')
       .reply(200, 'working');
 
-    const res = await client.get('https://trendyol.com/test');
+    const res = await client.get('https://trendyol.com/test', '');
     expect(res.data).to.eq('working');
   });
 
@@ -35,7 +35,7 @@ describe('Http(s) Client', function () {
       .post('/test', data)
       .reply(200, 'working');
 
-    const res = await client.post('https://trendyol.com/test', data);
+    const res = await client.post('https://trendyol.com/test', '', data);
     expect(res.data).to.eq('working');
   });
 });

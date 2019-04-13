@@ -37,6 +37,4 @@ export const PUZZLE_MAX_SOCKETS = +loadConfigurationFromEnv('MAX_SOCKETS') || In
 export const USE_HELMET = loadConfigurationFromEnv('USE_HELMET') || false;
 export const USE_MORGAN = loadConfigurationFromEnv('USE_MORGAN') || false;
 
-export const WARDEN_ENABLED = loadConfigurationFromEnv('USE_WARDEN') || false;
-
 export const TEMP_FOLDER = path.join(process.cwd(), '/~temp');
