@@ -10,28 +10,28 @@ import {EVENTS} from "../src/enums";
 describe('Page', () => {
     it('should create new page instance', () => {
         const template = fs.readFileSync(path.join(__dirname, './templates/noFragments.html'), 'utf8');
-        const newPage = new Page(template, {});
+        const newPage = new Page(template, {}, '');
 
         expect(newPage).to.be.instanceOf(Page);
     });
 
     it('should parse template with no fragments', () => {
         const template = fs.readFileSync(path.join(__dirname, './templates/noFragmentsWithClass.html'), 'utf8');
-        const newPage = new Page(template, {});
+        const newPage = new Page(template, {}, '');
 
         expect(newPage).to.be.instanceOf(Page);
     });
 
     it('should parse template with fragments', () => {
         const template = fs.readFileSync(path.join(__dirname, './templates/fragmented1.html'), 'utf8');
-        const newPage = new Page(template, {});
+        const newPage = new Page(template, {}, '');
 
         expect(newPage).to.be.instanceOf(Page);
     });
 
     it('should create gateway dependencies', () => {
         const template = fs.readFileSync(path.join(__dirname, './templates/fragmented1.html'), 'utf8');
-        const newPage = new Page(template, {});
+        const newPage = new Page(template, {}, '');
 
         expect(newPage.gatewayDependencies).to.deep.eq({
             fragments: {
@@ -96,7 +96,7 @@ describe('Page', () => {
         const template = fs.readFileSync(path.join(__dirname, './templates/fragmented2.html'), 'utf8');
         const newPage = new Page(template, {
             Browsing: gateway
-        });
+        }, '');
 
         gateway.events.on(EVENTS.GATEWAY_READY, () => {
             expect(newPage.gatewayDependencies.gateways['Browsing'].ready).to.eq(true);
@@ -143,7 +143,7 @@ describe('Page', () => {
         };
         const newPage = new Page(template, {
             Browsing: gateway
-        });
+        }, '');
 
         expect(newPage.gatewayDependencies.gateways.Browsing.ready).to.eq(true);
         expect(newPage.ready).to.eq(true);
@@ -194,7 +194,7 @@ describe('Page', () => {
         const newPage = new Page(template, {
             Browsing: gateway,
             Search: gateway2
-        });
+        }, '');
         let i = 0;
 
         gateway.events.on(EVENTS.GATEWAY_READY, () => {
@@ -240,7 +240,7 @@ describe('Page', () => {
         const template = fs.readFileSync(path.join(__dirname, './templates/fragmented2.html'), 'utf8');
         const newPage = new Page(template, {
             Browsing: gateway
-        });
+        }, '');
 
         gateway.events.on(EVENTS.GATEWAY_READY, () => {
             expect(newPage.gatewayDependencies.gateways['Browsing'].ready).to.eq(true);

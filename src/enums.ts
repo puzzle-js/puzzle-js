@@ -16,7 +16,6 @@ export enum RESOURCE_INJECT_TYPE {
 
 /**
  * Will be changed with PuzzleLib asset injections
- * @deprecated
  */
 export enum RESOURCE_LOCATION {
   HEAD,

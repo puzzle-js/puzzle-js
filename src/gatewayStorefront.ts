@@ -7,6 +7,9 @@ import {IExposeConfig, IGatewayConfiguration} from "./types";
 import Timer = NodeJS.Timer;
 import {container, TYPES} from "./base";
 import {HttpClient} from "./client";
+import warden from "puzzle-warden";
+import {RouteConfiguration} from "puzzle-warden/dist/request-manager";
+import {isDeepStrictEqual} from "util";
 
 const logger = <Logger>container.get(TYPES.Logger);
 const httpClient = <HttpClient>container.get(TYPES.Client);
@@ -70,15 +73,37 @@ export class GatewayStorefrontInstance {
   private update(data: IExposeConfig) {
     if (!this.config) {
       logger.info(`Gateway is ready: ${this.name}`);
+      this.connectWarden(data);
       this.config = data;
       this.events.emit(EVENTS.GATEWAY_READY, this);
     } else {
       if (data.hash !== this.config.hash) {
         logger.info(`Gateway is updated: ${this.name}`);
+        this.connectWarden(data);
         this.config = data;
         this.events.emit(EVENTS.GATEWAY_UPDATED, this);
       }
     }
+  }
+
+  private connectWarden(data: IExposeConfig) {
+    for (const key in data.fragments) {
+      const fragment = data.fragments[key];
+      if (fragment.warden && fragment.warden.identifier) {
+        if (this.shouldUpdateWarden(key, fragment.warden)) {
+          console.log('Warden configuration updated for', key);
+          warden.register(key, fragment.warden);
+        }
+      } else {
+        console.log('Warden configuration removed for', key);
+        warden.unregisterRoute(key);
+      }
+    }
+  }
+
+  private shouldUpdateWarden(fragmentName: string, newConfiguration: RouteConfiguration) {
+    if (!this.config || !this.config.fragments[fragmentName]) return true;
+    return !isDeepStrictEqual(this.config.fragments[fragmentName].warden, newConfiguration);
   }
 }
 

@@ -9,5 +9,5 @@ export const createPageLibConfiguration = (providedConfiguration?: object) => {
     }],
     page: 'test-page',
     ...providedConfiguration
-  } as IPageLibConfiguration
+  } as unknown as IPageLibConfiguration
 };
