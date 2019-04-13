@@ -1,7 +1,7 @@
 import {Template} from "./template";
 import {GatewayStorefrontInstance} from "./gatewayStorefront";
 import {EVENTS} from "./enums";
-import {ICookieObject, IFragmentCookieMap, IGatewayMap, IPageDependentGateways, IResponseHandlers} from "./types";
+import {ICookieObject, IGatewayMap, IPageDependentGateways, IResponseHandlers} from "./types";
 import {DEBUG_INFORMATION, DEBUG_QUERY_NAME} from "./config";
 import {container, TYPES} from "./base";
 import {Logger} from "./logger";
@@ -16,7 +16,6 @@ export class Page {
   responseHandlers: IResponseHandlers = {};
   private template: Template;
   private rawHtml: string;
-  private fragmentCookieList: IFragmentCookieMap[] = [];
   private prgEnabled = false;
 
   constructor(html: string, gatewayMap: IGatewayMap, public name: string) {
@@ -34,9 +33,14 @@ export class Page {
    * @param {object} res
    * @returns {Promise<void>}
    */
-  handle(req: { cookies: ICookieObject, query: { [name: string]: string } }, res: object) {
+  async handle(req: { cookies: ICookieObject, query: { [name: string]: string } }, res: object) {
     const isDebug = DEBUG_INFORMATION || (req.query && req.query.hasOwnProperty(DEBUG_QUERY_NAME));
-    this.responseHandlers[`_${isDebug}`](req, res);
+    const handlerVersion = this.getHandlerVersion(req.cookies);
+    if (!this.responseHandlers[`${handlerVersion}_${isDebug}`]) {
+      this.responseHandlers[`${handlerVersion}_${isDebug}`] = this.template.compile(req.cookies, isDebug);
+    }
+
+    (await this.responseHandlers[`${handlerVersion}_${isDebug}`])(req, res);
   }
 
   post(req: express.Request, res: express.Response, next: express.NextFunction) {
@@ -47,9 +51,10 @@ export class Page {
     }
   }
 
-  async preLoad() {
-    this.responseHandlers[`_true`] = await this.template.compile({}, true);
-    this.responseHandlers[`_false`] = await this.template.compile({}, false);
+  async reCompile() {
+    const defaultVersion = this.getHandlerVersion();
+    this.responseHandlers[`${defaultVersion}_true`] = await this.template.compile({}, true);
+    this.responseHandlers[`${defaultVersion}_false`] = await this.template.compile({}, false);
   }
 
   /**
@@ -74,48 +79,29 @@ export class Page {
    * Checks for page dependencies are ready
    */
   private checkPageReady(): void {
-    if (Object.keys(this.gatewayDependencies.gateways).filter(gatewayName => this.gatewayDependencies.gateways[gatewayName].ready === false).length === 0) {
-      this.fragmentCookieList = this.getFragmentTestCookieList();
+    if (Object.keys(this.gatewayDependencies.gateways).filter(gatewayName => !this.gatewayDependencies.gateways[gatewayName].ready).length === 0) {
       this.ready = true;
     }
   }
 
   /**
-   * @deprecated
    * Based on test cookies returns handler key
-   * @param {{cookies: ICookieObject}} req
    * @returns {string}
+   * @param query
+   * @param cookies
    */
-  private getHandlerVersion(req: { cookies: ICookieObject, query: { [name: string]: string } }) {
-    let fragmentCookieVersion = this.fragmentCookieList.reduce((fragmentHandlerVersion, fragmentCookie) => {
-      fragmentHandlerVersion += `{${fragmentCookie.name}_${req.cookies[fragmentCookie.name] || fragmentCookie.live}}`;
-      return fragmentHandlerVersion;
-    }, '');
+  private getHandlerVersion(cookies: { [key: string]: string } = {}) {
+    return Object.values(this.gatewayDependencies.fragments)
+      .reduce((key, fragment) => {
+        if (!fragment.instance.config) {
+          return `${key}_${fragment.instance.name}|0`
+        }
 
-    if (req.query && req.query[DEBUG_QUERY_NAME]) {
-      fragmentCookieVersion += DEBUG_QUERY_NAME;
-    }
+        const cookieValue = cookies[fragment.instance.config.testCookie];
+        return `${key}_${fragment.instance.name}|${cookieValue || fragment.instance.config.version}`;
+      }, '');
+  };
 
-    return fragmentCookieVersion;
-  }
-
-  /**
-   * Returns test cookie list from all fragments
-   * @returns {IFragmentCookieMap[]}
-   */
-  private getFragmentTestCookieList() {
-    const cookieList: IFragmentCookieMap[] = [];
-    Object.values(this.gatewayDependencies.fragments).forEach(fragment => {
-      if (fragment.instance.config) {
-        cookieList.push({
-          name: fragment.instance.config.testCookie,
-          live: fragment.instance.config.version
-        });
-      }
-    });
-    cookieList.sort();
-    return cookieList;
-  }
 
   private updatePrgStatus() {
     this.prgEnabled = Object
@@ -132,7 +118,7 @@ export class Page {
     this.updateFragmentsConfig(gateway);
     this.template.load();
     this.updatePrgStatus();
-    this.preLoad();
+    this.reCompile();
   }
 
   /**

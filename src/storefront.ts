@@ -75,7 +75,7 @@ export class Storefront {
   private preLoadPages(cb: Function) {
     Promise.all(Object.values(this.pages).map(async (page) => {
       logger.info(`Preloading page: ${page.name}`);
-      await page.preLoad();
+      await page.reCompile();
       logger.info(`Preloaded page: ${page.name}`);
     })).then(() => cb());
   }

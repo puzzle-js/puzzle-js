@@ -11,7 +11,7 @@ import {
 import {
   FragmentModel,
   IChunkedReplacementSet,
-  ICookieMap,
+  ICookieMap, IFileResourceAsset, IFileResourceDependency,
   IFragmentContentResponse, IFragmentEndpointHandler,
   IPageDependentGateways,
   IReplaceAsset,
@@ -91,7 +91,7 @@ export class Template {
         };
       }
 
-      if (this.fragments[fragment.attribs.name].primary === false) {
+      if (!this.fragments[fragment.attribs.name].primary) {
         if (typeof fragment.attribs.primary !== 'undefined') {
           if (primaryName != null && primaryName !== fragment.attribs.name) throw new PuzzleError(ERROR_CODES.MULTIPLE_PRIMARY_FRAGMENTS);
           primaryName = fragment.attribs.name;
@@ -100,7 +100,7 @@ export class Template {
         }
       }
 
-      if (this.fragments[fragment.attribs.name].shouldWait === false) {
+      if (!this.fragments[fragment.attribs.name].shouldWait) {
         this.fragments[fragment.attribs.name].shouldWait = typeof fragment.attribs.shouldwait !== 'undefined' || (fragment.parent && fragment.parent.name === 'head') || false;
       }
 
@@ -140,7 +140,7 @@ export class Template {
     const staticFragments = Object.values(this.fragments).filter(fragment => fragment.config && fragment.config.render.static);
 
     logger.info(`[Compiling Page ${this.name}]`, 'Injecting Puzzle Lib to head');
-    this.injectPuzzleLibAndConfig(isDebug);
+    this.injectPuzzleLibAndConfig(isDebug, testCookies);
 
     // todo kaldir lib bagla
     const replaceScripts: any[] = [];
@@ -167,7 +167,7 @@ export class Template {
     /**
      * @deprecated Combine this with only on render start assets.
      */
-    await this.buildStyleSheets();
+    await this.buildStyleSheets(testCookies);
 
     this.replaceEmptyTags();
 
@@ -201,7 +201,7 @@ export class Template {
    * Puzzle lib preparation
    * @param {boolean} isDebug
    */
-  private injectPuzzleLibAndConfig(isDebug: boolean): void {
+  private injectPuzzleLibAndConfig(isDebug: boolean, cookies: ICookieMap): void {
     const fragments = Object.keys(this.fragments);
 
     const pageFragmentLibConfig = fragments.reduce((pageLibFragments: IPageFragmentConfig[], fragmentName) => {
@@ -218,36 +218,48 @@ export class Template {
 
     const assets = fragments.reduce((pageLibAssets: IPageLibAsset[], fragmentName) => {
       const fragment = this.fragments[fragmentName];
+      if (fragment.config) {
+        const fragmentVersion: { assets: IFileResourceAsset[] } = cookies[fragment.config.testCookie] &&
+        fragment.config.passiveVersions &&
+        fragment.config.passiveVersions[cookies[fragment.config.testCookie]] ?
+          fragment.config.passiveVersions[cookies[fragment.config.testCookie]] : fragment.config;
 
-      fragment.config && fragment.config.assets.forEach((asset) => {
-        pageLibAssets.push({
-          fragment: fragmentName,
-          loadMethod: typeof asset.loadMethod !== 'undefined' ? asset.loadMethod : RESOURCE_LOADING_TYPE.ON_PAGE_RENDER,
-          name: asset.name,
-          dependent: asset.dependent || [],
-          type: asset.type,
-          link: asset.link,
-          preLoaded: false
+        fragmentVersion.assets.forEach((asset) => {
+          pageLibAssets.push({
+            fragment: fragmentName,
+            loadMethod: typeof asset.loadMethod !== 'undefined' ? asset.loadMethod : RESOURCE_LOADING_TYPE.ON_PAGE_RENDER,
+            name: asset.name,
+            dependent: asset.dependent || [],
+            type: asset.type,
+            link: asset.link,
+            preLoaded: false
+          });
         });
-      });
+      }
 
       return pageLibAssets;
     }, []);
 
     const dependencies = fragments.reduce((pageLibDependencies: IPageLibDependency[], fragmentName) => {
       const fragment = this.fragments[fragmentName];
+      if (fragment.config) {
+        const fragmentVersion: { dependencies: IFileResourceDependency[] } = cookies[fragment.config.testCookie] &&
+        fragment.config.passiveVersions &&
+        fragment.config.passiveVersions[cookies[fragment.config.testCookie]] ?
+          fragment.config.passiveVersions[cookies[fragment.config.testCookie]] : fragment.config;
 
-      fragment.config && fragment.config.dependencies.forEach(dependency => {
-        const dependencyData = ResourceFactory.instance.get(dependency.name);
-        if (dependencyData && dependencyData.link && !pageLibDependencies.find(dependency => dependency.name === dependencyData.name)) {
-          pageLibDependencies.push({
-            name: dependency.name,
-            link: dependencyData.link,
-            type: dependency.type,
-            preLoaded: false
-          })
-        }
-      });
+        fragmentVersion.dependencies.forEach(dependency => {
+          const dependencyData = ResourceFactory.instance.get(dependency.name);
+          if (dependencyData && dependencyData.link && !pageLibDependencies.find(dependency => dependency.name === dependencyData.name)) {
+            pageLibDependencies.push({
+              name: dependency.name,
+              link: dependencyData.link,
+              type: dependency.type,
+              preLoaded: false
+            })
+          }
+        });
+      }
 
       return pageLibDependencies;
     }, []);
@@ -343,29 +355,28 @@ export class Template {
    */
   private async replaceStaticFragments(fragments: FragmentStorefront[], replaceAssets: IReplaceAsset[]): Promise<void> {
     for (let fragment of fragments) {
-      const partialElements : any = [];
-      let mainElement : any = null;
-        this.dom(`fragment[name="${fragment.name}"][from="${fragment.from}"]`).each((i, element) => {
-          if(this.dom(element).attr('partial') && this.dom(element).attr('partial') !== "main"){
-            partialElements.push(element);
-          }
-          else{
-            mainElement = element;
-          }
-        });
+      const partialElements: any = [];
+      let mainElement: any = null;
+      this.dom(`fragment[name="${fragment.name}"][from="${fragment.from}"]`).each((i, element) => {
+        if (this.dom(element).attr('partial') && this.dom(element).attr('partial') !== "main") {
+          partialElements.push(element);
+        } else {
+          mainElement = element;
+        }
+      });
 
-        const assets = replaceAssets.find(set => set.fragment.name === fragment.name);
-        let fragmentScripts = assets ? assets.replaceItems.reduce((script, replaceItem) => {
-            script += Template.wrapJsAsset(replaceItem);
-            return script;
-        }, '') : '';
+      const assets = replaceAssets.find(set => set.fragment.name === fragment.name);
+      let fragmentScripts = assets ? assets.replaceItems.reduce((script, replaceItem) => {
+        script += Template.wrapJsAsset(replaceItem);
+        return script;
+      }, '') : '';
 
       const processedAttributes = TemplateCompiler.processExpression(mainElement.attribs, this.pageClass);
       const fragmentContent: IFragmentContentResponse = await fragment.getContent(processedAttributes);
 
       this.dom(mainElement).replaceWith(`<div id="${fragment.name}" puzzle-fragment="${fragment.name}" puzzle-gateway="${fragment.from}" fragment-partial="${'main'}">${fragmentContent.html['main'] || CONTENT_NOT_FOUND_ERROR}</div>${fragmentScripts}<script>PuzzleJs.emit('${EVENT.ON_FRAGMENT_RENDERED}','${fragment.name}');</script>`);
 
-      partialElements.forEach((i : number, element : any) => {
+      partialElements.forEach((i: number, element: any) => {
         this.dom(element).replaceWith(`<div id="${fragment.name}" puzzle-fragment="${fragment.name}" puzzle-gateway="${fragment.from}" fragment-partial="${element.attribs.partial}">${fragmentContent.html[element.attribs.partial] || CONTENT_NOT_FOUND_ERROR}</div>${fragmentScripts}<script>PuzzleJs.emit('${EVENT.ON_FRAGMENT_RENDERED}','${fragment.name}');</script>`);
       });
 
@@ -691,11 +702,10 @@ export class Template {
 
 
   /**
-   * @deprecated Combine this for only render_start_css assets
    * Merges, minifies stylesheets and inject them into a page
    * @returns {Promise<void>}
    */
-  private async buildStyleSheets() {
+  private async buildStyleSheets(cookies: ICookieMap) {
     return new Promise(async (resolve, reject) => {
       const _CleanCss = new CleanCSS({
         level: {
@@ -711,12 +721,18 @@ export class Template {
       for (let fragment of Object.values(this.fragments)) {
         if (!fragment.config) continue;
 
+        const fragmentVersion: { assets: IFileResourceAsset[], dependencies: IFileResourceDependency[] } = cookies[fragment.config.testCookie] &&
+        fragment.config.passiveVersions &&
+        fragment.config.passiveVersions[cookies[fragment.config.testCookie]] ?
+          fragment.config.passiveVersions[cookies[fragment.config.testCookie]] : fragment.config;
+        const targetVersion = cookies[fragment.config.testCookie] || fragment.config.version;
 
-        const cssAssets = fragment.config.assets.filter(asset => asset.type === RESOURCE_TYPE.CSS);
-        const cssDependencies = fragment.config.dependencies.filter(dependency => dependency.type === RESOURCE_TYPE.CSS);
+
+        const cssAssets = fragmentVersion.assets.filter(asset => asset.type === RESOURCE_TYPE.CSS);
+        const cssDependencies = fragmentVersion.dependencies.filter(dependency => dependency.type === RESOURCE_TYPE.CSS);
 
         for (let asset of cssAssets) {
-          const assetContent = await fragment.getAsset(asset.name);
+          const assetContent = await fragment.getAsset(asset.name, targetVersion);
 
           if (assetContent) {
             styleSheets.push(assetContent);
