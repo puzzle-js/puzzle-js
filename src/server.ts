@@ -31,6 +31,7 @@ const morganLoggingLevels = [
   'UA: :user-agent',
   'x-correlationId: :req[x-correlationId]',
   'x-agentname: :req[x-agentname]',
+  'referer: :req[referer]',
 ];
 
 @injectable()
