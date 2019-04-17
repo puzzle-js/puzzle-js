@@ -1,17 +1,17 @@
 import fetch from "node-fetch";
-import {HandlerDataResponse, IFileResourceAsset, IFragmentContentResponse} from "./types";
-import {CONTENT_ENCODING_TYPES, FRAGMENT_RENDER_MODES} from "./enums";
+import { HandlerDataResponse, IFileResourceAsset, IFragmentContentResponse } from "./types";
+import { CONTENT_ENCODING_TYPES, FRAGMENT_RENDER_MODES } from "./enums";
 import * as querystring from "querystring";
-import {DEBUG_QUERY_NAME, DEFAULT_CONTENT_TIMEOUT, PREVIEW_PARTIAL_QUERY_NAME, RENDER_MODE_QUERY_NAME} from "./config";
-import {IExposeFragment, IFragment, IFragmentBFF, IFragmentHandler} from "./types";
+import { DEBUG_QUERY_NAME, DEFAULT_CONTENT_TIMEOUT, PREVIEW_PARTIAL_QUERY_NAME, RENDER_MODE_QUERY_NAME } from "./config";
+import { IExposeFragment, IFragment, IFragmentBFF, IFragmentHandler } from "./types";
 import url from "url";
 import path from "path";
-import {container, TYPES} from "./base";
-import {Logger} from "./logger";
-import {decompress} from "iltorb";
-import {Request, Response} from 'express';
-import {HttpClient} from "./client";
-import {ERROR_CODES, PuzzleError} from "./errors";
+import { container, TYPES } from "./base";
+import { Logger } from "./logger";
+import { decompress } from "iltorb";
+import { Request, Response } from 'express';
+import { HttpClient } from "./client";
+import { ERROR_CODES, PuzzleError } from "./errors";
 
 
 const logger = <Logger>container.get(TYPES.Logger);
@@ -30,7 +30,7 @@ export class FragmentBFF extends Fragment {
   private handler: { [version: string]: IFragmentHandler } = {};
 
   constructor(config: IFragmentBFF) {
-    super({name: config.name});
+    super({ name: config.name });
     this.config = config;
 
     this.prepareHandlers();
@@ -111,7 +111,15 @@ export class FragmentBFF extends Fragment {
   }
 
   /**
-   * Reolves handlers based on configuration
+  * Check module type
+  */
+  private checkModuleType(fragmentModule: IFragmentHandler | Function): IFragmentHandler {
+    if (typeof fragmentModule === "function") return fragmentModule(container);
+    return fragmentModule;
+  }
+
+  /**
+   * Resolve handlers based on configuration
    */
   private prepareHandlers() {
     Object.keys(this.config.versions).forEach(version => {
@@ -120,7 +128,7 @@ export class FragmentBFF extends Fragment {
         this.handler[version] = configurationHandler;
       } else {
         const module = require(path.join(process.cwd(), `/src/fragments/`, this.config.name, version));
-        this.handler[version] = module;
+        this.handler[version] = this.checkModuleType(module);
       }
     });
   }
@@ -137,7 +145,7 @@ export class FragmentStorefront extends Fragment {
   private gatewayName: string;
 
   constructor(name: string, from: string) {
-    super({name});
+    super({ name });
 
     this.from = from;
   }
@@ -249,7 +257,7 @@ export class FragmentStorefront extends Fragment {
     requestConfiguration.headers = {
       ...requestConfiguration.headers,
       gateway: this.gatewayName
-    } || {gateway: this.gatewayName};
+    } || { gateway: this.gatewayName };
 
 
     delete query.from;
@@ -273,7 +281,7 @@ export class FragmentStorefront extends Fragment {
         model: res.data.$model || {}
       };
     }).catch(err => {
-      logger.error(new PuzzleError(ERROR_CODES.FAILED_TO_GET_FRAGMENT_CONTENT, this.name, `${this.fragmentUrl}${routeRequest}`), this.name, `${this.fragmentUrl}${routeRequest}`, `${this.fragmentUrl}${routeRequest}`, {json: true, ...requestConfiguration}, err);
+      logger.error(new PuzzleError(ERROR_CODES.FAILED_TO_GET_FRAGMENT_CONTENT, this.name, `${this.fragmentUrl}${routeRequest}`), this.name, `${this.fragmentUrl}${routeRequest}`, `${this.fragmentUrl}${routeRequest}`, { json: true, ...requestConfiguration }, err);
       return {
         status: 500,
         html: {},

@@ -1,10 +1,9 @@
 import "mocha";
-import {Api} from "../src/api";
-import {expect} from "chai";
-import {HTTP_METHODS} from "../src/enums";
-import {Server} from "../src/server";
+import { Api } from "../src/api";
+import { expect } from "chai";
+import { HTTP_METHODS } from "../src/enums";
+import { Server } from "../src/server";
 import supertest from "supertest";
-import {FragmentBFF} from "../src/fragment";
 import faker from "faker";
 
 describe('Api', function () {
