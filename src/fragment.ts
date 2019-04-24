@@ -9,7 +9,7 @@ import path from "path";
 import {container, TYPES} from "./base";
 import {Logger} from "./logger";
 import {decompress} from "iltorb";
-import {Request, Response} from 'express';
+import {Request} from 'express';
 import {HttpClient} from "./client";
 import {ERROR_CODES, PuzzleError} from "./errors";
 
@@ -88,6 +88,23 @@ export class FragmentBFF extends Fragment {
     if (handler) {
       return handler.placeholder();
     } else {
+      throw new Error(`Failed to find fragment version. Fragment: ${this.config.name}, Version: ${version || this.config.version}`);
+    }
+  }
+
+  /**
+   * Renders error
+   * @param {object} req
+   * @param {string} version
+   * @returns {string}
+   */
+  errorPage(req: object, version?: string) {
+    const fragmentVersion = (version && this.config.versions[version]) ? version : this.config.version;
+    const handler = this.handler[fragmentVersion];
+    if(handler) {
+      return handler.error();
+    }
+    else {
       throw new Error(`Failed to find fragment version. Fragment: ${this.config.name}, Version: ${version || this.config.version}`);
     }
   }
@@ -198,6 +215,34 @@ export class FragmentStorefront extends Fragment {
       });
   }
 
+
+  /**
+  * Returns fragment error as promise, fetches from gateway
+  * @returns { Promise<string> }
+  * */
+
+  async getErrorPage(): Promise<string> {
+      logger.info(`Trying to get error page of fragment: ${this.name}`);
+
+      if (!this.config || !this.config.render.error) {
+          logger.error(new Error('Error is not enabled for fragment'));
+          return '';
+      }
+
+      return fetch(`${this.fragmentUrl}/error`, {
+          headers: {
+              gateway: this.gatewayName
+          }
+      })
+        .then(res => res.text())
+        .then(html => {
+            return html;
+        })
+        .catch(err => {
+            logger.error(`Failed to fetch error for fragment: ${this.fragmentUrl}/error`, err);
+            return '';
+        });
+  }
   /**
    * Fetches fragment content as promise, fetches from gateway
    * Returns {
@@ -265,11 +310,14 @@ export class FragmentStorefront extends Fragment {
         html: res.data,
         model: res.data.$model || {}
       };
-    }).catch(err => {
+    }).catch(async (err) => {
       logger.error(new PuzzleError(ERROR_CODES.FAILED_TO_GET_FRAGMENT_CONTENT, this.name, `${this.fragmentUrl}${routeRequest}`), this.name, `${this.fragmentUrl}${routeRequest}`, `${this.fragmentUrl}${routeRequest}`, {json: true, ...requestConfiguration}, err);
+
+      const errorPage = await this.getErrorPage();
+
       return {
         status: 500,
-        html: {},
+        html: errorPage ? errorPage : {},
         headers: {},
         model: {}
       };

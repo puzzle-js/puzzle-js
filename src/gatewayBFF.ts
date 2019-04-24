@@ -68,6 +68,7 @@ export class GatewayBFF {
       this.addCorsPlugin.bind(this),
       this.addCustomHeaders.bind(this),
       this.addPlaceholderRoutes.bind(this),
+      this.addErrorPageRoutes.bind(this),
       this.addApiRoutes.bind(this),
       this.addStaticRoutes.bind(this),
       this.addHealthCheckRoutes.bind(this),
@@ -239,7 +240,7 @@ export class GatewayBFF {
    */
   private addPlaceholderRoutes(cb: Function): void {
     this.config.fragments.forEach(fragment => {
-      this.server.addRoute(`/${fragment.name}/placeholder`, HTTP_METHODS.GET, async (req, res, next) => {
+      this.server.addRoute(`/${fragment.name}/placeholder`, HTTP_METHODS.GET, async (req, res) => {
         if (req.query.delay && +req.query.delay) {
           res.set('content-type', 'text/html');
           const dom = cheerio.load(`<html><head><title>${this.config.name} - ${fragment.name}</title>${this.config.isMobile ? '<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />' : ''}</head><body><div id="${fragment.name}">${this.fragments[fragment.name].placeholder(req, req.cookies[fragment.testCookie])}</div></body></html>`);
@@ -259,6 +260,18 @@ export class GatewayBFF {
     cb();
   }
 
+  /**
+   *  Adds error routes
+   *  @param { Function } cb
+   * */
+  private addErrorPageRoutes(cb: Function): void {
+    this.config.fragments.forEach((fragment) => {
+      this.server.addRoute( `/${fragment.name}/error`, HTTP_METHODS.GET, (req, res) => {
+        res.send(this.fragments[fragment.name].errorPage(req, req.cookies[fragment.testCookie]))
+      });
+    });
+    cb();
+  }
   /**
    * Adds static routes
    * @param {Function} cb

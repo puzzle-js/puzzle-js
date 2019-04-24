@@ -29,6 +29,7 @@ export interface IFragmentBFFRender {
   middlewares?: ((req: Request, res: Response, next: NextFunction) => any | string)[];
   cacheControl?: string;
   placeholder?: boolean;
+  error?: boolean;
   timeout?: number;
 }
 
@@ -38,6 +39,7 @@ export interface IFragmentHandler {
     [name: string]: string;
   };
   placeholder: () => string;
+  error: () => string;
   data: (req: object) => Promise<HandlerDataResponse>;
 }
 
