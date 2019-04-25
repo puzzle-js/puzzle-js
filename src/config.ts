@@ -1,6 +1,6 @@
 const path = require('path');
 
-const loadConfigurationFromEnv = (name: string, isObject: boolean = false) => {
+const loadConfigurationFromEnv = (name: string, isObject = false) => {
   const environmentVariable = process.env[name];
   if (isObject) {
     return environmentVariable ? JSON.parse(environmentVariable) : undefined;

@@ -27,7 +27,7 @@ export interface IFragmentBFFRender {
   url: string | string[];
   routeCache?: number;
   selfReplace?: boolean;
-  middlewares?: ((req: Request, res: Response, next: NextFunction) => any | string)[];
+  middlewares?: Array<(req: Request, res: Response, next: NextFunction) => any | string>;
   cacheControl?: string;
   placeholder?: boolean;
   error?: boolean;
@@ -45,13 +45,13 @@ export interface IFragmentHandler {
 }
 
 export interface HandlerDataResponse {
-  [name: string]: any,
+  [name: string]: any;
 
-  data?: any,
-  $status?: number,
+  data?: any;
+  $status?: number;
   $headers?: {
     [name: string]: string
-  },
+  };
 }
 
 export interface IFileResource {
@@ -92,7 +92,7 @@ export interface IFragmentBFF extends IFragment {
   };
   version: string;
   testCookie: string;
-  warden?: RouteConfiguration
+  warden?: RouteConfiguration;
   render: IFragmentBFFRender;
 }
 
@@ -101,7 +101,7 @@ export interface IExposeFragment {
   testCookie: string;
   render: IFragmentBFFRender;
   prg?: boolean;
-  warden?: RouteConfiguration
+  warden?: RouteConfiguration;
   assets: IFileResourceAsset[];
   dependencies: IFileResourceDependency[];
   passiveVersions?: {
@@ -109,7 +109,7 @@ export interface IExposeFragment {
       assets: IFileResourceAsset[],
       dependencies: IFileResourceDependency[]
     }
-  }
+  };
 }
 
 export interface IGatewayMap {
@@ -126,11 +126,11 @@ export interface ICookieMap {
   [cookieName: string]: string;
 }
 
-export type IFragmentEndpointHandler = (req: any, res: any, next?: any) => void
+export type IFragmentEndpointHandler = (req: any, res: any, next?: any) => void;
 
 export interface IApiHandler {
   path: string;
-  middlewares: ((req: Request, res: Response, next: NextFunction) => void)[];
+  middlewares: Array<(req: Request, res: Response, next: NextFunction) => void>;
   method: HTTP_METHODS;
   cacheControl?: string;
   routeCache?: number;
@@ -180,8 +180,8 @@ export interface IFragmentContentResponse {
   };
   headers: {
     [name: string]: string;
-  },
-  model: FragmentModel
+  };
+  model: FragmentModel;
 }
 
 export interface IPageDependentGateways {
@@ -190,13 +190,13 @@ export interface IPageDependentGateways {
       gateway: GatewayStorefrontInstance | null,
       ready: boolean
     }
-  },
+  };
   fragments: {
     [name: string]: {
       instance: FragmentStorefront,
       gateway: string
     }
-  }
+  };
 }
 
 export interface IPageConfiguration {
@@ -227,7 +227,7 @@ export interface INodeSpdyConfiguration {
       windowSize: number;
       autoSpdy31: boolean;
     }
-  }
+  };
 }
 
 export interface IStorefrontConfig {
@@ -267,8 +267,8 @@ export interface IReplaceAssetSet {
 }
 
 export interface IReplaceAsset {
-  fragment: FragmentStorefront,
-  replaceItems: IReplaceAssetSet[]
+  fragment: FragmentStorefront;
+  replaceItems: IReplaceAssetSet[];
 }
 
 export interface IChunkedReplacementSet {
@@ -285,7 +285,7 @@ export interface IWaitedResponseFirstFlush {
 }
 
 export interface IApiHandlerModule {
-  [controller: string]: (req: object, res: object) => any
+  [controller: string]: (req: object, res: object) => any;
 }
 
 export interface IWrappingJsAsset {
@@ -301,12 +301,12 @@ export interface IFragmentResponse {
   $status: number;
   $headers: {
     [name: string]: string;
-  },
-  $model: FragmentModel
+  };
+  $model: FragmentModel;
 }
 
 export interface FragmentModel {
-  [name: string]: any
+  [name: string]: any;
 }
 
 export interface ICustomHeader {

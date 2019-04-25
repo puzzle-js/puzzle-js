@@ -25,7 +25,7 @@ import routeCache from "route-cache";
 import {RESOURCE_TYPE} from "./lib/enums";
 import fs from "fs";
 
-const logger = <Logger>container.get(TYPES.Logger);
+const logger = container.get(TYPES.Logger) as Logger;
 
 
 @sealed
@@ -43,7 +43,7 @@ export class GatewayBFF {
   private config: IGatewayBFFConfiguration;
   private fragments: { [name: string]: FragmentBFF } = {};
   private apis: { [name: string]: Api } = {};
-  public ready: boolean = false;
+  ready = false;
 
   /**
    * Gateway constructor
@@ -63,7 +63,7 @@ export class GatewayBFF {
    * Starts gateway
    */
   @callableOnce
-  public init(cb?: Function) {
+  init(cb?: Function) {
     async.series([
       this.addCorsPlugin.bind(this),
       this.addCustomHeaders.bind(this),
@@ -154,7 +154,7 @@ export class GatewayBFF {
         $model: fragmentContent.$model
       };
 
-      for (let prop in gatewayContent.$headers) {
+      for (const prop in gatewayContent.$headers) {
         res.set(prop, gatewayContent.$headers[prop]);
       }
 
@@ -280,7 +280,7 @@ export class GatewayBFF {
   private addErrorPageRoutes(cb: Function): void {
     this.config.fragments.forEach((fragment) => {
       this.server.addRoute( `/${fragment.name}/error`, HTTP_METHODS.GET, (req, res) => {
-        res.send(this.fragments[fragment.name].errorPage(req, req.cookies[fragment.testCookie]))
+        res.send(this.fragments[fragment.name].errorPage(req, req.cookies[fragment.testCookie]));
       });
     });
     cb();

@@ -60,7 +60,7 @@ export class Server {
    * Sets spdy protocol configuration.
    * @param {ISpdyConfiguration} options
    */
-  public useProtocolOptions(options?: ISpdyConfiguration) {
+  useProtocolOptions(options?: ISpdyConfiguration) {
     if (options) {
       this.spdyConfiguration = {
         cert: options.cert,
@@ -74,7 +74,7 @@ export class Server {
             autoSpdy31: false
           }
         }
-      }
+      };
     }
   }
 
@@ -83,7 +83,7 @@ export class Server {
    * @param {string | null} path
    * @param {(req: Request, res: Response, next: NextFunction) => any} handler
    */
-  public addUse(path: string | null, handler: (req: Request, res: Response, next: NextFunction) => any) {
+  addUse(path: string | null, handler: (req: Request, res: Response, next: NextFunction) => any) {
     if (path) {
       this.app.use(path, handler);
     } else {
@@ -97,7 +97,7 @@ export class Server {
    * @param {string} source
    * @param {serveStatic.ServeStaticOptions} staticOptions
    */
-  public setStatic(path: string | null, source: string, staticOptions?: ServeStaticOptions) {
+  setStatic(path: string | null, source: string, staticOptions?: ServeStaticOptions) {
     if (!staticOptions) {
       this.addUse(path, express.static(source));
     } else {
@@ -112,7 +112,7 @@ export class Server {
    * @param {(req: Request, res: Response, next: NextFunction) => any} handler
    * @param {RequestHandlerParams[]} middlewares
    */
-  public addRoute(path: string | string[], method: HTTP_METHODS, handler: (req: Request, res: Response, next: NextFunction) => any, middlewares: RequestHandlerParams[] = []) {
+  addRoute(path: string | string[], method: HTTP_METHODS, handler: (req: Request, res: Response, next: NextFunction) => any, middlewares: RequestHandlerParams[] = []) {
     (this.app as any)[method](path, middlewares, handler);
   }
 
@@ -123,7 +123,7 @@ export class Server {
    * @param {Function} cb
    * @param ipv4
    */
-  public listen(port: number, cb?: Function, ipv4?: boolean) {
+  listen(port: number, cb?: Function, ipv4?: boolean) {
     const args: any = [port];
     if (ipv4) {
       args.push('0.0.0.0');
@@ -154,7 +154,7 @@ export class Server {
    * Adds custom headers
    * @param {Array<ICustomHeader>} customHeaders
    */
-  public addCustomHeaders(customHeaders?: ICustomHeader[]) {
+  addCustomHeaders(customHeaders?: ICustomHeader[]) {
     if(customHeaders) {
       this.addUse(null,(req, res, next) => {
         customHeaders.forEach( (customHeader) => {
@@ -171,7 +171,7 @@ export class Server {
   /**
    * Clears instances, stops listening
    */
-  public close() {
+  close() {
     if (this.server) {
       this.server.close();
       this.server = null;

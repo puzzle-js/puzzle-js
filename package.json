@@ -44,6 +44,7 @@
     "nyc": "^11.6.0",
     "sinon": "^6.1.0",
     "supertest": "^3.0.0",
+    "tslint": "^5.16.0",
     "typings": "^2.1.1",
     "webpack": "^4.14.0",
     "webpack-cli": "^3.0.8"
@@ -62,7 +63,9 @@
     "test:watch:lib": "cross-env NODE_ENV=production mocha --watch --require ts-node/register --watch-extensions ts,tsx --recursive 'test/lib/**/*.spec.ts'",
     "publish:beta": "yarn publish --tag=beta",
     "cov": "echo cov",
-    "lint": "echo lint"
+    "lint": "echo lint",
+    "lint:ts": "./node_modules/.bin/tslint -p ./tsconfig.json",
+    "lint:ts:fix": "./node_modules/.bin/tslint -p ./tsconfig.json --fix"
   },
   "dependencies": {
     "@types/connect-timeout": "^0.0.33",

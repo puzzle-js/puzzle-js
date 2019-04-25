@@ -7,7 +7,7 @@ import {container, TYPES} from "./base";
 import {Logger} from "./logger";
 import express from "express";
 
-const logger = <Logger>container.get(TYPES.Logger);
+const logger = container.get(TYPES.Logger) as Logger;
 
 
 export class Page {
@@ -94,19 +94,19 @@ export class Page {
     return Object.values(this.gatewayDependencies.fragments)
       .reduce((key, fragment) => {
         if (!fragment.instance.config) {
-          return `${key}_${fragment.instance.name}|0`
+          return `${key}_${fragment.instance.name}|0`;
         }
 
         const cookieValue = cookies[fragment.instance.config.testCookie];
         return `${key}_${fragment.instance.name}|${cookieValue || fragment.instance.config.version}`;
       }, '');
-  };
+  }
 
 
   private updatePrgStatus() {
     this.prgEnabled = Object
       .values(this.gatewayDependencies.fragments)
-      .some(fragment => !!(fragment.instance.config && fragment.instance.config.prg && fragment.instance.primary))
+      .some(fragment => !!(fragment.instance.config && fragment.instance.config.prg && fragment.instance.primary));
   }
 
 

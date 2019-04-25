@@ -7,7 +7,7 @@ export const wait = (seconds: number) => {
 };
 
 export const isDebug = () => {
-  return process.env.NODE_ENV === 'debug'
+  return process.env.NODE_ENV === 'debug';
 };
 
 

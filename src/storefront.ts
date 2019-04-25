@@ -15,7 +15,7 @@ import {StorefrontConfigurator} from "./configurator";
 import path from "path";
 import fs from "fs";
 
-const logger = <Logger>container.get(TYPES.Logger);
+const logger = container.get(TYPES.Logger) as Logger;
 
 
 @sealed
@@ -50,7 +50,7 @@ export class Storefront {
    * @param {Function} cb
    */
   @callableOnce
-  public init(cb?: Function) {
+  init(cb?: Function) {
     logger.info('Starting Puzzle Storefront');
     async.series([
       this.registerDependencies.bind(this),

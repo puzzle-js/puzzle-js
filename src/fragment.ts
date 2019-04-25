@@ -14,8 +14,8 @@ import { HttpClient } from "./client";
 import { ERROR_CODES, PuzzleError } from "./errors";
 
 
-const logger = <Logger>container.get(TYPES.Logger);
-const httpClient = <HttpClient>container.get(TYPES.Client);
+const logger = container.get(TYPES.Logger) as Logger;
+const httpClient = container.get(TYPES.Client) as HttpClient;
 
 export class Fragment {
   name: string;
@@ -26,7 +26,7 @@ export class Fragment {
 }
 
 export class FragmentBFF extends Fragment {
-  public config: IFragmentBFF;
+  config: IFragmentBFF;
   private handler: { [version: string]: IFragmentHandler } = {};
 
   constructor(config: IFragmentBFF) {
@@ -56,7 +56,7 @@ export class FragmentBFF extends Fragment {
           logger.error(`Failed to fetch data for fragment ${this.config.name}`, req.url, req.query, req.params, req.headers, e);
           return {
             $status: 500
-          }
+          };
         }
         if (dataResponse.data) {
           const renderedPartials = handler.content(clearedRequest, dataResponse.data);
@@ -157,8 +157,8 @@ export class FragmentStorefront extends Fragment {
   shouldWait = false;
   from: string;
   gatewayPath!: string;
-  public fragmentUrl: string | undefined;
-  public assetUrl: string | undefined;
+  fragmentUrl: string | undefined;
+  assetUrl: string | undefined;
   private gatewayName: string;
 
   constructor(name: string, from: string) {
@@ -281,7 +281,7 @@ export class FragmentStorefront extends Fragment {
     };
 
     let parsedRequest;
-    let requestConfiguration: any = {
+    const requestConfiguration: any = {
       timeout: this.config.render.timeout || DEFAULT_CONTENT_TIMEOUT,
     };
 
