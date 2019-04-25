@@ -1,12 +1,12 @@
 const path = require('path');
 
 const loadConfigurationFromEnv = (name: string, isObject = false) => {
-  const environmentVariable = process.env[name];
-  if (isObject) {
-    return environmentVariable ? JSON.parse(environmentVariable) : undefined;
-  } else {
-    return environmentVariable;
-  }
+    const environmentVariable = process.env[name];
+    if (isObject) {
+        return environmentVariable ? JSON.parse(environmentVariable) : undefined;
+    } else {
+        return environmentVariable;
+    }
 };
 
 
@@ -19,11 +19,11 @@ export const PREVIEW_PARTIAL_QUERY_NAME = loadConfigurationFromEnv('PREVIEW_PART
 export const API_ROUTE_PREFIX = loadConfigurationFromEnv('API_ROUTE_PREFIX') || 'api';
 export const GATEWAY_PREPERATION_CHECK_INTERVAL = +loadConfigurationFromEnv('GATEWAY_PREPERATION_CHECK_INTERVAL') || 200;
 export const CHEERIO_CONFIGURATION = loadConfigurationFromEnv('CHEERIO_CONFIGURATION', true) || {
-  normalizeWhitespace: true,
-  recognizeSelfClosing: true,
-  xmlMode: true,
-  lowerCaseAttributeNames: true,
-  decodeEntities: false
+    normalizeWhitespace: true,
+    recognizeSelfClosing: true,
+    xmlMode: true,
+    lowerCaseAttributeNames: true,
+    decodeEntities: false
 };
 export const TEMPLATE_FRAGMENT_TAG_NAME = loadConfigurationFromEnv('TEMPLATE_FRAGMENT_TAG_NAME') || 'fragment';
 export const DEFAULT_GZIP_EXTENSIONS = loadConfigurationFromEnv('DEFAULT_GZIP_EXTENSIONS', true) || ['.js', '.css'];

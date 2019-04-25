@@ -1,13 +1,13 @@
 import {EventEmitter} from "events";
 
 export const wait = (seconds: number) => {
-  return new Promise(resolve =>
-    setTimeout(() => resolve(), seconds)
-  );
+    return new Promise(resolve =>
+        setTimeout(() => resolve(), seconds)
+    );
 };
 
 export const isDebug = () => {
-  return process.env.NODE_ENV === 'debug';
+    return process.env.NODE_ENV === 'debug';
 };
 
 

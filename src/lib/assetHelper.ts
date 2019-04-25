@@ -1,8 +1,8 @@
 import {IPageLibAsset} from "./types";
 
 export class AssetHelper {
-  static loadJs(asset: IPageLibAsset): Promise<void> {
-    let loader = null;
+  static loadJs(asset: IPageLibAsset): Promise<any> | null {
+    let loader: Promise<any> | null = null;
     const scriptTag = document.createElement('script');
     scriptTag.type = 'text/javascript';
     scriptTag.attributes['puzzle-asset'] = asset.name;

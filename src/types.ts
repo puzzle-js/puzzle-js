@@ -1,12 +1,12 @@
 import {GatewayStorefrontInstance} from "./gatewayStorefront";
 import {NextFunction, Request, Response} from "express-serve-static-core";
 import {
-  HTTP_METHODS,
-  REPLACE_ITEM_TYPE,
-  RESOURCE_INJECT_TYPE,
-  RESOURCE_JS_EXECUTE_TYPE,
-  RESOURCE_LOCATION,
-  TRANSFER_PROTOCOLS
+    HTTP_METHODS,
+    REPLACE_ITEM_TYPE,
+    RESOURCE_INJECT_TYPE,
+    RESOURCE_JS_EXECUTE_TYPE,
+    RESOURCE_LOCATION,
+    TRANSFER_PROTOCOLS
 } from "./enums";
 import {FragmentStorefront} from "./fragment";
 import {Page} from "./page";
@@ -14,303 +14,303 @@ import {RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "./lib/enums";
 import {RouteConfiguration} from "puzzle-warden/dist/request-manager";
 
 export interface IFragmentCookieMap {
-  name: string;
-  live: string;
+    name: string;
+    live: string;
 }
 
 export interface IFragment {
-  name: string;
+    name: string;
 }
 
 export interface IFragmentBFFRender {
-  static?: boolean; //todo bunun yenilenen versiyonu
-  url: string | string[];
-  routeCache?: number;
-  selfReplace?: boolean;
-  middlewares?: Array<(req: Request, res: Response, next: NextFunction) => any | string>;
-  cacheControl?: string;
-  placeholder?: boolean;
-  error?: boolean;
-  timeout?: number;
+    static?: boolean; //todo bunun yenilenen versiyonu
+    url: string | string[];
+    routeCache?: number;
+    selfReplace?: boolean;
+    middlewares?: Array<(req: Request, res: Response, next: NextFunction) => any | string>;
+    cacheControl?: string;
+    placeholder?: boolean;
+    error?: boolean;
+    timeout?: number;
 }
 
 export interface IFragmentHandler {
-  content: (req: object, data?: any) => {
-    main: string;
-    [name: string]: string;
-  };
-  placeholder: () => string;
-  error: () => string;
-  data: (req: object) => Promise<HandlerDataResponse>;
+    content: (req: object, data?: any) => {
+        main: string;
+        [name: string]: string;
+    };
+    placeholder: () => string;
+    error: () => string;
+    data: (req: object) => Promise<HandlerDataResponse>;
 }
 
 export interface HandlerDataResponse {
-  [name: string]: any;
+    [name: string]: any;
 
-  data?: any;
-  $status?: number;
-  $headers?: {
-    [name: string]: string
-  };
+    data?: any;
+    $status?: number;
+    $headers?: {
+        [name: string]: string
+    };
 }
 
 export interface IFileResource {
-  name: string;
-  type: RESOURCE_TYPE;
+    name: string;
+    type: RESOURCE_TYPE;
 }
 
 export interface IFileResourceDependency extends IFileResource {
-  link?: string;
-  preview?: string;
-  injectType?: RESOURCE_INJECT_TYPE;
+    link?: string;
+    preview?: string;
+    injectType?: RESOURCE_INJECT_TYPE;
 }
 
 export interface IFileResourceAsset extends IFileResource {
-  fileName: string;
-  link: string;
-  loadMethod: RESOURCE_LOADING_TYPE;
-  type: RESOURCE_TYPE;
-  name: string;
-  dependent?: string[];
+    fileName: string;
+    link: string;
+    loadMethod: RESOURCE_LOADING_TYPE;
+    type: RESOURCE_TYPE;
+    name: string;
+    dependent?: string[];
 }
 
 export interface IFileResourceStorefrontDependency extends IFileResource {
-  content?: string;
-  link?: string;
+    content?: string;
+    link?: string;
 }
 
 export interface IFragmentBFFVersion {
-  assets: IFileResourceAsset[];
-  dependencies: IFileResourceDependency[];
-  handler?: IFragmentHandler;
+    assets: IFileResourceAsset[];
+    dependencies: IFileResourceDependency[];
+    handler?: IFragmentHandler;
 }
 
 export interface IFragmentBFF extends IFragment {
-  prg?: boolean;
-  versions: {
-    [version: string]: IFragmentBFFVersion
-  };
-  version: string;
-  testCookie: string;
-  warden?: RouteConfiguration;
-  render: IFragmentBFFRender;
+    prg?: boolean;
+    versions: {
+        [version: string]: IFragmentBFFVersion
+    };
+    version: string;
+    testCookie: string;
+    warden?: RouteConfiguration;
+    render: IFragmentBFFRender;
 }
 
 export interface IExposeFragment {
-  version: string;
-  testCookie: string;
-  render: IFragmentBFFRender;
-  prg?: boolean;
-  warden?: RouteConfiguration;
-  assets: IFileResourceAsset[];
-  dependencies: IFileResourceDependency[];
-  passiveVersions?: {
-    [version: string]: {
-      assets: IFileResourceAsset[],
-      dependencies: IFileResourceDependency[]
-    }
-  };
+    version: string;
+    testCookie: string;
+    render: IFragmentBFFRender;
+    prg?: boolean;
+    warden?: RouteConfiguration;
+    assets: IFileResourceAsset[];
+    dependencies: IFileResourceDependency[];
+    passiveVersions?: {
+        [version: string]: {
+            assets: IFileResourceAsset[],
+            dependencies: IFileResourceDependency[]
+        }
+    };
 }
 
 export interface IGatewayMap {
-  [name: string]: GatewayStorefrontInstance;
+    [name: string]: GatewayStorefrontInstance;
 }
 
 export interface IGatewayConfiguration {
-  name: string;
-  url: string;
-  assetUrl?: string;
+    name: string;
+    url: string;
+    assetUrl?: string;
 }
 
 export interface ICookieMap {
-  [cookieName: string]: string;
+    [cookieName: string]: string;
 }
 
 export type IFragmentEndpointHandler = (req: any, res: any, next?: any) => void;
 
 export interface IApiHandler {
-  path: string;
-  middlewares: Array<(req: Request, res: Response, next: NextFunction) => void>;
-  method: HTTP_METHODS;
-  cacheControl?: string;
-  routeCache?: number;
-  controller: string;
+    path: string;
+    middlewares: Array<(req: Request, res: Response, next: NextFunction) => void>;
+    method: HTTP_METHODS;
+    cacheControl?: string;
+    routeCache?: number;
+    controller: string;
 }
 
 export interface IApiVersion {
-  handler?: any;
-  endpoints: IApiHandler[];
+    handler?: any;
+    endpoints: IApiHandler[];
 }
 
 export interface IApiConfig {
-  name: string;
-  testCookie: string;
-  liveVersion: string;
-  versions: { [version: string]: IApiVersion };
+    name: string;
+    testCookie: string;
+    liveVersion: string;
+    versions: { [version: string]: IApiVersion };
 }
 
 export interface IGatewayBFFConfiguration extends IGatewayConfiguration {
-  fragments: IFragmentBFF[];
-  api: IApiConfig[];
-  port: number;
-  ipv4?: boolean;
-  isMobile?: boolean;
-  fragmentsFolder: string;
-  corsDomains?: string[];
-  corsMaxAge?: number;
-  spdy?: ISpdyConfiguration;
-  customHeaders?: ICustomHeader[];
+    fragments: IFragmentBFF[];
+    api: IApiConfig[];
+    port: number;
+    ipv4?: boolean;
+    isMobile?: boolean;
+    fragmentsFolder: string;
+    corsDomains?: string[];
+    corsMaxAge?: number;
+    spdy?: ISpdyConfiguration;
+    customHeaders?: ICustomHeader[];
 }
 
 export interface IExposeConfig {
-  hash: string;
-  fragments: {
-    [name: string]: IExposeFragment
-  };
+    hash: string;
+    fragments: {
+        [name: string]: IExposeFragment
+    };
 }
 
 export interface ICookieObject {
-  [name: string]: string;
+    [name: string]: string;
 }
 
 export interface IFragmentContentResponse {
-  status: number;
-  html: {
-    [name: string]: string;
-  };
-  headers: {
-    [name: string]: string;
-  };
-  model: FragmentModel;
+    status: number;
+    html: {
+        [name: string]: string;
+    };
+    headers: {
+        [name: string]: string;
+    };
+    model: FragmentModel;
 }
 
 export interface IPageDependentGateways {
-  gateways: {
-    [name: string]: {
-      gateway: GatewayStorefrontInstance | null,
-      ready: boolean
-    }
-  };
-  fragments: {
-    [name: string]: {
-      instance: FragmentStorefront,
-      gateway: string
-    }
-  };
+    gateways: {
+        [name: string]: {
+            gateway: GatewayStorefrontInstance | null,
+            ready: boolean
+        }
+    };
+    fragments: {
+        [name: string]: {
+            instance: FragmentStorefront,
+            gateway: string
+        }
+    };
 }
 
 export interface IPageConfiguration {
-  html: string;
-  url: string | string[];
-  name: string;
+    html: string;
+    url: string | string[];
+    name: string;
 }
 
 export interface IPageMap {
-  [url: string]: Page;
+    [url: string]: Page;
 }
 
 export interface ISpdyConfiguration {
-  key: string | Buffer;
-  cert: string | Buffer;
-  passphrase: string;
-  protocols: TRANSFER_PROTOCOLS[];
+    key: string | Buffer;
+    cert: string | Buffer;
+    passphrase: string;
+    protocols: TRANSFER_PROTOCOLS[];
 }
 
 export interface INodeSpdyConfiguration {
-  key: string | Buffer;
-  cert: string | Buffer;
-  passphrase: string;
-  spdy: {
-    protocols: TRANSFER_PROTOCOLS[];
-    'x-forwarded-for': boolean;
-    connection: {
-      windowSize: number;
-      autoSpdy31: boolean;
-    }
-  };
+    key: string | Buffer;
+    cert: string | Buffer;
+    passphrase: string;
+    spdy: {
+        protocols: TRANSFER_PROTOCOLS[];
+        'x-forwarded-for': boolean;
+        connection: {
+            windowSize: number;
+            autoSpdy31: boolean;
+        }
+    };
 }
 
 export interface IStorefrontConfig {
-  gateways: IGatewayConfiguration[];
-  port: number;
-  ipv4?: boolean;
-  pages: IPageConfiguration[];
-  pollInterval?: number;
-  dependencies: IFileResourceStorefrontDependency[];
-  spdy?: ISpdyConfiguration;
-  customHeaders?: ICustomHeader[];
+    gateways: IGatewayConfiguration[];
+    port: number;
+    ipv4?: boolean;
+    pages: IPageConfiguration[];
+    pollInterval?: number;
+    dependencies: IFileResourceStorefrontDependency[];
+    spdy?: ISpdyConfiguration;
+    customHeaders?: ICustomHeader[];
 }
 
 export interface IResponseHandlers {
-  [versionsHash: string]: IFragmentEndpointHandler | Promise<IFragmentEndpointHandler>;
+    [versionsHash: string]: IFragmentEndpointHandler | Promise<IFragmentEndpointHandler>;
 }
 
 export interface IReplaceItem {
-  key: string;
-  type: REPLACE_ITEM_TYPE;
-  partial: string;
+    key: string;
+    type: REPLACE_ITEM_TYPE;
+    partial: string;
 }
 
 export interface IReplaceSet {
-  fragment: FragmentStorefront;
-  replaceItems: IReplaceItem[];
-  fragmentAttributes: { [name: string]: string };
+    fragment: FragmentStorefront;
+    replaceItems: IReplaceItem[];
+    fragmentAttributes: { [name: string]: string };
 }
 
 export interface IReplaceAssetSet {
-  link: string | undefined | null;
-  content: string | undefined | null;
-  name: string;
-  location: RESOURCE_LOCATION;
-  injectType: RESOURCE_INJECT_TYPE;
-  executeType: RESOURCE_JS_EXECUTE_TYPE;
+    link: string | undefined | null;
+    content: string | undefined | null;
+    name: string;
+    location: RESOURCE_LOCATION;
+    injectType: RESOURCE_INJECT_TYPE;
+    executeType: RESOURCE_JS_EXECUTE_TYPE;
 }
 
 export interface IReplaceAsset {
-  fragment: FragmentStorefront;
-  replaceItems: IReplaceAssetSet[];
+    fragment: FragmentStorefront;
+    replaceItems: IReplaceAssetSet[];
 }
 
 export interface IChunkedReplacementSet {
-  fragment: FragmentStorefront;
-  replaceItems: IReplaceItem[];
+    fragment: FragmentStorefront;
+    replaceItems: IReplaceItem[];
 }
 
 export interface IWaitedResponseFirstFlush {
-  template: string;
-  statusCode: number;
-  headers: {
-    [name: string]: string;
-  };
+    template: string;
+    statusCode: number;
+    headers: {
+        [name: string]: string;
+    };
 }
 
 export interface IApiHandlerModule {
-  [controller: string]: (req: object, res: object) => any;
+    [controller: string]: (req: object, res: object) => any;
 }
 
 export interface IWrappingJsAsset {
-  injectType: RESOURCE_INJECT_TYPE;
-  name: string;
-  link: string | null | undefined;
-  content: string | null | undefined;
-  executeType: RESOURCE_JS_EXECUTE_TYPE;
+    injectType: RESOURCE_INJECT_TYPE;
+    name: string;
+    link: string | null | undefined;
+    content: string | null | undefined;
+    executeType: RESOURCE_JS_EXECUTE_TYPE;
 }
 
 export interface IFragmentResponse {
-  content: HandlerDataResponse;
-  $status: number;
-  $headers: {
-    [name: string]: string;
-  };
-  $model: FragmentModel;
+    content: HandlerDataResponse;
+    $status: number;
+    $headers: {
+        [name: string]: string;
+    };
+    $model: FragmentModel;
 }
 
 export interface FragmentModel {
-  [name: string]: any;
+    [name: string]: any;
 }
 
 export interface ICustomHeader {
- key: string;
- isEnv?: boolean;
- value: string | number;
+    key: string;
+    isEnv?: boolean;
+    value: string | number;
 }

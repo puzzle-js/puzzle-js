@@ -1,0 +1,78 @@
+version: 2.1
+
+
+defaults: &defaults
+  docker:
+    - image: circleci/node:10
+
+
+orbs:
+  codecov: codecov/codecov@1.0.4
+
+
+jobs:
+  test:
+    <<: *defaults
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - dependencies-{{ checksum "package.json" }}
+      - run: yarn install
+      - save_cache:
+          paths:
+            - node_modules
+          key: dependencies-{{ checksum "package.json" }}
+      - run: yarn test
+      - store_artifacts:
+          path: coverage
+      - codecov/upload:
+          file: coverage/*.json
+          token: $CODECOV_TOKEN
+      - run: yarn build
+      - persist_to_workspace:
+          root: .
+          paths:
+            - README.md
+            - CHANGELOG.md
+            - LICENSE
+            - package.json
+            - yarn.lock
+            - .npmignore
+            - dist
+  deploy:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: List Workspace
+          command: ls
+      - run:
+          name: Authenticate with registry
+          command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc
+      - run:
+          name: Publish package
+          command: npm publish
+
+workflows:
+  version: 2
+  test-deploy:
+    jobs:
+      - test:
+          filters:
+            tags:
+              only: /^v.*/
+      - hold:
+          type: approval
+          requires:
+            - test
+          filters:
+            branches:
+              only: master
+      - deploy:
+          requires:
+            - hold
+          filters:
+            branches:
+              only: master
