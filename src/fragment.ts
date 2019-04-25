@@ -331,7 +331,7 @@ export class FragmentStorefront extends Fragment {
       const errorPage = await this.getErrorPage();
 
       return {
-        status: 500,
+        status: errorPage ? 200 : 500,
         html: errorPage ? errorPage : {},
         headers: {},
         model: {}

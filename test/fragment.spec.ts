@@ -153,7 +153,8 @@ describe('Fragment', () => {
       dependencies: [],
       render: {
         url: '/',
-        placeholder: true
+        placeholder: true,
+        error: true
       }
     };
 
@@ -305,6 +306,57 @@ describe('Fragment', () => {
           done(e);
         }
       });
+    });
+
+    it('should return empty content when error accrued and error page does not exists' ,async () => {
+        nock('http://local.gatewaysimulator.com')
+            .get('/error-page-test/')
+            .query({__renderMode: FRAGMENT_RENDER_MODES.STREAM})
+            .replyWithError({});
+
+        nock('http://local.gatewaysimulator.com')
+            .get('/error-page-test/error')
+            .replyWithError({});
+
+        const fragment = new FragmentStorefront('error-page-test', 'test');
+        fragment.update(commonFragmentConfig, 'http://local.gatewaysimulator.com','');
+        const content = await fragment.getContent();
+        expect(content.html).to.deep.eq({});
+        expect(content.status).to.eq(500);
+    });
+
+    it('should return error page content when error accrued and error page exists' ,async () => {
+        const errorPageContent = '<div>Error Page Fragment</div>';
+
+
+        nock('http://local.gatewaysimulator.com')
+            .get('/error-page-test/')
+            .query({__renderMode: FRAGMENT_RENDER_MODES.STREAM})
+            .replyWithError({});
+
+        nock('http://local.gatewaysimulator.com')
+            .get('/error-page-test/error')
+            .reply(200, errorPageContent);
+
+        const fragment = new FragmentStorefront('error-page-test', 'test');
+        fragment.update(commonFragmentConfig, 'http://local.gatewaysimulator.com','');
+
+        const content = await fragment.getContent();
+        expect(content.html).to.deep.eq(errorPageContent);
+        expect(content.status).to.eq(200);
+    });
+
+    it('should fetch error page', async () => {
+        const errorPageContent = '<div>errorPageContent</div>';
+        nock('http://local.gatewaysimulator.com')
+            .get('/error-page-test/error')
+            .reply(200, errorPageContent);
+
+        const fragment = new FragmentStorefront('error-page-test', 'test');
+        fragment.update(commonFragmentConfig, 'http://local.gatewaysimulator.com','');
+
+        const placeholder = await fragment.getErrorPage();
+        expect(placeholder).to.eq(errorPageContent);
     });
 
     it('should log and return null asset when no fragment config exists', (done) => {
