@@ -1081,7 +1081,7 @@ describe('BFF', () => {
                     main: `<div>${faker.random.words()}</div>`
                 };
             },
-            data(req) {
+            data(req: any) {
               expect(req.headers.originalurl).to.eq(`/${urlpath}${queryString}`);
                 return {
                     data: faker.random.word(),

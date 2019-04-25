@@ -1,17 +1,17 @@
 import fetch from "node-fetch";
-import {HandlerDataResponse, IFragmentContentResponse} from "./types";
-import {CONTENT_ENCODING_TYPES, FRAGMENT_RENDER_MODES} from "./enums";
+import { HandlerDataResponse, IFileResourceAsset, IFragmentContentResponse } from "./types";
+import { CONTENT_ENCODING_TYPES, FRAGMENT_RENDER_MODES } from "./enums";
 import * as querystring from "querystring";
-import {DEBUG_QUERY_NAME, DEFAULT_CONTENT_TIMEOUT, PREVIEW_PARTIAL_QUERY_NAME, RENDER_MODE_QUERY_NAME} from "./config";
-import {IExposeFragment, IFragment, IFragmentBFF, IFragmentHandler} from "./types";
+import { DEBUG_QUERY_NAME, DEFAULT_CONTENT_TIMEOUT, PREVIEW_PARTIAL_QUERY_NAME, RENDER_MODE_QUERY_NAME } from "./config";
+import { IExposeFragment, IFragment, IFragmentBFF, IFragmentHandler } from "./types";
 import url from "url";
 import path from "path";
-import {container, TYPES} from "./base";
-import {Logger} from "./logger";
-import {decompress} from "iltorb";
-import {Request} from 'express';
-import {HttpClient} from "./client";
-import {ERROR_CODES, PuzzleError} from "./errors";
+import { container, TYPES } from "./base";
+import { Logger } from "./logger";
+import { decompress } from "iltorb";
+import { Request } from 'express';
+import { HttpClient } from "./client";
+import { ERROR_CODES, PuzzleError } from "./errors";
 
 
 const logger = <Logger>container.get(TYPES.Logger);
@@ -30,7 +30,7 @@ export class FragmentBFF extends Fragment {
   private handler: { [version: string]: IFragmentHandler } = {};
 
   constructor(config: IFragmentBFF) {
-    super({name: config.name});
+    super({ name: config.name });
     this.config = config;
 
     this.prepareHandlers();
@@ -45,7 +45,7 @@ export class FragmentBFF extends Fragment {
    */
   async render(req: { url: string, headers: object, query: object, params: object }, res: any, version?: string): Promise<HandlerDataResponse> {
     const targetVersion = version || this.config.version;
-    const handler = this.handler[targetVersion];
+    const handler = this.handler[targetVersion] || this.handler[this.config.version];
     const clearedRequest = this.clearRequest(req);
     if (handler) {
       if (handler.data) {
@@ -128,7 +128,15 @@ export class FragmentBFF extends Fragment {
   }
 
   /**
-   * Reolves handlers based on configuration
+  * Check module type
+  */
+  private checkModuleType(fragmentModule: IFragmentHandler | Function): IFragmentHandler {
+    if (typeof fragmentModule === "function") return fragmentModule(container);
+    return fragmentModule;
+  }
+
+  /**
+   * Resolve handlers based on configuration
    */
   private prepareHandlers() {
     Object.keys(this.config.versions).forEach(version => {
@@ -137,7 +145,7 @@ export class FragmentBFF extends Fragment {
         this.handler[version] = configurationHandler;
       } else {
         const module = require(path.join(process.cwd(), `/src/fragments/`, this.config.name, version));
-        this.handler[version] = module;
+        this.handler[version] = this.checkModuleType(module);
       }
     });
   }
@@ -154,7 +162,7 @@ export class FragmentStorefront extends Fragment {
   private gatewayName: string;
 
   constructor(name: string, from: string) {
-    super({name});
+    super({ name });
 
     this.from = from;
   }
@@ -291,7 +299,10 @@ export class FragmentStorefront extends Fragment {
       }
     }
 
-    requestConfiguration.headers = {...requestConfiguration.headers, gateway: this.gatewayName} || {gateway: this.gatewayName};
+    requestConfiguration.headers = {
+      ...requestConfiguration.headers,
+      gateway: this.gatewayName
+    } || { gateway: this.gatewayName };
 
 
     delete query.from;
@@ -302,7 +313,11 @@ export class FragmentStorefront extends Fragment {
 
     const routeRequest = req && parsedRequest ? `${parsedRequest.pathname.replace('/' + this.name, '')}?${querystring.stringify(query)}` : `/?${querystring.stringify(query)}`;
 
-    return httpClient.get(`${this.fragmentUrl}${routeRequest}`, {json: true, gzip:true, ...requestConfiguration}).then(res => {
+    return httpClient.get(`${this.fragmentUrl}${routeRequest}`, this.name, {
+      json: true,
+      gzip: true,
+      ...requestConfiguration
+    }).then(res => {
       logger.info(`Received fragment contents of ${this.name} with status code ${res.response.statusCode}`);
       return {
         status: res.data.$status || res.response.statusCode,
@@ -327,9 +342,10 @@ export class FragmentStorefront extends Fragment {
   /**
    * Returns asset content
    * @param {string} name
+   * @param targetVersion
    * @returns {Promise<string>}
    */
-  async getAsset(name: string) {
+  async getAsset(name: string, targetVersion: string) {
     logger.info(`Trying to get asset: ${name}`);
 
     if (!this.config) {
@@ -337,7 +353,14 @@ export class FragmentStorefront extends Fragment {
       return null;
     }
 
-    const asset = this.config.assets.find(asset => asset.name === name);
+    let fragmentVersion: { assets: IFileResourceAsset[] } = this.config;
+
+    if (targetVersion !== this.config.version && this.config.passiveVersions && this.config.passiveVersions[targetVersion]) {
+      fragmentVersion = this.config.passiveVersions[targetVersion];
+    }
+
+    const asset = fragmentVersion.assets.find(asset => asset.name === name);
+
     if (!asset) {
       logger.error(new Error(`Asset not declared in fragments asset list: ${name}`));
       return null;
