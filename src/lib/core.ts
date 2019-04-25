@@ -57,7 +57,7 @@ export class Core extends Module {
   }
 
   static createLoadQueue(assets: IPageLibAsset[]) {
-    let loadList = [];
+    let loadList: any = [];
 
     assets.forEach(asset => {
       if (!asset.preLoaded) {
@@ -66,10 +66,11 @@ export class Core extends Module {
 
         asset.dependent && asset.dependent.forEach((dependencyName) => {
           const dependency = Core.__pageConfiguration.dependencies.filter(dependency => dependency.name === dependencyName);
-          if (dependency[0] && !dependency[0].preLoaded) {
-            if (loadList.indexOf(dependency[0]) === -1) {
-              loadList.push(dependency[0]);
-              dependency[0].preLoaded = true;
+          const dependencyContent = dependency[0];
+          if (dependencyContent && !dependencyContent.preLoaded) {
+            if (loadList.indexOf(dependencyContent) === -1) {
+              loadList.push(dependencyContent);
+              dependencyContent.preLoaded = true;
             }
           }
         });
@@ -89,9 +90,9 @@ export class Core extends Module {
    * @param {string} replacementContentSelector
    */
   private static __replace(containerSelector: string, replacementContentSelector: string) {
-    const z = window.document.querySelector(replacementContentSelector);
+    const z = window.document.querySelector(replacementContentSelector) as any;
     const r = z.innerHTML;
     z.parentNode.removeChild(z);
-    window.document.querySelector(containerSelector).innerHTML = r;
+    window.document.querySelector(containerSelector)!.innerHTML = r;
   }
 }

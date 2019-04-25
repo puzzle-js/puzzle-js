@@ -1,5 +1,3 @@
-# Created by .ignore support plugin (hsz.mobi)
-### Node template
 # Logs
 logs
 *.log
@@ -112,7 +110,12 @@ com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
 fabric.properties
-
+~temp
 dist
 .idea
 yarn-error.log
+src/lib/*.js
+src/lib/*.js.map
+!src/lib/puzzle_debug.min.js
+!src/lib/webpack.config.js
+!src/lib/jest.config.js
