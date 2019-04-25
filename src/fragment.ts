@@ -159,6 +159,7 @@ export class FragmentStorefront extends Fragment {
   gatewayPath!: string;
   fragmentUrl: string | undefined;
   assetUrl: string | undefined;
+  private cachedErrorPage: string | undefined;
   private gatewayName: string;
 
   constructor(name: string, from: string) {
@@ -237,6 +238,10 @@ export class FragmentStorefront extends Fragment {
           return '';
       }
 
+      if(this.cachedErrorPage) {
+        return this.cachedErrorPage
+      }
+
       return fetch(`${this.fragmentUrl}/error`, {
           headers: {
               gateway: this.gatewayName
@@ -244,6 +249,7 @@ export class FragmentStorefront extends Fragment {
       })
         .then(res => res.text())
         .then(html => {
+            this.cachedErrorPage = html;
             return html;
         })
         .catch(err => {

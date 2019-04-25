@@ -355,8 +355,28 @@ describe('Fragment', () => {
         const fragment = new FragmentStorefront('error-page-test', 'test');
         fragment.update(commonFragmentConfig, 'http://local.gatewaysimulator.com','');
 
-        const placeholder = await fragment.getErrorPage();
-        expect(placeholder).to.eq(errorPageContent);
+        const errorPage = await fragment.getErrorPage();
+        expect(errorPage).to.eq(errorPageContent);
+    });
+
+    it('should fetch error page from cache', async () => {
+        const errorPageContent1 = '<div>errorPageContent1</div>';
+        const errorPageContent2 = '<div>errorPageContent2</div>';
+
+        const fragment = new FragmentStorefront('error-page-test', 'test');
+        fragment.update(commonFragmentConfig, 'http://local.gatewaysimulator.com','');
+
+        nock('http://local.gatewaysimulator.com')
+            .get('/error-page-test/error')
+            .reply(200, errorPageContent1);
+        const errorPage1 = await fragment.getErrorPage();
+        nock('http://local.gatewaysimulator.com')
+            .get('/error-page-test/error')
+            .reply(200, errorPageContent2);
+        const errorPage2 = await fragment.getErrorPage();
+
+        expect(errorPage1).to.eq(errorPageContent1);
+        expect(errorPage2).to.eq(errorPageContent1);
     });
 
     it('should log and return null asset when no fragment config exists', (done) => {

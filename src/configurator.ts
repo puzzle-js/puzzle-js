@@ -49,6 +49,7 @@ const gatewayRenderStructure = struct({
   static: 'boolean?',
   selfReplace: 'boolean?',
   placeholder: 'boolean?',
+  error: 'boolean?',
   timeout: 'number?',
   middlewares: struct.optional(['string']),
   routeCache: 'number?'
