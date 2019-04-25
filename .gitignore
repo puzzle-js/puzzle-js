@@ -114,8 +114,9 @@ fabric.properties
 dist
 .idea
 yarn-error.log
-src/lib/*.js
-src/lib/*.js.map
+src/lib/**/*.js
+src/lib/**/*.js.map
 !src/lib/puzzle_debug.min.js
+!src/lib/puzzle.min.js
 !src/lib/webpack.config.js
 !src/lib/jest.config.js

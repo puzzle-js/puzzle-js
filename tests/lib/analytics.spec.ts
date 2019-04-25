@@ -28,7 +28,7 @@ describe('Module - Fragments', () => {
         PuzzleJs.clearListeners();
     });
 
-    it('should create new Fragments', () => {
+    it('should create new Analytics', () => {
         const fragments = new Analytics();
 
         expect(fragments).to.be.instanceof(Analytics);

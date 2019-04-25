@@ -56,7 +56,6 @@
   },
   "scripts": {
     "prepublishOnly": "yarn build",
-    "prepublish": "TS_NODE_FILES=true node_modules/.bin/tsc",
     "build": "TS_NODE_FILES=true node_modules/.bin/tsc && gulp build && node_modules/.bin/webpack --config ./src/lib/webpack.config.js && gulp prepareLib",
     "test": "NODE_TLS_REJECT_UNAUTHORIZED=0 jest --coverage",
     "test:watch": "NODE_TLS_REJECT_UNAUTHORIZED=0 jest --coverage --watch",
