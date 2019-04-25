@@ -94,10 +94,10 @@
   dependencies:
     "@types/express" "*"
 
-"@types/connect-timeout@^0.0.33":
-  version "0.0.33"
-  resolved "https://registry.yarnpkg.com/@types/connect-timeout/-/connect-timeout-0.0.33.tgz#89da7e2d3eb4fad64535303c3dfba1fd427e7943"
-  integrity sha512-dJ0eqFynqqxMgxXFP2FrxoEssmMIIYujRgCmzwxQJsovFd5WONrESWmx79Ou63QUEke0nKAakIFeLYC2PNp+AA==
+"@types/connect-timeout@^0.0.34":
+  version "0.0.34"
+  resolved "https://registry.yarnpkg.com/@types/connect-timeout/-/connect-timeout-0.0.34.tgz#16639efcc65b5b887f3b6738f8d9ee4acf556f04"
+  integrity sha512-ZadN0ttd64Wg5suotSRqJTn/QSw6gO1OqFY3GVgzY9WC5Efo2fxsSt5Scd5IOC6eXPbA7N4VlK17/oRpGSmOzA==
   dependencies:
     "@types/express" "*"
 
