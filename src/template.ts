@@ -41,7 +41,7 @@ import path from "path";
 import {IPageFragmentConfig, IPageLibAsset, IPageLibConfiguration, IPageLibDependency} from "./lib/types";
 import {EVENT, RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "./lib/enums";
 
-const logger = <Logger>container.get(TYPES.Logger);
+const logger = container.get(TYPES.Logger) as Logger;
 
 
 export class Template {
@@ -58,7 +58,7 @@ export class Template {
   /**
    * Loads html template into Cheerio instance
    */
-  public load(): void {
+  load(): void {
     const templateMatch = TemplateCompiler.TEMPLATE_CONTENT_REGEX.exec(this.rawHtml);
     if (templateMatch) {
       this.dom = cheerio.load(Template.replaceCustomScripts(templateMatch[1], true), CHEERIO_CONFIGURATION);
@@ -119,7 +119,7 @@ export class Template {
    * @param {boolean} isDebug
    * @returns {Promise<IFragmentEndpointHandler>}
    */
-  async compile(testCookies: ICookieMap, isDebug: boolean = false): Promise<IFragmentEndpointHandler> {
+  async compile(testCookies: ICookieMap, isDebug = false): Promise<IFragmentEndpointHandler> {
     logger.info(`[Compiling Page ${this.name}]`, 'Creating virtual dom');
     this.load();
 
@@ -256,7 +256,7 @@ export class Template {
               link: dependencyData.link,
               type: dependency.type,
               preLoaded: false
-            })
+            });
           }
         });
       }
@@ -338,9 +338,9 @@ export class Template {
    * @returns {Promise<void>}
    */
   private async appendPlaceholders(chunkedReplacements: IChunkedReplacementSet[]) {
-    for (let replacement of chunkedReplacements) {
+    for (const replacement of chunkedReplacements) {
       const placeholders = replacement.replaceItems.filter(item => item.type === REPLACE_ITEM_TYPE.PLACEHOLDER);
-      for (let placeholderReplacement of placeholders) {
+      for (const placeholderReplacement of placeholders) {
         const placeholderContent = await replacement.fragment.getPlaceholder();
         this.dom(`[puzzle-placeholder="${placeholderReplacement.key}"]`).append(placeholderContent);
       }
@@ -354,7 +354,7 @@ export class Template {
    * @returns {Promise<void>}
    */
   private async replaceStaticFragments(fragments: FragmentStorefront[], replaceAssets: IReplaceAsset[]): Promise<void> {
-    for (let fragment of fragments) {
+    for (const fragment of fragments) {
       const partialElements: any = [];
       let mainElement: any = null;
       this.dom(`fragment[name="${fragment.name}"][from="${fragment.from}"]`).each((i, element) => {
@@ -366,7 +366,7 @@ export class Template {
       });
 
       const assets = replaceAssets.find(set => set.fragment.name === fragment.name);
-      let fragmentScripts = assets ? assets.replaceItems.reduce((script, replaceItem) => {
+      const fragmentScripts = assets ? assets.replaceItems.reduce((script, replaceItem) => {
         script += Template.wrapJsAsset(replaceItem);
         return script;
       }, '') : '';
@@ -415,7 +415,7 @@ export class Template {
       waitedFragmentReplacement.replaceItems
         .forEach(replaceItem => {
           if (replaceItem.type === REPLACE_ITEM_TYPE.CONTENT) {
-            let fragmentInject = fragmentContent.html[replaceItem.partial] || CONTENT_NOT_FOUND_ERROR;
+            const fragmentInject = fragmentContent.html[replaceItem.partial] || CONTENT_NOT_FOUND_ERROR;
             template = template.replace(replaceItem.key, () => fragmentInject + Template.fragmentModelScript(waitedFragmentReplacement.fragment, fragmentContent.model, isDebug));
           }
         });
@@ -431,7 +431,7 @@ export class Template {
    * @param {boolean} isDebug
    * @returns {string}
    */
-  static fragmentModelScript(fragment: { name: string }, fragmentPageModel: FragmentModel, isDebug: boolean = false) {
+  static fragmentModelScript(fragment: { name: string }, fragmentPageModel: FragmentModel, isDebug = false) {
     return fragmentPageModel && Object.keys(fragmentPageModel).length ? `<script>${Object.keys(fragmentPageModel).reduce((modelVariable, key) => {
       modelVariable += `PuzzleJs.emit("${EVENT.ON_VARIABLES}", "${fragment.name}", "${key}", ${JSON.stringify(fragmentPageModel[key])});`;
       return modelVariable;
@@ -452,10 +452,10 @@ export class Template {
     if (chunkedFragmentReplacements.length === 0) {
       return (req: any, res: any) => {
         this.pageClass._onRequest(req);
-        let fragmentedHtml = firstFlushHandler.call(this.pageClass, req);
+        const fragmentedHtml = firstFlushHandler.call(this.pageClass, req);
         (async () => {
           const waitedReplacement = await this.replaceWaitedFragments(waitedFragments, fragmentedHtml, req, isDebug);
-          for (let prop in waitedReplacement.headers) {
+          for (const prop in waitedReplacement.headers) {
             res.set(prop, waitedReplacement.headers[prop]);
           }
           res.status(waitedReplacement.statusCode);
@@ -471,21 +471,21 @@ export class Template {
     } else {
       return (req: any, res: any) => {
         this.pageClass._onRequest(req);
-        let fragmentedHtml = firstFlushHandler.call(this.pageClass, req).replace('</body>', '').replace('</html>', '');
+        const fragmentedHtml = firstFlushHandler.call(this.pageClass, req).replace('</body>', '').replace('</html>', '');
         res.set('transfer-encoding', 'chunked');
         res.set('content-type', 'text/html; charset=UTF-8');
         (async () => {
-          const waitedPromises: Promise<any>[] = [];
+          const waitedPromises: Array<Promise<any>> = [];
 
           //Fire requests in parallel
           const waitedReplacementPromise = this.replaceWaitedFragments(waitedFragments, fragmentedHtml, req, isDebug);
-          for (let chunkedReplacement of chunkedFragmentReplacements) {
+          for (const chunkedReplacement of chunkedFragmentReplacements) {
             waitedPromises.push(chunkedReplacement.fragment.getContent(TemplateCompiler.processExpression(chunkedReplacement.fragmentAttributes, this.pageClass, req), req));
           }
 
           //Wait for first flush
           const waitedReplacement = await waitedReplacementPromise;
-          for (let prop in waitedReplacement.headers) {
+          for (const prop in waitedReplacement.headers) {
             res.set(prop, waitedReplacement.headers[prop]);
           }
           res.status(waitedReplacement.statusCode);
@@ -577,7 +577,7 @@ export class Template {
    * Adds required dependencies
    */
   private async addDependencies() {
-    let injectedDependencies: string[] = [];
+    const injectedDependencies: string[] = [];
 
     await Promise.all(Object.values(this.fragments).map(async fragment => {
       if (fragment.config) {
@@ -601,15 +601,15 @@ export class Template {
     const chunkReplacements: IReplaceSet[] = [];
 
     chunkedFragments.forEach(fragment => {
-      let replaceItems: IReplaceItem[] = [];
+      const replaceItems: IReplaceItem[] = [];
       let fragmentAttributes = {};
       this.dom(`fragment[from="${fragment.from}"][name="${fragment.name}"]`)
         .each((i, element) => {
           const partial = element.attribs.partial || 'main';
           const contentKey = fragment.name + '_' + partial;
-          let replaceItem = {
+          const replaceItem = {
             type: REPLACE_ITEM_TYPE.CHUNKED_CONTENT,
-            partial: partial,
+            partial,
             key: contentKey,
           };
           if (partial === 'main') {
@@ -617,10 +617,10 @@ export class Template {
           }
           replaceItems.push(replaceItem);
           if (fragment.config && fragment.config.render.placeholder && replaceItem.partial === 'main') {
-            let placeholderContentKey = contentKey + '_placeholder';
+            const placeholderContentKey = contentKey + '_placeholder';
             replaceItems.push({
               type: REPLACE_ITEM_TYPE.PLACEHOLDER,
-              partial: partial,
+              partial,
               key: placeholderContentKey
             });
             this.dom(element).replaceWith(`<div id="${fragment.name}" puzzle-fragment="${element.attribs.name}" puzzle-gateway="${element.attribs.from}" ${element.attribs.partial ? 'fragment-partial="' + element.attribs.partial + '"' : ''} puzzle-chunk="${contentKey}" puzzle-placeholder="${placeholderContentKey}"></div>`);
@@ -650,7 +650,7 @@ export class Template {
     const waitedFragmentReplacements: IReplaceSet[] = [];
 
     fragmentsShouldBeWaited.forEach(fragment => {
-      let replaceItems: IReplaceItem[] = [];
+      const replaceItems: IReplaceItem[] = [];
       let fragmentAttributes = {};
 
       const jsReplacements = replaceJsAssets.find(jsReplacement => jsReplacement.fragment.name === fragment.name);
@@ -671,12 +671,12 @@ export class Template {
 
       this.dom(`fragment[from="${fragment.from}"][name="${fragment.name}"]`)
         .each((i, element) => {
-          let replaceKey = `{fragment|${element.attribs.name}_${element.attribs.from}_${element.attribs.partial || 'main'}}`;
+          const replaceKey = `{fragment|${element.attribs.name}_${element.attribs.from}_${element.attribs.partial || 'main'}}`;
           const partial = element.attribs.partial || 'main';
           replaceItems.push({
             type: REPLACE_ITEM_TYPE.CONTENT,
             key: replaceKey,
-            partial: partial,
+            partial,
           });
           if (partial === 'main') {
             fragmentAttributes = element.attribs;
@@ -715,10 +715,10 @@ export class Template {
         }
       } as any);
 
-      let styleSheets: string[] = [];
+      const styleSheets: string[] = [];
       const injectionDependencyNames: string[] = [];
 
-      for (let fragment of Object.values(this.fragments)) {
+      for (const fragment of Object.values(this.fragments)) {
         if (!fragment.config) continue;
 
         const fragmentVersion: { assets: IFileResourceAsset[], dependencies: IFileResourceDependency[] } = cookies[fragment.config.testCookie] &&
@@ -731,7 +731,7 @@ export class Template {
         const cssAssets = fragmentVersion.assets.filter(asset => asset.type === RESOURCE_TYPE.CSS);
         const cssDependencies = fragmentVersion.dependencies.filter(dependency => dependency.type === RESOURCE_TYPE.CSS);
 
-        for (let asset of cssAssets) {
+        for (const asset of cssAssets) {
           const assetContent = await fragment.getAsset(asset.name, targetVersion);
 
           if (assetContent) {
@@ -740,21 +740,21 @@ export class Template {
           }
         }
 
-        for (let dependency of cssDependencies) {
+        for (const dependency of cssDependencies) {
           if (!injectionDependencyNames.includes(dependency.name)) {
             injectionDependencyNames.push(dependency.name);
-            styleSheets.push(await ResourceFactory.instance.getRawContent(dependency.name))
+            styleSheets.push(await ResourceFactory.instance.getRawContent(dependency.name));
           }
         }
       }
 
       if (styleSheets.length > 0) {
-        let output = _CleanCss.minify(styleSheets.join(''));
+        const output = _CleanCss.minify(styleSheets.join(''));
         const addEscapeCharacters = output.styles.replace(/content:"/g, 'content:"\\');
         this.dom('head').append(`<style puzzle-dependency="dynamic-css" dependency-list="${injectionDependencyNames.join(',')}">${addEscapeCharacters}</style>`);
       }
       resolve();
-    })
+    });
   }
 
   private static replaceCustomScripts(template: string, encode: boolean) {

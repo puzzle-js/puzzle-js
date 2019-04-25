@@ -21,7 +21,7 @@ export class PuzzleJs {
 
   static emit(event: EVENT, ...data: any[]) {
     if (PuzzleJs.__LISTENERS[event]) {
-      for (let listener of PuzzleJs.__LISTENERS[event]) {
+      for (const listener of PuzzleJs.__LISTENERS[event]) {
         listener.apply(null, data);
       }
     }
@@ -32,7 +32,7 @@ export class PuzzleJs {
   }
 
   static inject(modules: { [name: string]: Function }) {
-    for (let name in modules) {
+    for (const name in modules) {
       (PuzzleJs as any)[name] = modules[name];
     }
   }

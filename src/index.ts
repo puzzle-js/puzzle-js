@@ -36,5 +36,5 @@ export = {
     HTTP_STATUS_CODE,
     INJECTABLE
   },
-  container: <Container>container
+  container: container as Container
 };

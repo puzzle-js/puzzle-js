@@ -49,6 +49,7 @@ const gatewayRenderStructure = struct({
   static: 'boolean?',
   selfReplace: 'boolean?',
   placeholder: 'boolean?',
+  error: 'boolean?',
   timeout: 'number?',
   middlewares: struct.optional(['string']),
   routeCache: 'number?'
@@ -200,13 +201,13 @@ export class GatewayConfigurator extends Configurator {
 
   private injectApiHandlers(configuration: IGatewayBFFConfiguration) {
     configuration.api.forEach(api => {
-      (<any>Object.values(api.versions)).forEach((version: any) => {
+      (Object.values(api.versions) as any).forEach((version: any) => {
         if (version.handler) {
           version.handler = this.dependencies[INJECTABLE.HANDLER][version.handler];
         }
 
         version.endpoints.forEach((endpoint: any) => {
-          endpoint.middlewares = (<any>endpoint.middlewares || []).map((middleware: string) => this.dependencies[INJECTABLE.MIDDLEWARE][middleware]);
+          endpoint.middlewares = (endpoint.middlewares as any || []).map((middleware: string) => this.dependencies[INJECTABLE.MIDDLEWARE][middleware]);
         });
       });
     });
@@ -214,13 +215,13 @@ export class GatewayConfigurator extends Configurator {
 
   private injectMiddlewares(configuration: IGatewayBFFConfiguration) {
     configuration.fragments.forEach(fragment => {
-      (<any>Object.values(fragment.versions)).forEach((version: any) => {
+      (Object.values(fragment.versions) as any).forEach((version: any) => {
         if (version.handler) {
           version.handler = this.dependencies[INJECTABLE.HANDLER][version.handler];
         }
       });
 
-      fragment.render.middlewares = (<any>fragment.render.middlewares || []).map((middleware: string) => this.dependencies[INJECTABLE.MIDDLEWARE][middleware]);
+      fragment.render.middlewares = (fragment.render.middlewares as any || []).map((middleware: string) => this.dependencies[INJECTABLE.MIDDLEWARE][middleware]);
     });
   }
 

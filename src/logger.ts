@@ -52,7 +52,7 @@ const createTransports = () => {
   return transports;
 };
 Object.defineProperty(Error.prototype, 'toJSON', {
-  value: function (this: { [name: string]: string }) {
+  value (this: { [name: string]: string }) {
     const alt: any = {};
     const propNames = Object.getOwnPropertyNames(this);
     for (let i = 0, len = propNames.length; i < len; i++) {
@@ -108,9 +108,9 @@ export class Logger {
   write(message: string) {
     let level = 'info';
     if (message.match(/RES: [4]/)) {
-      level = 'warn'
+      level = 'warn';
     } else if (message.match(/RES: [5]/)) {
-      level = 'error'
+      level = 'error';
     }
 
     logger[level](message);

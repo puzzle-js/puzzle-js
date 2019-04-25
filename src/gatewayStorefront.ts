@@ -11,8 +11,8 @@ import warden from "puzzle-warden";
 import {RouteConfiguration} from "puzzle-warden/dist/request-manager";
 import {isDeepStrictEqual} from "util";
 
-const logger = <Logger>container.get(TYPES.Logger);
-const httpClient = <HttpClient>container.get(TYPES.Client);
+const logger = container.get(TYPES.Logger) as Logger;
+const httpClient = container.get(TYPES.Client) as HttpClient;
 
 export class GatewayStorefrontInstance {
   events: EventEmitter = new EventEmitter();

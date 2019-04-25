@@ -11,7 +11,7 @@ declare global {
 
 export interface IPageLibAsset {
   name: string;
-  loadMethod: RESOURCE_LOADING_TYPE
+  loadMethod: RESOURCE_LOADING_TYPE;
   fragment?: string;
   dependent?: string[];
   type: RESOURCE_TYPE;
@@ -22,7 +22,7 @@ export interface IPageLibAsset {
 
 export interface ICustomPageAsset {
   name: string;
-  loadMethod: RESOURCE_LOADING_TYPE
+  loadMethod: RESOURCE_LOADING_TYPE;
   link: string;
   dependent?: string;
 }
@@ -43,7 +43,7 @@ export interface IPageLibConfiguration {
   page: string;
   fragments: IPageFragmentConfig[];
   assets: IPageLibAsset[];
-  dependencies: IPageLibDependency[]
+  dependencies: IPageLibDependency[];
 }
 
 export interface IEventListener {
