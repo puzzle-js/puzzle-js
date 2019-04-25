@@ -9,11 +9,7 @@ Front-end microservices framework for scalable and blazing fast websites.
 [![npm](https://img.shields.io/npm/dt/puzzle-microfrontends.svg)](https://www.npmjs.com/package/puzzle-microfrontends) 
 [![npm](https://img.shields.io/npm/v/puzzle-microfrontends.svg)](https://www.npmjs.com/package/puzzle-microfrontends) 
 ![Snyk Vulnerabilities for GitHub Repo](https://img.shields.io/snyk/vulnerabilities/github/puzzle-js/puzzle-js.svg) 
-[![codecov](https://codecov.io/gh/puzzle-js/puzzle-js/branch/master/graph/badge.svg)](https://codecov.io/gh/puzzle-js/puzzle-js)
-
-
-[![npm version](https://badge.fury.io/js/puzzle-microfrontends.svg)](https://www.npmjs.com/package/puzzle-microfrontends)
-[![npm](https://img.shields.io/npm/dt/puzzle-microfrontends.svg)](https://www.npmjs.com/package/puzzle-microfrontends)
+[![codecov](https://codecov.io/gh/puzzle-js/puzzle-js/branch/master/graph/badge.svg)](https://codecov.io/gh/puzzle-js/puzzle-js) 
 
 ## *New documentation and demo is under development*
 
