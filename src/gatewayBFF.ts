@@ -230,6 +230,7 @@ export class GatewayBFF {
         const partial = req.query[PREVIEW_PARTIAL_QUERY_NAME] || DEFAULT_MAIN_PARTIAL;
         const renderMode = req.query[RENDER_MODE_QUERY_NAME] === FRAGMENT_RENDER_MODES.STREAM ? FRAGMENT_RENDER_MODES.STREAM : FRAGMENT_RENDER_MODES.PREVIEW;
         req.headers['originalurl'] = req.headers['originalurl'] || req.url.replace(`/${fragmentConfig.name}`, "");
+        req.headers['originalpath'] = req.headers['originalpath'] || req.path.replace(`/${fragmentConfig.name}`, "");
         this.renderFragment(req, fragmentConfig.name, renderMode, partial, res, req.cookies[fragmentConfig.testCookie]);
       }, this.getFragmentMiddlewares(fragmentConfig));
     });
