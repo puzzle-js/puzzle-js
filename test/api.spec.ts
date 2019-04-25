@@ -167,6 +167,7 @@ describe('Api', function () {
     const handler = {
       'test': (req: any, res: any) => {
         expect(req.headers.originalurl).to.eq(`/${firstParam}/${secondParam}`);
+        expect(req.headers.originalpath).to.eq(`/${firstParam}/${secondParam}`);
         res.end('working');
         done();
       }
