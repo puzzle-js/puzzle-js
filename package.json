@@ -64,7 +64,7 @@
     "lint:ts:fix": "./node_modules/.bin/tslint -p ./tsconfig.json --fix"
   },
   "dependencies": {
-    "@types/connect-timeout": "^0.0.33",
+    "@types/connect-timeout": "^0.0.34",
     "@types/response-time": "^2.3.3",
     "async": "^2.6.2",
     "cheerio": "^1.0.0-rc.2",
