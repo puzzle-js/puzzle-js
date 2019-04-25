@@ -40,7 +40,6 @@ jobs:
             - yarn.lock
             - .npmignore
             - dist
-            - node_modules
   deploy:
     <<: *defaults
     steps:
