@@ -5,7 +5,13 @@
 # PuzzleJs Framework
 Front-end microservices framework for scalable and blazing fast websites.
 
-[![Build Status](https://travis-ci.com/puzzle-js/puzzle-js.svg?branch=master)](https://travis-ci.com/puzzle-js/puzzle-js)
+[![CircleCI](https://circleci.com/gh/puzzle-js/puzzle-js/tree/master.svg?style=svg)](https://circleci.com/gh/puzzle-js/puzzle-js/tree/master) 
+[![npm](https://img.shields.io/npm/dt/puzzle-microfrontends.svg)](https://www.npmjs.com/package/puzzle-microfrontends) 
+[![npm](https://img.shields.io/npm/v/puzzle-microfrontends.svg)](https://www.npmjs.com/package/puzzle-microfrontends) 
+![Snyk Vulnerabilities for GitHub Repo](https://img.shields.io/snyk/vulnerabilities/github/puzzle-js/puzzle-js.svg) 
+[![codecov](https://codecov.io/gh/puzzle-js/puzzle-js/branch/master/graph/badge.svg)](https://codecov.io/gh/puzzle-js/puzzle-js)
+
+
 [![npm version](https://badge.fury.io/js/puzzle-microfrontends.svg)](https://www.npmjs.com/package/puzzle-microfrontends)
 [![npm](https://img.shields.io/npm/dt/puzzle-microfrontends.svg)](https://www.npmjs.com/package/puzzle-microfrontends)
 
