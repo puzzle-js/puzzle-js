@@ -1083,6 +1083,8 @@ describe('BFF', () => {
             },
             data(req: any) {
               expect(req.headers.originalurl).to.eq(`/${urlpath}${queryString}`);
+              expect(req.headers.originalpath).to.eq(`/${urlpath}`);
+
                 return {
                     data: faker.random.word(),
                     $model: {
