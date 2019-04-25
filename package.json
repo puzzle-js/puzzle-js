@@ -57,8 +57,8 @@
   "scripts": {
     "prepublishOnly": "yarn build",
     "build": "TS_NODE_FILES=true node_modules/.bin/tsc && gulp build && node_modules/.bin/webpack --config ./src/lib/webpack.config.js && gulp prepareLib",
-    "test": "NODE_TLS_REJECT_UNAUTHORIZED=0 jest --coverage",
-    "test:watch": "NODE_TLS_REJECT_UNAUTHORIZED=0 jest --coverage --watch",
+    "test": "NODE_TLS_REJECT_UNAUTHORIZED=0 jest --coverage --silent",
+    "test:watch": "NODE_TLS_REJECT_UNAUTHORIZED=0 jest --coverage --watch --silent",
     "publish:beta": "yarn publish --tag=beta",
     "lint": "echo lint",
     "lint:ts": "./node_modules/.bin/tslint -p ./tsconfig.json",

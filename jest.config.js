@@ -3,17 +3,20 @@ module.exports = {
     testEnvironment: 'node',
     coverageThreshold: {
         global: {
-            branches: 100,
-            functions: 100,
-            lines: 100,
-            statements: 100
+            branches: 70,
+            functions: 80,
+            lines: 86,
+            statements: 85
         }
     },
     testPathIgnorePatterns: [
         "tests/static/test.js",
     ],
-    coveragePathIgnorePatterns: [
-        "/node_modules/",
-        "/test/"
-    ]
+    collectCoverageFrom: [
+        "src/**/*.ts",
+    ],
+    forceCoverageMatch: [
+        "src/lib/**/*.ts"
+    ],
+    verbose: false
 };
