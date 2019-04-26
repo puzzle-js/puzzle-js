@@ -240,7 +240,7 @@ export class FragmentStorefront extends Fragment {
         logger.info(`Trying to get error page of fragment: ${this.name}`);
 
         if (!this.config || !this.config.render.error) {
-            logger.error(new Error('Error is not enabled for fragment'));
+            logger.warn(new Error('Error is not enabled for fragment'));
             return '';
         }
 
@@ -253,7 +253,7 @@ export class FragmentStorefront extends Fragment {
                 gateway: this.gatewayName
             }
         })
-            .then(res => res.text())
+            .then(res => res.json())
             .then(html => {
                 this.cachedErrorPage = html;
                 return html;

@@ -325,7 +325,7 @@ describe('Fragment', () => {
         });
 
         it('should return error page content when error accrued and error page exists', async () => {
-            const errorPageContent = '<div>Error Page Fragment</div>';
+            const errorPageContent = '{ "main" : "<div>errorPageContent</div>" }';
 
 
             nock('http://local.gatewaysimulator.com')
@@ -341,12 +341,12 @@ describe('Fragment', () => {
             fragment.update(commonFragmentConfig, 'http://local.gatewaysimulator.com', '');
 
             const content = await fragment.getContent();
-            expect(content.html).to.deep.eq(errorPageContent);
+            expect(content.html).to.deep.eq(JSON.parse(errorPageContent));
             expect(content.status).to.eq(200);
         });
 
         it('should fetch error page', async () => {
-            const errorPageContent = '<div>errorPageContent</div>';
+            const errorPageContent = '{ "main" : "<div>errorPageContent</div>" }';
             nock('http://local.gatewaysimulator.com')
                 .get('/error-page-test/error')
                 .reply(200, errorPageContent);
@@ -355,12 +355,12 @@ describe('Fragment', () => {
             fragment.update(commonFragmentConfig, 'http://local.gatewaysimulator.com', '');
 
             const errorPage = await fragment.getErrorPage();
-            expect(errorPage).to.eq(errorPageContent);
+            expect(errorPage).to.deep.eq(JSON.parse(errorPageContent));
         });
 
         it('should fetch error page from cache', async () => {
-            const errorPageContent1 = '<div>errorPageContent1</div>';
-            const errorPageContent2 = '<div>errorPageContent2</div>';
+            const errorPageContent1 = '{ "main" : "<div>errorPageContent1</div>" }';
+            const errorPageContent2 = '{ "main" : "<div>errorPageContent2</div>" }';
 
             const fragment = new FragmentStorefront('error-page-test', 'test');
             fragment.update(commonFragmentConfig, 'http://local.gatewaysimulator.com', '');
@@ -374,8 +374,8 @@ describe('Fragment', () => {
                 .reply(200, errorPageContent2);
             const errorPage2 = await fragment.getErrorPage();
 
-            expect(errorPage1).to.eq(errorPageContent1);
-            expect(errorPage2).to.eq(errorPageContent1);
+            expect(errorPage1).to.deep.eq(JSON.parse(errorPageContent1));
+            expect(errorPage2).to.deep.eq(JSON.parse(errorPageContent1));
         });
 
         it('should log and return null asset when no fragment config exists', (done) => {
