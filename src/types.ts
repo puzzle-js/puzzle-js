@@ -157,6 +157,7 @@ export interface IGatewayBFFConfiguration extends IGatewayConfiguration {
     port: number;
     ipv4?: boolean;
     isMobile?: boolean;
+    authToken?: string;
     fragmentsFolder: string;
     corsDomains?: string[];
     corsMaxAge?: number;
