@@ -238,8 +238,8 @@ export class GatewayBFF {
             this.server.addRoute(Array.isArray(fragmentConfig.render.url) ? fragmentConfig.render.url.map(url => `/${fragmentConfig.name}${url}`) : `/${fragmentConfig.name}${fragmentConfig.render.url}`, HTTP_METHODS.GET, async (req, res) => {
                 const partial = req.query[PREVIEW_PARTIAL_QUERY_NAME] || DEFAULT_MAIN_PARTIAL;
                 const renderMode = req.query[RENDER_MODE_QUERY_NAME] === FRAGMENT_RENDER_MODES.STREAM ? FRAGMENT_RENDER_MODES.STREAM : FRAGMENT_RENDER_MODES.PREVIEW;
-                req.headers['originalurl'] = req.headers['original-url'] || req.url.replace(`/${fragmentConfig.name}`, "");
-                req.headers['originalpath'] = req.headers['original-path'] || req.path.replace(`/${fragmentConfig.name}`, "");
+                req.headers['originalurl'] = req.headers['originalurl'] || req.url.replace(`/${fragmentConfig.name}`, "");
+                req.headers['originalpath'] = req.headers['originalpath'] || req.path.replace(`/${fragmentConfig.name}`, "");
                 this.renderFragment(req, fragmentConfig.name, renderMode, partial, res, req.cookies[fragmentConfig.testCookie]);
             }, this.getFragmentMiddlewares(fragmentConfig));
         });
