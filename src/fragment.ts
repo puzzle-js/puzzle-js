@@ -308,7 +308,8 @@ export class FragmentStorefront extends Fragment {
             }
             if (req.headers) {
                 requestConfiguration.headers = req.headers;
-                requestConfiguration.headers.originalUrl = req.url;
+                requestConfiguration.headers['originalurl'] = req.url;
+                requestConfiguration.headers['originalpath'] = req.path;
             }
         }
 
