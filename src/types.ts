@@ -40,7 +40,9 @@ export interface IFragmentHandler {
         [name: string]: string;
     };
     placeholder: () => string;
-    error: () => string;
+    error: () => {
+        main: string
+    };
     data: (req: object) => Promise<HandlerDataResponse>;
 }
 
