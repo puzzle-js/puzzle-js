@@ -92,6 +92,7 @@ const gatewayStructure = struct({
     port: 'number',
     ipv4: 'boolean?',
     isMobile: 'boolean?',
+    authToken: 'string?',
     fragmentsFolder: 'string',
     corsDomains: struct.optional(['string']),
     corsMaxAge: 'number?',
@@ -119,6 +120,7 @@ const storefrontDependencyStructure = struct({
 const storefrontStructure = struct({
     gateways: [storefrontGatewaysStructure],
     port: 'number',
+    authToken: 'string?',
     ipv4: 'boolean?',
     pages: [storefrontPageStructure],
     pollInterval: 'number?',

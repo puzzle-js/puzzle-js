@@ -54,6 +54,12 @@ describe('Gateway', () => {
             expect(bffGw).to.be.instanceOf(GatewayBFF);
         });
 
+      it('should create new gateway BFF instance with auth token', () => {
+        commonGatewayConfiguration.authToken = 'Secret Key';
+        const bffGw = new GatewayBFF(commonGatewayConfiguration);
+        expect(bffGw).to.be.instanceOf(GatewayBFF);
+      });
+
         it('should create a new gateway bff instance with single fragment', () => {
             const gatewayConfiguration: IGatewayBFFConfiguration = {
                 ...commonGatewayConfiguration,
@@ -381,6 +387,14 @@ describe('Gateway', () => {
 
             expect(gateway).to.be.instanceOf(GatewayStorefrontInstance);
         });
+
+      it('should create a new gateway storefront instance with auth token', () => {
+        const authToken = "Secret Token";
+        const gateway = new GatewayStorefrontInstance(commonGatewayStorefrontConfiguration, authToken);
+
+        expect(gateway).to.be.instanceOf(GatewayStorefrontInstance);
+        expect(gateway.authToken).to.equals(authToken);
+      });
 
         it('should load remote configuration successfully and fire ready event', done => {
             const gateway = new GatewayStorefrontInstance(commonGatewayStorefrontConfiguration);
