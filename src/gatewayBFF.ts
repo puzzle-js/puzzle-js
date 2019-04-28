@@ -345,7 +345,6 @@ export class GatewayBFF {
      */
     private addConfigurationRoute(cb: Function) {
         this.server.addRoute('/', HTTP_METHODS.GET, (req, res) => {
-            console.log(this.config.authToken);
             if (!this.config.authToken || req.header('x-authorization') === this.config.authToken) {
                 res.status(200).json(this.exposedConfig);
             } else {

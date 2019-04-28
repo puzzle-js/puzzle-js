@@ -55,13 +55,13 @@ export class GatewayStorefrontInstance {
      * Fetches gateway condifuration and calls this.bind
      */
     private async fetch() {
-          const headers = {
+        const headers = {
             gateway: this.name,
-          };
+        };
 
-          if(this.authToken) {
+        if(this.authToken) {
             headers["x-authorization"] = this.authToken;
-          }
+        }
 
         try {
             const res = await fetch(this.url, {
@@ -70,7 +70,6 @@ export class GatewayStorefrontInstance {
             const json = await res.json();
             this.update(json);
         } catch (e) {
-              console.log(e);
             logger.error(`Failed to fetch gateway configuration: ${this.name}`, e);
         }
     }
