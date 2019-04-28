@@ -81,6 +81,20 @@ describe('BFF', () => {
         });
     });
 
+  it('it should respond 401 from / when gateway is ready', (done) => {
+    commonGatewayConfiguration.authToken = 'SECRET TOKEN';
+    const bff = new GatewayBFF(commonGatewayConfiguration);
+
+    bff.init(() => {
+      request(commonGatewayConfiguration.url)
+        .get('/')
+        .expect(401).end((err, res) => {
+        bff.server.close();
+        done(err);
+      });
+    });
+  });
+
     // it('it should asset execute type when gateway is ready', (done) => {
     //   const bff = new GatewayBFF({
     //     ...commonGatewayConfiguration,

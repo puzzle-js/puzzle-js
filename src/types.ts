@@ -157,6 +157,7 @@ export interface IGatewayBFFConfiguration extends IGatewayConfiguration {
     port: number;
     ipv4?: boolean;
     isMobile?: boolean;
+    authToken?: string;
     fragmentsFolder: string;
     corsDomains?: string[];
     corsMaxAge?: number;
@@ -235,6 +236,7 @@ export interface INodeSpdyConfiguration {
 export interface IStorefrontConfig {
     gateways: IGatewayConfiguration[];
     port: number;
+    authToken?: string;
     ipv4?: boolean;
     pages: IPageConfiguration[];
     pollInterval?: number;
