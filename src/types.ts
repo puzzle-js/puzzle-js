@@ -92,14 +92,18 @@ export interface IFragmentBFF extends IFragment {
     versions: {
         [version: string]: IFragmentBFFVersion
     };
-    version: string;
+    version: string | ((cookies: {[key: string]: string}) => string);
     testCookie: string;
     warden?: RouteConfiguration;
     render: IFragmentBFFRender;
 }
 
+
+
 export interface IExposeFragment {
-    version: string;
+    version: string | {
+        fn: (cookies: {[key: string]: string}) => string
+    };
     testCookie: string;
     render: IFragmentBFFRender;
     prg?: boolean;

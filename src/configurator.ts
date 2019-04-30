@@ -80,7 +80,7 @@ const gatewayFragmentStructure = struct({
     prg: struct.optional('boolean'),
     render: gatewayRenderStructure,
     warden: struct.optional('object'),
-    version: 'string',
+    version: struct.union('string', 'function'),
     versions: struct.dict(['string', gatewayFragmentVersionStructure])
 });
 
