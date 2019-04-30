@@ -8,6 +8,7 @@ import {
     HTTP_STATUS_CODE,
     RESOURCE_INJECT_TYPE,
     RESOURCE_JS_EXECUTE_TYPE,
+    HEALTHCHECK_PATHS,
 } from "./enums";
 import {PREVIEW_PARTIAL_QUERY_NAME, RENDER_MODE_QUERY_NAME} from "./config";
 import {
@@ -321,8 +322,8 @@ export class GatewayBFF {
      * @param {Function} cb
      */
     private addHealthCheckRoutes(cb: Function) {
-        this.server.addRoute(['/liveness', '/healthcheck', '/readiness'], HTTP_METHODS.GET, (req, res) => {
-            res.status(200).end();
+        this.server.addRoute(HEALTHCHECK_PATHS, HTTP_METHODS.GET, (req, res) => {
+            res.status(HTTP_STATUS_CODE.OK).end();
         });
         cb();
     }
