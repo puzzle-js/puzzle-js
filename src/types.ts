@@ -12,6 +12,7 @@ import {FragmentStorefront} from "./fragment";
 import {Page} from "./page";
 import {RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "./lib/enums";
 import {RouteConfiguration} from "puzzle-warden/dist/request-manager";
+import {CookieVersionMatcher} from "./cookie-version-matcher";
 
 export interface IFragmentCookieMap {
     name: string;
@@ -92,18 +93,17 @@ export interface IFragmentBFF extends IFragment {
     versions: {
         [version: string]: IFragmentBFFVersion
     };
-    version: string | ((cookies: {[key: string]: string}) => string);
+    version: string;
+    versionMatcher?: CookieVersionMatcher;
     testCookie: string;
     warden?: RouteConfiguration;
     render: IFragmentBFFRender;
 }
 
 
-
 export interface IExposeFragment {
-    version: string | {
-        fn: (cookies: {[key: string]: string}) => string
-    };
+    version: string;
+    versionMatcher?: CookieVersionMatcher;
     testCookie: string;
     render: IFragmentBFFRender;
     prg?: boolean;

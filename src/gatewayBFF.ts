@@ -11,7 +11,7 @@ import {
 } from "./enums";
 import {PREVIEW_PARTIAL_QUERY_NAME, RENDER_MODE_QUERY_NAME} from "./config";
 import {
-    FragmentModel,
+    FragmentModel, ICookieMap,
     IExposeConfig,
     IExposeFragment,
     IFragmentBFF,
@@ -114,6 +114,7 @@ export class GatewayBFF {
             fragments: this.config.fragments.reduce((fragmentList: { [name: string]: IExposeFragment }, fragment) => {
                 fragmentList[fragment.name] = {
                     version: fragment.version,
+                    versionMatcher: fragment.versionMatcher,
                     render: fragment.render,
                     assets: fragment.versions[fragment.version].assets,
                     dependencies: fragment.versions[fragment.version].dependencies,
@@ -148,13 +149,15 @@ export class GatewayBFF {
      * @param {string} fragmentName
      * @param {FRAGMENT_RENDER_MODES} renderMode
      * @param {string} partial
-     * @param {string} cookieValue
+     * @param res
+     * @param cookie
      * @returns {Promise<IFragmentResponse>}
      */
-    async renderFragment(req: any, fragmentName: string, renderMode: FRAGMENT_RENDER_MODES = FRAGMENT_RENDER_MODES.PREVIEW, partial: string, res: any, cookieValue?: string): Promise<void> {
+    async renderFragment(req: any, fragmentName: string, renderMode: FRAGMENT_RENDER_MODES = FRAGMENT_RENDER_MODES.PREVIEW, partial: string, res: any, cookie: ICookieMap): Promise<void> {
         const fragment = this.fragments[fragmentName];
         if (fragment) {
-            const fragmentContent = await fragment.render(req, res, cookieValue);
+            const version = this.detectVersion(fragment, cookie);
+            const fragmentContent = await fragment.render(req, res, version);
 
             const gatewayContent = {
                 content: fragmentContent,
@@ -177,7 +180,7 @@ export class GatewayBFF {
                 } else {
                     if (gatewayContent.content[partial]) {
                         res.status(HTTP_STATUS_CODE.OK);
-                        res.send(this.wrapFragmentContent(gatewayContent.content[partial].toString(), fragment, cookieValue, gatewayContent.$model));
+                        res.send(this.wrapFragmentContent(gatewayContent.content[partial].toString(), fragment, version, gatewayContent.$model));
                     } else {
                         res.status(HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR);
                         res.send(`Partial ${partial} doesn't exist in fragment response`);
@@ -193,14 +196,14 @@ export class GatewayBFF {
      * Wraps with html template for preview mode
      * @param {string} htmlContent
      * @param {FragmentBFF} fragment
-     * @param {string | undefined} cookieValue
+     * @param version
      * @param model
      * @returns {string}
      */
-    private wrapFragmentContent(htmlContent: string, fragment: FragmentBFF, cookieValue: string | undefined, model: FragmentModel): string {
+    private wrapFragmentContent(htmlContent: string, fragment: FragmentBFF, version: string, model: FragmentModel): string {
         const dom = cheerio.load(`<html><head><title>${this.config.name} - ${fragment.name}</title>${this.config.isMobile ? '<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />' : ''}${Template.fragmentModelScript(fragment, model, false)}</head><body><div id="${fragment.name}">${htmlContent}</div></body></html>`);
 
-        const fragmentVersion = cookieValue && fragment.config.versions[cookieValue] ? fragment.config.versions[cookieValue] : fragment.config.versions[fragment.config.version];
+        const fragmentVersion = fragment.config.versions[version];
 
         dom('head').prepend(Template.wrapJsAsset({
             content: fs.readFileSync(path.join(__dirname, `/lib/puzzle.min.js`)).toString(),
@@ -229,6 +232,18 @@ export class GatewayBFF {
         return dom.html();
     }
 
+    private detectVersion(fragment: FragmentBFF, cookie: ICookieMap): string {
+        const cookieKey = fragment.config.testCookie;
+        const cookieVersion = cookie[cookieKey] && fragment.config.versions[cookie[cookieKey]] ? cookie[cookieKey] : null;
+
+        if (cookieVersion) return cookieVersion;
+
+        const matcherVersion = fragment.config.versionMatcher ? fragment.config.versionMatcher.match(cookie) : null;
+        if(matcherVersion && fragment.config.versions[matcherVersion]) return matcherVersion;
+
+        return fragment.config.version;
+    }
+
     /**
      * Adds fragment routes
      * @param {Function} cb
@@ -240,7 +255,7 @@ export class GatewayBFF {
                 const renderMode = req.query[RENDER_MODE_QUERY_NAME] === FRAGMENT_RENDER_MODES.STREAM ? FRAGMENT_RENDER_MODES.STREAM : FRAGMENT_RENDER_MODES.PREVIEW;
                 req.headers['originalurl'] = req.headers['originalurl'] || req.url.replace(`/${fragmentConfig.name}`, "");
                 req.headers['originalpath'] = req.headers['originalpath'] || req.path.replace(`/${fragmentConfig.name}`, "");
-                this.renderFragment(req, fragmentConfig.name, renderMode, partial, res, req.cookies[fragmentConfig.testCookie]);
+                this.renderFragment(req, fragmentConfig.name, renderMode, partial, res, req.cookies);
             }, this.getFragmentMiddlewares(fragmentConfig));
         });
 

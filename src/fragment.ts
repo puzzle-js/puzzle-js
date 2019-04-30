@@ -50,9 +50,8 @@ export class FragmentBFF extends Fragment {
      * @param {string} version
      * @returns {Promise<HandlerDataResponse>}
      */
-    async render(req: { url: string, headers: object, query: object, params: object }, res: any, version?: string): Promise<HandlerDataResponse> {
-        const targetVersion = version || this.config.version;
-        const handler = this.handler[targetVersion] || this.handler[this.config.version];
+    async render(req: { url: string, headers: object, query: object, params: object }, res: any, version: string): Promise<HandlerDataResponse> {
+        const handler = this.handler[version] || this.handler[this.config.version];
         const clearedRequest = this.clearRequest(req);
         if (handler) {
             if (handler.data) {
