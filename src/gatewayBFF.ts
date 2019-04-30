@@ -153,7 +153,7 @@ export class GatewayBFF {
      * @param cookie
      * @returns {Promise<IFragmentResponse>}
      */
-    async renderFragment(req: any, fragmentName: string, renderMode: FRAGMENT_RENDER_MODES = FRAGMENT_RENDER_MODES.PREVIEW, partial: string, res: any, cookie: ICookieMap): Promise<void> {
+    async renderFragment(req: express.Request, fragmentName: string, renderMode: FRAGMENT_RENDER_MODES = FRAGMENT_RENDER_MODES.PREVIEW, partial: string, res: express.Response, cookie: ICookieMap): Promise<void> {
         const fragment = this.fragments[fragmentName];
         if (fragment) {
             const version = this.detectVersion(fragment, cookie);
@@ -239,7 +239,7 @@ export class GatewayBFF {
         if (cookieVersion) return cookieVersion;
 
         const matcherVersion = fragment.config.versionMatcher ? fragment.config.versionMatcher.match(cookie) : null;
-        if(matcherVersion && fragment.config.versions[matcherVersion]) return matcherVersion;
+        if (matcherVersion && fragment.config.versions[matcherVersion]) return matcherVersion;
 
         return fragment.config.version;
     }
@@ -301,7 +301,7 @@ export class GatewayBFF {
     /**
      *  Adds error routes
      *  @param { Function } cb
-     * */
+     */
     private addErrorPageRoutes(cb: Function): void {
         this.config.fragments.forEach((fragment) => {
             this.server.addRoute(`/${fragment.name}/error`, HTTP_METHODS.GET, (req, res) => {
