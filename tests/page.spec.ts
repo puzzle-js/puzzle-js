@@ -298,4 +298,39 @@ describe('Page', () => {
             done();
         });
     });
+
+    it('should compile page without fragments cookies (version matcher)', done => {
+        const commonGatewayStorefrontConfiguration = {
+            name: 'Browsing',
+            url: 'http://browsing-gw.com',
+            config: {
+                hash: '44',
+                fragments: {
+                    header: {
+                        version: '1.0.0',
+                        versionMatcher: `cookies => '1.0.1'`,
+                        render: {
+                            url: '/'
+                        },
+                        assets: [],
+                        dependencies: [],
+                        testCookie: 'test_1'
+                    }
+                }
+            }
+        };
+        createGateway(commonGatewayStorefrontConfiguration.name, commonGatewayStorefrontConfiguration.url, commonGatewayStorefrontConfiguration.config, true);
+        const gateway = new GatewayStorefrontInstance(commonGatewayStorefrontConfiguration);
+        const template = fs.readFileSync(path.join(__dirname, './templates/fragmented2.html'), 'utf8');
+        const newPage = new Page(template, {
+            Browsing: gateway,
+        }, 'page');
+
+        gateway.events.on(EVENTS.GATEWAY_READY, async () => {
+            await newPage.reCompile();
+            expect(newPage.responseHandlers).to.haveOwnProperty('_header|1.0.0_content|0_footer|0_true');
+            expect(newPage.responseHandlers).to.haveOwnProperty('_header|1.0.0_content|0_footer|0_false');
+            done();
+        });
+    });
 });

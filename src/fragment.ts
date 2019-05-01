@@ -1,6 +1,6 @@
 import fetch from "node-fetch";
 import {
-    HandlerDataResponse,
+    HandlerDataResponse, ICookieMap,
     IExposeFragment,
     IFileResourceAsset,
     IFragment,
@@ -170,6 +170,7 @@ export class FragmentStorefront extends Fragment {
     gatewayPath!: string;
     fragmentUrl: string | undefined;
     assetUrl: string | undefined;
+    private versionMatcher?: CookieVersionMatcher;
     private cachedErrorPage: string | undefined;
     private gatewayName: string;
 
@@ -200,6 +201,28 @@ export class FragmentStorefront extends Fragment {
         this.gatewayName = gatewayName;
 
         this.config = config;
+
+        if (this.config && this.config.versionMatcher) {
+            this.versionMatcher = new CookieVersionMatcher(this.config.versionMatcher);
+        }
+    }
+
+    detectVersion(cookie: ICookieMap, preCompile = false): string {
+        if (!this.config) return '0';
+
+        const cookieKey = this.config.testCookie;
+        const cookieVersion = cookie[cookieKey];
+
+        if (cookieVersion) {
+            return cookieVersion;
+        }
+
+        if (!preCompile && this.versionMatcher) {
+            const version = this.versionMatcher.match(cookie);
+            if (version) return version;
+        }
+
+        return this.config.version;
     }
 
     /**
