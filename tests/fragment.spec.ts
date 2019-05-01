@@ -42,7 +42,7 @@ describe('Fragment', () => {
                 return {data: 'acg'};
             };
             const fragment = new FragmentBFF(fragmentConfig);
-            const response = await fragment.render({} as any, {});
+            const response = await fragment.render({} as any, '1.0.0');
             expect(response).to.deep.eq({
                 main: `acg was here`
             });
@@ -62,7 +62,7 @@ describe('Fragment', () => {
             const fragmentConfig = JSON.parse(JSON.stringify(commonFragmentBffConfiguration));
             fragmentConfig.versions.test.handler.content = (req: any, data: any) => `${data} was here`;
             const fragment = new FragmentBFF(fragmentConfig);
-            fragment.render({} as any, {}).then(data => done(data)).catch(e => {
+            fragment.render({} as any, '1.0.0').then(data => done(data)).catch(e => {
                 expect(e.message).to.include('Failed to find data handler');
                 done();
             });
@@ -77,7 +77,7 @@ describe('Fragment', () => {
                 return {data: 'acg'};
             };
             const fragment = new FragmentBFF(fragmentConfig);
-            fragment.render({} as any, {}, 'no_version').then(data => {
+            fragment.render({} as any, 'no_version').then(data => {
                 expect(data.main).to.include('was here');
                 done();
             });
@@ -136,7 +136,7 @@ describe('Fragment', () => {
             const fragment = new FragmentBFF(fragmentConfig);
 
             try {
-                await fragment.render({} as any, {}, '123');
+                await fragment.render({} as any, '123');
             } catch (err) {
                 return;
             }

@@ -17,7 +17,7 @@ export const createGateway = (gatewayName: string, gatewayUrl: string, config: I
 
 
 export const createExpressMock = (extendable?: { write?: Function, json?: Function, end?: Function, set?: Function, status?: Function, send?: Function }) => {
-  let expressMock = {
+  const expressMock = {
       write: extendable && extendable.write || (() => ''),
       end: extendable && extendable.end || (() => ''),
       set: extendable && extendable.set || (() => ''),

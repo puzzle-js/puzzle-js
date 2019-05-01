@@ -1,14 +1,20 @@
 import {Server} from "./server";
 import {API_ROUTE_PREFIX} from "./config";
 import path from "path";
-import {IApiConfig, IApiHandlerModule} from "./types";
+import {IApiConfig, IApiHandlerModule, ICookieMap} from "./types";
+import {CookieVersionMatcher} from "./cookie-version-matcher";
 
 export class Api {
     config: IApiConfig;
+    versionMatcher?: CookieVersionMatcher;
     private handler: { [version: string]: IApiHandlerModule } = {};
 
     constructor(config: IApiConfig) {
         this.config = config;
+
+        if (this.config.versionMatcher) {
+            this.versionMatcher = new CookieVersionMatcher(this.config.versionMatcher);
+        }
 
         this.prepareHandlers();
     }
@@ -19,7 +25,8 @@ export class Api {
      */
     registerEndpoints(app: Server) {
         app.addUse(`/${API_ROUTE_PREFIX}/${this.config.name}`, (req, res, next) => {
-            const requestVersion = [req.cookies[this.config.testCookie]] ? (this.config.versions[req.cookies[this.config.testCookie]] ? req.cookies[this.config.testCookie] : this.config.liveVersion) : this.config.liveVersion;
+            const requestVersion = this.detectVersion(req.cookies);
+
             req.headers["originalurl"] = req.url;
             req.headers["originalpath"] = req.path;
             req.url = `/${requestVersion}${req.url}`;
@@ -45,9 +52,20 @@ export class Api {
             if (configurationHandler) {
                 this.handler[version] = configurationHandler;
             } else {
-                const module = require(path.join(process.cwd(), `/src/api/`, this.config.name, version));
-                this.handler[version] = module;
+                this.handler[version] = require(path.join(process.cwd(), `/src/api/`, this.config.name, version));
             }
         });
+    }
+
+    private detectVersion(cookie: ICookieMap): string {
+        const cookieKey = this.config.testCookie;
+        const cookieVersion = cookie[cookieKey] && this.config.versions[cookie[cookieKey]] ? cookie[cookieKey] : null;
+
+        if (cookieVersion) return cookieVersion;
+
+        const matcherVersion = this.versionMatcher ? this.versionMatcher.match(cookie) : null;
+        if (matcherVersion && this.config.versions[matcherVersion]) return matcherVersion;
+
+        return this.config.liveVersion;
     }
 }

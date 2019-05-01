@@ -64,4 +64,22 @@ describe('[cookie-version-matcher.ts]', () => {
         expect(matcherSpy.calledOnce).to.eq(true);
         expect(version).to.eq(cookieVersion);
     });
+
+    it('should return null if matcher fn returns null', () => {
+        // Arrange
+        const matchKey = faker.random.word();
+        const cookieVersion = faker.random.word();
+        const cookies = {
+            [matchKey]: cookieVersion
+        };
+        const matcherSpy = sandbox.stub().withArgs(cookies).returns(null);
+        const matcher = new CookieVersionMatcher(matcherSpy);
+
+        // Act
+        const version = matcher.match(cookies);
+
+        // Assert
+        expect(matcherSpy.calledOnce).to.eq(true);
+        expect(version).to.eq(null);
+    });
 });

@@ -11,7 +11,8 @@ import {
 } from "./enums";
 import {PREVIEW_PARTIAL_QUERY_NAME, RENDER_MODE_QUERY_NAME} from "./config";
 import {
-    FragmentModel, ICookieMap,
+    FragmentModel,
+    ICookieMap,
     IExposeConfig,
     IExposeFragment,
     IFragmentBFF,
@@ -114,7 +115,6 @@ export class GatewayBFF {
             fragments: this.config.fragments.reduce((fragmentList: { [name: string]: IExposeFragment }, fragment) => {
                 fragmentList[fragment.name] = {
                     version: fragment.version,
-                    versionMatcher: fragment.versionMatcher,
                     render: fragment.render,
                     assets: fragment.versions[fragment.version].assets,
                     dependencies: fragment.versions[fragment.version].dependencies,
@@ -133,6 +133,10 @@ export class GatewayBFF {
 
                 if (fragment.warden) {
                     fragmentList[fragment.name].warden = fragment.warden;
+                }
+
+                if (fragment.versionMatcher) {
+                    fragmentList[fragment.name].versionMatcher = fragment.versionMatcher.toString();
                 }
 
                 this.fragments[fragment.name] = new FragmentBFF(fragment);
@@ -157,7 +161,7 @@ export class GatewayBFF {
         const fragment = this.fragments[fragmentName];
         if (fragment) {
             const version = this.detectVersion(fragment, cookie);
-            const fragmentContent = await fragment.render(req, res, version);
+            const fragmentContent = await fragment.render(req, version);
 
             const gatewayContent = {
                 content: fragmentContent,
@@ -166,9 +170,9 @@ export class GatewayBFF {
                 $model: fragmentContent.$model
             };
 
-            for (const prop in gatewayContent.$headers) {
-                res.set(prop, gatewayContent.$headers[prop]);
-            }
+            Object.keys(gatewayContent.$headers).forEach(key => {
+                res.set(key, gatewayContent.$headers[key]);
+            });
 
             if (renderMode === FRAGMENT_RENDER_MODES.STREAM) {
                 res.status(HTTP_STATUS_CODE.OK);
@@ -238,7 +242,7 @@ export class GatewayBFF {
 
         if (cookieVersion) return cookieVersion;
 
-        const matcherVersion = fragment.config.versionMatcher ? fragment.config.versionMatcher.match(cookie) : null;
+        const matcherVersion = fragment.versionMatcher ? fragment.versionMatcher.match(cookie) : null;
         if (matcherVersion && fragment.config.versions[matcherVersion]) return matcherVersion;
 
         return fragment.config.version;

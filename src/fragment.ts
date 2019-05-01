@@ -19,6 +19,8 @@ import {decompress} from "iltorb";
 import {Request} from 'express';
 import {HttpClient} from "./client";
 import {ERROR_CODES, PuzzleError} from "./errors";
+import express from "express";
+import {CookieVersionMatcher} from "./cookie-version-matcher";
 
 
 const logger = container.get(TYPES.Logger) as Logger;
@@ -34,11 +36,16 @@ export class Fragment {
 
 export class FragmentBFF extends Fragment {
     config: IFragmentBFF;
+    versionMatcher?: CookieVersionMatcher;
     private handler: { [version: string]: IFragmentHandler } = {};
 
     constructor(config: IFragmentBFF) {
         super({name: config.name});
         this.config = config;
+
+        if (this.config.versionMatcher) {
+            this.versionMatcher = new CookieVersionMatcher(this.config.versionMatcher);
+        }
 
         this.prepareHandlers();
     }
@@ -46,11 +53,10 @@ export class FragmentBFF extends Fragment {
     /**
      * Renders fragment: data -> content
      * @param {object} req
-     * @param res
      * @param {string} version
      * @returns {Promise<HandlerDataResponse>}
      */
-    async render(req: { url: string, headers: object, query: object, params: object }, res: any, version: string): Promise<HandlerDataResponse> {
+    async render(req: express.Request, version: string): Promise<HandlerDataResponse> {
         const handler = this.handler[version] || this.handler[this.config.version];
         const clearedRequest = this.clearRequest(req);
         if (handler) {
@@ -119,7 +125,7 @@ export class FragmentBFF extends Fragment {
      * @param req
      * @returns {*}
      */
-    private clearRequest(req: any) {
+    private clearRequest(req: express.Request) {
         const clearedReq = Object.assign({}, req);
         if (req.query) {
             delete clearedReq.query[RENDER_MODE_QUERY_NAME];
@@ -233,8 +239,7 @@ export class FragmentStorefront extends Fragment {
     /**
      * Returns fragment error as promise, fetches from gateway
      * @returns { Promise<string> }
-     * */
-
+     */
     async getErrorPage(): Promise<string> {
         logger.info(`Trying to get error page of fragment: ${this.name}`);
 
@@ -244,7 +249,7 @@ export class FragmentStorefront extends Fragment {
         }
 
         if (this.cachedErrorPage) {
-            return this.cachedErrorPage
+            return this.cachedErrorPage;
         }
 
         return fetch(`${this.fragmentUrl}/error`, {

@@ -4,6 +4,7 @@ import {IGatewayBFFConfiguration, IStorefrontConfig} from "./types";
 import {ERROR_CODES, PuzzleError} from "./errors";
 import {HTTP_METHODS, INJECTABLE, RESOURCE_INJECT_TYPE, TRANSFER_PROTOCOLS} from "./enums";
 import {RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "./lib/enums";
+import {CookieVersionMatcher, MATCHER_FN} from "./cookie-version-matcher";
 
 const apiEndpointsStructure = struct({
     path: 'string',
@@ -190,9 +191,11 @@ export class GatewayConfigurator extends Configurator {
     }
 
     protected injectDependencies(configuration: IGatewayBFFConfiguration) {
-        this.injectMiddlewares(configuration);
         this.injectApiHandlers(configuration);
         this.injectCustomDependencies(configuration);
+
+
+        this.prepareFragmentConfiguration(configuration);
     }
 
     private injectApiHandlers(configuration: IGatewayBFFConfiguration) {
@@ -209,7 +212,7 @@ export class GatewayConfigurator extends Configurator {
         });
     }
 
-    private injectMiddlewares(configuration: IGatewayBFFConfiguration) {
+    private prepareFragmentConfiguration(configuration: IGatewayBFFConfiguration) {
         configuration.fragments.forEach(fragment => {
             (Object.values(fragment.versions) as any).forEach((version: any) => {
                 if (version.handler) {
@@ -217,7 +220,8 @@ export class GatewayConfigurator extends Configurator {
                 }
             });
 
-            fragment.render.middlewares = (fragment.render.middlewares as any || []).map((middleware: string) => this.dependencies[INJECTABLE.MIDDLEWARE][middleware]);
+            fragment.render.middlewares = (fragment.render.middlewares as any || [])
+                .map((middleware: string) => this.dependencies[INJECTABLE.MIDDLEWARE][middleware]);
         });
     }
 
