@@ -20,11 +20,13 @@ export class GatewayStorefrontInstance {
     assetUrl: string | undefined;
     name: string;
     url: string;
+    authToken?: string;
     private intervalId: Timer | null | number = null;
 
-    constructor(gatewayConfig: IGatewayConfiguration) {
+    constructor(gatewayConfig: IGatewayConfiguration, authToken?: string) {
         this.name = gatewayConfig.name;
         this.url = gatewayConfig.url;
+        this.authToken = authToken;
         httpClient.init('PuzzleJs Storefront');
 
         this.assetUrl = gatewayConfig.assetUrl;
@@ -53,11 +55,17 @@ export class GatewayStorefrontInstance {
      * Fetches gateway condifuration and calls this.bind
      */
     private async fetch() {
+        const headers = {
+            gateway: this.name,
+        };
+
+        if(this.authToken) {
+            headers["x-authorization"] = this.authToken;
+        }
+
         try {
             const res = await fetch(this.url, {
-                headers: {
-                    gateway: this.name
-                }
+                headers
             });
             const json = await res.json();
             this.update(json);

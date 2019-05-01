@@ -61,7 +61,7 @@ export const PUZZLE_DEBUG_LIB_SCRIPT = `<script puzzle-dependency="puzzle-lib" t
 
 export const DEFAULT_MAIN_PARTIAL = `main`;
 
-export const HEALTHCHECK_PATH = '/healthcheck';
+export const HEALTHCHECK_PATHS = ['/healthcheck', '/liveness', '/readiness'];
 
 export enum HTTP_STATUS_CODE {
     OK = 200,

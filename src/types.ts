@@ -241,6 +241,7 @@ export interface INodeSpdyConfiguration {
 export interface IStorefrontConfig {
     gateways: IGatewayConfiguration[];
     port: number;
+    authToken?: string;
     ipv4?: boolean;
     pages: IPageConfiguration[];
     pollInterval?: number;

@@ -1,7 +1,7 @@
 import {GatewayStorefrontInstance} from "./gatewayStorefront";
 import {Page} from "./page";
 import async from "async";
-import {EVENTS, HEALTHCHECK_PATH, HTTP_METHODS, HTTP_STATUS_CODE} from "./enums";
+import {EVENTS, HEALTHCHECK_PATHS, HTTP_METHODS, HTTP_STATUS_CODE} from "./enums";
 import {wait} from "./util";
 import {Logger} from "./logger";
 import {EventEmitter} from "events";
@@ -118,7 +118,7 @@ export class Storefront {
      */
     private createStorefrontPagesAndGateways() {
         this.config.gateways.forEach(gatewayConfiguration => {
-            const gateway = new GatewayStorefrontInstance(gatewayConfiguration);
+            const gateway = new GatewayStorefrontInstance(gatewayConfiguration, this.config.authToken);
             gateway.events.once(EVENTS.GATEWAY_READY, () => {
                 this.gatewaysReady++;
             });
@@ -149,8 +149,8 @@ export class Storefront {
      * @param {Function} cb
      */
     private addHealthCheckRoute(cb: Function) {
-        logger.info(`Registering healthcheck route: ${HEALTHCHECK_PATH}`);
-        this.server.addRoute(HEALTHCHECK_PATH, HTTP_METHODS.GET, (req, res) => {
+        logger.info(`Registering healthcheck routes: ${HEALTHCHECK_PATHS}`);
+        this.server.addRoute(HEALTHCHECK_PATHS, HTTP_METHODS.GET, (req, res) => {
             res.status(HTTP_STATUS_CODE.OK).end();
         });
 
