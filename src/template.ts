@@ -495,6 +495,7 @@ export class Template {
                         this.pageClass._onResponseEnd();
                     } else {
                         res.write(waitedReplacement.template);
+                        res.flush();
 
                         //Bind flush method to resolved or being resolved promises of chunked replacements
                         Object.values(chunkedFragmentReplacements).forEach((chunkedReplacement, x) => {
@@ -551,6 +552,7 @@ export class Template {
 
             this.pageClass._onChunk(output);
             res.write(output);
+            res.flush();
         };
     }
 
