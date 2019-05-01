@@ -3,11 +3,7 @@ import {GatewayStorefrontInstance} from "./gatewayStorefront";
 import {EVENTS} from "./enums";
 import {ICookieObject, IGatewayMap, IPageDependentGateways, IResponseHandlers} from "./types";
 import {DEBUG_INFORMATION, DEBUG_QUERY_NAME} from "./config";
-import {container, TYPES} from "./base";
-import {Logger} from "./logger";
 import express from "express";
-
-const logger = container.get(TYPES.Logger) as Logger;
 
 export class Page {
     ready = false;

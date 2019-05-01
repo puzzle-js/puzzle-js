@@ -22,7 +22,6 @@ import {
 import md5 from "md5";
 import async from "async";
 import path from "path";
-import express from "express";
 import {Server} from "./server";
 import {container, TYPES} from "./base";
 import cheerio from "cheerio";
@@ -310,7 +309,7 @@ export class GatewayBFF {
 
             Object.keys(fragment.versions).forEach(version => {
                 const staticPath = path.join(this.config.fragmentsFolder, fragment.name, version, '/assets');
-                this.server.addUse(`/${fragment.name}/${version}/static/`, express.static(staticPath));
+                this.server.setStatic(`/${fragment.name}/${version}/static/`, staticPath);
             });
         });
 
