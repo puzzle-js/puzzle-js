@@ -1,7 +1,7 @@
 import {Template} from "./template";
 import {GatewayStorefrontInstance} from "./gatewayStorefront";
 import {EVENTS} from "./enums";
-import {ICookieObject, IGatewayMap, IPageDependentGateways, IResponseHandlers} from "./types";
+import {ICookieMap, ICookieObject, IGatewayMap, IPageDependentGateways, IResponseHandlers} from "./types";
 import {DEBUG_INFORMATION, DEBUG_QUERY_NAME} from "./config";
 import {container, TYPES} from "./base";
 import {Logger} from "./logger";
@@ -51,7 +51,7 @@ export class Page {
     }
 
     async reCompile() {
-        const defaultVersion = this.getHandlerVersion();
+        const defaultVersion = this.getHandlerVersion({}, true);
         this.responseHandlers[`${defaultVersion}_true`] = await this.template.compile({}, true);
         this.responseHandlers[`${defaultVersion}_false`] = await this.template.compile({}, false);
     }
@@ -89,15 +89,10 @@ export class Page {
      * @param query
      * @param cookies
      */
-    private getHandlerVersion(cookies: { [key: string]: string } = {}) {
+    private getHandlerVersion(cookies: ICookieMap, preCompile = false) {
         return Object.values(this.gatewayDependencies.fragments)
             .reduce((key, fragment) => {
-                if (!fragment.instance.config) {
-                    return `${key}_${fragment.instance.name}|0`;
-                }
-
-                const cookieValue = cookies[fragment.instance.config.testCookie];
-                return `${key}_${fragment.instance.name}|${cookieValue || fragment.instance.config.version}`;
+                return `${key}_${fragment.instance.name}|${fragment.instance.detectVersion(cookies, preCompile)}`;
             }, '');
     }
 

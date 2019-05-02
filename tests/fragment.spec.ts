@@ -42,7 +42,7 @@ describe('Fragment', () => {
                 return {data: 'acg'};
             };
             const fragment = new FragmentBFF(fragmentConfig);
-            const response = await fragment.render({} as any, {});
+            const response = await fragment.render({} as any, '1.0.0');
             expect(response).to.deep.eq({
                 main: `acg was here`
             });
@@ -62,7 +62,7 @@ describe('Fragment', () => {
             const fragmentConfig = JSON.parse(JSON.stringify(commonFragmentBffConfiguration));
             fragmentConfig.versions.test.handler.content = (req: any, data: any) => `${data} was here`;
             const fragment = new FragmentBFF(fragmentConfig);
-            fragment.render({} as any, {}).then(data => done(data)).catch(e => {
+            fragment.render({} as any, '1.0.0').then(data => done(data)).catch(e => {
                 expect(e.message).to.include('Failed to find data handler');
                 done();
             });
@@ -77,7 +77,7 @@ describe('Fragment', () => {
                 return {data: 'acg'};
             };
             const fragment = new FragmentBFF(fragmentConfig);
-            fragment.render({} as any, {}, 'no_version').then(data => {
+            fragment.render({} as any, 'no_version').then(data => {
                 expect(data.main).to.include('was here');
                 done();
             });
@@ -136,7 +136,7 @@ describe('Fragment', () => {
             const fragment = new FragmentBFF(fragmentConfig);
 
             try {
-                await fragment.render({} as any, {}, '123');
+                await fragment.render({} as any, '123');
             } catch (err) {
                 return;
             }
@@ -168,6 +168,18 @@ describe('Fragment', () => {
             fragment.update(commonFragmentConfig, 'http://local.gatewaysimulator.com', '');
 
             expect(fragment.config).to.deep.eq(commonFragmentConfig);
+        });
+
+        it('should update fragment configuration with version Matcher', () => {
+            const fragment = new FragmentStorefront('product', 'test');
+            const fragmentConfiguration = {
+                ...commonFragmentConfig,
+                versionMatcher: `(cookies) => '1.2.3'`,
+            };
+            fragment.update(fragmentConfiguration, 'http://local.gatewaysimulator.com', '');
+
+            expect(fragment.config).to.deep.eq(fragmentConfiguration);
+            expect(fragment.detectVersion({})).to.eq('1.2.3');
         });
 
         it('should fetch placeholder', async () => {
@@ -231,7 +243,7 @@ describe('Fragment', () => {
 
             const fragment = new FragmentStorefront('product', 'test');
 
-            let fragmentContent = {
+            const fragmentContent = {
                 ...commonFragmentConfig
             };
             fragmentContent.assets = [
@@ -249,7 +261,6 @@ describe('Fragment', () => {
             const scriptContent = await fragment.getAsset('product-bundle', '1.0.0');
 
             expect(scriptContent).to.eq(productScript);
-
         });
 
         it('should log and return empty placeholder when no fragment config exists', (done) => {
@@ -287,6 +298,46 @@ describe('Fragment', () => {
                     done(e);
                 }
             });
+        });
+
+        it('should use version matcher when not pre compiling', () => {
+            const fragment = new FragmentStorefront('product', 'test');
+
+            fragment.update({
+                render: {
+                    placeholder: false,
+                    url: '/'
+                },
+                versionMatcher: `(cookies) => '1.2.3'`,
+                version: '1.0.0',
+                testCookie: 'fragment',
+                dependencies: [],
+                assets: []
+            }, '', '');
+
+            const version = fragment.detectVersion({});
+
+            expect(version).to.eq('1.2.3');
+        });
+
+        it('should use default version matcher when pre compiling', () => {
+            const fragment = new FragmentStorefront('product', 'test');
+
+            fragment.update({
+                render: {
+                    placeholder: false,
+                    url: '/'
+                },
+                versionMatcher: `(cookies) => '1.2.3'`,
+                version: '1.0.0',
+                testCookie: 'fragment',
+                dependencies: [],
+                assets: []
+            }, '', '');
+
+            const version = fragment.detectVersion({}, true);
+
+            expect(version).to.eq('1.0.0');
         });
 
         it('should log and return empty content when no fragment config exists', (done) => {

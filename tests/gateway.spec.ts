@@ -7,6 +7,7 @@ import {createExpressMock, createGateway} from "./mock/mock";
 import {GatewayBFF} from "../src/gatewayBFF";
 import {GatewayConfigurator} from "../src/configurator";
 import {DEFAULT_POLLING_INTERVAL} from "../src/config";
+import faker from "faker";
 
 describe('Gateway', () => {
     describe('BFF', () => {
@@ -138,6 +139,119 @@ describe('Gateway', () => {
             expect(bffGw.exposedConfig.hash).to.be.a('string');
         });
 
+        it('should expose public configuration reduced with cookieMatcher', () => {
+            const gatewayConfiguration: IGatewayBFFConfiguration = {
+                ...commonGatewayConfiguration,
+                fragments: [
+                    {
+                        name: 'boutique-list',
+                        version: 'test',
+                        render: {
+                            url: '/'
+                        },
+                        testCookie: 'fragment_test',
+                        versionMatcher: (cookies: any) => '1.0.0',
+                        versions: {
+                            'test': {
+                                assets: [],
+                                dependencies: [],
+                                handler: require('./fragments/boutique-list/test')
+                            },
+                            'test2': {
+                                assets: [],
+                                dependencies: [],
+                                handler: require('./fragments/boutique-list/test2')
+                            }
+                        }
+                    }
+                ]
+            };
+
+            const bffGw = new GatewayBFF(gatewayConfiguration);
+
+            expect(bffGw.exposedConfig).to.deep.include({
+                fragments: {
+                    'boutique-list': {
+                        assets: [],
+                        prg: false,
+                        dependencies: [],
+                        versionMatcher: `(cookies) => '1.0.0'`,
+                        render: {
+                            url: '/'
+                        },
+                        version: 'test',
+                        testCookie: 'fragment_test',
+                        passiveVersions: {
+                            test2: {
+                                assets: [],
+                                dependencies: []
+                            }
+                        }
+                    }
+                }
+            });
+            expect(bffGw.exposedConfig.hash).to.be.a('string');
+        });
+
+        it('should expose public configuration reduced with warden', () => {
+            const wardenConf = {
+                identifier: faker.random.word(),
+                cache: faker.random.boolean(),
+                holder: faker.random.boolean()
+            };
+            const gatewayConfiguration: IGatewayBFFConfiguration = {
+                ...commonGatewayConfiguration,
+                fragments: [
+                    {
+                        name: 'boutique-list',
+                        version: 'test',
+                        render: {
+                            url: '/'
+                        },
+                        testCookie: 'fragment_test',
+                        warden: wardenConf,
+                        versions: {
+                            'test': {
+                                assets: [],
+                                dependencies: [],
+                                handler: require('./fragments/boutique-list/test')
+                            },
+                            'test2': {
+                                assets: [],
+                                dependencies: [],
+                                handler: require('./fragments/boutique-list/test2')
+                            }
+                        }
+                    }
+                ]
+            };
+
+            const bffGw = new GatewayBFF(gatewayConfiguration);
+
+            expect(bffGw.exposedConfig).to.deep.include({
+                fragments: {
+                    'boutique-list': {
+                        assets: [],
+                        prg: false,
+                        dependencies: [],
+                        warden: wardenConf,
+                        render: {
+                            url: '/'
+                        },
+                        version: 'test',
+                        testCookie: 'fragment_test',
+                        passiveVersions: {
+                            test2: {
+                                assets: [],
+                                dependencies: []
+                            }
+                        }
+                    }
+                }
+            });
+            expect(bffGw.exposedConfig.hash).to.be.a('string');
+        });
+
         it('should render fragment in stream mode', async () => {
             const gatewayConfiguration: IGatewayBFFConfiguration = {
                 ...commonGatewayConfiguration,
@@ -161,12 +275,12 @@ describe('Gateway', () => {
             };
 
             const bffGw = new GatewayBFF(gatewayConfiguration);
-            await bffGw.renderFragment({}, 'boutique-list', FRAGMENT_RENDER_MODES.STREAM, DEFAULT_MAIN_PARTIAL, createExpressMock({
+            await bffGw.renderFragment({} as any, 'boutique-list', FRAGMENT_RENDER_MODES.STREAM, DEFAULT_MAIN_PARTIAL, createExpressMock({
                 json: (gwResponse: HandlerDataResponse) => {
                     if (!gwResponse) throw new Error('No response from gateway');
                     expect(gwResponse.main).to.eq('test');
                 }
-            }));
+            }) as any,{});
         });
 
         it('should render fragment in preview mode', async () => {
@@ -192,12 +306,12 @@ describe('Gateway', () => {
             };
 
             const bffGw = new GatewayBFF(gatewayConfiguration);
-            await bffGw.renderFragment({}, 'boutique-list', FRAGMENT_RENDER_MODES.PREVIEW, DEFAULT_MAIN_PARTIAL, createExpressMock({
+            await bffGw.renderFragment({} as any, 'boutique-list', FRAGMENT_RENDER_MODES.PREVIEW, DEFAULT_MAIN_PARTIAL, createExpressMock({
                 send: (gwResponse: string) => {
                     if (!gwResponse) throw new Error('No response from gateway');
                     expect(gwResponse).to.include(`<title>Browsing - boutique-list</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"></head><body><div id="boutique-list">test</div></body></html>`);
                 }
-            }));
+            }) as any,{});
         });
 
         it('should render fragment in preview mode with data passing', async () => {
@@ -237,91 +351,13 @@ describe('Gateway', () => {
             };
 
             const bffGw = new GatewayBFF(gatewayConfiguration);
-            await bffGw.renderFragment({url: 'test'}, 'boutique-list', FRAGMENT_RENDER_MODES.PREVIEW, DEFAULT_MAIN_PARTIAL, createExpressMock({
+            await bffGw.renderFragment({url: 'test'} as any, 'boutique-list', FRAGMENT_RENDER_MODES.PREVIEW, DEFAULT_MAIN_PARTIAL, createExpressMock({
                 send: (gwResponse: string) => {
                     if (!gwResponse) throw new Error('No response from gateway');
                     expect(gwResponse).to.include(`<title>Browsing - boutique-list</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"></head><body><div id="boutique-list">Requested:Url:test</div></body></html>`);
                 }
-            }));
+            }) as any,{});
         });
-
-        // it('should render fragment in preview mode with all assets', async () => {
-        //   const gatewayConfiguration: IGatewayBFFConfiguration = {
-        //     ...commonGatewayConfiguration,
-        //     fragments: [
-        //       {
-        //         name: 'boutique-list',
-        //         version: 'test',
-        //         render: {
-        //           url: '/'
-        //         },
-        //         testCookie: 'fragment_test',
-        //         versions: {
-        //           'test': {
-        //             assets: [
-        //               {
-        //                 fileName: 'head.min.js',
-        //                 type: RESOURCE_TYPE.JS,
-        //                 location: RESOURCE_LOCATION.HEAD,
-        //                 name: 'head'
-        //               },
-        //               {
-        //                 fileName: 'bundle.min.js',
-        //                 type: RESOURCE_TYPE.JS,
-        //                 location: RESOURCE_LOCATION.CONTENT_START,
-        //                 name: 'cs'
-        //               },
-        //               {
-        //                 fileName: 'bundle.min.js',
-        //                 type: RESOURCE_TYPE.JS,
-        //                 location: RESOURCE_LOCATION.BODY_START,
-        //                 name: 'bs'
-        //               },
-        //               {
-        //                 fileName: 'bundle.min.js',
-        //                 type: RESOURCE_TYPE.JS,
-        //                 location: RESOURCE_LOCATION.CONTENT_END,
-        //                 name: 'ce'
-        //               },
-        //               {
-        //                 fileName: 'bundle.min.js',
-        //                 type: RESOURCE_TYPE.JS,
-        //                 location: RESOURCE_LOCATION.BODY_END,
-        //                 name: 'be'
-        //               }
-        //               , {
-        //                 fileName: 'bundle.min.css',
-        //                 type: RESOURCE_TYPE.CSS,
-        //                 location: RESOURCE_LOCATION.HEAD,
-        //                 name: 'headcss'
-        //               },
-        //             ] as IFileResourceAsset[],
-        //             dependencies: [
-        //               {
-        //                 name: 'js',
-        //                 preview: 'preview',
-        //                 type: RESOURCE_TYPE.JS
-        //               }, {
-        //                 name: 'css',
-        //                 preview: 'preview',
-        //                 type: RESOURCE_TYPE.CSS
-        //               }
-        //             ],
-        //             handler: require('./fragments/boutique-list/test')
-        //           }
-        //         }
-        //       }
-        //     ]
-        //   };
-        //
-        //   const bffGw = new GatewayBFF(gatewayConfiguration);
-        //   await bffGw.renderFragment({}, 'boutique-list', FRAGMENT_RENDER_MODES.PREVIEW, DEFAULT_MAIN_PARTIAL, createExpressMock({
-        //     send: (gwResponse: string) => {
-        //       if (!gwResponse) throw new Error('No response from gateway');
-        //       expect(gwResponse).to.eq(`<html><head><title>Browsing - boutique-list</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><script puzzle-asset="head" src="/boutique-list/static/head.min.js" type="text/javascript"></script><link puzzle-asset="headcss" rel="stylesheet" href="/boutique-list/static/bundle.min.css"><script puzzle-asset="js" src="preview" type="text/javascript"></script><link puzzle-asset="css" rel="stylesheet" href="preview"></head><body><script puzzle-asset="bs" src="/boutique-list/static/bundle.min.js" type="text/javascript"></script><script puzzle-asset="cs" src="/boutique-list/static/bundle.min.js" type="text/javascript"></script><div id="boutique-list">test</div><script puzzle-asset="ce" src="/boutique-list/static/bundle.min.js" type="text/javascript"></script><script puzzle-asset="be" src="/boutique-list/static/bundle.min.js" type="text/javascript"></script></body></html>`);
-        //     }
-        //   }));
-        // });
 
         it('should throw error at render when fragment name not found', done => {
             const gatewayConfiguration: IGatewayBFFConfiguration = {
@@ -346,7 +382,7 @@ describe('Gateway', () => {
             };
 
             const bffGw = new GatewayBFF(gatewayConfiguration);
-            bffGw.renderFragment({}, 'not_exists', FRAGMENT_RENDER_MODES.STREAM, DEFAULT_MAIN_PARTIAL, {}).then(data => done(data)).catch((e) => {
+            bffGw.renderFragment({} as any, 'not_exists', FRAGMENT_RENDER_MODES.STREAM, DEFAULT_MAIN_PARTIAL, {} as any, {}).then(data => done(data)).catch((e) => {
                 expect(e.message).to.include('Failed to find fragment');
                 done();
             });
@@ -404,7 +440,7 @@ describe('Gateway', () => {
             });
         });
 
-        it('should fire gateway ready updated event when hash changed', function (done) {
+        it('should fire gateway ready updated event when hash changed', (done) => {
             const gateway = new GatewayStorefrontInstance(commonGatewayStorefrontConfiguration);
             gateway.startUpdating();
 

@@ -41,9 +41,13 @@ import fs from "fs";
 import path from "path";
 import {IPageFragmentConfig, IPageLibAsset, IPageLibConfiguration, IPageLibDependency} from "./lib/types";
 import {EVENT, RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "./lib/enums";
+import express from "express";
 
 const logger = container.get(TYPES.Logger) as Logger;
 
+interface CompressionStreamResponse extends express.Response {
+    flush: () => void;
+}
 
 export class Template {
     dom: CheerioStatic;
@@ -451,7 +455,7 @@ export class Template {
     private buildHandler(firstFlushHandler: Function, chunkedFragmentReplacements: IReplaceSet[], waitedFragments: IReplaceSet[] = [], jsReplacements: IReplaceAsset[] = [], isDebug: boolean) {
         //todo primary fragment test et
         if (chunkedFragmentReplacements.length === 0) {
-            return (req: any, res: any) => {
+            return (req: express.Request, res: CompressionStreamResponse) => {
                 this.pageClass._onRequest(req);
                 const fragmentedHtml = firstFlushHandler.call(this.pageClass, req);
                 (async () => {
@@ -470,7 +474,7 @@ export class Template {
                 })();
             };
         } else {
-            return (req: any, res: any) => {
+            return (req: express.Request, res: CompressionStreamResponse) => {
                 this.pageClass._onRequest(req);
                 const fragmentedHtml = firstFlushHandler.call(this.pageClass, req).replace('</body>', '').replace('</html>', '');
                 res.set('transfer-encoding', 'chunked');
@@ -495,6 +499,7 @@ export class Template {
                         this.pageClass._onResponseEnd();
                     } else {
                         res.write(waitedReplacement.template);
+                        res.flush();
 
                         //Bind flush method to resolved or being resolved promises of chunked replacements
                         Object.values(chunkedFragmentReplacements).forEach((chunkedReplacement, x) => {
@@ -520,7 +525,7 @@ export class Template {
      * @param isDebug
      * @returns {(fragmentContent: IFragmentContentResponse) => void}
      */
-    private flush(chunkedReplacement: IReplaceSet, jsReplacements: IReplaceAsset[], res: any, isDebug: boolean) {
+    private flush(chunkedReplacement: IReplaceSet, jsReplacements: IReplaceAsset[], res: CompressionStreamResponse, isDebug: boolean) {
         return (fragmentContent: IFragmentContentResponse) => {
 
             const fragmentJsReplacements = jsReplacements.find(jsReplacement => jsReplacement.fragment.name === chunkedReplacement.fragment.name);
@@ -551,6 +556,7 @@ export class Template {
 
             this.pageClass._onChunk(output);
             res.write(output);
+            res.flush();
         };
     }
 
