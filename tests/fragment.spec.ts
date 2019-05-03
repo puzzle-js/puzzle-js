@@ -398,12 +398,13 @@ describe('Fragment', () => {
 
         it('should fetch error page', async () => {
             const errorPageContent = '{ "main" : "<div>errorPageContent</div>" }';
-            nock('http://local.gatewaysimulator.com')
-                .get('/error-page-test/error')
-                .reply(200, errorPageContent);
 
             const fragment = new FragmentStorefront('error-page-test', 'test');
             fragment.update(commonFragmentConfig, 'http://local.gatewaysimulator.com', '');
+
+            nock('http://local.gatewaysimulator.com')
+                .get('/error-page-test/error')
+                .reply(200, errorPageContent);
 
             const errorPage = await fragment.getErrorPage();
             expect(errorPage).to.deep.eq(JSON.parse(errorPageContent));

@@ -329,7 +329,7 @@ export class GatewayBFF {
 
             Object.keys(fragment.versions).forEach(version => {
                 const staticPath = path.join(this.config.fragmentsFolder, fragment.name, version, '/assets');
-                this.server.addUse(`/${fragment.name}/${version}/static/`, express.static(staticPath));
+                this.server.setStatic(`/${fragment.name}/${version}/static/`, staticPath);
             });
         });
 
