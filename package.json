@@ -22,7 +22,7 @@
     "@types/faker": "^4.1.2",
     "@types/helmet": "0.0.37",
     "@types/jsdom": "^11.0.6",
-    "@types/jest": "^23.3.12",
+    "@types/jest": "^24.0.12",
     "@types/md5": "^2.1.32",
     "@types/morgan": "^1.7.35",
     "@types/nock": "^9.1.3",
