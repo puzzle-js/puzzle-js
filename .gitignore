@@ -120,3 +120,4 @@ src/lib/**/*.js.map
 !src/lib/puzzle.min.js
 !src/lib/webpack.config.js
 !src/lib/jest.config.js
+.DS_Store
