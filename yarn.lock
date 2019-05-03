@@ -319,10 +319,10 @@
     "@types/express-serve-static-core" "*"
     "@types/mime" "*"
 
-"@types/sinon@^5.0.1":
-  version "5.0.7"
-  resolved "https://registry.yarnpkg.com/@types/sinon/-/sinon-5.0.7.tgz#0d9f89dd0c9988c4f1505a92a3a324ee7bdb18a6"
-  integrity sha512-opwMHufhUwkn/UUDk35LDbKJpA2VBsZT8WLU8NjayvRLGPxQkN+8XmfC2Xl35MAscBE8469koLLBjaI3XLEIww==
+"@types/sinon@^7.0.11":
+  version "7.0.11"
+  resolved "https://registry.yarnpkg.com/@types/sinon/-/sinon-7.0.11.tgz#6f28f005a36e779b7db0f1359b9fb9eef72aae88"
+  integrity sha512-6ee09Ugx6GyEr0opUIakmxIWFNmqYPjkqa3/BuxCBokA0klsOLPgMD5K4q40lH7/yZVuJVzOfQpd7pipwjngkQ==
 
 "@types/spdy@^3.4.4":
   version "3.4.4"
