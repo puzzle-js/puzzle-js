@@ -205,6 +205,11 @@ export class FragmentStorefront extends Fragment {
         if (this.config && this.config.versionMatcher) {
             this.versionMatcher = new CookieVersionMatcher(this.config.versionMatcher);
         }
+
+        if (this.config && this.config.render.error && !this.cachedErrorPage) {
+            this.getErrorPage()
+        }
+
     }
 
     detectVersion(cookie: ICookieMap, preCompile = false): string {
