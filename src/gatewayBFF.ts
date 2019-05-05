@@ -365,6 +365,21 @@ export class GatewayBFF {
      */
     private addConfigurationRoute(cb: Function) {
         this.server.addRoute('/', HTTP_METHODS.GET, (req, res) => {
+
+            if(req.query.fragment) {
+                if(this.exposedConfig.fragments[req.query.fragment]) {
+                    const fragment = this.exposedConfig.fragments[req.query.fragment];
+                    return res.status(200).json({
+                        assets: fragment.assets,
+                        dependencies: fragment.dependencies,
+                        version: fragment.version
+                    });
+                }
+                else {
+                    return res.status(404).end();
+                }
+            }
+
             if (!this.config.authToken || req.header('x-authorization') === this.config.authToken) {
                 res.status(200).json(this.exposedConfig);
             } else {
