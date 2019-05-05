@@ -367,8 +367,9 @@ export class GatewayBFF {
         this.server.addRoute('/', HTTP_METHODS.GET, (req, res) => {
 
             if(req.query.fragment) {
-                if(this.exposedConfig.fragments[req.query.fragment]) {
-                    const fragment = this.exposedConfig.fragments[req.query.fragment];
+                const fragment = this.exposedConfig.fragments[req.query.fragment];
+                if(fragment) {
+
                     return res.status(200).json({
                         assets: fragment.assets,
                         dependencies: fragment.dependencies,
