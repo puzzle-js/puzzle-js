@@ -8,6 +8,7 @@ import {GatewayBFF} from "../src/gatewayBFF";
 import {GatewayConfigurator} from "../src/configurator";
 import {DEFAULT_POLLING_INTERVAL} from "../src/config";
 import faker from "faker";
+import request from "supertest";
 
 describe('Gateway', () => {
     describe('BFF', () => {
@@ -55,11 +56,11 @@ describe('Gateway', () => {
             expect(bffGw).to.be.instanceOf(GatewayBFF);
         });
 
-      it('should create new gateway BFF instance with auth token', () => {
-        commonGatewayConfiguration.authToken = 'Secret Key';
-        const bffGw = new GatewayBFF(commonGatewayConfiguration);
-        expect(bffGw).to.be.instanceOf(GatewayBFF);
-      });
+        it('should create new gateway BFF instance with auth token', () => {
+            commonGatewayConfiguration.authToken = 'Secret Key';
+            const bffGw = new GatewayBFF(commonGatewayConfiguration);
+            expect(bffGw).to.be.instanceOf(GatewayBFF);
+        });
 
         it('should create a new gateway bff instance with single fragment', () => {
             const gatewayConfiguration: IGatewayBFFConfiguration = {
@@ -250,6 +251,95 @@ describe('Gateway', () => {
                 }
             });
             expect(bffGw.exposedConfig.hash).to.be.a('string');
+        });
+
+        it('should return public information of given fragment', (done) => {
+            const gatewayConfiguration: IGatewayBFFConfiguration = {
+                ...commonGatewayConfiguration,
+                fragments: [
+                    {
+                        name: 'boutique-list',
+                        version: 'test',
+                        render: {
+                            url: '/'
+                        },
+                        testCookie: 'fragment_test',
+                        versions: {
+                            'test': {
+                                assets: [],
+                                dependencies: [],
+                                handler: require('./fragments/boutique-list/test')
+                            },
+                            'test2': {
+                                assets: [],
+                                dependencies: [],
+                                handler: require('./fragments/boutique-list/test2')
+                            }
+                        }
+                    }
+                ],
+                port: 4440
+            };
+
+            const bffGw = new GatewayBFF(gatewayConfiguration);
+
+            bffGw.init( () => {
+                request(bffGw.server.app)
+                    .get('/?fragment=boutique-list')
+                    .expect(200)
+                    .end((err, res) => {
+                        bffGw.server.close();
+
+                        expect(res.body).to.deep.eq({
+                            version: 'test',
+                            assets: [],
+                            dependencies: []
+                        });
+
+                        done(err);
+                    });
+            });
+        });
+
+        it('should return 404, when requesting public information of non existing fragment', (done) => {
+            const gatewayConfiguration: IGatewayBFFConfiguration = {
+                ...commonGatewayConfiguration,
+                fragments: [
+                    {
+                        name: 'boutique-list',
+                        version: 'test',
+                        render: {
+                            url: '/'
+                        },
+                        testCookie: 'fragment_test',
+                        versions: {
+                            'test': {
+                                assets: [],
+                                dependencies: [],
+                                handler: require('./fragments/boutique-list/test')
+                            },
+                            'test2': {
+                                assets: [],
+                                dependencies: [],
+                                handler: require('./fragments/boutique-list/test2')
+                            }
+                        }
+                    }
+                ],
+                port: 4440
+            };
+
+            const bffGw = new GatewayBFF(gatewayConfiguration);
+
+            bffGw.init( () => {
+                request(bffGw.server.app)
+                    .get('/?fragment=boutique-list-not-exist')
+                    .expect(404)
+                    .end(err => {
+                        bffGw.server.close();
+                        done(err);
+                    });
+            });
         });
 
         it('should render fragment in stream mode', async () => {
