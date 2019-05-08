@@ -68,7 +68,6 @@ Read the [guide](./docs/guide.md) to familiarize yourself with how PuzzleJs work
 * [Configurator](./docs/guide.md#configurator)
 * [Core Configuration](./docs/guide.md#core-configuration)
 
-
 ### [Changelog](./CHANGELOG.md)
 
 ### Showcase
