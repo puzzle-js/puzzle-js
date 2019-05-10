@@ -1848,7 +1848,7 @@ cors@^2.8.5:
     object-assign "^4"
     vary "^1"
 
-couchbase@^2.6.2:
+couchbase@^2.6.4:
   version "2.6.4"
   resolved "https://registry.yarnpkg.com/couchbase/-/couchbase-2.6.4.tgz#e68c478f0506e0d1e97b7b1a253adc295afed81f"
   integrity sha512-FUZs7uWUXQjm7hp6tBOwEbAQFmhNIzXHM24vaBqatx8imecDB129oM4DeO1Z5rTSP7PeGLWZvOjlE3jjKZ11LQ==
@@ -6478,13 +6478,13 @@ punycode@^2.1.0, punycode@^2.1.1:
   resolved "https://registry.yarnpkg.com/punycode/-/punycode-2.1.1.tgz#b58b010ac40c22c5657616c8d2c2c02c7bf479ec"
   integrity sha512-XRsRjdf+j5ml+y/6GKHPZbrF/8p2Yga0JPtdqTIY2Xe5ohJPD9saDJJLPvp9+NSBprVvevdXZybnj2cv8OEd0A==
 
-puzzle-warden@^1.2.2:
-  version "1.2.6"
-  resolved "https://registry.yarnpkg.com/puzzle-warden/-/puzzle-warden-1.2.6.tgz#67281c7e29146ce85ebe470ea57cf0c87814d0db"
-  integrity sha512-dCu7Z/pIKmVIQveA/y30pbA3bSM8pTbpgCYE3r1y7rVlc5JDBx3zJ8eKG/3xyj6iQiP6kGqr4dOhap6z/mGwZw==
+puzzle-warden@^1.5.1:
+  version "1.5.1"
+  resolved "https://registry.yarnpkg.com/puzzle-warden/-/puzzle-warden-1.5.1.tgz#804f675843f29a69c460a62a5f60cff2e5f25463"
+  integrity sha512-7EtUdjyqK0U2lYShjdxq2f5ho76zA3vnFW6dBXi9vCM0oTrkr+AO5F33GW9lDTftSzj5w4T0Ua+QY8OOxke7kg==
   dependencies:
     cookie "^0.3.1"
-    couchbase "^2.6.2"
+    couchbase "^2.6.4"
     fast-url-parser "^1.1.3"
     ms "^2.1.1"
     parallel-transform "^1.1.0"
