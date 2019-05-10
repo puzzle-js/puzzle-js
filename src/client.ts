@@ -3,8 +3,7 @@ import https from "https";
 import {injectable} from "inversify";
 import request, {CoreOptions} from "request";
 import {PUZZLE_MAX_SOCKETS} from "./config";
-import warden from "puzzle-warden";
-
+import {warden} from "puzzle-warden";
 
 export interface IRequestOptions {
     timeout: number;

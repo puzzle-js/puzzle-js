@@ -6,10 +6,10 @@ import {Logger} from "./logger";
 import {IExposeConfig, IGatewayConfiguration} from "./types";
 import {container, TYPES} from "./base";
 import {HttpClient} from "./client";
-import warden from "puzzle-warden";
 import {RouteConfiguration} from "puzzle-warden/dist/request-manager";
 import {isDeepStrictEqual} from "util";
 import Timer = NodeJS.Timer;
+import {warden} from "puzzle-warden";
 
 const logger = container.get(TYPES.Logger) as Logger;
 const httpClient = container.get(TYPES.Client) as HttpClient;
@@ -99,11 +99,9 @@ export class GatewayStorefrontInstance {
             const fragment = data.fragments[key];
             if (fragment.warden && fragment.warden.identifier) {
                 if (this.shouldUpdateWarden(key, fragment.warden)) {
-                    console.log('Warden configuration updated for', key);
                     warden.register(key, fragment.warden);
                 }
             } else {
-                console.log('Warden configuration removed for', key);
                 warden.unregisterRoute(key);
             }
         }
