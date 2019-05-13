@@ -193,10 +193,8 @@ export class GatewayConfigurator extends Configurator {
     }
 
     protected injectDependencies(configuration: IGatewayBFFConfiguration) {
-        this.injectApiHandlers(configuration);
         this.injectCustomDependencies(configuration);
-
-
+        this.injectApiHandlers(configuration);
         this.prepareFragmentConfiguration(configuration);
     }
 
