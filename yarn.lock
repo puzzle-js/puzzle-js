@@ -6478,10 +6478,10 @@ punycode@^2.1.0, punycode@^2.1.1:
   resolved "https://registry.yarnpkg.com/punycode/-/punycode-2.1.1.tgz#b58b010ac40c22c5657616c8d2c2c02c7bf479ec"
   integrity sha512-XRsRjdf+j5ml+y/6GKHPZbrF/8p2Yga0JPtdqTIY2Xe5ohJPD9saDJJLPvp9+NSBprVvevdXZybnj2cv8OEd0A==
 
-puzzle-warden@^1.5.2:
-  version "1.5.2"
-  resolved "https://registry.yarnpkg.com/puzzle-warden/-/puzzle-warden-1.5.2.tgz#aceb3754832dfb25feaa2c475844327f256f0da2"
-  integrity sha512-9B4h0wkdHPfh7cdrOf20ogVVrtD/oQ7SPExJR0IbU5OKTdYGcpeEouNOKq8mWYkgBEQnLm7pHEiOCaLdZKs4PA==
+puzzle-warden@^1.5.3:
+  version "1.5.3"
+  resolved "https://registry.yarnpkg.com/puzzle-warden/-/puzzle-warden-1.5.3.tgz#8c783b401a0a186756c3733c07f8cecf2deeebb2"
+  integrity sha512-ybc0Mxx34XaMfNhMDQTfUcbV9p4StEi8P/GqXsJrT7+y+A9dXLZO9VS0K9PhrJBpgHwE5wzNOcLwZPHfc9XLZw==
   dependencies:
     cookie "^0.3.1"
     couchbase "^2.6.4"
