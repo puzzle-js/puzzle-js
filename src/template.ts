@@ -728,11 +728,11 @@ export class Template {
             for (const fragment of Object.values(this.fragments)) {
                 if (!fragment.config) continue;
 
-                const fragmentVersion: { assets: IFileResourceAsset[], dependencies: IFileResourceDependency[] } = cookies[fragment.config.testCookie] &&
-                fragment.config.passiveVersions &&
-                fragment.config.passiveVersions[cookies[fragment.config.testCookie]] ?
-                    fragment.config.passiveVersions[cookies[fragment.config.testCookie]] : fragment.config;
-                const targetVersion = cookies[fragment.config.testCookie] || fragment.config.version;
+                const targetVersion = fragment.detectVersion(cookies);
+                const fragmentVersion = fragment.config.version === targetVersion ?
+                    fragment.config :
+                    fragment.config.passiveVersions ?
+                        fragment.config.passiveVersions[targetVersion] : fragment.config;
 
 
                 const cssAssets = fragmentVersion.assets.filter(asset => asset.type === RESOURCE_TYPE.CSS);
