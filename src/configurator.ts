@@ -105,7 +105,8 @@ const gatewayStructure = struct({
 const storefrontPageStructure = struct({
     page: 'string?',
     html: 'string',
-    url: struct.union(['string', ['string']])
+    url: struct.union(['string', ['string']]),
+    condition: 'function?'
 });
 
 const storefrontGatewaysStructure = struct({

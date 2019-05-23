@@ -8,6 +8,7 @@ import request from "supertest";
 import {createGateway} from "./mock/mock";
 import {StorefrontConfigurator} from "../src/configurator";
 import {PUZZLE_DEBUGGER_LINK} from "../src/config";
+import sinon from "sinon";
 
 describe('Storefront', () => {
     it('should create a new storefront instance', () => {
@@ -132,6 +133,88 @@ describe('Storefront', () => {
                 .get(PUZZLE_DEBUGGER_LINK)
                 .expect(200)
                 .end((err, res) => {
+                    storefrontInstance.server.close();
+                    storefrontInstance.gateways['Browsing'].stopUpdating();
+                    done(err);
+                });
+        });
+    });
+
+    it('should add route with condition', done => {
+        const spy = sinon.stub().returns(true);
+        const gateway = {
+            name: 'Browsing',
+            url: 'http://browsing-gw.com'
+        };
+
+        const scope = createGateway(gateway.name, gateway.url, {
+            hash: '1234',
+            fragments: {}
+        });
+
+        const storefrontInstance = new Storefront({
+            pages: [
+                {
+                    url: '/',
+                    html: '<template><html><head></head><body></body></html></template>',
+                    name: 'test',
+                    condition: spy
+                }
+            ],
+            port: 4444,
+            gateways: [
+                gateway
+            ],
+            dependencies: []
+        });
+
+
+        storefrontInstance.init(() => {
+            request(storefrontInstance.server.app)
+                .get('/')
+                .expect(200)
+                .end((err,res) => {
+                    storefrontInstance.server.close();
+                    storefrontInstance.gateways['Browsing'].stopUpdating();
+                    done(err);
+                });
+        });
+    });
+
+    it('should pass page if condition is not validf', done => {
+        const spy = sinon.stub().returns(false);
+        const gateway = {
+            name: 'Browsing',
+            url: 'http://browsing-gw.com'
+        };
+
+        const scope = createGateway(gateway.name, gateway.url, {
+            hash: '1234',
+            fragments: {}
+        });
+
+        const storefrontInstance = new Storefront({
+            pages: [
+                {
+                    url: '/',
+                    html: '<template><html><head></head><body></body></html></template>',
+                    name: 'test',
+                    condition: spy
+                }
+            ],
+            port: 4444,
+            gateways: [
+                gateway
+            ],
+            dependencies: []
+        });
+
+
+        storefrontInstance.init(() => {
+            request(storefrontInstance.server.app)
+                .get('/')
+                .expect(404)
+                .end((err,res) => {
                     storefrontInstance.server.close();
                     storefrontInstance.gateways['Browsing'].stopUpdating();
                     done(err);
