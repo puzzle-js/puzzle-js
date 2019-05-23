@@ -74,12 +74,18 @@ const gatewayFragmentVersionStructure = struct({
     handler: 'string?'
 });
 
+const fragmentParsableInformation = struct({
+    type: struct.optional(struct.enum(['string', 'object', 'number'])),
+    name: struct.optional('string'),
+    from: struct.enum(['query', 'body', 'params', 'header', 'cookie'])
+});
 
 const gatewayFragmentStructure = struct({
     name: 'string',
     testCookie: 'string',
     prg: struct.optional('boolean'),
     render: gatewayRenderStructure,
+    props: struct.optional(struct.dict(['string', fragmentParsableInformation])),
     warden: struct.optional('object'),
     version: 'string',
     versionMatcher: 'string?',

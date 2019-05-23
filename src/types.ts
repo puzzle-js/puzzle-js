@@ -14,6 +14,7 @@ import {RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "./lib/enums";
 import {RouteConfiguration} from "puzzle-warden/dist/request-manager";
 import {MATCHER_FN} from "./cookie-version-matcher";
 import express from "express";
+import {PropertyLocation, PropertyType} from "./fragment-prop-builder";
 
 export interface IFragmentCookieMap {
     name: string;
@@ -37,15 +38,15 @@ export interface IFragmentBFFRender {
 }
 
 export interface IFragmentHandler {
-    content: (req: object, data?: any) => {
+    content: (data: object) => {
         main: string;
         [name: string]: string;
     };
-    placeholder: () => string;
+    placeholder: (properties: object) => string;
     error: () => {
         main: string
     };
-    data: (req: object) => Promise<HandlerDataResponse>;
+    data: (properties: object) => Promise<HandlerDataResponse>;
 }
 
 export interface HandlerDataResponse {
@@ -95,12 +96,20 @@ export interface IFragmentBFF extends IFragment {
         [version: string]: IFragmentBFFVersion
     };
     version: string;
+    props?: IParsableRequestProperties;
     versionMatcher?: MATCHER_FN;
     testCookie: string;
     warden?: RouteConfiguration;
     render: IFragmentBFFRender;
 }
 
+export interface IParsableRequestProperties {
+    [key: string]: {
+        type?: PropertyType | object;
+        name?: string;
+        from: PropertyLocation;
+    };
+}
 
 export interface IExposeFragment {
     version: string;

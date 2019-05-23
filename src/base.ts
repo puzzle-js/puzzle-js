@@ -7,17 +7,20 @@ import {Container} from "inversify";
 import {Logger} from "./logger";
 import {HttpClient} from "./client";
 import dnscache from "dnscache";
+import {FragmentPropBuilder} from "./fragment-prop-builder";
 
 export const TYPES = {
     Server: Symbol.for('Server'),
     Logger: Symbol.for('Logger'),
-    Client: Symbol.for('Client')
+    Client: Symbol.for('Client'),
+    FragmentPropBuilder: Symbol.for('FragmentPropBuilder')
 };
 
 const container = new Container();
 container.bind<Logger>(TYPES.Logger).to(Logger);
 container.bind<Server>(TYPES.Server).to(Server);
 container.bind<HttpClient>(TYPES.Client).to(HttpClient);
+container.bind<FragmentPropBuilder>(TYPES.FragmentPropBuilder).to(FragmentPropBuilder);
 
 
 dnscache({

@@ -1,25 +1,15 @@
 import fetch from "node-fetch";
-import {
-    HandlerDataResponse, ICookieMap,
-    IExposeFragment,
-    IFileResourceAsset,
-    IFragment,
-    IFragmentBFF,
-    IFragmentContentResponse,
-    IFragmentHandler
-} from "./types";
+import {ICookieMap, IExposeFragment, IFileResourceAsset, IFragment, IFragmentContentResponse} from "./types";
 import {CONTENT_ENCODING_TYPES, FRAGMENT_RENDER_MODES} from "./enums";
 import * as querystring from "querystring";
-import {DEBUG_QUERY_NAME, DEFAULT_CONTENT_TIMEOUT, PREVIEW_PARTIAL_QUERY_NAME, RENDER_MODE_QUERY_NAME} from "./config";
+import {DEFAULT_CONTENT_TIMEOUT} from "./config";
 import url from "url";
-import path from "path";
 import {container, TYPES} from "./base";
 import {Logger} from "./logger";
 import {decompress} from "iltorb";
 import {Request} from 'express';
 import {HttpClient} from "./client";
 import {ERROR_CODES, PuzzleError} from "./errors";
-import express from "express";
 import {CookieVersionMatcher} from "./cookie-version-matcher";
 
 
@@ -34,133 +24,6 @@ export class Fragment {
     }
 }
 
-export class FragmentBFF extends Fragment {
-    config: IFragmentBFF;
-    versionMatcher?: CookieVersionMatcher;
-    private handler: { [version: string]: IFragmentHandler } = {};
-
-    constructor(config: IFragmentBFF) {
-        super({name: config.name});
-        this.config = config;
-
-        if (this.config.versionMatcher) {
-            this.versionMatcher = new CookieVersionMatcher(this.config.versionMatcher);
-        }
-
-        this.prepareHandlers();
-    }
-
-    /**
-     * Renders fragment: data -> content
-     * @param {object} req
-     * @param {string} version
-     * @returns {Promise<HandlerDataResponse>}
-     */
-    async render(req: express.Request, version: string): Promise<HandlerDataResponse> {
-        const handler = this.handler[version] || this.handler[this.config.version];
-        const clearedRequest = this.clearRequest(req);
-        if (handler) {
-            if (handler.data) {
-                let dataResponse;
-                try {
-                    dataResponse = await handler.data(clearedRequest);
-                } catch (e) {
-                    logger.error(`Failed to fetch data for fragment ${this.config.name}`, req.url, req.query, req.params, req.headers, e);
-                    return {
-                        $status: 500
-                    };
-                }
-                if (dataResponse.data) {
-                    const renderedPartials = handler.content(clearedRequest, dataResponse.data);
-                    delete dataResponse.data;
-                    return {
-                        ...renderedPartials,
-                        ...dataResponse
-                    };
-                } else {
-                    return dataResponse;
-                }
-            } else {
-                throw new Error(`Failed to find data handler for fragment. Fragment: ${this.config.name}, Version: ${version || this.config.version}`);
-            }
-        } else {
-            throw new Error(`Failed to find fragment version. Fragment: ${this.config.name}, Version: ${version || this.config.version}`);
-        }
-    }
-
-    /**
-     * Renders placeholder
-     * @param {object} req
-     * @param {string} version
-     * @returns {string}
-     */
-    placeholder(req: object, version?: string) {
-        const fragmentVersion = (version && this.config.versions[version]) ? version : this.config.version;
-        const handler = this.handler[fragmentVersion];
-        if (handler) {
-            return handler.placeholder();
-        } else {
-            throw new Error(`Failed to find fragment version. Fragment: ${this.config.name}, Version: ${version || this.config.version}`);
-        }
-    }
-
-    /**
-     * Renders error
-     * @param {object} req
-     * @param {string} version
-     * @returns {string}
-     */
-    errorPage(req: object, version?: string) {
-        const fragmentVersion = (version && this.config.versions[version]) ? version : this.config.version;
-        const handler = this.handler[fragmentVersion];
-        if (handler) {
-            return handler.error();
-        } else {
-            throw new Error(`Failed to find fragment version. Fragment: ${this.config.name}, Version: ${version || this.config.version}`);
-        }
-    }
-
-    /**
-     * Purifies req.path, req.query from Puzzle elements.
-     * @param req
-     * @returns {*}
-     */
-    private clearRequest(req: express.Request) {
-        const clearedReq = Object.assign({}, req);
-        if (req.query) {
-            delete clearedReq.query[RENDER_MODE_QUERY_NAME];
-            delete clearedReq.query[PREVIEW_PARTIAL_QUERY_NAME];
-            delete clearedReq.query[DEBUG_QUERY_NAME];
-        }
-        if (req.path) {
-            clearedReq.path = req.path.replace(`/${this.name}`, '');
-        }
-        return clearedReq;
-    }
-
-    /**
-     * Check module type
-     */
-    private checkModuleType(fragmentModule: IFragmentHandler | Function): IFragmentHandler {
-        if (typeof fragmentModule === "function") return fragmentModule(container);
-        return fragmentModule;
-    }
-
-    /**
-     * Resolve handlers based on configuration
-     */
-    private prepareHandlers() {
-        Object.keys(this.config.versions).forEach(version => {
-            const configurationHandler = this.config.versions[version].handler;
-            if (configurationHandler) {
-                this.handler[version] = configurationHandler;
-            } else {
-                const module = require(path.join(process.cwd(), `/src/fragments/`, this.config.name, version));
-                this.handler[version] = this.checkModuleType(module);
-            }
-        });
-    }
-}
 
 export class FragmentStorefront extends Fragment {
     config: IExposeFragment | undefined;
@@ -207,7 +70,7 @@ export class FragmentStorefront extends Fragment {
         }
 
         if (this.config && this.config.render.error && !this.cachedErrorPage) {
-            this.getErrorPage()
+            this.getErrorPage();
         }
 
     }

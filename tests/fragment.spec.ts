@@ -1,10 +1,11 @@
 import {expect} from "chai";
 import "../src/base";
-import {FragmentBFF, FragmentStorefront} from "../src/fragment";
+import {FragmentStorefront} from "../src/fragment";
 import {IExposeFragment} from "../src/types";
 import nock from "nock";
 import {FRAGMENT_RENDER_MODES, RESOURCE_INJECT_TYPE, RESOURCE_LOCATION} from "../src/enums";
 import {RESOURCE_TYPE} from "../src/lib/enums";
+import {FragmentBFF} from "../src/fragmentBFF";
 
 describe('Fragment', () => {
     describe('BFF', () => {
@@ -33,7 +34,7 @@ describe('Fragment', () => {
 
         it('should render fragment as json format', async () => {
             const fragmentConfig = JSON.parse(JSON.stringify(commonFragmentBffConfiguration));
-            fragmentConfig.versions.test.handler.content = (req: any, data: any) => {
+            fragmentConfig.versions.test.handler.content = (data: any) => {
                 return {
                     main: `${data} was here`
                 };
@@ -42,7 +43,7 @@ describe('Fragment', () => {
                 return {data: 'acg'};
             };
             const fragment = new FragmentBFF(fragmentConfig);
-            const response = await fragment.render({} as any, '1.0.0');
+            const response = await fragment.render({headers:{}} as any, '1.0.0');
             expect(response).to.deep.eq({
                 main: `acg was here`
             });
@@ -54,7 +55,7 @@ describe('Fragment', () => {
                 return 'placeholder';
             };
             const fragment = new FragmentBFF(fragmentConfig);
-            const response = await fragment.placeholder({});
+            const response = await fragment.placeholder({headers:{}} as any);
             expect(response).to.eq('placeholder');
         });
 
@@ -62,7 +63,7 @@ describe('Fragment', () => {
             const fragmentConfig = JSON.parse(JSON.stringify(commonFragmentBffConfiguration));
             fragmentConfig.versions.test.handler.content = (req: any, data: any) => `${data} was here`;
             const fragment = new FragmentBFF(fragmentConfig);
-            fragment.render({} as any, '1.0.0').then(data => done(data)).catch(e => {
+            fragment.render({headers:{}} as any, '1.0.0').then(data => done(data)).catch(e => {
                 expect(e.message).to.include('Failed to find data handler');
                 done();
             });
@@ -77,7 +78,7 @@ describe('Fragment', () => {
                 return {data: 'acg'};
             };
             const fragment = new FragmentBFF(fragmentConfig);
-            fragment.render({} as any, 'no_version').then(data => {
+            fragment.render({headers:{}} as any, 'no_version').then(data => {
                 expect(data.main).to.include('was here');
                 done();
             });
@@ -116,7 +117,7 @@ describe('Fragment', () => {
             const fragmentConfig = JSON.parse(JSON.stringify(bff));
             expect(() => {
                 const fragment = new FragmentBFF(fragmentConfig);
-                const placeholder = fragment.placeholder({}, '123');
+                const placeholder = fragment.placeholder({headers:{}} as any, '123');
             }).to.throw('Failed to find fragment version. Fragment: test, Version: 123');
         });
 

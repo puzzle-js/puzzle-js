@@ -9,6 +9,7 @@ import {GatewayConfigurator} from "../src/configurator";
 import {DEFAULT_POLLING_INTERVAL} from "../src/config";
 import faker from "faker";
 import request from "supertest";
+import {PropertyLocation} from "../src/fragment-prop-builder";
 
 describe('Gateway', () => {
     describe('BFF', () => {
@@ -283,7 +284,7 @@ describe('Gateway', () => {
 
             const bffGw = new GatewayBFF(gatewayConfiguration);
 
-            bffGw.init( () => {
+            bffGw.init(() => {
                 request(bffGw.server.app)
                     .get('/?fragment=boutique-list')
                     .expect(200)
@@ -331,7 +332,7 @@ describe('Gateway', () => {
 
             const bffGw = new GatewayBFF(gatewayConfiguration);
 
-            bffGw.init( () => {
+            bffGw.init(() => {
                 request(bffGw.server.app)
                     .get('/?fragment=boutique-list-not-exist')
                     .expect(404)
@@ -365,12 +366,12 @@ describe('Gateway', () => {
             };
 
             const bffGw = new GatewayBFF(gatewayConfiguration);
-            await bffGw.renderFragment({} as any, 'boutique-list', FRAGMENT_RENDER_MODES.STREAM, DEFAULT_MAIN_PARTIAL, createExpressMock({
+            await bffGw.renderFragment({headers: {}} as any, 'boutique-list', FRAGMENT_RENDER_MODES.STREAM, DEFAULT_MAIN_PARTIAL, createExpressMock({
                 json: (gwResponse: HandlerDataResponse) => {
                     if (!gwResponse) throw new Error('No response from gateway');
                     expect(gwResponse.main).to.eq('test');
                 }
-            }) as any,{});
+            }) as any, {});
         });
 
         it('should render fragment in preview mode', async () => {
@@ -396,12 +397,12 @@ describe('Gateway', () => {
             };
 
             const bffGw = new GatewayBFF(gatewayConfiguration);
-            await bffGw.renderFragment({} as any, 'boutique-list', FRAGMENT_RENDER_MODES.PREVIEW, DEFAULT_MAIN_PARTIAL, createExpressMock({
+            await bffGw.renderFragment({headers:{}} as any, 'boutique-list', FRAGMENT_RENDER_MODES.PREVIEW, DEFAULT_MAIN_PARTIAL, createExpressMock({
                 send: (gwResponse: string) => {
                     if (!gwResponse) throw new Error('No response from gateway');
                     expect(gwResponse).to.include(`<title>Browsing - boutique-list</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"></head><body><div id="boutique-list">test</div></body></html>`);
                 }
-            }) as any,{});
+            }) as any, {});
         });
 
         it('should render fragment in preview mode with data passing', async () => {
@@ -414,13 +415,18 @@ describe('Gateway', () => {
                         render: {
                             url: '/'
                         },
+                        props: {
+                            url: {
+                                from: PropertyLocation.QUERY
+                            }
+                        },
                         testCookie: 'fragment_test',
                         versions: {
                             'test': {
                                 assets: [],
                                 dependencies: [],
                                 handler: {
-                                    content(req: any, data: any) {
+                                    content(data: any) {
                                         return {
                                             main: `Requested:${data}`
                                         };
@@ -441,12 +447,15 @@ describe('Gateway', () => {
             };
 
             const bffGw = new GatewayBFF(gatewayConfiguration);
-            await bffGw.renderFragment({url: 'test'} as any, 'boutique-list', FRAGMENT_RENDER_MODES.PREVIEW, DEFAULT_MAIN_PARTIAL, createExpressMock({
+            await bffGw.renderFragment({
+                query: {url: 'test'},
+                headers: {}
+            } as any, 'boutique-list', FRAGMENT_RENDER_MODES.PREVIEW, DEFAULT_MAIN_PARTIAL, createExpressMock({
                 send: (gwResponse: string) => {
                     if (!gwResponse) throw new Error('No response from gateway');
                     expect(gwResponse).to.include(`<title>Browsing - boutique-list</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"></head><body><div id="boutique-list">Requested:Url:test</div></body></html>`);
                 }
-            }) as any,{});
+            }) as any, {});
         });
 
         it('should throw error at render when fragment name not found', done => {
@@ -472,7 +481,7 @@ describe('Gateway', () => {
             };
 
             const bffGw = new GatewayBFF(gatewayConfiguration);
-            bffGw.renderFragment({} as any, 'not_exists', FRAGMENT_RENDER_MODES.STREAM, DEFAULT_MAIN_PARTIAL, {} as any, {}).then(data => done(data)).catch((e) => {
+            bffGw.renderFragment({headers:{}} as any, 'not_exists', FRAGMENT_RENDER_MODES.STREAM, DEFAULT_MAIN_PARTIAL, {} as any, {}).then(data => done(data)).catch((e) => {
                 expect(e.message).to.include('Failed to find fragment');
                 done();
             });
@@ -514,13 +523,13 @@ describe('Gateway', () => {
             expect(gateway).to.be.instanceOf(GatewayStorefrontInstance);
         });
 
-      it('should create a new gateway storefront instance with auth token', () => {
-        const authToken = "Secret Token";
-        const gateway = new GatewayStorefrontInstance(commonGatewayStorefrontConfiguration, authToken);
+        it('should create a new gateway storefront instance with auth token', () => {
+            const authToken = "Secret Token";
+            const gateway = new GatewayStorefrontInstance(commonGatewayStorefrontConfiguration, authToken);
 
-        expect(gateway).to.be.instanceOf(GatewayStorefrontInstance);
-        expect(gateway.authToken).to.equals(authToken);
-      });
+            expect(gateway).to.be.instanceOf(GatewayStorefrontInstance);
+            expect(gateway.authToken).to.equals(authToken);
+        });
 
         it('should load remote configuration successfully and fire ready event', done => {
             const gateway = new GatewayStorefrontInstance(commonGatewayStorefrontConfiguration);

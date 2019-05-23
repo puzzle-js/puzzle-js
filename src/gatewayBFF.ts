@@ -1,14 +1,13 @@
-import {FragmentBFF} from "./fragment";
 import {Api} from "./api";
 import {
     CONTENT_REPLACE_SCRIPT,
     DEFAULT_MAIN_PARTIAL,
     FRAGMENT_RENDER_MODES,
+    HEALTHCHECK_PATHS,
     HTTP_METHODS,
     HTTP_STATUS_CODE,
     RESOURCE_INJECT_TYPE,
     RESOURCE_JS_EXECUTE_TYPE,
-    HEALTHCHECK_PATHS,
 } from "./enums";
 import {PREVIEW_PARTIAL_QUERY_NAME, RENDER_MODE_QUERY_NAME} from "./config";
 import {
@@ -35,6 +34,7 @@ import cors from "cors";
 import routeCache from "route-cache";
 import {RESOURCE_TYPE} from "./lib/enums";
 import fs from "fs";
+import {FragmentBFF} from "./fragmentBFF";
 
 const logger = container.get(TYPES.Logger) as Logger;
 
