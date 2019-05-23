@@ -13,7 +13,7 @@ import {Page} from "./page";
 import {RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "./lib/enums";
 import {RouteConfiguration} from "puzzle-warden/dist/request-manager";
 import {MATCHER_FN} from "./cookie-version-matcher";
-import express from "express";
+import express, { CookieOptions } from "express";
 
 export interface IFragmentCookieMap {
     name: string;
@@ -182,6 +182,15 @@ export interface ICookieObject {
     [name: string]: string;
 }
 
+export interface IHttpCookie {
+    value: string;
+    options: CookieOptions
+}
+
+export interface IHttpCookieMap {
+    [key: string]: IHttpCookie
+}
+
 export interface IFragmentContentResponse {
     status: number;
     html: {
@@ -190,6 +199,7 @@ export interface IFragmentContentResponse {
     headers: {
         [name: string]: string;
     };
+    httpCookies: IHttpCookieMap;
     model: FragmentModel;
 }
 
@@ -293,6 +303,7 @@ export interface IWaitedResponseFirstFlush {
     headers: {
         [name: string]: string;
     };
+    httpCookies: IHttpCookieMap;
 }
 
 export interface IApiHandlerModule {

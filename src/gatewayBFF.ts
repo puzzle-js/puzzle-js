@@ -1,5 +1,5 @@
-import {FragmentBFF} from "./fragment";
-import {Api} from "./api";
+import { FragmentBFF } from "./fragment";
+import { Api } from "./api";
 import {
     CONTENT_REPLACE_SCRIPT,
     DEFAULT_MAIN_PARTIAL,
@@ -10,7 +10,7 @@ import {
     RESOURCE_JS_EXECUTE_TYPE,
     HEALTHCHECK_PATHS,
 } from "./enums";
-import {PREVIEW_PARTIAL_QUERY_NAME, RENDER_MODE_QUERY_NAME} from "./config";
+import { PREVIEW_PARTIAL_QUERY_NAME, RENDER_MODE_QUERY_NAME } from "./config";
 import {
     FragmentModel,
     ICookieMap,
@@ -24,16 +24,16 @@ import md5 from "md5";
 import async from "async";
 import path from "path";
 import express from "express";
-import {Server} from "./server";
-import {container, TYPES} from "./base";
+import { Server } from "./server";
+import { container, TYPES } from "./base";
 import cheerio from "cheerio";
-import {callableOnce, sealed} from "./decorators";
-import {GatewayConfigurator} from "./configurator";
-import {Template} from "./template";
-import {Logger} from "./logger";
+import { callableOnce, sealed } from "./decorators";
+import { GatewayConfigurator } from "./configurator";
+import { Template } from "./template";
+import { Logger } from "./logger";
 import cors from "cors";
 import routeCache from "route-cache";
-import {RESOURCE_TYPE} from "./lib/enums";
+import { RESOURCE_TYPE } from "./lib/enums";
 import fs from "fs";
 
 const logger = container.get(TYPES.Logger) as Logger;
@@ -163,16 +163,21 @@ export class GatewayBFF {
         if (fragment) {
             const version = this.detectVersion(fragment, cookie);
             const fragmentContent = await fragment.render(req, version);
-
+            
             const gatewayContent = {
                 content: fragmentContent,
                 $status: +(fragmentContent.$status || HTTP_STATUS_CODE.OK),
                 $headers: fragmentContent.$headers || {},
+                $httpCookies: fragmentContent.$httpCookies || {},
                 $model: fragmentContent.$model
             };
 
             Object.keys(gatewayContent.$headers).forEach(key => {
                 res.set(key, gatewayContent.$headers[key]);
+            });
+
+            Object.keys(gatewayContent.$httpCookies).forEach(key => {
+                res.cookie(key, gatewayContent.$httpCookies[key].value, gatewayContent.$httpCookies[key].options);
             });
 
             if (renderMode === FRAGMENT_RENDER_MODES.STREAM) {
@@ -366,9 +371,9 @@ export class GatewayBFF {
     private addConfigurationRoute(cb: Function) {
         this.server.addRoute('/', HTTP_METHODS.GET, (req, res) => {
 
-            if(req.query.fragment) {
+            if (req.query.fragment) {
                 const fragment = this.exposedConfig.fragments[req.query.fragment];
-                if(fragment) {
+                if (fragment) {
                     return res.status(HTTP_STATUS_CODE.OK).json({
                         assets: fragment.assets,
                         dependencies: fragment.dependencies,

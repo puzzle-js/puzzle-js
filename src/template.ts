@@ -1,6 +1,6 @@
-import {FragmentStorefront} from "./fragment";
+import { FragmentStorefront } from "./fragment";
 import cheerio from "cheerio";
-import {TemplateCompiler} from "./templateCompiler";
+import { TemplateCompiler } from "./templateCompiler";
 import {
     CHEERIO_CONFIGURATION,
     CONTENT_NOT_FOUND_ERROR,
@@ -31,16 +31,16 @@ import {
 } from "./enums";
 import ResourceFactory from "./resourceFactory";
 import CleanCSS from "clean-css";
-import {isDebug} from "./util";
-import {TemplateClass} from "./templateClass";
-import {ERROR_CODES, PuzzleError} from "./errors";
-import {benchmark} from "./decorators";
-import {Logger} from "./logger";
-import {container, TYPES} from "./base";
+import { isDebug } from "./util";
+import { TemplateClass } from "./templateClass";
+import { ERROR_CODES, PuzzleError } from "./errors";
+import { benchmark } from "./decorators";
+import { Logger } from "./logger";
+import { container, TYPES } from "./base";
 import fs from "fs";
 import path from "path";
-import {IPageFragmentConfig, IPageLibAsset, IPageLibConfiguration, IPageLibDependency} from "./lib/types";
-import {EVENT, RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "./lib/enums";
+import { IPageFragmentConfig, IPageLibAsset, IPageLibConfiguration, IPageLibDependency } from "./lib/types";
+import { EVENT, RESOURCE_LOADING_TYPE, RESOURCE_TYPE } from "./lib/enums";
 import express from "express";
 
 const logger = container.get(TYPES.Logger) as Logger;
@@ -112,9 +112,9 @@ export class Template {
 
             return dependencyList;
         }, {
-            gateways: {},
-            fragments: {}
-        });
+                gateways: {},
+                fragments: {}
+            });
     }
 
     //todo fragmentConfigleri versiyon bilgileriyle inmis olmali ki assetleri versionlara gore compile edebilelim. ayni not gatewayde de var.
@@ -225,8 +225,8 @@ export class Template {
             const fragment = this.fragments[fragmentName];
             if (fragment.config) {
                 const fragmentVersion: { assets: IFileResourceAsset[] } = cookies[fragment.config.testCookie] &&
-                fragment.config.passiveVersions &&
-                fragment.config.passiveVersions[cookies[fragment.config.testCookie]] ?
+                    fragment.config.passiveVersions &&
+                    fragment.config.passiveVersions[cookies[fragment.config.testCookie]] ?
                     fragment.config.passiveVersions[cookies[fragment.config.testCookie]] : fragment.config;
 
                 fragmentVersion.assets.forEach((asset) => {
@@ -249,8 +249,8 @@ export class Template {
             const fragment = this.fragments[fragmentName];
             if (fragment.config) {
                 const fragmentVersion: { dependencies: IFileResourceDependency[] } = cookies[fragment.config.testCookie] &&
-                fragment.config.passiveVersions &&
-                fragment.config.passiveVersions[cookies[fragment.config.testCookie]] ?
+                    fragment.config.passiveVersions &&
+                    fragment.config.passiveVersions[cookies[fragment.config.testCookie]] ?
                     fragment.config.passiveVersions[cookies[fragment.config.testCookie]] : fragment.config;
 
                 fragmentVersion.dependencies.forEach(dependency => {
@@ -408,13 +408,15 @@ export class Template {
     private async replaceWaitedFragments(waitedFragments: IReplaceSet[], template: string, req: any, isDebug: boolean): Promise<IWaitedResponseFirstFlush> {
         let statusCode = HTTP_STATUS_CODE.OK;
         let headers = {};
+        let httpCookies = {};
 
         await Promise.all(waitedFragments.map(async waitedFragmentReplacement => {
             const fragmentContent = await waitedFragmentReplacement.fragment.getContent(TemplateCompiler.processExpression(waitedFragmentReplacement.fragmentAttributes, this.pageClass, req), req);
-
+            
             if (waitedFragmentReplacement.fragment.primary) {
                 statusCode = fragmentContent.status;
                 headers = fragmentContent.headers;
+                httpCookies = fragmentContent.httpCookies;
             }
 
             waitedFragmentReplacement.replaceItems
@@ -426,7 +428,7 @@ export class Template {
                 });
         }));
 
-        return {template, statusCode, headers};
+        return { template, statusCode, headers, httpCookies };
     }
 
     /**
@@ -463,6 +465,12 @@ export class Template {
                     for (const prop in waitedReplacement.headers) {
                         res.set(prop, waitedReplacement.headers[prop]);
                     }
+                    for (const prop in waitedReplacement.httpCookies) {
+                        if(waitedReplacement.httpCookies[prop].options && waitedReplacement.httpCookies[prop].options.expires){
+                            waitedReplacement.httpCookies[prop].options.expires = new Date(String(waitedReplacement.httpCookies[prop].options.expires));
+                        }
+                        res.cookie(prop, waitedReplacement.httpCookies[prop].value, waitedReplacement.httpCookies[prop].options);
+                    }
                     res.status(waitedReplacement.statusCode);
                     if (waitedReplacement.statusCode === HTTP_STATUS_CODE.MOVED_PERMANENTLY) {
                         res.end();
@@ -492,6 +500,9 @@ export class Template {
                     const waitedReplacement = await waitedReplacementPromise;
                     for (const prop in waitedReplacement.headers) {
                         res.set(prop, waitedReplacement.headers[prop]);
+                    }
+                    for (const prop in waitedReplacement.httpCookies) {
+                        res.cookie(prop, waitedReplacement.httpCookies[prop].value, waitedReplacement.httpCookies[prop].options);
                     }
                     res.status(waitedReplacement.statusCode);
                     if (waitedReplacement.statusCode === HTTP_STATUS_CODE.MOVED_PERMANENTLY) {

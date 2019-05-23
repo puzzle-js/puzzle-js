@@ -316,6 +316,7 @@ export class FragmentStorefront extends Fragment {
                 status: 500,
                 html: {},
                 headers: {},
+                httpCookies: {},
                 model: {}
             };
         }
@@ -368,6 +369,7 @@ export class FragmentStorefront extends Fragment {
             return {
                 status: res.data.$status || res.response.statusCode,
                 headers: res.data.$headers || {},
+                httpCookies: res.data.$httpCookies || {},
                 html: res.data,
                 model: res.data.$model || {}
             };
@@ -380,6 +382,7 @@ export class FragmentStorefront extends Fragment {
                 status: errorPage ? 200 : 500,
                 html: errorPage ? errorPage : {},
                 headers: {},
+                httpCookies: {},
                 model: {}
             };
         });
