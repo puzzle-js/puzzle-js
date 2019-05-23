@@ -13,7 +13,7 @@ import {Page} from "./page";
 import {RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "./lib/enums";
 import {RouteConfiguration} from "puzzle-warden/dist/request-manager";
 import {MATCHER_FN} from "./cookie-version-matcher";
-import express = require("express");
+import express from "express";
 
 export interface IFragmentCookieMap {
     name: string;
