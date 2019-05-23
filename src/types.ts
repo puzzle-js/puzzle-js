@@ -12,7 +12,8 @@ import {FragmentStorefront} from "./fragment";
 import {Page} from "./page";
 import {RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "./lib/enums";
 import {RouteConfiguration} from "puzzle-warden/dist/request-manager";
-import {CookieVersionMatcher, MATCHER_FN} from "./cookie-version-matcher";
+import {MATCHER_FN} from "./cookie-version-matcher";
+import express = require("express");
 
 export interface IFragmentCookieMap {
     name: string;
@@ -211,6 +212,7 @@ export interface IPageConfiguration {
     html: string;
     url: string | string[];
     name: string;
+    condition?: (req: express.Request) => boolean;
 }
 
 export interface IPageMap {

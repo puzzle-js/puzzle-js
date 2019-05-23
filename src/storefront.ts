@@ -175,8 +175,12 @@ export class Storefront {
         this.config.pages.forEach(page => {
             const targetPage = page.url.toString();
             logger.info(`Adding page ${page.name} route: ${targetPage}`);
-            this.server.addRoute(page.url, HTTP_METHODS.GET, (req, res) => {
-                this.pages[targetPage].handle(req, res);
+            this.server.addRoute(page.url, HTTP_METHODS.GET, (req, res, next) => {
+                if (page.condition ? page.condition(req) : true) {
+                    this.pages[targetPage].handle(req, res);
+                } else {
+                    next();
+                }
             });
             this.server.addRoute(page.url, HTTP_METHODS.POST, (req, res, next) => {
                 this.pages[targetPage].post(req, res, next);
