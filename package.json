@@ -1,6 +1,7 @@
+
 {
   "name": "puzzle-microfrontends",
-  "version": "3.28.0",
+  "version": "3.28.1",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "logo": "https://image.ibb.co/jM29on/puzzlelogo.png",
@@ -81,7 +82,7 @@
     "md5": "^2.2.1",
     "morgan": "^1.9.1",
     "node-fetch": "^2.5.0",
-    "puzzle-warden": "^1.5.3",
+    "puzzle-warden": "^1.6.1",
     "reflect-metadata": "^0.1.12",
     "request": "^2.88.0",
     "response-time": "^2.3.2",
