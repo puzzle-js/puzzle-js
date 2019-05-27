@@ -124,7 +124,7 @@ export class Template {
      * @param {boolean} isDebug
      * @returns {Promise<IFragmentEndpointHandler>}
      */
-    async compile(testCookies: ICookieMap, isDebug = false): Promise<IFragmentEndpointHandler> {
+    async compile(testCookies: ICookieMap, isDebug = false, precompile = false): Promise<IFragmentEndpointHandler> {
         logger.info(`[Compiling Page ${this.name}]`, 'Creating virtual dom');
         this.load();
 
@@ -172,7 +172,7 @@ export class Template {
         /**
          * @deprecated Combine this with only on render start assets.
          */
-        await this.buildStyleSheets(testCookies);
+        await this.buildStyleSheets(testCookies, precompile);
 
         this.replaceEmptyTags();
 
@@ -723,7 +723,7 @@ export class Template {
      * Merges, minifies stylesheets and inject them into a page
      * @returns {Promise<void>}
      */
-    private async buildStyleSheets(cookies: ICookieMap) {
+    private async buildStyleSheets(cookies: ICookieMap, precompile: boolean) {
         return new Promise(async (resolve, reject) => {
             const _CleanCss = new CleanCSS({
                 level: {
@@ -739,7 +739,7 @@ export class Template {
             for (const fragment of Object.values(this.fragments)) {
                 if (!fragment.config) continue;
 
-                const targetVersion = fragment.detectVersion(cookies);
+                const targetVersion = fragment.detectVersion(cookies, precompile);
                 const fragmentVersion = fragment.config.version === targetVersion ?
                     fragment.config :
                     fragment.config.passiveVersions ?
