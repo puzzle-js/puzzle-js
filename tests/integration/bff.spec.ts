@@ -500,6 +500,8 @@ describe('BFF', () => {
     });
 
     it('should export fragment 404 content in stream mode with header', (done) => {
+        const customCookieExpiredDate = new Date(Date.now() + 1000 * 60 * 60 * 4);
+
         const bff = new GatewayBFF({
             ...commonGatewayConfiguration,
             fragments: [
@@ -528,6 +530,17 @@ describe('BFF', () => {
                                         $status: 404,
                                         $headers: {
                                             'failure': 'reason',
+                                        },
+                                        $cookies: {
+                                            customCookie1: {
+                                                value: 'customValue1',
+                                                options: {
+                                                    expires: customCookieExpiredDate
+                                                }
+                                            },
+                                            customCookie2: {
+                                                value: 'customValue2'
+                                            }
                                         }
                                     };
                                 },
@@ -553,8 +566,13 @@ describe('BFF', () => {
                     expect(res.body).to.deep.eq({
                         "main": "<div>Rendered Fragment Fragment</div>",
                         '$status': 404,
-                        '$headers': {failure: 'reason'}
-                    });
+                        '$headers': {failure: 'reason'},
+                        '$cookies':
+                            { customCookie1: { value: 'customValue1', options: { expires: customCookieExpiredDate.toISOString() } },
+                              customCookie2: { value: 'customValue2' } } }
+                    );
+                    expect(res.header['set-cookie'][0]).to.eq(`customCookie1=customValue1; Path=/; Expires=${customCookieExpiredDate.toUTCString()}`);
+                    expect(res.header['set-cookie'][1]).to.eq(`customCookie2=customValue2; Path=/`);
                     done();
                 });
         });

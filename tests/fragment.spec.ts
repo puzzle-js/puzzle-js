@@ -349,6 +349,7 @@ describe('Fragment', () => {
                         status: 500,
                         html: {},
                         headers: {},
+                        cookies: {},
                         model: {}
                     });
                     done();

@@ -1,13 +1,13 @@
-import {expect} from "chai";
-import {Storefront} from "../../src/storefront";
+import { expect } from "chai";
+import { Storefront } from "../../src/storefront";
 import request from "supertest";
-import {GatewayBFF} from "../../src/gatewayBFF";
+import { GatewayBFF } from "../../src/gatewayBFF";
 import path from "path";
-import {GatewayConfigurator} from "../../src/configurator";
+import { GatewayConfigurator } from "../../src/configurator";
 import faker from "faker";
-import {CONTENT_REPLACE_SCRIPT, INJECTABLE, PUZZLE_LIB_SCRIPT, TRANSFER_PROTOCOLS} from "../../src/enums";
-import {TLS_CERT, TLS_KEY, TLS_PASS} from "../core.settings";
-import {EVENT} from "../../src/lib/enums";
+import { CONTENT_REPLACE_SCRIPT, INJECTABLE, PUZZLE_LIB_SCRIPT, TRANSFER_PROTOCOLS } from "../../src/enums";
+import { TLS_CERT, TLS_KEY, TLS_PASS } from "../core.settings";
+import { EVENT } from "../../src/lib/enums";
 
 describe('System Tests', function () {
   const closeInstance = (instance: any) => {
@@ -286,12 +286,25 @@ describe('System Tests', function () {
 
   it('should render single fragment with header', function (done) {
     const gatewayConfigurator = new GatewayConfigurator();
+    const customCookieExpiredDate = new Date(Date.now() + 1000 * 60 * 60 * 4);
+
     gatewayConfigurator.register('handler', INJECTABLE.HANDLER, {
       data() {
         return {
           data: {},
           $headers: {
             custom: 'custom value'
+          },
+          $cookies: {
+            customCookie1: {
+              value: 'customValue1',
+              options: {
+                expires: customCookieExpiredDate
+              }
+            },
+            customCookie2: {
+              value: 'customValue2'
+            }
           }
         };
       },
@@ -365,6 +378,8 @@ describe('System Tests', function () {
               closeInstance(storefrontInstance);
               closeInstance(gatewayInstance);
               expect(res.header['custom']).to.eq('custom value');
+              expect(res.header['set-cookie'][0]).to.eq(`customCookie1=customValue1; Path=/; Expires=${customCookieExpiredDate.toUTCString()}`);
+              expect(res.header['set-cookie'][1]).to.eq(`customCookie2=customValue2; Path=/`);
               expect(res.text).to.include(`<body><div id="example" puzzle-fragment="example" puzzle-gateway="Browsing">Fragment Content</div>`);
               done(err);
             });
