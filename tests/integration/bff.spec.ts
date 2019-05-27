@@ -500,7 +500,7 @@ describe('BFF', () => {
     });
 
     it('should export fragment 404 content in stream mode with header', (done) => {
-        const customHttpCookieExpiredDate = new Date(Date.now() + 1000 * 60 * 60 * 4);
+        const customCookieExpiredDate = new Date(Date.now() + 1000 * 60 * 60 * 4);
 
         const bff = new GatewayBFF({
             ...commonGatewayConfiguration,
@@ -531,14 +531,14 @@ describe('BFF', () => {
                                         $headers: {
                                             'failure': 'reason',
                                         },
-                                        $httpCookies: {
-                                            customHttpCookie1: {
+                                        $cookies: {
+                                            customCookie1: {
                                                 value: 'customValue1',
                                                 options: {
-                                                    expires: customHttpCookieExpiredDate
+                                                    expires: customCookieExpiredDate
                                                 }
                                             },
-                                            customHttpCookie2: {
+                                            customCookie2: {
                                                 value: 'customValue2'
                                             }
                                         }
@@ -567,12 +567,12 @@ describe('BFF', () => {
                         "main": "<div>Rendered Fragment Fragment</div>",
                         '$status': 404,
                         '$headers': {failure: 'reason'},
-                        '$httpCookies':
-                            { customHttpCookie1: { value: 'customValue1', options: { expires: customHttpCookieExpiredDate.toISOString() } },
-                              customHttpCookie2: { value: 'customValue2' } } }
+                        '$cookies':
+                            { customCookie1: { value: 'customValue1', options: { expires: customCookieExpiredDate.toISOString() } },
+                              customCookie2: { value: 'customValue2' } } }
                     );
-                    expect(res.header['set-cookie'][0]).to.eq(`customHttpCookie1=customValue1; Path=/; Expires=${customHttpCookieExpiredDate.toUTCString()}`);
-                    expect(res.header['set-cookie'][1]).to.eq(`customHttpCookie2=customValue2; Path=/`);
+                    expect(res.header['set-cookie'][0]).to.eq(`customCookie1=customValue1; Path=/; Expires=${customCookieExpiredDate.toUTCString()}`);
+                    expect(res.header['set-cookie'][1]).to.eq(`customCookie2=customValue2; Path=/`);
                     done();
                 });
         });

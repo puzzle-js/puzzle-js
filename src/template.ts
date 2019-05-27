@@ -408,7 +408,7 @@ export class Template {
     private async replaceWaitedFragments(waitedFragments: IReplaceSet[], template: string, req: any, isDebug: boolean): Promise<IWaitedResponseFirstFlush> {
         let statusCode = HTTP_STATUS_CODE.OK;
         let headers = {};
-        let httpCookies = {};
+        let cookies = {};
 
         await Promise.all(waitedFragments.map(async waitedFragmentReplacement => {
             const fragmentContent = await waitedFragmentReplacement.fragment.getContent(TemplateCompiler.processExpression(waitedFragmentReplacement.fragmentAttributes, this.pageClass, req), req);
@@ -416,7 +416,7 @@ export class Template {
             if (waitedFragmentReplacement.fragment.primary) {
                 statusCode = fragmentContent.status;
                 headers = fragmentContent.headers;
-                httpCookies = fragmentContent.httpCookies;
+                cookies = fragmentContent.cookies;
             }
 
             waitedFragmentReplacement.replaceItems
@@ -428,7 +428,7 @@ export class Template {
                 });
         }));
 
-        return { template, statusCode, headers, httpCookies };
+        return { template, statusCode, headers, cookies };
     }
 
     /**
@@ -465,11 +465,11 @@ export class Template {
                     for (const prop in waitedReplacement.headers) {
                         res.set(prop, waitedReplacement.headers[prop]);
                     }
-                    for (const prop in waitedReplacement.httpCookies) {
-                        if(waitedReplacement.httpCookies[prop].options && waitedReplacement.httpCookies[prop].options.expires){
-                            waitedReplacement.httpCookies[prop].options.expires = new Date(String(waitedReplacement.httpCookies[prop].options.expires));
+                    for (const prop in waitedReplacement.cookies) {
+                        if(waitedReplacement.cookies[prop].options && waitedReplacement.cookies[prop].options.expires){
+                            waitedReplacement.cookies[prop].options.expires = new Date(String(waitedReplacement.cookies[prop].options.expires));
                         }
-                        res.cookie(prop, waitedReplacement.httpCookies[prop].value, waitedReplacement.httpCookies[prop].options);
+                        res.cookie(prop, waitedReplacement.cookies[prop].value, waitedReplacement.cookies[prop].options);
                     }
                     res.status(waitedReplacement.statusCode);
                     if (waitedReplacement.statusCode === HTTP_STATUS_CODE.MOVED_PERMANENTLY) {
@@ -501,8 +501,8 @@ export class Template {
                     for (const prop in waitedReplacement.headers) {
                         res.set(prop, waitedReplacement.headers[prop]);
                     }
-                    for (const prop in waitedReplacement.httpCookies) {
-                        res.cookie(prop, waitedReplacement.httpCookies[prop].value, waitedReplacement.httpCookies[prop].options);
+                    for (const prop in waitedReplacement.cookies) {
+                        res.cookie(prop, waitedReplacement.cookies[prop].value, waitedReplacement.cookies[prop].options);
                     }
                     res.status(waitedReplacement.statusCode);
                     if (waitedReplacement.statusCode === HTTP_STATUS_CODE.MOVED_PERMANENTLY) {

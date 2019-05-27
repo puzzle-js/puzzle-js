@@ -199,7 +199,7 @@ export interface IFragmentContentResponse {
     headers: {
         [name: string]: string;
     };
-    httpCookies: IHttpCookieMap;
+    cookies: IHttpCookieMap;
     model: FragmentModel;
 }
 
@@ -303,7 +303,7 @@ export interface IWaitedResponseFirstFlush {
     headers: {
         [name: string]: string;
     };
-    httpCookies: IHttpCookieMap;
+    cookies: IHttpCookieMap;
 }
 
 export interface IApiHandlerModule {

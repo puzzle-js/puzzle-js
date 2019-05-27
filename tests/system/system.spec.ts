@@ -286,7 +286,7 @@ describe('System Tests', function () {
 
   it('should render single fragment with header', function (done) {
     const gatewayConfigurator = new GatewayConfigurator();
-    const customHttpCookieExpiredDate = new Date(Date.now() + 1000 * 60 * 60 * 4);
+    const customCookieExpiredDate = new Date(Date.now() + 1000 * 60 * 60 * 4);
 
     gatewayConfigurator.register('handler', INJECTABLE.HANDLER, {
       data() {
@@ -295,14 +295,14 @@ describe('System Tests', function () {
           $headers: {
             custom: 'custom value'
           },
-          $httpCookies: {
-            customHttpCookie1: {
+          $cookies: {
+            customCookie1: {
               value: 'customValue1',
               options: {
-                expires: customHttpCookieExpiredDate
+                expires: customCookieExpiredDate
               }
             },
-            customHttpCookie2: {
+            customCookie2: {
               value: 'customValue2'
             }
           }
@@ -378,8 +378,8 @@ describe('System Tests', function () {
               closeInstance(storefrontInstance);
               closeInstance(gatewayInstance);
               expect(res.header['custom']).to.eq('custom value');
-              expect(res.header['set-cookie'][0]).to.eq(`customHttpCookie1=customValue1; Path=/; Expires=${customHttpCookieExpiredDate.toUTCString()}`);
-              expect(res.header['set-cookie'][1]).to.eq(`customHttpCookie2=customValue2; Path=/`);
+              expect(res.header['set-cookie'][0]).to.eq(`customCookie1=customValue1; Path=/; Expires=${customCookieExpiredDate.toUTCString()}`);
+              expect(res.header['set-cookie'][1]).to.eq(`customCookie2=customValue2; Path=/`);
               expect(res.text).to.include(`<body><div id="example" puzzle-fragment="example" puzzle-gateway="Browsing">Fragment Content</div>`);
               done(err);
             });

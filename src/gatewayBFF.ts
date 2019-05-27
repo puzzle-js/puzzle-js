@@ -168,7 +168,7 @@ export class GatewayBFF {
                 content: fragmentContent,
                 $status: +(fragmentContent.$status || HTTP_STATUS_CODE.OK),
                 $headers: fragmentContent.$headers || {},
-                $httpCookies: fragmentContent.$httpCookies || {},
+                $cookies: fragmentContent.$cookies || {},
                 $model: fragmentContent.$model
             };
 
@@ -176,8 +176,8 @@ export class GatewayBFF {
                 res.set(key, gatewayContent.$headers[key]);
             });
 
-            Object.keys(gatewayContent.$httpCookies).forEach(key => {
-                res.cookie(key, gatewayContent.$httpCookies[key].value, gatewayContent.$httpCookies[key].options);
+            Object.keys(gatewayContent.$cookies).forEach(key => {
+                res.cookie(key, gatewayContent.$cookies[key].value, gatewayContent.$cookies[key].options);
             });
 
             if (renderMode === FRAGMENT_RENDER_MODES.STREAM) {
