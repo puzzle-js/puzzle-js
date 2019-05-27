@@ -3,7 +3,7 @@
 </p>
 
 # PuzzleJs Framework
-Front-end microservices framework for scalable and blazing fast websites.
+Micro frontend framework for scalable and blazing fast websites.
 
 [![CircleCI](https://circleci.com/gh/puzzle-js/puzzle-js/tree/master.svg?style=svg)](https://circleci.com/gh/puzzle-js/puzzle-js/tree/master) 
 [![npm](https://img.shields.io/npm/dt/puzzle-microfrontends.svg)](https://www.npmjs.com/package/puzzle-microfrontends) 
