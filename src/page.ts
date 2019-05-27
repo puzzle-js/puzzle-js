@@ -48,8 +48,8 @@ export class Page {
 
     async reCompile() {
         const defaultVersion = this.getHandlerVersion({}, true);
-        this.responseHandlers[`${defaultVersion}_true`] = await this.template.compile({}, true);
-        this.responseHandlers[`${defaultVersion}_false`] = await this.template.compile({}, false);
+        this.responseHandlers[`${defaultVersion}_true`] = await this.template.compile({}, true, true);
+        this.responseHandlers[`${defaultVersion}_false`] = await this.template.compile({}, false, true);
     }
 
     /**
