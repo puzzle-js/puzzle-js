@@ -6491,10 +6491,10 @@ punycode@^2.1.0, punycode@^2.1.1:
   resolved "https://registry.yarnpkg.com/punycode/-/punycode-2.1.1.tgz#b58b010ac40c22c5657616c8d2c2c02c7bf479ec"
   integrity sha512-XRsRjdf+j5ml+y/6GKHPZbrF/8p2Yga0JPtdqTIY2Xe5ohJPD9saDJJLPvp9+NSBprVvevdXZybnj2cv8OEd0A==
 
-puzzle-warden@^1.6.1:
-  version "1.6.1"
-  resolved "https://registry.yarnpkg.com/puzzle-warden/-/puzzle-warden-1.6.1.tgz#a43f2cb38cccbd39793f9b0277fed5cb60d726c4"
-  integrity sha512-5skeTd8h9JRy32i43/unIlMNOgtDVVKqRet2r52EHHb7nQbnZwYeUtxxP7ztcZXklUWAINvuiK9Q2CrecPzF8g==
+puzzle-warden@^1.6.2:
+  version "1.6.2"
+  resolved "https://registry.yarnpkg.com/puzzle-warden/-/puzzle-warden-1.6.2.tgz#6737d5eccb7a1aa3ada6fcb3076c829bedef69de"
+  integrity sha512-iW+Vd5winMRQSyqYMoQDy+ym3Uxym9cythxRuexhRBQ6/wZtcZv8oRH2cI3DRTPqFh/q0GO2IrkRC8adBYhqEw==
   dependencies:
     chalk "^2.4.2"
     cookie "^0.4.0"
