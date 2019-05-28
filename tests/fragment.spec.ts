@@ -238,7 +238,9 @@ describe('Fragment', () => {
             const productScript = `<script>console.log('Product Script')</script>`;
 
             const scope = nock('http://asset-serving-test.com')
+                .log(console.log)
                 .get('/product/static/bundle.min.js')
+                .query({__version: '1.0.0'})
                 .reply(200, productScript);
 
             const fragment = new FragmentStorefront('product', 'test');
@@ -255,6 +257,7 @@ describe('Fragment', () => {
                     type: RESOURCE_TYPE.JS
                 } as any
             ];
+            fragmentContent.version = '1.0.0';
 
             fragment.update(fragmentContent, 'http://asset-serving-test.com', '');
 

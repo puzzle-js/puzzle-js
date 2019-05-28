@@ -13,7 +13,7 @@ import {Page} from "./page";
 import {RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "./lib/enums";
 import {RouteConfiguration} from "puzzle-warden/dist/request-manager";
 import {MATCHER_FN} from "./cookie-version-matcher";
-import express, { CookieOptions } from "express";
+import express, {CookieOptions} from "express";
 
 export interface IFragmentCookieMap {
     name: string;
@@ -184,11 +184,11 @@ export interface ICookieObject {
 
 export interface IHttpCookie {
     value: string;
-    options: CookieOptions
+    options: CookieOptions;
 }
 
 export interface IHttpCookieMap {
-    [key: string]: IHttpCookie
+    [key: string]: IHttpCookie;
 }
 
 export interface IFragmentContentResponse {

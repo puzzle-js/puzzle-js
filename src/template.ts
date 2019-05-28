@@ -412,7 +412,7 @@ export class Template {
 
         await Promise.all(waitedFragments.map(async waitedFragmentReplacement => {
             const fragmentContent = await waitedFragmentReplacement.fragment.getContent(TemplateCompiler.processExpression(waitedFragmentReplacement.fragmentAttributes, this.pageClass, req), req);
-            
+
             if (waitedFragmentReplacement.fragment.primary) {
                 statusCode = fragmentContent.status;
                 headers = fragmentContent.headers;
@@ -455,7 +455,6 @@ export class Template {
      * @returns {(req: any, res: any) => void}
      */
     private buildHandler(firstFlushHandler: Function, chunkedFragmentReplacements: IReplaceSet[], waitedFragments: IReplaceSet[] = [], jsReplacements: IReplaceAsset[] = [], isDebug: boolean) {
-        //todo primary fragment test et
         if (chunkedFragmentReplacements.length === 0) {
             return (req: express.Request, res: CompressionStreamResponse) => {
                 this.pageClass._onRequest(req);
@@ -498,12 +497,14 @@ export class Template {
 
                     //Wait for first flush
                     const waitedReplacement = await waitedReplacementPromise;
+
                     for (const prop in waitedReplacement.headers) {
                         res.set(prop, waitedReplacement.headers[prop]);
                     }
                     for (const prop in waitedReplacement.cookies) {
                         res.cookie(prop, waitedReplacement.cookies[prop].value, waitedReplacement.cookies[prop].options);
                     }
+
                     res.status(waitedReplacement.statusCode);
                     if (waitedReplacement.statusCode === HTTP_STATUS_CODE.MOVED_PERMANENTLY) {
                         res.end();
