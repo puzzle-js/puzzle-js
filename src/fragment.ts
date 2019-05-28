@@ -207,7 +207,7 @@ export class FragmentStorefront extends Fragment {
         }
 
         if (this.config && this.config.render.error && !this.cachedErrorPage) {
-            this.getErrorPage()
+            this.getErrorPage();
         }
 
     }
@@ -415,7 +415,10 @@ export class FragmentStorefront extends Fragment {
             return null;
         }
 
-        return fetch(asset.link || `${this.fragmentUrl}/static/${asset.fileName}`, {
+        const link = (asset.link || `${this.fragmentUrl}/static/${asset.fileName}`) + `?__version=${targetVersion}`;
+
+
+        return fetch(link, {
             headers: {
                 gateway: this.gatewayName
             }

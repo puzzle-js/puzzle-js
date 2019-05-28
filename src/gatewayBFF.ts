@@ -1,5 +1,5 @@
-import { FragmentBFF } from "./fragment";
-import { Api } from "./api";
+import {FragmentBFF} from "./fragment";
+import {Api} from "./api";
 import {
     CONTENT_REPLACE_SCRIPT,
     DEFAULT_MAIN_PARTIAL,
@@ -10,7 +10,7 @@ import {
     RESOURCE_JS_EXECUTE_TYPE,
     HEALTHCHECK_PATHS,
 } from "./enums";
-import { PREVIEW_PARTIAL_QUERY_NAME, RENDER_MODE_QUERY_NAME } from "./config";
+import {PREVIEW_PARTIAL_QUERY_NAME, RENDER_MODE_QUERY_NAME} from "./config";
 import {
     FragmentModel,
     ICookieMap,
@@ -24,16 +24,16 @@ import md5 from "md5";
 import async from "async";
 import path from "path";
 import express from "express";
-import { Server } from "./server";
-import { container, TYPES } from "./base";
+import {Server} from "./server";
+import {container, TYPES} from "./base";
 import cheerio from "cheerio";
-import { callableOnce, sealed } from "./decorators";
-import { GatewayConfigurator } from "./configurator";
-import { Template } from "./template";
-import { Logger } from "./logger";
+import {callableOnce, sealed} from "./decorators";
+import {GatewayConfigurator} from "./configurator";
+import {Template} from "./template";
+import {Logger} from "./logger";
 import cors from "cors";
 import routeCache from "route-cache";
-import { RESOURCE_TYPE } from "./lib/enums";
+import {RESOURCE_TYPE} from "./lib/enums";
 import fs from "fs";
 
 const logger = container.get(TYPES.Logger) as Logger;
@@ -163,7 +163,7 @@ export class GatewayBFF {
         if (fragment) {
             const version = this.detectVersion(fragment, cookie);
             const fragmentContent = await fragment.render(req, version);
-            
+
             const gatewayContent = {
                 content: fragmentContent,
                 $status: +(fragmentContent.$status || HTTP_STATUS_CODE.OK),
@@ -326,15 +326,18 @@ export class GatewayBFF {
      * @param {Function} cb
      */
     private addStaticRoutes(cb: Function): void {
-        this.config.fragments.forEach(fragment => {
+        Object.values(this.fragments).forEach(fragment => {
+            const config = fragment.config;
+
             this.server.addRoute(`/${fragment.name}/static/:staticName`, HTTP_METHODS.GET, (req, res, next) => {
-                req.url = path.join('/', fragment.name, req.cookies[fragment.testCookie] || fragment.version, '/static/', req.params.staticName);
+                const targetVersion = req.query['__version'] || this.detectVersion(fragment, req.cookies);
+                req.url = path.join('/', fragment.name, req.cookies[config.testCookie] || targetVersion, '/static/', req.params.staticName);
                 next();
             });
 
-            Object.keys(fragment.versions).forEach(version => {
-                const staticPath = path.join(this.config.fragmentsFolder, fragment.name, version, '/assets');
-                this.server.setStatic(`/${fragment.name}/${version}/static/`, staticPath);
+            Object.keys(config.versions).forEach(version => {
+                const staticPath = path.join(this.config.fragmentsFolder, config.name, version, '/assets');
+                this.server.setStatic(`/${config.name}/${version}/static/`, staticPath);
             });
         });
 
