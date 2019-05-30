@@ -88,7 +88,7 @@
     "route-cache": "^0.4.4",
     "spdy": "^4.0.0",
     "superstruct": "^0.5.4",
-    "ts-loader": "^5.4.5",
+    "ts-loader": "^6.0.1",
     "ts-node": "^8.0.3",
     "typescript": "^3.0.1",
     "uuid": "^3.2.1",
