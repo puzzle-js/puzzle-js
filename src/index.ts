@@ -15,7 +15,7 @@ import {Container} from "inversify";
 import {RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "./lib/enums";
 import "base";
 import {httpAgent, httpsAgent} from "./client";
-import {warden, CouchbaseCache} from "puzzle-warden";
+import warden from "puzzle-warden";
 
 
 export = {
@@ -23,7 +23,6 @@ export = {
     GatewayConfigurator,
     Gateway: GatewayBFF,
     warden,
-    CouchbaseCache,
     Storefront,
     logger: Logger,
     agents: {
