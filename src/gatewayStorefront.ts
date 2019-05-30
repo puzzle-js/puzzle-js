@@ -9,7 +9,7 @@ import {HttpClient} from "./client";
 import {RouteConfiguration} from "puzzle-warden/dist/request-manager";
 import {isDeepStrictEqual} from "util";
 import Timer = NodeJS.Timer;
-import {warden} from "puzzle-warden";
+import warden from "puzzle-warden";
 
 const logger = container.get(TYPES.Logger) as Logger;
 const httpClient = container.get(TYPES.Client) as HttpClient;
