@@ -63,3 +63,6 @@ typings/
 .next
 
 dist
+
+
+.idea
