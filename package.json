@@ -1,0 +1,38 @@
+{
+  "name": "puzzle-microfrontends",
+  "version": "4.0.0-dev.1",
+  "description": "Micro frontend framework for scalable and blazing fast websites.",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest --coverage --silent",
+    "test:watch": "jest --coverage --watchAll"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/puzzle-js/puzzle-js.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/puzzle-js/puzzle-js/issues"
+  },
+  "homepage": "https://github.com/puzzle-js/puzzle-js#readme",
+  "devDependencies": {
+    "@types/chai": "^4.1.7",
+    "@types/faker": "^4.1.5",
+    "@types/jest": "^24.0.13",
+    "@types/node": "^12.0.4",
+    "@types/parse5": "^5.0.0",
+    "@types/sinon": "^7.0.12",
+    "chai": "^4.2.0",
+    "faker": "^4.1.0",
+    "jest": "^24.8.0",
+    "sinon": "^7.3.2",
+    "ts-jest": "^24.0.2",
+    "typescript": "^3.5.1"
+  },
+  "dependencies": {
+    "find-my-way": "^2.0.1",
+    "parse5": "^5.1.0"
+  }
+}
