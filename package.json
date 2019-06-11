@@ -48,7 +48,7 @@
     "tslint": "^5.16.0",
     "typings": "^2.1.1",
     "webpack": "^4.14.0",
-    "webpack-cli": "^3.0.8"
+    "webpack-cli": "^3.3.4"
   },
   "author": {
     "name": "Ahmet Can Guven",
