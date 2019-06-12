@@ -276,10 +276,10 @@
   dependencies:
     "@types/express" "*"
 
-"@types/nock@^9.1.3":
-  version "9.3.1"
-  resolved "https://registry.yarnpkg.com/@types/nock/-/nock-9.3.1.tgz#7d761a43a10aebc7ec6bae29d89afc6cbffa5d30"
-  integrity sha512-eOVHXS5RnWOjTVhu3deCM/ruy9E6JCgeix2g7wpFiekQh3AaEAK1cz43tZDukKmtSmQnwvSySq7ubijCA32I7Q==
+"@types/nock@^10.0.3":
+  version "10.0.3"
+  resolved "https://registry.yarnpkg.com/@types/nock/-/nock-10.0.3.tgz#dab1d18ffbccfbf2db811dab9584304eeb6e1c4c"
+  integrity sha512-OthuN+2FuzfZO3yONJ/QVjKmLEuRagS9TV9lEId+WHL9KhftYG+/2z+pxlr0UgVVXSpVD8woie/3fzQn8ft/Ow==
   dependencies:
     "@types/node" "*"
 
