@@ -9,14 +9,15 @@ import {NextFunction, Request, RequestHandlerParams, Response} from "express-ser
 import {ServeStaticOptions} from "serve-static";
 import {EVENTS, HTTP_METHODS, TRANSFER_PROTOCOLS} from "./enums";
 import {Logger} from "./logger";
-import https from "https";
 import {pubsub} from "./util";
 import compression from "compression";
 import {injectable} from "inversify";
 import responseTime from "response-time";
 import {GLOBAL_REQUEST_TIMEOUT, NO_COMPRESS_QUERY_NAME, USE_HELMET, USE_MORGAN} from "./config";
 import {ICustomHeader, INodeSpdyConfiguration, ISpdyConfiguration} from "./types";
-import spdy from "spdy";
+import * as spdy from "spdy";
+import http from "http";
+import https from "https";
 
 
 const morganLoggingLevels = [
@@ -130,14 +131,14 @@ export class Server {
         });
         if (this.spdyConfiguration && (this.spdyConfiguration.spdy.protocols.includes(TRANSFER_PROTOCOLS.H2) || this.spdyConfiguration.spdy.protocols.includes(TRANSFER_PROTOCOLS.SPDY))) {
             this.server = spdy.createServer(this.spdyConfiguration, this.app);
-            this.server.listen.apply(this.server, args);
+            (this.server as http.Server).listen.apply(this.server, args);
         } else {
             if (this.spdyConfiguration && this.spdyConfiguration.cert && this.spdyConfiguration.key) {
                 this.server = https.createServer({
                     cert: this.spdyConfiguration.cert,
                     key: this.spdyConfiguration.key
                 }, this.app);
-                this.server.listen.apply(this.server, args);
+                (this.server as https.Server).listen.apply(this.server, args);
             } else {
                 this.server = this.app.listen.apply(this.app, args);
             }

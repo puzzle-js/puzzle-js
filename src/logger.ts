@@ -95,6 +95,7 @@ if (process.env.NODE_ENV === 'production') {
 
 @injectable()
 export class Logger {
+    logger: any;
     [name: string]: (...args: any[]) => void;
 
 
