@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 # [3.30.0] - 12-6-2019
 ### Added
 - Added min different hash amount to recompile gateway configuration.
+- Gateway fragment returns passive versions too.
 
 # [3.29.1] - 27-5-2019
 ### Fixed

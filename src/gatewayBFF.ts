@@ -4,11 +4,11 @@ import {
     CONTENT_REPLACE_SCRIPT,
     DEFAULT_MAIN_PARTIAL,
     FRAGMENT_RENDER_MODES,
+    HEALTHCHECK_PATHS,
     HTTP_METHODS,
     HTTP_STATUS_CODE,
     RESOURCE_INJECT_TYPE,
     RESOURCE_JS_EXECUTE_TYPE,
-    HEALTHCHECK_PATHS,
 } from "./enums";
 import {PREVIEW_PARTIAL_QUERY_NAME, RENDER_MODE_QUERY_NAME} from "./config";
 import {
@@ -380,7 +380,8 @@ export class GatewayBFF {
                     return res.status(HTTP_STATUS_CODE.OK).json({
                         assets: fragment.assets,
                         dependencies: fragment.dependencies,
-                        version: fragment.version
+                        version: fragment.version,
+                        passiveVersions: fragment.passiveVersions
                     });
                 }
                 return res.status(HTTP_STATUS_CODE.NOT_FOUND).end();
