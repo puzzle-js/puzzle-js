@@ -293,7 +293,13 @@ describe('Gateway', () => {
                         expect(res.body).to.deep.eq({
                             version: 'test',
                             assets: [],
-                            dependencies: []
+                            dependencies: [],
+                            passiveVersions: {
+                                test2: {
+                                    assets: [],
+                                    dependencies: [],
+                                }
+                            }
                         });
 
                         done(err);
