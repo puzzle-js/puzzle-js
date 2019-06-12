@@ -124,6 +124,7 @@ const storefrontStructure = struct({
     gateways: [storefrontGatewaysStructure],
     port: 'number',
     authToken: 'string?',
+    satisfyUpdateCount: 'number?',
     ipv4: 'boolean?',
     pages: [storefrontPageStructure],
     pollInterval: 'number?',

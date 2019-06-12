@@ -150,6 +150,7 @@ describe('Storefront', () => {
 
         const sf = new Storefront({
             ...commonStorefrontConfiguration,
+          satisfyUpdateCount: 2,
             gateways: [
                 {
                     name: "Browsing",
@@ -196,7 +197,7 @@ describe('Storefront', () => {
                     });
                 });
         });
-    }, DEFAULT_POLLING_INTERVAL + 2000);
+    }, DEFAULT_POLLING_INTERVAL * 5 + 2000);
 
     it('should respond with same status code gateway returned for primary fragments', (done) => {
         const scope = createGateway('Browsing', 'http://localhost:4446', {
@@ -275,6 +276,7 @@ describe('Storefront', () => {
             hash: fragment.hash
         }, true)
             .get(`/${fragment.name}/detail`)
+            .times(2)
             .query({[RENDER_MODE_QUERY_NAME]: FRAGMENT_RENDER_MODES.STREAM})
             .reply(200, {
                 main: `Fragment: ${fragment.name}`
@@ -282,6 +284,7 @@ describe('Storefront', () => {
 
         const sf = new Storefront({
             ...commonStorefrontConfiguration,
+            satisfyUpdateCount: 2,
             gateways: [
                 {
                     name: "Browsing",
@@ -306,6 +309,7 @@ describe('Storefront', () => {
                         gateway.stopUpdating();
                     });
 
+                    expect(scope.isDone()).to.eq(true);
                     expect(res.text).to.include(`<body><div id="${fragment.name}" puzzle-fragment="${fragment.name}" puzzle-gateway="Browsing">Fragment: ${fragment.name}</div>`);
                     done(err);
                 });

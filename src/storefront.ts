@@ -118,7 +118,7 @@ export class Storefront {
      */
     private createStorefrontPagesAndGateways() {
         this.config.gateways.forEach(gatewayConfiguration => {
-            const gateway = new GatewayStorefrontInstance(gatewayConfiguration, this.config.authToken);
+            const gateway = new GatewayStorefrontInstance(gatewayConfiguration, this.config.authToken, this.config.satisfyUpdateCount);
             gateway.events.once(EVENTS.GATEWAY_READY, () => {
                 this.gatewaysReady++;
             });

@@ -257,6 +257,7 @@ export interface IStorefrontConfig {
     ipv4?: boolean;
     pages: IPageConfiguration[];
     pollInterval?: number;
+    satisfyUpdateCount?: number;
     dependencies: IFileResourceStorefrontDependency[];
     spdy?: ISpdyConfiguration;
     customHeaders?: ICustomHeader[];
@@ -335,4 +336,9 @@ export interface ICustomHeader {
     key: string;
     isEnv?: boolean;
     value: string | number;
+}
+
+export interface SatisfyUpdateMap {
+    count: number;
+    hash: string | null;
 }

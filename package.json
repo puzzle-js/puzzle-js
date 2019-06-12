@@ -1,6 +1,6 @@
 {
   "name": "puzzle-microfrontends",
-  "version": "3.29.3",
+  "version": "3.30.0",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "logo": "https://image.ibb.co/jM29on/puzzlelogo.png",
@@ -16,6 +16,7 @@
     "@types/cheerio": "^0.22.7",
     "@types/clean-css": "^3.4.30",
     "@types/compression": "^0.0.36",
+    "@types/connect-timeout": "^0.0.34",
     "@types/cookie-parser": "^1.4.1",
     "@types/cors": "^2.8.4",
     "@types/express": "^4.11.1",
@@ -29,6 +30,7 @@
     "@types/node": "^11.13.4",
     "@types/node-fetch": "^2.3.3",
     "@types/request": "^2.47.1",
+    "@types/response-time": "^2.3.3",
     "@types/sinon": "^7.0.11",
     "@types/spdy": "^3.4.4",
     "@types/supertest": "^2.0.4",
@@ -65,8 +67,6 @@
     "lint:ts:fix": "./node_modules/.bin/tslint -p ./tsconfig.json --fix"
   },
   "dependencies": {
-    "@types/connect-timeout": "^0.0.34",
-    "@types/response-time": "^2.3.3",
     "async": "^2.6.2",
     "cheerio": "^1.0.0-rc.2",
     "clean-css": "^4.1.11",
