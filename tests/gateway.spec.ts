@@ -531,7 +531,7 @@ describe('Gateway', () => {
         });
 
         it('should fire gateway ready updated event when hash changed', (done) => {
-            const gateway = new GatewayStorefrontInstance(commonGatewayStorefrontConfiguration);
+            const gateway = new GatewayStorefrontInstance(commonGatewayStorefrontConfiguration, faker.random.word(), 2);
             gateway.startUpdating();
 
             gateway.events.on(EVENTS.GATEWAY_READY, () => {
@@ -550,6 +550,6 @@ describe('Gateway', () => {
                     done('config is not defined');
                 }
             });
-        }, DEFAULT_POLLING_INTERVAL + 2000);
+        }, DEFAULT_POLLING_INTERVAL * 5 + 2000);
     });
 });
