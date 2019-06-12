@@ -194,11 +194,6 @@
   dependencies:
     "@types/express" "*"
 
-"@types/events@*":
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/@types/events/-/events-3.0.0.tgz#2862f3f58a9a7f7c3e78d79f130dd4d71c25c2a7"
-  integrity sha512-EaObqwIvayI5a8dCzhFrjKzVwKLxjoG9T6Ppd5CEo07LRKfQ8Yokw54r5+Wq7FaBQ+yXRvQAYPrHwya1/UFt9g==
-
 "@types/express-serve-static-core@*":
   version "4.16.7"
   resolved "https://registry.yarnpkg.com/@types/express-serve-static-core/-/express-serve-static-core-4.16.7.tgz#50ba6f8a691c08a3dd9fa7fba25ef3133d298049"
@@ -247,12 +242,11 @@
   dependencies:
     "@types/jest-diff" "*"
 
-"@types/jsdom@^11.0.6":
-  version "11.12.0"
-  resolved "https://registry.yarnpkg.com/@types/jsdom/-/jsdom-11.12.0.tgz#00ddc6f0a1b04c2f5ff6fb23eb59360ca65f12ae"
-  integrity sha512-XHMNZFQ0Ih3A4/NTWAO15+OsQafPKnQCanN0FYGbsTM/EoI5EoEAvvkF51/DQC2BT5low4tomp7k2RLMlriA5Q==
+"@types/jsdom@^12.2.3":
+  version "12.2.3"
+  resolved "https://registry.yarnpkg.com/@types/jsdom/-/jsdom-12.2.3.tgz#e5f037579d1bde5b6e52b9b74cbcb924eca9a4c6"
+  integrity sha512-CxYWGFsBs0VZ/lU9zxfWk7zYfOlQQuSs5yzk34KW/vQQJGE8OGOYxJnqj9kGHE1SBZGVJvhXs1TafIpZL8RvXw==
   dependencies:
-    "@types/events" "*"
     "@types/node" "*"
     "@types/tough-cookie" "*"
     parse5 "^4.0.0"
