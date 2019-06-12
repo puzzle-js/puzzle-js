@@ -1,6 +1,6 @@
 {
   "name": "puzzle-microfrontends",
-  "version": "3.30.0",
+  "version": "3.30.1",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "logo": "https://image.ibb.co/jM29on/puzzlelogo.png",
