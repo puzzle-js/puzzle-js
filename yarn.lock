@@ -7540,10 +7540,10 @@ superagent@^3.8.3:
     qs "^6.5.1"
     readable-stream "^2.3.5"
 
-superstruct@^0.5.4:
-  version "0.5.4"
-  resolved "https://registry.yarnpkg.com/superstruct/-/superstruct-0.5.4.tgz#a0772963d62e7b0c92952bf9c3b90dd7065f721f"
-  integrity sha512-DqMhz5fMxOaj0JtUy9b6oBgCen4frmMKAYCb4TMUocLWP0wvvtrzEk9h9/K0hQ5Vbuvk+Gu4YGRN3v/9HjfY3w==
+superstruct@^0.6.1:
+  version "0.6.1"
+  resolved "https://registry.yarnpkg.com/superstruct/-/superstruct-0.6.1.tgz#148fc3d627bb59fcfe24aa1bd2a1b8c51b1db072"
+  integrity sha512-LDbOKL5sNbOJ00Q36iYRhSexKIptZje0/mhNznnz04wT9CmsPDZg/K/UV1dgYuCwNMuOBHTbVROZsGB9EhhK4w==
   dependencies:
     clone-deep "^2.0.1"
     kind-of "^6.0.1"
