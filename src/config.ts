@@ -16,6 +16,7 @@ export const DEFAULT_CONTENT_TIMEOUT = +loadConfigurationFromEnv('DEFAULT_CONTEN
 export const GLOBAL_REQUEST_TIMEOUT = +loadConfigurationFromEnv('GLOBAL_REQUEST_TIMEOUT') || 3100;
 export const RENDER_MODE_QUERY_NAME = loadConfigurationFromEnv('RENDER_MODE_QUERY_NAME') || '__renderMode';
 export const PREVIEW_PARTIAL_QUERY_NAME = loadConfigurationFromEnv('PREVIEW_PARTIAL_QUERY_NAME') || '__partial';
+export const VERSION_QUERY_NAME = loadConfigurationFromEnv('VERSION_QUERY_NAME') || '__version';
 export const API_ROUTE_PREFIX = loadConfigurationFromEnv('API_ROUTE_PREFIX') || 'api';
 export const GATEWAY_PREPERATION_CHECK_INTERVAL = +loadConfigurationFromEnv('GATEWAY_PREPERATION_CHECK_INTERVAL') || 200;
 export const CHEERIO_CONFIGURATION = loadConfigurationFromEnv('CHEERIO_CONFIGURATION', true) || {

@@ -10,7 +10,7 @@ import {
     RESOURCE_INJECT_TYPE,
     RESOURCE_JS_EXECUTE_TYPE,
 } from "./enums";
-import {PREVIEW_PARTIAL_QUERY_NAME, RENDER_MODE_QUERY_NAME} from "./config";
+import {PREVIEW_PARTIAL_QUERY_NAME, RENDER_MODE_QUERY_NAME, VERSION_QUERY_NAME} from "./config";
 import {
     FragmentModel,
     ICookieMap,
@@ -156,12 +156,13 @@ export class GatewayBFF {
      * @param {string} partial
      * @param res
      * @param cookie
+     * @param {string} forcedVersion
      * @returns {Promise<IFragmentResponse>}
      */
-    async renderFragment(req: express.Request, fragmentName: string, renderMode: FRAGMENT_RENDER_MODES = FRAGMENT_RENDER_MODES.PREVIEW, partial: string, res: express.Response, cookie: ICookieMap): Promise<void> {
+    async renderFragment(req: express.Request, fragmentName: string, renderMode: FRAGMENT_RENDER_MODES = FRAGMENT_RENDER_MODES.PREVIEW, partial: string, res: express.Response, cookie: ICookieMap, forcedVersion?: string): Promise<void> {
         const fragment = this.fragments[fragmentName];
         if (fragment) {
-            const version = this.detectVersion(fragment, cookie);
+            const version = this.detectVersion(fragment, cookie, forcedVersion);
             const fragmentContent = await fragment.render(req, version);
 
             const gatewayContent = {
@@ -242,10 +243,15 @@ export class GatewayBFF {
         return dom.html();
     }
 
-    private detectVersion(fragment: FragmentBFF, cookie: ICookieMap): string {
+    private detectVersion(fragment: FragmentBFF, cookie: ICookieMap, forcedVersion?: string): string {
         const cookieKey = fragment.config.testCookie;
-        const cookieVersion = cookie[cookieKey] && fragment.config.versions[cookie[cookieKey]] ? cookie[cookieKey] : null;
-
+        let cookieVersion;
+        if (forcedVersion && fragment.config.versions[forcedVersion]) {
+            cookieVersion = forcedVersion;
+        }
+        else if (cookie[cookieKey] && fragment.config.versions[cookie[cookieKey]]) {
+            cookieVersion = cookie[cookieKey];
+        }
         if (cookieVersion) return cookieVersion;
 
         const matcherVersion = fragment.versionMatcher ? fragment.versionMatcher.match(cookie) : null;
@@ -265,7 +271,7 @@ export class GatewayBFF {
                 const renderMode = req.query[RENDER_MODE_QUERY_NAME] === FRAGMENT_RENDER_MODES.STREAM ? FRAGMENT_RENDER_MODES.STREAM : FRAGMENT_RENDER_MODES.PREVIEW;
                 req.headers['originalurl'] = req.headers['originalurl'] || req.url.replace(`/${fragmentConfig.name}`, "");
                 req.headers['originalpath'] = req.headers['originalpath'] || req.path.replace(`/${fragmentConfig.name}`, "");
-                this.renderFragment(req, fragmentConfig.name, renderMode, partial, res, req.cookies);
+                this.renderFragment(req, fragmentConfig.name, renderMode, partial, res, req.cookies, req.query[VERSION_QUERY_NAME]);
             }, this.getFragmentMiddlewares(fragmentConfig));
         });
 
