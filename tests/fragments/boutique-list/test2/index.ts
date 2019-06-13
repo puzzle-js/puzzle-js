@@ -1,6 +1,8 @@
 module.exports = {
     content(){
-        return 'test';
+        return {
+            main: 'test2'
+        };
     },
     data(){
         return {
