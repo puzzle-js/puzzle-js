@@ -379,7 +379,7 @@ describe('Fragment', () => {
             expect(content.status).to.eq(500);
         });
 
-        it('should return error page content when error accrued and error page exists', async () => {
+        it('should return error page content when error accrued and error page exists', (done) => {
             const errorPageContent = '{ "main" : "<div>errorPageContent</div>" }';
 
 
@@ -395,9 +395,14 @@ describe('Fragment', () => {
             const fragment = new FragmentStorefront('error-page-test', 'test');
             fragment.update(commonFragmentConfig, 'http://local.gatewaysimulator.com', '');
 
-            const content = await fragment.getContent();
-            expect(content.html).to.deep.eq(JSON.parse(errorPageContent));
-            expect(content.status).to.eq(200);
+            // getErrorPage is async in update we need async check
+            setTimeout( async () => {
+                const content = await fragment.getContent();
+                expect(content.html).to.deep.eq(JSON.parse(errorPageContent));
+                expect(content.status).to.eq(200);
+                done();
+            }, 100)
+
         });
 
         it('should fetch error page', async () => {
