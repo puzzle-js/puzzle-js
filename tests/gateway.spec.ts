@@ -410,6 +410,80 @@ describe('Gateway', () => {
             }) as any,{});
         });
 
+        it('should render fragment with forced version', async () => {
+            const gatewayConfiguration: IGatewayBFFConfiguration = {
+                ...commonGatewayConfiguration,
+                fragments: [
+                    {
+                        name: 'boutique-list',
+                        version: 'test',
+                        render: {
+                            url: '/'
+                        },
+                        testCookie: 'fragment_test',
+                        versions: {
+                            'test': {
+                                assets: [],
+                                dependencies: [],
+                                handler: require('./fragments/boutique-list/test')
+                            },
+                            'test2': {
+                                assets: [],
+                                dependencies: [],
+                                handler: require('./fragments/boutique-list/test2')
+                            },
+
+                        }
+                    }
+                ]
+            };
+
+            const bffGw = new GatewayBFF(gatewayConfiguration);
+            await bffGw.renderFragment({} as any, 'boutique-list', FRAGMENT_RENDER_MODES.PREVIEW, DEFAULT_MAIN_PARTIAL, createExpressMock({
+                send: (gwResponse: string) => {
+                    if (!gwResponse) throw new Error('No response from gateway');
+                    expect(gwResponse).to.include(`<title>Browsing - boutique-list</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"></head><body><div id="boutique-list">test2</div></body></html>`);
+                }
+            }) as any,{}, "test2");
+        });
+
+        it('should render fragment with given version via cookie', async () => {
+            const gatewayConfiguration: IGatewayBFFConfiguration = {
+                ...commonGatewayConfiguration,
+                fragments: [
+                    {
+                        name: 'boutique-list',
+                        version: 'test',
+                        render: {
+                            url: '/'
+                        },
+                        testCookie: 'fragment_test',
+                        versions: {
+                            'test': {
+                                assets: [],
+                                dependencies: [],
+                                handler: require('./fragments/boutique-list/test')
+                            },
+                            'test2': {
+                                assets: [],
+                                dependencies: [],
+                                handler: require('./fragments/boutique-list/test2')
+                            },
+
+                        }
+                    }
+                ]
+            };
+
+            const bffGw = new GatewayBFF(gatewayConfiguration);
+            await bffGw.renderFragment({} as any, 'boutique-list', FRAGMENT_RENDER_MODES.PREVIEW, DEFAULT_MAIN_PARTIAL, createExpressMock({
+                send: (gwResponse: string) => {
+                    if (!gwResponse) throw new Error('No response from gateway');
+                    expect(gwResponse).to.include(`<title>Browsing - boutique-list</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"></head><body><div id="boutique-list">test2</div></body></html>`);
+                }
+            }) as any,{'fragment_test': 'test2'});
+        });
+
         it('should render fragment in preview mode with data passing', async () => {
             const gatewayConfiguration: IGatewayBFFConfiguration = {
                 ...commonGatewayConfiguration,
