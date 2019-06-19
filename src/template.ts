@@ -224,10 +224,11 @@ export class Template {
         const assets = fragments.reduce((pageLibAssets: IPageLibAsset[], fragmentName) => {
             const fragment = this.fragments[fragmentName];
             if (fragment.config) {
-                const fragmentVersion: { assets: IFileResourceAsset[] } = cookies[fragment.config.testCookie] &&
-                    fragment.config.passiveVersions &&
-                    fragment.config.passiveVersions[cookies[fragment.config.testCookie]] ?
-                    fragment.config.passiveVersions[cookies[fragment.config.testCookie]] : fragment.config;
+                const targetVersion = fragment.detectVersion(cookies);
+                const fragmentVersion = fragment.config.version === targetVersion ?
+                    fragment.config :
+                    fragment.config.passiveVersions ?
+                        fragment.config.passiveVersions[targetVersion] : fragment.config;
 
                 fragmentVersion.assets.forEach((asset) => {
                     pageLibAssets.push({
@@ -248,10 +249,11 @@ export class Template {
         const dependencies = fragments.reduce((pageLibDependencies: IPageLibDependency[], fragmentName) => {
             const fragment = this.fragments[fragmentName];
             if (fragment.config) {
-                const fragmentVersion: { dependencies: IFileResourceDependency[] } = cookies[fragment.config.testCookie] &&
-                    fragment.config.passiveVersions &&
-                    fragment.config.passiveVersions[cookies[fragment.config.testCookie]] ?
-                    fragment.config.passiveVersions[cookies[fragment.config.testCookie]] : fragment.config;
+                const targetVersion = fragment.detectVersion(cookies);
+                const fragmentVersion = fragment.config.version === targetVersion ?
+                    fragment.config :
+                    fragment.config.passiveVersions ?
+                        fragment.config.passiveVersions[targetVersion] : fragment.config;
 
                 fragmentVersion.dependencies.forEach(dependency => {
                     const dependencyData = ResourceFactory.instance.get(dependency.name);
