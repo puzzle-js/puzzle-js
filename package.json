@@ -67,7 +67,7 @@
     "lint:ts:fix": "./node_modules/.bin/tslint -p ./tsconfig.json --fix"
   },
   "dependencies": {
-    "async": "^3.0.1",
+    "async": "^3.1.0",
     "cheerio": "^1.0.0-rc.2",
     "clean-css": "^4.1.11",
     "compression": "^1.7.4",
