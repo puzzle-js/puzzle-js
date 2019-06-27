@@ -4,7 +4,6 @@ import async from "async";
 import {EVENTS, HEALTHCHECK_PATHS, HTTP_METHODS, HTTP_STATUS_CODE} from "./enums";
 import {wait} from "./util";
 import {Logger} from "./logger";
-import {EventEmitter} from "events";
 import {callableOnce, sealed} from "./decorators";
 import {container, TYPES} from "./base";
 import {Server} from "./server";
@@ -21,7 +20,6 @@ const logger = container.get(TYPES.Logger) as Logger;
 @sealed
 export class Storefront {
     server: Server;
-    events: EventEmitter = new EventEmitter();
     config: IStorefrontConfig;
     pages: IPageMap = {};
     gateways: IGatewayMap = {};
