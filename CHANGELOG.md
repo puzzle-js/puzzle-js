@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+# [3.31.2] - 27-6-2019
+### Fixed
+- Import typo fixed and unused variable removed
+- Ignored files removed
+ 
 # [3.31.1] - 19-6-2019
 ### Fixed
 - Versioning problem fixed when injecting assets and dependencies
