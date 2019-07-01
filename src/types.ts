@@ -1,5 +1,5 @@
 import {GatewayStorefrontInstance} from "./gatewayStorefront";
-import {NextFunction, Request, Response} from "express-serve-static-core";
+import {NextFunction, Request, Response} from "express";
 import {
     HTTP_METHODS,
     REPLACE_ITEM_TYPE,
