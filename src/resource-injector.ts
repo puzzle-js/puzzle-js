@@ -38,31 +38,15 @@ export default class ResourceInjector {
         this.assets.forEach(asset => {
             if (asset.loadMethod === RESOURCE_LOADING_TYPE.ON_RENDER_START) {
                 asset.preLoaded = true;
-                if (asset.dependent && asset.dependent.length > 0) {
+                if (Array.isArray(asset.dependent) && asset.dependent.length > 0) {
                     this.dependencies.forEach(dependency => {
-                        if (asset.dependent && asset.dependent.indexOf(dependency.name) > -1 && !dependency.preLoaded) {
+                        if (Array.isArray(asset.dependent) && asset.dependent.indexOf(dependency.name) > -1 && !dependency.preLoaded) {
                             dependency.preLoaded = true;
-                            if (dependency.type === RESOURCE_TYPE.JS) {
-                                dom('body').append(ResourceInjector.wrapJsAsset({
-                                    content: ``,
-                                    injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
-                                    name: dependency.name,
-                                    link: dependency.link,
-                                    executeType: RESOURCE_JS_EXECUTE_TYPE.SYNC
-                                }));
-                            }
+                            ResourceInjector.injectDefaultJsAsset(dependency, dom);
                         }
                     });
                 }
-                if (asset.type === RESOURCE_TYPE.JS) {
-                    dom('body').append(ResourceInjector.wrapJsAsset({
-                        content: ``,
-                        injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
-                        name: asset.name,
-                        link: asset.link,
-                        executeType: RESOURCE_JS_EXECUTE_TYPE.SYNC
-                    }));
-                }
+                ResourceInjector.injectDefaultJsAsset(asset, dom);
             }
         });
     }
@@ -98,32 +82,13 @@ export default class ResourceInjector {
                 }
             } as any);
 
-            const styleSheets: string[] = [];
-            const injectionDependencyNames: string[] = [];
+            let styleSheets: string[] = [];
+            let injectionDependencyNames: string[] = [];
 
             for (const fragment of Object.values(this.fragments)) {
-                const targetVersion = fragment.detectVersion(this.cookies, precompile);
-                const config = this.getFragmentConfig(fragment, targetVersion);
-                if(!config) continue;
-
-                const cssAssets = config.assets.filter(asset => asset.type === RESOURCE_TYPE.CSS);
-                const cssDependencies = config.dependencies.filter(dependency => dependency.type === RESOURCE_TYPE.CSS);
-
-                for (const asset of cssAssets) {
-                    const assetContent = await fragment.getAsset(asset.name, targetVersion);
-
-                    if (assetContent) {
-                        styleSheets.push(assetContent);
-                        injectionDependencyNames.push(asset.name);
-                    }
-                }
-
-                for (const dependency of cssDependencies) {
-                    if (!injectionDependencyNames.includes(dependency.name)) {
-                        injectionDependencyNames.push(dependency.name);
-                        styleSheets.push(await ResourceFactory.instance.getRawContent(dependency.name));
-                    }
-                }
+                const cssData = await this.loadCSSData(fragment, precompile)
+                styleSheets = styleSheets.concat(cssData.styleSheets);
+                injectionDependencyNames = injectionDependencyNames.concat(cssData.injectionDependencyNames);
             }
 
             if (styleSheets.length > 0) {
@@ -150,6 +115,41 @@ export default class ResourceInjector {
             return `<!-- Failed to inject asset: ${asset.name} -->`;
         }
     }
+
+    /**
+     * Load css data(stylesheets and dependency name list) using resource factory
+     * @param {FragmentStorefront} fragment
+     * @param {boolean} precompile
+     * @returns {Promise<>}
+     */
+    private async loadCSSData(fragment: FragmentStorefront, precompile: boolean): Promise<{[name: string]: string[]}>  {
+        const cssData: {[name: string]: string[]} = {
+            styleSheets: [],
+            injectionDependencyNames: []
+        };
+        const targetVersion = fragment.detectVersion(this.cookies, precompile);
+        const config = this.getFragmentConfig(fragment, targetVersion);
+        if(config) {
+            const cssAssets = config.assets.filter(asset => asset.type === RESOURCE_TYPE.CSS);
+            const cssDependencies = config.dependencies.filter(dependency => dependency.type === RESOURCE_TYPE.CSS);
+
+            for (const asset of cssAssets) {
+                const assetContent = await fragment.getAsset(asset.name, targetVersion);
+                if (assetContent) {
+                    cssData.styleSheets.push(assetContent);
+                    cssData.injectionDependencyNames.push(asset.name);
+                }
+            }
+
+            for (const dependency of cssDependencies) {
+                if (!cssData.injectionDependencyNames.includes(dependency.name)) {
+                    cssData.injectionDependencyNames.push(dependency.name);
+                    cssData.styleSheets.push(await ResourceFactory.instance.getRawContent(dependency.name));
+                }
+            }
+        }
+        return cssData;
+    };
 
     /**
      * Returns fragment config using targeted version
@@ -236,6 +236,24 @@ export default class ResourceInjector {
         return {
             name: fragment.name,
             chunked: fragment.config ? (fragment.shouldWait || (fragment.config.render.static || false)) : false
+        }
+    }
+
+    /**
+     * Inject default JS assets
+     * @param { } jsAsset
+     * @param { CheerioStatic } dom
+     * @returns {string}
+     */
+    private static injectDefaultJsAsset(jsAsset: {type, name, link}, dom: CheerioStatic) {
+        if (jsAsset.type === RESOURCE_TYPE.JS) {
+            dom('body').append(ResourceInjector.wrapJsAsset({
+                content: ``,
+                injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
+                name: jsAsset.name,
+                link: jsAsset.link,
+                executeType: RESOURCE_JS_EXECUTE_TYPE.SYNC
+            }));
         }
     }
 }

@@ -194,7 +194,7 @@
   dependencies:
     "@types/express" "*"
 
-"@types/express-serve-static-core@*":
+"@types/express-serve-static-core@*", "@types/express-serve-static-core@^4.16.7":
   version "4.16.7"
   resolved "https://registry.yarnpkg.com/@types/express-serve-static-core/-/express-serve-static-core-4.16.7.tgz#50ba6f8a691c08a3dd9fa7fba25ef3133d298049"
   integrity sha512-847KvL8Q1y3TtFLRTXcVakErLJQgdpFSaq+k043xefz9raEf0C7HalpSY7OW5PyjCnY8P7bPW5t/Co9qqp+USg==
@@ -312,7 +312,7 @@
     "@types/express" "*"
     "@types/node" "*"
 
-"@types/serve-static@*":
+"@types/serve-static@*", "@types/serve-static@^1.13.2":
   version "1.13.2"
   resolved "https://registry.yarnpkg.com/@types/serve-static/-/serve-static-1.13.2.tgz#f5ac4d7a6420a99a6a45af4719f4dcd8cd907a48"
   integrity sha512-/BZ4QRLpH/bNYgZgwhKEh+5AsboDBcUdlBYgzoLX0fpj3Y2gp6EApyOlM3bK53wQS/OE1SrdSYBAbux2D1528Q==

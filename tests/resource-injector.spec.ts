@@ -25,11 +25,15 @@ describe('Resource Injector', () => {
         const fragmentList = Object.keys(fragments).map( (fKey) => fragments[fKey] );
         let assets: any = [];
         fragmentList.forEach((fragment) => { assets = assets.concat(fragment.config.assets)});
+
+
         // act
         const dom = cheerio.load("<html><head></head><body></body></html>");
         const resourceInjector = new ResourceInjector(fragments, "", {});
         resourceInjector.injectAssets(dom as any);
+
         assets = assets.filter((asset) => asset.type === RESOURCE_TYPE.JS);
+
         // assert
         expect(dom("body").children().length).toBe(assets.length);
         assets.forEach( (asset) => {
@@ -38,9 +42,11 @@ describe('Resource Injector', () => {
                 expect(script.attr().src).toBe(asset.link);
             }
         });
+
     });
 
     it("should inject assets using passive version", () => {
+
         // arrange
         const fragments = {
             "f1": FragmentHelper.create(),
@@ -50,6 +56,7 @@ describe('Resource Injector', () => {
         const f2Version = faker.random.arrayElement(["2.0.0", "3.0.0"]);
         sandbox.stub(fragments.f1, "detectVersion").callsFake(() => f1Version);
         sandbox.stub(fragments.f2, "detectVersion").callsFake(() => f2Version);
+
         // act
         const dom = cheerio.load("<html><head></head><body></body></html>");
         const resourceInjector = new ResourceInjector(fragments, "", {});
@@ -66,9 +73,11 @@ describe('Resource Injector', () => {
                 expect(script.attr().src).toBe(asset.link);
             }
         });
+
     });
 
     it("should not inject assets if load method is not ON_RENDER_START", () => {
+
         // arrange
         const fragments = {
             "f1": FragmentHelper.create(),
@@ -78,6 +87,7 @@ describe('Resource Injector', () => {
         let assets: any = [];
         fragmentList.forEach((fragment) => { assets = assets.concat(fragment.config.assets)});
         assets.forEach((asset)=> { asset.loadMethod = 1; });
+
         // act
         const dom = cheerio.load("<html><head></head><body></body></html>");
         const resourceInjector = new ResourceInjector(fragments, "", {});
@@ -85,9 +95,11 @@ describe('Resource Injector', () => {
 
         // assert
         expect(dom("body").children().length).toBe(0);
+
     });
 
     it("should inject library config", () => {
+
         // arrange
         const fragments = {
             "f1":  FragmentHelper.create(),
@@ -104,6 +116,7 @@ describe('Resource Injector', () => {
             dependencies: []
         };
         expectedConfig.assets.forEach((asset) => { asset.preLoaded = false });
+
         // act
         const dom = cheerio.load("<html><head></head><body></body></html>");
         const resourceInjector = new ResourceInjector(fragments, pageName, {});
@@ -113,9 +126,11 @@ describe('Resource Injector', () => {
         const libConfigStr = dom("head").children("script[puzzle-dependency=puzzle-lib]").contents().first().text();
         const libConfig = JSON.parse(libConfigStr.split(`{puzzleLibContent}PuzzleJs.emit('${EVENT.ON_RENDER_START}');PuzzleJs.emit('${EVENT.ON_CONFIG}','`)[1].split("');")[0]);
         expect(libConfig).toEqual(expectedConfig);
+
     });
 
     it("should inject style sheets using default version", async (done) => {
+
         // arrange
         const fragments = {
             "f1": FragmentHelper.create(),
@@ -140,15 +155,17 @@ describe('Resource Injector', () => {
 
         const expectedDependencyList = assets.concat(deps).map( (res) => res.name);
         const expectedCssContent = expectedDependencyList.concat([""]); // for last -CSS-
-        // assert
 
+        // assert
         const result = dom("head").children("style[puzzle-dependency=dynamic-css]");
         expect(result.attr()["dependency-list"].split(",").sort()).toEqual(expectedDependencyList.sort());
         expect(result.contents().first().text().split("-CSS-").sort()).toEqual(expectedCssContent.sort());
         done();
+
     });
 
     it("should inject style sheets using passive version", async (done) => {
+
         // arrange
         const fragments = {
             "f1": FragmentHelper.create(),
@@ -177,12 +194,13 @@ describe('Resource Injector', () => {
 
         const expectedDependencyList = assets.concat(deps).map( (res) => res.name);
         const expectedCssContent = expectedDependencyList.concat([""]); // for last -CSS-
-        // assert
 
+        // assert
         const result = dom("head").children("style[puzzle-dependency=dynamic-css]");
         expect(result.attr()["dependency-list"].split(",").sort()).toEqual(expectedDependencyList.sort());
         expect(result.contents().first().text().split("-CSS-").sort()).toEqual(expectedCssContent.sort());
         done();
+
     });
 
     it("should inject error message if asset invalid", () => {
@@ -197,16 +215,20 @@ describe('Resource Injector', () => {
             type: RESOURCE_TYPE.JS,
             loadMethod: RESOURCE_LOADING_TYPE.ON_RENDER_START
         }];
+
         // act
         const dom = cheerio.load("<html><head></head><body></body></html>");
         const resourceInjector = new ResourceInjector(fragments, "", {});
         resourceInjector.injectAssets(dom as any);
+
         // assert
         const errorComment = dom("body").contents();
         expect(errorComment["0"]["data"]).toBe(` Failed to inject asset: ${assetName} `);
+
     });
 
     it("should inject dependency script", () => {
+
         // arrange
         const fragments = {
             "f1": FragmentHelper.create()
@@ -217,16 +239,20 @@ describe('Resource Injector', () => {
         dep.name = depName;
         dep.type = RESOURCE_TYPE.JS;
         sandbox.stub(ResourceFactory.instance, "get").callsFake( (): any => dep);
+
         // act
         const dom = cheerio.load("<html><head></head><body></body></html>");
         const resourceInjector = new ResourceInjector(fragments, "", {});
         resourceInjector.injectAssets(dom as any);
+
         // assert
         const depScript = dom("body").children(`script[puzzle-dependency=${depName}]`);
         expect(depScript.attr().src).toBe(dep.link);
+
     });
 
     it("should not inject asset at page render start if load method does not exists", () => {
+
         // arrange
         const fragments = {
             "f1": FragmentHelper.create()
@@ -234,15 +260,18 @@ describe('Resource Injector', () => {
         delete fragments.f1.config.assets[0].loadMethod;
         fragments.f1.config.assets[0].type = RESOURCE_TYPE.JS;
         let assets: any = fragments.f1.config.assets;
+
         // act
         const dom = cheerio.load("<html><head></head><body></body></html>");
         const resourceInjector = new ResourceInjector(fragments, "", {});
         resourceInjector.injectAssets(dom as any);
         assets = assets.filter((asset) => asset.type === RESOURCE_TYPE.JS);
+
         // assert
         const script = dom("body").children(`script[puzzle-dependency=${fragments.f1.config.assets[0].name}]`);
         expect(dom("body").children().length).toBe(assets.length - 1);
         expect(script.attr()).toBe(undefined);
+
     });
 
 });

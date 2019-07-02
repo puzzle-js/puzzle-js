@@ -5,7 +5,7 @@ import "reflect-metadata";
 import morgan from "morgan";
 import bodyParser from "body-parser";
 import * as Http from "http";
-import {NextFunction, Request, RequestHandlerParams, Response} from "express";
+import {NextFunction, Request, RequestHandlerParams, Response} from "express-serve-static-core";
 import {ServeStaticOptions} from "serve-static";
 import {EVENTS, HTTP_METHODS, TRANSFER_PROTOCOLS} from "./enums";
 import {Logger} from "./logger";
