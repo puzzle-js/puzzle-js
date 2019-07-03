@@ -11,26 +11,20 @@ import {
     FragmentModel,
     IChunkedReplacementSet,
     ICookieMap,
-    IFileResourceAsset,
-    IFileResourceDependency,
     IFragmentContentResponse,
     IFragmentEndpointHandler,
     IPageDependentGateways,
     IReplaceAsset,
     IReplaceItem,
     IReplaceSet,
-    IWaitedResponseFirstFlush,
-    IWrappingJsAsset
+    IWaitedResponseFirstFlush
 } from "./types";
 import {
     HTTP_STATUS_CODE,
     REPLACE_ITEM_TYPE,
-    RESOURCE_INJECT_TYPE,
-    RESOURCE_JS_EXECUTE_TYPE,
     RESOURCE_LOCATION
 } from "./enums";
-import ResourceFactory from "./resourceFactory";
-import CleanCSS from "clean-css";
+import ResourceInjector from "./resource-injector";
 import { isDebug } from "./util";
 import { TemplateClass } from "./templateClass";
 import { ERROR_CODES, PuzzleError } from "./errors";
@@ -39,8 +33,7 @@ import { Logger } from "./logger";
 import { container, TYPES } from "./base";
 import fs from "fs";
 import path from "path";
-import { IPageFragmentConfig, IPageLibAsset, IPageLibConfiguration, IPageLibDependency } from "./lib/types";
-import { EVENT, RESOURCE_LOADING_TYPE, RESOURCE_TYPE } from "./lib/enums";
+import { EVENT } from "./lib/enums";
 import express from "express";
 
 const logger = container.get(TYPES.Logger) as Logger;
@@ -135,17 +128,14 @@ export class Template {
             return this.buildHandler(singleFlushHandlerWithoutFragments, [], [], [], isDebug);
         }
 
-        /* Fragment Types
-            chunkedFragmentsWithShouldWait -> Contents will be in first flush, waits for fragment response
-            chunkedFragmentsWithoutWait -> Fragments that doesn't need to waited. Flushes after first request.
-            staticFragments -> Contents are prepared on compile time. Req independent
-         */
+        const resourceInjector = new ResourceInjector(this.fragments, this.name, testCookies);
         const chunkedFragmentsWithShouldWait = Object.values(this.fragments).filter(fragment => fragment.config && fragment.shouldWait && !fragment.config.render.static);
         const chunkedFragmentsWithoutWait = Object.values(this.fragments).filter(fragment => fragment.config && !fragment.shouldWait && !fragment.config.render.static);
         const staticFragments = Object.values(this.fragments).filter(fragment => fragment.config && fragment.config.render.static);
 
         logger.info(`[Compiling Page ${this.name}]`, 'Injecting Puzzle Lib to head');
-        this.injectPuzzleLibAndConfig(isDebug, testCookies);
+        resourceInjector.injectAssets(this.dom);
+        resourceInjector.injectLibraryConfig(this.dom);
 
         // todo kaldir lib bagla
         const replaceScripts: any[] = [];
@@ -172,7 +162,7 @@ export class Template {
         /**
          * @deprecated Combine this with only on render start assets.
          */
-        await this.buildStyleSheets(testCookies, precompile);
+        await resourceInjector.injectStyleSheets(this.dom, precompile);
 
         this.replaceEmptyTags();
 
@@ -186,146 +176,6 @@ export class Template {
         return this.buildHandler(TemplateCompiler.compile(Template.clearHtmlContent(clearLibOutput)), chunkReplacements, waitedFragmentReplacements, replaceScripts, isDebug);
     }
 
-    /**
-     * Wraps js asset based on its configuration
-     * @param {IWrappingJsAsset} asset
-     * @returns {string}
-     */
-    static wrapJsAsset(asset: IWrappingJsAsset) {
-        if (asset.injectType === RESOURCE_INJECT_TYPE.EXTERNAL && asset.link) {
-            return `<script puzzle-dependency="${asset.name}" src="${asset.link}" type="text/javascript"${asset.executeType}> </script>`;
-        } else if (asset.injectType === RESOURCE_INJECT_TYPE.INLINE && asset.content) {
-            return `<script puzzle-dependency="${asset.name}" type="text/javascript">${asset.content}</script>`;
-        } else {
-            //todo handle error
-            return `<!-- Failed to inject asset: ${asset.name} -->`;
-        }
-    }
-
-    /**
-     * Puzzle lib preparation
-     * @param {boolean} isDebug
-     */
-    private injectPuzzleLibAndConfig(isDebug: boolean, cookies: ICookieMap): void {
-        const fragments = Object.keys(this.fragments);
-
-        const pageFragmentLibConfig = fragments.reduce((pageLibFragments: IPageFragmentConfig[], fragmentName) => {
-            const fragment = this.fragments[fragmentName];
-
-            pageLibFragments.push({
-                name: fragment.name,
-                chunked: fragment.config ? (fragment.shouldWait || (fragment.config.render.static || false)) : false
-            });
-
-            return pageLibFragments;
-        }, []);
-
-
-        const assets = fragments.reduce((pageLibAssets: IPageLibAsset[], fragmentName) => {
-            const fragment = this.fragments[fragmentName];
-            if (fragment.config) {
-                const targetVersion = fragment.detectVersion(cookies);
-                const fragmentVersion = fragment.config.version === targetVersion ?
-                    fragment.config :
-                    fragment.config.passiveVersions ?
-                        fragment.config.passiveVersions[targetVersion] : fragment.config;
-
-                fragmentVersion.assets.forEach((asset) => {
-                    pageLibAssets.push({
-                        fragment: fragmentName,
-                        loadMethod: typeof asset.loadMethod !== 'undefined' ? asset.loadMethod : RESOURCE_LOADING_TYPE.ON_PAGE_RENDER,
-                        name: asset.name,
-                        dependent: asset.dependent || [],
-                        type: asset.type,
-                        link: asset.link,
-                        preLoaded: false
-                    });
-                });
-            }
-
-            return pageLibAssets;
-        }, []);
-
-        const dependencies = fragments.reduce((pageLibDependencies: IPageLibDependency[], fragmentName) => {
-            const fragment = this.fragments[fragmentName];
-            if (fragment.config) {
-                const targetVersion = fragment.detectVersion(cookies);
-                const fragmentVersion = fragment.config.version === targetVersion ?
-                    fragment.config :
-                    fragment.config.passiveVersions ?
-                        fragment.config.passiveVersions[targetVersion] : fragment.config;
-
-                fragmentVersion.dependencies.forEach(dependency => {
-                    const dependencyData = ResourceFactory.instance.get(dependency.name);
-                    if (dependencyData && dependencyData.link && !pageLibDependencies.find(dependency => dependency.name === dependencyData.name)) {
-                        pageLibDependencies.push({
-                            name: dependency.name,
-                            link: dependencyData.link,
-                            type: dependency.type,
-                            preLoaded: false
-                        });
-                    }
-                });
-            }
-
-            return pageLibDependencies;
-        }, []);
-
-        assets.forEach(asset => {
-            if (asset.loadMethod === RESOURCE_LOADING_TYPE.ON_RENDER_START) {
-                asset.preLoaded = true;
-                if (asset.dependent && asset.dependent.length > 0) {
-                    dependencies.forEach(dependency => {
-                        if (asset.dependent && asset.dependent.indexOf(dependency.name) > -1 && !dependency.preLoaded) {
-                            dependency.preLoaded = true;
-                            if (dependency.type === RESOURCE_TYPE.JS) {
-                                this.dom('body').append(Template.wrapJsAsset({
-                                    content: ``,
-                                    injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
-                                    name: dependency.name,
-                                    link: dependency.link,
-                                    executeType: RESOURCE_JS_EXECUTE_TYPE.SYNC
-                                }));
-                            } else if (dependency.type === RESOURCE_TYPE.CSS) {
-                                //this.dom('head').append(`<link puzzle-dependency="${dependency.name}" rel="stylesheet" href="${dependency.link}" />`);
-                            }
-                        }
-                    });
-                }
-
-                if (asset.type === RESOURCE_TYPE.JS) {
-                    this.dom('body').append(Template.wrapJsAsset({
-                        content: ``,
-                        injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
-                        name: asset.name,
-                        link: asset.link,
-                        executeType: RESOURCE_JS_EXECUTE_TYPE.SYNC
-                    }));
-                }
-            }
-        });
-
-
-        const libConfig = {
-            page: this.name,
-            fragments: pageFragmentLibConfig,
-            assets: assets.filter(asset => asset.type === RESOURCE_TYPE.JS), //css handled by merge cleaning
-            dependencies
-        } as IPageLibConfiguration;
-
-        this.dom('head').prepend(Template.wrapJsAsset({
-            content: `{puzzleLibContent}PuzzleJs.emit('${EVENT.ON_RENDER_START}');PuzzleJs.emit('${EVENT.ON_CONFIG}','${JSON.stringify(libConfig)}');`,
-            injectType: RESOURCE_INJECT_TYPE.INLINE,
-            name: 'puzzle-lib',
-            link: '',
-            executeType: RESOURCE_JS_EXECUTE_TYPE.SYNC
-        }));
-
-
-        if (isDebug) {
-            // todo emit debug model
-        }
-    }
 
     /**
      * Bind user class to page
@@ -374,7 +224,7 @@ export class Template {
 
             const assets = replaceAssets.find(set => set.fragment.name === fragment.name);
             const fragmentScripts = assets ? assets.replaceItems.reduce((script, replaceItem) => {
-                script += Template.wrapJsAsset(replaceItem);
+                script += ResourceInjector.wrapJsAsset(replaceItem);
                 return script;
             }, '') : '';
 
@@ -550,7 +400,7 @@ export class Template {
             output += Template.fragmentModelScript(chunkedReplacement.fragment, fragmentContent.model, isDebug);
 
             fragmentJsReplacements && fragmentJsReplacements.replaceItems.filter(item => item.location === RESOURCE_LOCATION.CONTENT_START).forEach(replaceItem => {
-                output += Template.wrapJsAsset(replaceItem);
+                output += ResourceInjector.wrapJsAsset(replaceItem);
             });
 
             chunkedReplacement.replaceItems
@@ -565,7 +415,7 @@ export class Template {
                 });
 
             fragmentJsReplacements && fragmentJsReplacements.replaceItems.filter(item => item.location === RESOURCE_LOCATION.CONTENT_END).forEach(replaceItem => {
-                output += Template.wrapJsAsset(replaceItem);
+                output += ResourceInjector.wrapJsAsset(replaceItem);
             });
 
             this.pageClass._onChunk(output);
@@ -594,23 +444,6 @@ export class Template {
         });
     }
 
-    /**
-     * Adds required dependencies
-     */
-    private async addDependencies() {
-        const injectedDependencies: string[] = [];
-
-        await Promise.all(Object.values(this.fragments).map(async fragment => {
-            if (fragment.config) {
-                await Promise.all(Object.values(fragment.config.dependencies).map(async dependency => {
-                    if (injectedDependencies.indexOf(dependency.name) == -1) {
-                        injectedDependencies.push(dependency.name);
-                        this.dom('head').append(await ResourceFactory.instance.getDependencyContent(dependency.name, dependency.injectType));
-                    }
-                }));
-            }
-        }));
-    }
 
     /**
      * Creates chunked fragment containers
@@ -679,11 +512,11 @@ export class Template {
             let contentEnd = ``;
 
             jsReplacements && jsReplacements.replaceItems.filter(item => item.location === RESOURCE_LOCATION.CONTENT_START).forEach(replaceItem => {
-                contentStart += Template.wrapJsAsset(replaceItem);
+                contentStart += ResourceInjector.wrapJsAsset(replaceItem);
             });
 
             jsReplacements && jsReplacements.replaceItems.filter(item => item.location === RESOURCE_LOCATION.CONTENT_END).forEach(replaceItem => {
-                contentEnd += Template.wrapJsAsset(replaceItem);
+                contentEnd += ResourceInjector.wrapJsAsset(replaceItem);
             });
 
             this.dom(contentStart).insertBefore(this.dom(`fragment[from="${fragment.from}"][name="${fragment.name}"]`).first());
@@ -722,61 +555,6 @@ export class Template {
     }
 
 
-    /**
-     * Merges, minifies stylesheets and inject them into a page
-     * @returns {Promise<void>}
-     */
-    private async buildStyleSheets(cookies: ICookieMap, precompile: boolean) {
-        return new Promise(async (resolve, reject) => {
-            const _CleanCss = new CleanCSS({
-                level: {
-                    1: {
-                        all: true
-                    }
-                }
-            } as any);
-
-            const styleSheets: string[] = [];
-            const injectionDependencyNames: string[] = [];
-
-            for (const fragment of Object.values(this.fragments)) {
-                if (!fragment.config) continue;
-
-                const targetVersion = fragment.detectVersion(cookies, precompile);
-                const fragmentVersion = fragment.config.version === targetVersion ?
-                    fragment.config :
-                    fragment.config.passiveVersions ?
-                        fragment.config.passiveVersions[targetVersion] : fragment.config;
-
-
-                const cssAssets = fragmentVersion.assets.filter(asset => asset.type === RESOURCE_TYPE.CSS);
-                const cssDependencies = fragmentVersion.dependencies.filter(dependency => dependency.type === RESOURCE_TYPE.CSS);
-
-                for (const asset of cssAssets) {
-                    const assetContent = await fragment.getAsset(asset.name, targetVersion);
-
-                    if (assetContent) {
-                        styleSheets.push(assetContent);
-                        injectionDependencyNames.push(asset.name);
-                    }
-                }
-
-                for (const dependency of cssDependencies) {
-                    if (!injectionDependencyNames.includes(dependency.name)) {
-                        injectionDependencyNames.push(dependency.name);
-                        styleSheets.push(await ResourceFactory.instance.getRawContent(dependency.name));
-                    }
-                }
-            }
-
-            if (styleSheets.length > 0) {
-                const output = _CleanCss.minify(styleSheets.join(''));
-                const addEscapeCharacters = output.styles.replace(/content:"/g, 'content:"\\');
-                this.dom('head').append(`<style puzzle-dependency="dynamic-css" dependency-list="${injectionDependencyNames.join(',')}">${addEscapeCharacters}</style>`);
-            }
-            resolve();
-        });
-    }
 
     private static replaceCustomScripts(template: string, encode: boolean) {
         return encode ?

@@ -35,6 +35,7 @@ import cors from "cors";
 import routeCache from "route-cache";
 import {RESOURCE_TYPE} from "./lib/enums";
 import fs from "fs";
+import ResourceInjector from "./resource-injector";
 
 const logger = container.get(TYPES.Logger) as Logger;
 
@@ -216,7 +217,7 @@ export class GatewayBFF {
 
         const fragmentVersion = fragment.config.versions[version];
 
-        dom('head').prepend(Template.wrapJsAsset({
+        dom('head').prepend(ResourceInjector.wrapJsAsset({
             content: fs.readFileSync(path.join(__dirname, `/lib/puzzle.min.js`)).toString(),
             injectType: RESOURCE_INJECT_TYPE.INLINE,
             name: 'puzzle-lib',
