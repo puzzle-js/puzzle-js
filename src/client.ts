@@ -2,7 +2,7 @@ import http from "http";
 import https from "https";
 import {injectable} from "inversify";
 import request, {CoreOptions} from "request";
-import {PUZZLE_MAX_SOCKETS} from "./config";
+import {KEEP_ALIVE_MSECS, PUZZLE_MAX_SOCKETS} from "./config";
 import warden from "puzzle-warden";
 
 export interface IRequestOptions {
@@ -13,6 +13,7 @@ export interface IRequestOptions {
 const AGENT_CONFIGURATION = {
     keepAlive: true,
     maxSockets: PUZZLE_MAX_SOCKETS,
+    keepAliveMsecs: KEEP_ALIVE_MSECS
 };
 
 export const httpAgent = new http.Agent(AGENT_CONFIGURATION);
