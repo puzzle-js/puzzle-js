@@ -34,6 +34,7 @@ export const DEBUG_INFORMATION = loadConfigurationFromEnv('DEBUG_INFORMATION') |
 export const NO_COMPRESS_QUERY_NAME = loadConfigurationFromEnv('NO_COMPRESS_QUERY_NAME') || '__noCompress';
 export const NON_SELF_CLOSING_TAGS = ['div', 'span', 'p'];
 export const PUZZLE_MAX_SOCKETS = +loadConfigurationFromEnv('MAX_SOCKETS') || Infinity;
+export const KEEP_ALIVE_MSECS = +loadConfigurationFromEnv('KEEP_ALIVE_MSECS') || 1000;
 
 export const USE_HELMET = loadConfigurationFromEnv('USE_HELMET') || false;
 export const USE_MORGAN = loadConfigurationFromEnv('USE_MORGAN') || false;
