@@ -92,7 +92,7 @@
     "superstruct": "^0.6.1",
     "ts-loader": "^6.0.3",
     "ts-node": "^8.0.3",
-    "typescript": "^3.5.2",
+    "typescript": "^3.5.3",
     "uuid": "^3.2.1",
     "winston": "^3.2.1",
     "winston-graylog2": "^2.1.2"
