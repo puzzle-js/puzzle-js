@@ -9,6 +9,8 @@ import ResourceFactory from "../src/resourceFactory";
 
 const sandbox = sinon.createSandbox();
 
+
+// TODO: We need to create more general tests about dependencies, this is not enough
 describe('Resource Injector', () => {
 
     afterEach( () => {

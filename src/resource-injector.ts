@@ -82,19 +82,19 @@ export default class ResourceInjector {
                 }
             } as any);
 
-            let styleSheets: string[] = [];
-            let injectionDependencyNames: string[] = [];
+            const cssData: {[name: string]: string[]} = {
+                styleSheets: [],
+                dependencyNames: []
+            };
 
             for (const fragment of Object.values(this.fragments)) {
-                const cssData = await this.loadCSSData(fragment, precompile)
-                styleSheets = styleSheets.concat(cssData.styleSheets);
-                injectionDependencyNames = injectionDependencyNames.concat(cssData.injectionDependencyNames);
+                await this.loadCSSData(cssData, fragment, precompile);
             }
 
-            if (styleSheets.length > 0) {
-                const output = _CleanCss.minify(styleSheets.join(''));
+            if (cssData.styleSheets.length > 0) {
+                const output = _CleanCss.minify(cssData.styleSheets.join(''));
                 const addEscapeCharacters = output.styles.replace(/content:"/g, 'content:"\\');
-                dom('head').append(`<style puzzle-dependency="dynamic-css" dependency-list="${injectionDependencyNames.join(',')}">${addEscapeCharacters}</style>`);
+                dom('head').append(`<style puzzle-dependency="dynamic-css" dependency-list="${cssData.dependencyNames.join(',')}">${addEscapeCharacters}</style>`);
             }
             resolve();
         });
@@ -117,16 +117,13 @@ export default class ResourceInjector {
     }
 
     /**
-     * Load css data(stylesheets and dependency name list) using resource factory
+     * Load css data(stylesheets and dependency name list) and push to first parameter
+     * @param { } cssData
      * @param {FragmentStorefront} fragment
      * @param {boolean} precompile
      * @returns {Promise<>}
      */
-    private async loadCSSData(fragment: FragmentStorefront, precompile: boolean): Promise<{[name: string]: string[]}>  {
-        const cssData: {[name: string]: string[]} = {
-            styleSheets: [],
-            injectionDependencyNames: []
-        };
+    private async loadCSSData(cssData: {[name: string]: string[]}, fragment: FragmentStorefront, precompile: boolean) {
         const targetVersion = fragment.detectVersion(this.cookies, precompile);
         const config = this.getFragmentConfig(fragment, targetVersion);
         if(config) {
@@ -137,18 +134,17 @@ export default class ResourceInjector {
                 const assetContent = await fragment.getAsset(asset.name, targetVersion);
                 if (assetContent) {
                     cssData.styleSheets.push(assetContent);
-                    cssData.injectionDependencyNames.push(asset.name);
+                    cssData.dependencyNames.push(asset.name);
                 }
             }
 
             for (const dependency of cssDependencies) {
-                if (!cssData.injectionDependencyNames.includes(dependency.name)) {
-                    cssData.injectionDependencyNames.push(dependency.name);
+                if (!cssData.dependencyNames.includes(dependency.name)) {
+                    cssData.dependencyNames.push(dependency.name);
                     cssData.styleSheets.push(await ResourceFactory.instance.getRawContent(dependency.name));
                 }
             }
         }
-        return cssData;
     };
 
     /**
@@ -174,9 +170,9 @@ export default class ResourceInjector {
             if (!fragment.config) continue;
             const targetVersion = fragment.detectVersion(this.cookies);
             const config = this.getFragmentConfig(fragment, targetVersion);
-            this.fragmentFingerPrints.push(ResourceInjector.getFragmentFingerPrint(fragment));
-            Array.prototype.push.apply(this.assets, this.getAssets(config));
-            Array.prototype.push.apply(this.dependencies, this.getDependencies(config));
+            this.prepareFragmentFingerPrint(fragment);
+            this.prepareAssets(config);
+            this.prepareDependencies(config);
         }
         this.libraryConfig = {
             page: this.pageName,
@@ -187,14 +183,12 @@ export default class ResourceInjector {
     }
 
     /**
-     * Returns injectable assets
+     * Prepare injectable assets from fragment and push to this.assets
      * @param { } config
-     * @returns {Promise<void>}
      */
-    private getAssets(config): IPageLibAsset[] {
-        const assets: IPageLibAsset[] = [];
+    private prepareAssets(config) {
         config.assets.forEach((asset) => {
-            assets.push({
+            this.assets.push({
                 loadMethod: typeof asset.loadMethod !== 'undefined' ? asset.loadMethod : RESOURCE_LOADING_TYPE.ON_PAGE_RENDER,
                 name: asset.name,
                 dependent: asset.dependent || [],
@@ -203,20 +197,18 @@ export default class ResourceInjector {
                 preLoaded: false
             });
         });
-        return assets;
     }
 
     /**
-     * Returns injectable dependencies
+     * Prepare injectable dependencies from fragment and push to this.dependencies
      * @param { } config
      * @returns {IPageFragmentConfig}
      */
-    private getDependencies(config): IPageLibDependency[] {
-        const dependencies: IPageLibDependency[] = [];
+    private prepareDependencies(config) {
         config.dependencies.forEach(dependency => {
             const dependencyData = ResourceFactory.instance.get(dependency.name);
-            if (dependencyData && dependencyData.link && !dependencies.find(dependency => dependency.name === dependencyData.name)) {
-                dependencies.push({
+            if (dependencyData && dependencyData.link && !this.dependencies.find(dependency => dependency.name === dependencyData.name)) {
+                this.dependencies.push({
                     name: dependency.name,
                     link: dependencyData.link,
                     type: dependency.type,
@@ -224,19 +216,17 @@ export default class ResourceInjector {
                 });
             }
         });
-        return dependencies;
     }
 
     /**
-     * Returns fragment fingerprint from given fragment
+     * Prepare fragment fingerprint from given fragment and push to this.fragmentFingerPrints
      * @param {FragmentStorefront} fragment
-     * @returns {IPageFragmentConfig}
      */
-    private static getFragmentFingerPrint(fragment: FragmentStorefront): IPageFragmentConfig {
-        return {
+    private prepareFragmentFingerPrint(fragment: FragmentStorefront) {
+        this.fragmentFingerPrints.push({
             name: fragment.name,
             chunked: fragment.config ? (fragment.shouldWait || (fragment.config.render.static || false)) : false
-        }
+        });
     }
 
     /**
