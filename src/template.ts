@@ -24,7 +24,7 @@ import ResourceInjector from "./resource-injector";
 import {isDebug} from "./util";
 import {TemplateClass} from "./templateClass";
 import {ERROR_CODES, PuzzleError} from "./errors";
-import {benchmark, nrSegmentAsync} from "./decorators";
+import {benchmark} from "./decorators";
 import {Logger} from "./logger";
 import {container, TYPES} from "./base";
 import fs from "fs";

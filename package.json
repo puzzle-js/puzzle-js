@@ -50,7 +50,9 @@
     "tslint": "^5.16.0",
     "typings": "^2.1.1",
     "webpack": "^4.35.3",
-    "webpack-cli": "^3.0.8"
+    "webpack-cli": "^3.0.8",
+    "@types/express-serve-static-core": "^4.16.7",
+    "@types/serve-static": "^1.13.2"
   },
   "author": {
     "name": "Ahmet Can Guven",
@@ -67,8 +69,6 @@
     "lint:ts:fix": "./node_modules/.bin/tslint -p ./tsconfig.json --fix"
   },
   "dependencies": {
-    "@types/express-serve-static-core": "^4.16.7",
-    "@types/serve-static": "^1.13.2",
     "async": "^3.0.1",
     "cheerio": "^1.0.0-rc.2",
     "clean-css": "^4.1.11",
