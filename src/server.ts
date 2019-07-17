@@ -110,7 +110,7 @@ export class Server {
      * @param {(req: Request, res: Response, next: NextFunction) => any} handler
      * @param {RequestHandlerParams[]} middlewares
      */
-    addRoute(path: string | string[], method: HTTP_METHODS, handler: (req: Request, res: Response, next: NextFunction) => any, middlewares: NextFunction[] = []) {
+    addRoute(path: string | string[], method: HTTP_METHODS, handler: (req: Request, res: Response, next: NextFunction) => any, middlewares: any[] = []) {
         (this.app as any)[method](path, middlewares, handler);
     }
 
