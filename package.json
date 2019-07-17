@@ -1,6 +1,6 @@
 {
   "name": "puzzle-microfrontends",
-  "version": "3.32.1",
+  "version": "3.32.2",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "logo": "https://image.ibb.co/jM29on/puzzlelogo.png",
@@ -50,7 +50,9 @@
     "tslint": "^5.16.0",
     "typings": "^2.1.1",
     "webpack": "^4.35.3",
-    "webpack-cli": "^3.0.8"
+    "webpack-cli": "^3.0.8",
+    "@types/express-serve-static-core": "^4.16.7",
+    "@types/serve-static": "^1.13.2"
   },
   "author": {
     "name": "Ahmet Can Guven",
@@ -67,8 +69,6 @@
     "lint:ts:fix": "./node_modules/.bin/tslint -p ./tsconfig.json --fix"
   },
   "dependencies": {
-    "@types/serve-static": "^1.13.2",
-    "@types/express-serve-static-core": "^4.16.7",
     "async": "^3.0.1",
     "cheerio": "^1.0.0-rc.2",
     "clean-css": "^4.1.11",
@@ -92,7 +92,7 @@
     "superstruct": "^0.6.1",
     "ts-loader": "^6.0.3",
     "ts-node": "^8.0.3",
-    "typescript": "^3.5.2",
+    "typescript": "^3.5.3",
     "uuid": "^3.2.1",
     "winston": "^3.2.1",
     "winston-graylog2": "^2.1.2"

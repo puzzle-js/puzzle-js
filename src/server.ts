@@ -5,7 +5,7 @@ import "reflect-metadata";
 import morgan from "morgan";
 import bodyParser from "body-parser";
 import * as Http from "http";
-import {NextFunction, Request, RequestHandlerParams, Response} from "express-serve-static-core";
+import {NextFunction, Request, Response} from "express";
 import {ServeStaticOptions} from "serve-static";
 import {EVENTS, HTTP_METHODS, TRANSFER_PROTOCOLS} from "./enums";
 import {Logger} from "./logger";
@@ -110,7 +110,7 @@ export class Server {
      * @param {(req: Request, res: Response, next: NextFunction) => any} handler
      * @param {RequestHandlerParams[]} middlewares
      */
-    addRoute(path: string | string[], method: HTTP_METHODS, handler: (req: Request, res: Response, next: NextFunction) => any, middlewares: RequestHandlerParams[] = []) {
+    addRoute(path: string | string[], method: HTTP_METHODS, handler: (req: Request, res: Response, next: NextFunction) => any, middlewares: any[] = []) {
         (this.app as any)[method](path, middlewares, handler);
     }
 
