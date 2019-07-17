@@ -1,10 +1,11 @@
-import { FragmentStorefront } from "./fragment";
+import {FragmentStorefront} from "./fragment";
 import {ICookieMap, IWrappingJsAsset} from "./types";
 import {EVENT, RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "./lib/enums";
 import {IPageFragmentConfig, IPageLibAsset, IPageLibConfiguration, IPageLibDependency} from "./lib/types";
 import ResourceFactory from "./resourceFactory";
 import {RESOURCE_INJECT_TYPE, RESOURCE_JS_EXECUTE_TYPE} from "./enums";
 import CleanCSS from "clean-css";
+import {nrSegment} from "./decorators";
 
 export default class ResourceInjector {
 
@@ -105,6 +106,7 @@ export default class ResourceInjector {
      * @param {IWrappingJsAsset} asset
      * @returns {string}
      */
+    @nrSegment("template.wrapJsAsset", true)
     static wrapJsAsset(asset: IWrappingJsAsset) {
         if (asset.injectType === RESOURCE_INJECT_TYPE.EXTERNAL && asset.link) {
             return `<script puzzle-dependency="${asset.name}" src="${asset.link}" type="text/javascript"${asset.executeType}> </script>`;

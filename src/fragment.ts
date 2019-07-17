@@ -21,6 +21,7 @@ import {HttpClient} from "./client";
 import {ERROR_CODES, PuzzleError} from "./errors";
 import express from "express";
 import {CookieVersionMatcher} from "./cookie-version-matcher";
+import {nrSegmentAsync} from "./decorators";
 
 
 const logger = container.get(TYPES.Logger) as Logger;
@@ -308,6 +309,7 @@ export class FragmentStorefront extends Fragment {
      * @param req
      * @returns {Promise<IFragmentContentResponse>}
      */
+    @nrSegmentAsync("fragment.getContent", true)
     async getContent(attribs: any = {}, req?: Request): Promise<IFragmentContentResponse> {
         logger.info(`Trying to get contents of fragment: ${this.name}`);
         if (!this.config) {

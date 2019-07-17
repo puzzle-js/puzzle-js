@@ -24,7 +24,7 @@ import ResourceInjector from "./resource-injector";
 import {isDebug} from "./util";
 import {TemplateClass} from "./templateClass";
 import {ERROR_CODES, PuzzleError} from "./errors";
-import {benchmark} from "./decorators";
+import {benchmark, nrSegment, nrSegmentAsync} from "./decorators";
 import {Logger} from "./logger";
 import {container, TYPES} from "./base";
 import fs from "fs";
@@ -252,7 +252,7 @@ export class Template {
    * @param isDebug
    * @returns {Promise<IWaitedResponseFirstFlush>}
    */
-  @benchmark(isDebug(), logger.info)
+  @nrSegmentAsync("template.replaceWaitedFragments", true)
   private async replaceWaitedFragments(waitedFragments: IReplaceSet[], template: string, req: any, isDebug: boolean): Promise<IWaitedResponseFirstFlush> {
     let statusCode = HTTP_STATUS_CODE.OK;
     let headers = {};
@@ -334,6 +334,7 @@ export class Template {
    * @param req
    * @param res
    */
+  @nrSegmentAsync("template.chunkedHandler", true)
   async chunkedHandler(firstFlushHandler: Function,
                        waitedFragments: IReplaceSet[],
                        chunkedFragmentReplacements: IReplaceSet[],
@@ -411,6 +412,7 @@ export class Template {
    * @param isDebug
    * @returns {(fragmentContent: IFragmentContentResponse) => void}
    */
+  @nrSegment("template.flush", true)
   private flush(chunkedReplacement: IReplaceSet, jsReplacements: IReplaceAsset[], res: CompressionStreamResponse, isDebug: boolean) {
     return (fragmentContent: IFragmentContentResponse) => {
 

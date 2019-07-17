@@ -264,7 +264,7 @@ export interface IStorefrontConfig {
 }
 
 export interface IResponseHandlers {
-    [versionsHash: string]: IFragmentEndpointHandler | Promise<IFragmentEndpointHandler>;
+    [versionsHash: string]: IFragmentEndpointHandler;
 }
 
 export interface IReplaceItem {

@@ -1,3 +1,5 @@
+import {nrSegment} from "./decorators";
+
 export class TemplateClass {
     onCreate: Function | undefined;
     onRequest: Function | undefined;
@@ -8,14 +10,17 @@ export class TemplateClass {
         this.onCreate && this.onCreate(...args);
     }
 
+    @nrSegment("templateClass._onRequest", true)
     _onRequest(...args: any[]) {
         this.onRequest && this.onRequest(...args);
     }
 
+    @nrSegment("templateClass._onChunk", true)
     _onChunk(...args: any[]) {
         this.onChunk && this.onChunk(...args);
     }
 
+    @nrSegment("templateClass._onResponseEnd", true)
     _onResponseEnd(...args: any[]) {
         this.onResponseEnd && this.onResponseEnd(...args);
     }

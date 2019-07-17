@@ -1,6 +1,6 @@
 import {performance} from 'perf_hooks';
 import {ERROR_CODES, PuzzleError} from "./errors";
-
+import {startSegment} from 'newrelic';
 
 
 export const sealed = (constructor: Function) => {
@@ -56,3 +56,29 @@ export const benchmark = (enabled: boolean, logger: (input: any) => void) => {
     };
 };
 
+
+export const nrSegment = (segmentName: string, record: boolean = true) => {
+    return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
+        const original = descriptor.value;
+        descriptor.value = function (...args: any[]) {
+            return startSegment(segmentName, record, () => {
+                return original.apply(this, args);
+            });
+        };
+
+        return descriptor;
+    };
+};
+
+export const nrSegmentAsync = (segmentName: string, record: boolean = true) => {
+    return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
+        const original = descriptor.value;
+        descriptor.value = async function (...args: any[]) {
+            return await startSegment(segmentName, record, async () => {
+                return await original.apply(this, args);
+            });
+        };
+
+        return descriptor;
+    };
+};
