@@ -174,6 +174,8 @@ export class Storefront {
             const targetPage = page.url.toString();
             logger.info(`Adding page ${page.name} route: ${targetPage}`);
             this.server.addRoute(page.url, HTTP_METHODS.GET, (req, res, next) => {
+
+                logger.info(`Request route name: ${page.name} - ${req.url} - ${JSON.stringify(req.headers)}`);
                 if (typeof page.condition === 'function' ? page.condition(req) : true) {
                     this.pages[targetPage].handle(req, res);
                 } else {

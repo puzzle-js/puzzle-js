@@ -11,7 +11,6 @@ import {
 } from "./types";
 import {DEBUG_INFORMATION, DEBUG_QUERY_NAME} from "./config";
 import express from "express";
-import {nrSegment, nrSegmentAsync} from "./decorators";
 
 export class Page {
   ready = false;
@@ -37,7 +36,6 @@ export class Page {
    * @param {object} res
    * @returns {Promise<void>}
    */
-  @nrSegmentAsync("page.handle", true)
   async handle(req: { cookies: ICookieObject, query: { [name: string]: string } }, res: object) {
     const isDebug = DEBUG_INFORMATION || (req.query && req.query.hasOwnProperty(DEBUG_QUERY_NAME));
     const handlerVersion = this.getHandlerVersion(req.cookies);
@@ -107,7 +105,6 @@ export class Page {
    * @param query
    * @param cookies
    */
-  @nrSegment("page.getHandlerVersion", true)
   private getHandlerVersion(cookies: ICookieMap, preCompile = false) {
     return Object.values(this.gatewayDependencies.fragments)
       .reduce((key, fragment) => {

@@ -5,7 +5,6 @@ import {IPageFragmentConfig, IPageLibAsset, IPageLibConfiguration, IPageLibDepen
 import ResourceFactory from "./resourceFactory";
 import {RESOURCE_INJECT_TYPE, RESOURCE_JS_EXECUTE_TYPE} from "./enums";
 import CleanCSS from "clean-css";
-import {nrSegment} from "./decorators";
 
 export default class ResourceInjector {
 
@@ -106,7 +105,6 @@ export default class ResourceInjector {
      * @param {IWrappingJsAsset} asset
      * @returns {string}
      */
-    @nrSegment("template.wrapJsAsset", true)
     static wrapJsAsset(asset: IWrappingJsAsset) {
         if (asset.injectType === RESOURCE_INJECT_TYPE.EXTERNAL && asset.link) {
             return `<script puzzle-dependency="${asset.name}" src="${asset.link}" type="text/javascript"${asset.executeType}> </script>`;
@@ -135,7 +133,7 @@ export default class ResourceInjector {
             for (const asset of cssAssets) {
                 const assetContent = await fragment.getAsset(asset.name, targetVersion);
                 if (assetContent) {
-                    cssData.styleSheets.push(assetContent);
+                    cssData.styleSheets.push(assetContent.toString());
                     cssData.dependencyNames.push(asset.name);
                 }
             }

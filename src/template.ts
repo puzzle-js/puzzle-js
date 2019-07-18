@@ -24,7 +24,7 @@ import ResourceInjector from "./resource-injector";
 import {isDebug} from "./util";
 import {TemplateClass} from "./templateClass";
 import {ERROR_CODES, PuzzleError} from "./errors";
-import {benchmark, nrSegment, nrSegmentAsync} from "./decorators";
+import {benchmark} from "./decorators";
 import {Logger} from "./logger";
 import {container, TYPES} from "./base";
 import fs from "fs";
@@ -252,7 +252,6 @@ export class Template {
    * @param isDebug
    * @returns {Promise<IWaitedResponseFirstFlush>}
    */
-  @nrSegmentAsync("template.replaceWaitedFragments", true)
   private async replaceWaitedFragments(waitedFragments: IReplaceSet[], template: string, req: any, isDebug: boolean): Promise<IWaitedResponseFirstFlush> {
     let statusCode = HTTP_STATUS_CODE.OK;
     let headers = {};
@@ -334,7 +333,6 @@ export class Template {
    * @param req
    * @param res
    */
-  @nrSegmentAsync("template.chunkedHandler", true)
   async chunkedHandler(firstFlushHandler: Function,
                        waitedFragments: IReplaceSet[],
                        chunkedFragmentReplacements: IReplaceSet[],
@@ -350,16 +348,16 @@ export class Template {
 
     //Fire requests in parallel
     const waitedReplacementPromise = this.replaceWaitedFragments(waitedFragments, fragmentedHtml, req, isDebug);
-    for (const chunkedReplacement of chunkedFragmentReplacements) {
-      waitedPromises.push(chunkedReplacement.fragment.getContent(TemplateCompiler.processExpression(chunkedReplacement.fragmentAttributes, this.pageClass, req), req));
+
+    for(let i = 0, len = chunkedFragmentReplacements.length; i < len; i++){
+      waitedPromises.push(chunkedFragmentReplacements[i].fragment.getContent(TemplateCompiler.processExpression(chunkedFragmentReplacements[i].fragmentAttributes, this.pageClass, req), req));
     }
 
     //Wait for first flush
     const waitedReplacement = await waitedReplacementPromise;
 
-    for (const prop in waitedReplacement.headers) {
-      res.set(prop, waitedReplacement.headers[prop]);
-    }
+    res.set(waitedReplacement.headers);
+
     for (const prop in waitedReplacement.cookies) {
       res.cookie(prop, waitedReplacement.cookies[prop].value, waitedReplacement.cookies[prop].options);
     }
@@ -373,9 +371,9 @@ export class Template {
       res.flush();
 
       //Bind flush method to resolved or being resolved promises of chunked replacements
-      Object.values(chunkedFragmentReplacements).forEach((chunkedReplacement, x) => {
-        waitedPromises[x].then(this.flush(chunkedReplacement, jsReplacements, res, isDebug));
-      });
+      for(let i = 0, len = chunkedFragmentReplacements.length; i < len; i++){
+        waitedPromises[i].then(this.flush(chunkedFragmentReplacements[i], jsReplacements, res, isDebug));
+      }
 
       //Close stream after all chunked fragments done
       await Promise.all(waitedPromises);
@@ -412,7 +410,6 @@ export class Template {
    * @param isDebug
    * @returns {(fragmentContent: IFragmentContentResponse) => void}
    */
-  @nrSegment("template.flush", true)
   private flush(chunkedReplacement: IReplaceSet, jsReplacements: IReplaceAsset[], res: CompressionStreamResponse, isDebug: boolean) {
     return (fragmentContent: IFragmentContentResponse) => {
 
