@@ -10,10 +10,11 @@ import {ServeStaticOptions} from "serve-static";
 import {EVENTS, HTTP_METHODS, TRANSFER_PROTOCOLS} from "./enums";
 import {Logger} from "./logger";
 import {pubsub} from "./util";
-import compression from "shrink-ray-current";
+import shrinkRay from "shrink-ray-current";
+import compression from "compression";
 import {injectable} from "inversify";
 import responseTime from "response-time";
-import {GLOBAL_REQUEST_TIMEOUT, NO_COMPRESS_QUERY_NAME, USE_HELMET, USE_MORGAN} from "./config";
+import {BROTLI, GLOBAL_REQUEST_TIMEOUT, NO_COMPRESS_QUERY_NAME, USE_HELMET, USE_MORGAN} from "./config";
 import {ICustomHeader, INodeSpdyConfiguration, ISpdyConfiguration} from "./types";
 import * as spdy from "spdy";
 import http from "http";
@@ -31,6 +32,12 @@ const morganLoggingLevels = [
     'x-agentname: :req[x-agentname]',
     'referer: :req[referer]',
 ];
+
+const compressionFilter = {
+    filter(req: any) {
+        return !req.query[NO_COMPRESS_QUERY_NAME];
+    }
+};
 
 @injectable()
 export class Server {
@@ -190,10 +197,8 @@ export class Server {
         this.app.use(bodyParser.urlencoded({extended: true}));
         this.app.use(bodyParser.json());
         this.app.use(cookieParser());
-        this.app.use(compression({
-            filter(req: any) {
-                return !req.query[NO_COMPRESS_QUERY_NAME];
-            }
-        }));
+
+        const compressionMethod = BROTLI ? shrinkRay : compression;
+        this.app.use(compressionMethod(compressionFilter));
     }
 }

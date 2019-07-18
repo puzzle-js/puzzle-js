@@ -38,6 +38,7 @@ export const KEEP_ALIVE_MSECS = +loadConfigurationFromEnv('KEEP_ALIVE_MSECS') ||
 
 export const USE_HELMET = loadConfigurationFromEnv('USE_HELMET') || false;
 export const USE_MORGAN = loadConfigurationFromEnv('USE_MORGAN') || false;
+export const BROTLI = loadConfigurationFromEnv('BROTLI') || false;
 
 export const TEMP_FOLDER = path.join(process.cwd(), '/~temp');
 
