@@ -1,4 +1,4 @@
-import { FragmentStorefront } from "./fragment";
+import {FragmentStorefront} from "./fragment";
 import {ICookieMap, IWrappingJsAsset} from "./types";
 import {EVENT, RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "./lib/enums";
 import {IPageFragmentConfig, IPageLibAsset, IPageLibConfiguration, IPageLibDependency} from "./lib/types";
@@ -133,7 +133,7 @@ export default class ResourceInjector {
             for (const asset of cssAssets) {
                 const assetContent = await fragment.getAsset(asset.name, targetVersion);
                 if (assetContent) {
-                    cssData.styleSheets.push(assetContent);
+                    cssData.styleSheets.push(assetContent.toString());
                     cssData.dependencyNames.push(asset.name);
                 }
             }

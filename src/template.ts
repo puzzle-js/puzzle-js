@@ -252,7 +252,6 @@ export class Template {
    * @param isDebug
    * @returns {Promise<IWaitedResponseFirstFlush>}
    */
-  @benchmark(isDebug(), logger.info)
   private async replaceWaitedFragments(waitedFragments: IReplaceSet[], template: string, req: any, isDebug: boolean): Promise<IWaitedResponseFirstFlush> {
     let statusCode = HTTP_STATUS_CODE.OK;
     let headers = {};
@@ -349,16 +348,16 @@ export class Template {
 
     //Fire requests in parallel
     const waitedReplacementPromise = this.replaceWaitedFragments(waitedFragments, fragmentedHtml, req, isDebug);
-    for (const chunkedReplacement of chunkedFragmentReplacements) {
-      waitedPromises.push(chunkedReplacement.fragment.getContent(TemplateCompiler.processExpression(chunkedReplacement.fragmentAttributes, this.pageClass, req), req));
+
+    for(let i = 0, len = chunkedFragmentReplacements.length; i < len; i++){
+      waitedPromises.push(chunkedFragmentReplacements[i].fragment.getContent(TemplateCompiler.processExpression(chunkedFragmentReplacements[i].fragmentAttributes, this.pageClass, req), req));
     }
 
     //Wait for first flush
     const waitedReplacement = await waitedReplacementPromise;
 
-    for (const prop in waitedReplacement.headers) {
-      res.set(prop, waitedReplacement.headers[prop]);
-    }
+    res.set(waitedReplacement.headers);
+
     for (const prop in waitedReplacement.cookies) {
       res.cookie(prop, waitedReplacement.cookies[prop].value, waitedReplacement.cookies[prop].options);
     }
@@ -372,9 +371,9 @@ export class Template {
       res.flush();
 
       //Bind flush method to resolved or being resolved promises of chunked replacements
-      Object.values(chunkedFragmentReplacements).forEach((chunkedReplacement, x) => {
-        waitedPromises[x].then(this.flush(chunkedReplacement, jsReplacements, res, isDebug));
-      });
+      for(let i = 0, len = chunkedFragmentReplacements.length; i < len; i++){
+        waitedPromises[i].then(this.flush(chunkedFragmentReplacements[i], jsReplacements, res, isDebug));
+      }
 
       //Close stream after all chunked fragments done
       await Promise.all(waitedPromises);

@@ -7,9 +7,9 @@ export default class FragmentHelper {
         const assetSize = faker.random.number({min : 1, max: 5});
         const dependenciesSize = faker.random.number({min : 1, max: 5});
         return {
-            name: faker.lorem.word(),
+            name: faker.lorem.word().split(' ')[0],
             shouldWait: faker.random.boolean(),
-            testCookie: faker.random.word(),
+            testCookie: faker.random.word().split(' ')[0],
             config: {
                 version: "1.0.0",
                 assets: FragmentHelper.createAssets(assetSize),
@@ -36,7 +36,7 @@ export default class FragmentHelper {
     private static createAssets(size): any {
         const assets = Array(size).fill(0).map( () => {
             return {
-                name: faker.lorem.word(),
+                name: faker.lorem.word().split(' ')[0],
                 type: faker.random.arrayElement([RESOURCE_TYPE.JS, RESOURCE_TYPE.CSS]),
                 link: faker.internet.url(),
                 dependent: [],

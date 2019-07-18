@@ -5,8 +5,15 @@ import * as path from "path";
 import {GatewayStorefrontInstance} from "../src/gatewayStorefront";
 import {createGateway} from "./mock/mock";
 import {EVENTS} from "../src/enums";
+import sinon from "sinon";
+
+const sandbox = sinon.createSandbox();
 
 describe('Page', () => {
+    afterEach(() => {
+        sandbox.verifyAndRestore();
+    });
+
     it('should create new page instance', () => {
         const template = fs.readFileSync(path.join(__dirname, './templates/noFragments.html'), 'utf8');
         const newPage = new Page(template, {}, '');
@@ -332,5 +339,51 @@ describe('Page', () => {
             expect(newPage.responseHandlers).to.haveOwnProperty('_header|1.0.0_content|0_footer|0_false');
             done();
         });
+    });
+
+    it('should create new handler on new version', async () => {
+        // Arrange
+        const template = fs.readFileSync(path.join(__dirname, './templates/fragmented1.html'), 'utf8');
+        const newPage = new Page(template, {}, '');
+        const response = {};
+        const request = {
+            cookies: {},
+            query: {}
+        };
+        const stub = sandbox.stub(newPage.template, 'compile').resolves(() => {});
+
+        // Act
+        await newPage.handle(request, response);
+
+        // Assert
+        expect(stub.calledWithExactly(request.cookies, false));
+        expect(newPage.responseHandlers['_header|0_content|0_footer|0_true']).to.be.a('function');
+    });
+
+    it('should create new handler on new version while other wait for compile process', async () => {
+        // Arrange
+        const template = fs.readFileSync(path.join(__dirname, './templates/fragmented1.html'), 'utf8');
+        const newPage = new Page(template, {}, '');
+        const response = {};
+        const request = {
+            cookies: {},
+            query: {}
+        };
+        const stub = sandbox.stub(newPage.template, 'compile').resolves(() => {});
+
+        // Act
+        await Promise.all([
+            (async () => {
+              await newPage.handle(request, response);
+            })(),
+            (async () => {
+                await newPage.handle(request, response);
+            })()
+        ]);
+
+        // Assert
+        expect(stub.calledWithExactly(request.cookies, sinon.match.bool)).to.eq(true);
+        expect(stub.calledOnce).to.eq(true);
+        expect(newPage.responseHandlers['_header|0_content|0_footer|0_true']).to.be.a('function');
     });
 });

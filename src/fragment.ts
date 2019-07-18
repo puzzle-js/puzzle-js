@@ -308,6 +308,7 @@ export class FragmentStorefront extends Fragment {
      * @param req
      * @returns {Promise<IFragmentContentResponse>}
      */
+    // @nrSegmentAsync("fragment.getContent", true)
     async getContent(attribs: any = {}, req?: Request): Promise<IFragmentContentResponse> {
         logger.info(`Trying to get contents of fragment: ${this.name}`);
         if (!this.config) {

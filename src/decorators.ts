@@ -1,8 +1,6 @@
 import {performance} from 'perf_hooks';
 import {ERROR_CODES, PuzzleError} from "./errors";
 
-
-
 export const sealed = (constructor: Function) => {
     Object.seal(constructor);
     Object.seal(constructor.prototype);
@@ -55,4 +53,3 @@ export const benchmark = (enabled: boolean, logger: (input: any) => void) => {
         return newDescriptor;
     };
 };
-

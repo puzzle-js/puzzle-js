@@ -10,7 +10,7 @@ import {ServeStaticOptions} from "serve-static";
 import {EVENTS, HTTP_METHODS, TRANSFER_PROTOCOLS} from "./enums";
 import {Logger} from "./logger";
 import {pubsub} from "./util";
-import compression from "compression";
+import compression from "shrink-ray-current";
 import {injectable} from "inversify";
 import responseTime from "response-time";
 import {GLOBAL_REQUEST_TIMEOUT, NO_COMPRESS_QUERY_NAME, USE_HELMET, USE_MORGAN} from "./config";
@@ -144,7 +144,7 @@ export class Server {
             }
         }
         if (this.server) {
-            this.server.setTimeout(GLOBAL_REQUEST_TIMEOUT);
+            this.server.timeout = GLOBAL_REQUEST_TIMEOUT;
         }
     }
 
