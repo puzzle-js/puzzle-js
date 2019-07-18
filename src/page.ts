@@ -16,8 +16,8 @@ export class Page {
   ready = false;
   gatewayDependencies: IPageDependentGateways;
   responseHandlers: IResponseHandlers = {};
+  template: Template;
   private waitingCompilers: { [key: string]: Promise<IFragmentEndpointHandler> } = {};
-  private template: Template;
   private rawHtml: string;
   private prgEnabled = false;
 
@@ -47,7 +47,7 @@ export class Page {
         await waitedCompileProcess;
       } else {
         this.waitingCompilers[compileVersion] = this.template.compile(req.cookies, isDebug);
-        this.waitingCompilers[compileVersion]
+        await this.waitingCompilers[compileVersion]
           .then(handler => {
             this.responseHandlers[compileVersion] = handler;
           });
