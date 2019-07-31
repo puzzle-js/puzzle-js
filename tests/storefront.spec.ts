@@ -39,6 +39,7 @@ describe('Storefront', () => {
 
     it('should create new page instance when registering a new storefront', () => {
         const pageConfiguration = {
+            name: 'page',
             html: fs.readFileSync(path.join(__dirname, './templates/noFragmentsWithClass.html'), 'utf8'),
             url: '/'
         };
@@ -53,7 +54,7 @@ describe('Storefront', () => {
         } as any);
 
 
-        expect(storefrontInstance.pages[pageConfiguration.url]).to.be.instanceOf(Page);
+        expect(storefrontInstance.pages.get(pageConfiguration.name)).to.be.instanceOf(Page);
     });
 
     it('should create new gateway instances when registering a new storefront', () => {
