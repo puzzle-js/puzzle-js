@@ -36,7 +36,7 @@
     "@types/sinon": "^7.0.13",
     "@types/spdy": "^3.4.4",
     "@types/supertest": "^2.0.4",
-    "@types/uuid": "^3.4.3",
+    "@types/uuid": "^3.4.5",
     "chai": "^4.1.2",
     "cross-env": "^5.1.6",
     "faker": "^4.1.0",
