@@ -21,7 +21,7 @@ const logger = container.get(TYPES.Logger) as Logger;
 export class Storefront {
     server: Server;
     config: IStorefrontConfig;
-    pages: IPageMap = {};
+    pages: Map<string, Page> = new Map();
     gateways: IGatewayMap = {};
     private gatewaysReady = 0;
 
@@ -125,7 +125,7 @@ export class Storefront {
         });
 
         this.config.pages.forEach(pageConfiguration => {
-            this.pages[pageConfiguration.url.toString()] = new Page(pageConfiguration.html, this.gateways, pageConfiguration.name);
+            this.pages.set(pageConfiguration.name,  new Page(pageConfiguration.html, this.gateways, pageConfiguration.name));
         });
     }
 
@@ -170,21 +170,22 @@ export class Storefront {
      * @param {Function} cb
      */
     private addPageRoute(cb: Function) {
-        this.config.pages.forEach(page => {
-            const targetPage = page.url.toString();
-            logger.info(`Adding page ${page.name} route: ${targetPage}`);
-            this.server.addRoute(page.url, HTTP_METHODS.GET, (req, res, next) => {
-
-                logger.info(`Request route name: ${page.name} - ${req.url} - ${JSON.stringify(req.headers)}`);
-                if (typeof page.condition === 'function' ? page.condition(req) : true) {
-                    this.pages[targetPage].handle(req, res);
-                } else {
-                    next();
-                }
-            });
-            this.server.addRoute(page.url, HTTP_METHODS.POST, (req, res, next) => {
-                this.pages[targetPage].post(req, res, next);
-            });
+        this.config.pages.forEach(pageConfiguration => {
+            const page = this.pages.get(pageConfiguration.name);
+            if(page){
+                logger.info(`Adding page ${pageConfiguration.name} route: ${pageConfiguration.url}`);
+                this.server.addRoute(pageConfiguration.url, HTTP_METHODS.GET, (req, res, next) => {
+                    logger.info(`Request route name: ${page.name} - ${req.url} - ${JSON.stringify(req.headers)}`);
+                    if (typeof pageConfiguration.condition === 'function' ? pageConfiguration.condition(req) : true) {
+                        page.handle(req, res);
+                    } else {
+                        next();
+                    }
+                });
+                this.server.addRoute(pageConfiguration.url, HTTP_METHODS.POST, (req, res, next) => {
+                    page.post(req, res, next);
+                });
+            }
         });
 
         cb();
