@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+# [3.32.7] - 01-8-2019
+### Fixed
+- CheerioStatic type is changed to any
+
 # [3.32.1] - 12-7-2019
 ### Fixed
 - Injecting same resources multiple times problem fixed
@@ -17,7 +21,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 - Import typo fixed and unused variable removed
 - Ignored files removed
- 
+
 # [3.31.1] - 19-6-2019
 ### Fixed
 - Versioning problem fixed when injecting assets and dependencies
@@ -49,7 +53,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 # [3.27.6] - 22-5-2019
 ### Fixed
-- Fixed version matcher bug for inline CSS assets 
+- Fixed version matcher bug for inline CSS assets
 
 # [3.27.3] - 13-5-2019
 ### Fixed

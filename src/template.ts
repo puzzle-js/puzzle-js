@@ -39,7 +39,7 @@ interface CompressionStreamResponse extends express.Response {
 }
 
 export class Template {
-  dom: CheerioStatic;
+  dom: any;
   fragments: { [name: string]: FragmentStorefront } = {};
   pageClass: TemplateClass = new TemplateClass();
 
