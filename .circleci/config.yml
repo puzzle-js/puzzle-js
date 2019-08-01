@@ -18,18 +18,18 @@ jobs:
       - restore_cache:
           keys:
             - dependencies-{{ checksum "package.json" }}
-      - run: yarn install
+      - run: npm install
       - save_cache:
           paths:
             - node_modules
           key: dependencies-{{ checksum "package.json" }}
-      - run: yarn test:ci
+      - run: npm run test:ci
       - store_artifacts:
           path: coverage
       - codecov/upload:
           file: coverage/*.json
           token: $CODECOV_TOKEN
-      - run: yarn build
+      - run: npm run build
       - persist_to_workspace:
           root: .
           paths:
@@ -37,6 +37,7 @@ jobs:
             - CHANGELOG.md
             - LICENSE
             - package.json
+            - package-lock.json
             - yarn.lock
             - .npmignore
             - dist
