@@ -13,7 +13,7 @@
   "devDependencies": {
     "@types/async": "^2.0.49",
     "@types/chai": "^4.1.2",
-    "@types/cheerio": "^0.22.7",
+    "@types/cheerio": "^0.22.13",
     "@types/clean-css": "^3.4.30",
     "@types/compression": "^0.0.36",
     "@types/connect-timeout": "^0.0.34",
