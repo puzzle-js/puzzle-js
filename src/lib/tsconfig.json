@@ -1,8 +1,0 @@
-{
-  "compilerOptions": {
-    "sourceMap": true,
-    "target": "es5",
-    "experimentalDecorators": true,
-    "lib": [ "es6", "dom" ]
-  }
-}

@@ -1,7 +1,7 @@
 import {FragmentStorefront} from "./fragment";
 import {ICookieMap, IWrappingJsAsset} from "./types";
-import {EVENT, RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "./lib/enums";
-import {IPageFragmentConfig, IPageLibAsset, IPageLibConfiguration, IPageLibDependency} from "./lib/types";
+import {EVENT, RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "@puzzle-js/client-lib/src/enums";
+import {IPageFragmentConfig, IPageLibAsset, IPageLibConfiguration, IPageLibDependency} from "@puzzle-js/client-lib/src/types";
 import ResourceFactory from "./resourceFactory";
 import {RESOURCE_INJECT_TYPE, RESOURCE_JS_EXECUTE_TYPE} from "./enums";
 import CleanCSS from "clean-css";

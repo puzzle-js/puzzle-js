@@ -69,6 +69,7 @@
     "lint:ts:fix": "./node_modules/.bin/tslint -p ./tsconfig.json --fix"
   },
   "dependencies": {
+    "@puzzle-js/client-lib": "^1.0.3",
     "async": "^3.0.1",
     "cheerio": "^1.0.0-rc.2",
     "clean-css": "^4.1.11",
@@ -82,7 +83,6 @@
     "inversify": "^5.0.1",
     "md5": "^2.2.1",
     "morgan": "^1.9.1",
-    "newrelic": "^5.10.0",
     "node-fetch": "^2.5.0",
     "puzzle-warden": "^1.7.2",
     "reflect-metadata": "^0.1.12",

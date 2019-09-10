@@ -29,7 +29,7 @@ import {Logger} from "./logger";
 import {container, TYPES} from "./base";
 import fs from "fs";
 import path from "path";
-import {EVENT} from "./lib/enums";
+import {EVENT} from "@puzzle-js/client-lib/src/enums";
 import express from "express";
 
 const logger = container.get(TYPES.Logger) as Logger;
@@ -165,7 +165,7 @@ export class Template {
     /**
      * todo Bu kafa olmaz runtimeda debug not debug degismez, handler ici runtime guzel olur.
      */
-    const puzzleLib = fs.readFileSync(path.join(__dirname, `/lib/${isDebug ? 'puzzle_debug.min.js' : 'puzzle.min.js'}`)).toString();
+    const puzzleLib = fs.readFileSync(path.join(require.resolve('@puzzle-js/client-lib'), `/public/${isDebug ? 'puzzle_debug.min.js' : 'puzzle.min.js'}`)).toString();
     const clearLibOutput = Template.replaceCustomScripts(this.dom.html().replace('{puzzleLibContent}', puzzleLib), false);
 
     logger.info(`[Compiling Page ${this.name}]`, 'Sending virtual dom to compiler');
