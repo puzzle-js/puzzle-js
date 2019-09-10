@@ -40,8 +40,6 @@
     "chai": "^4.1.2",
     "cross-env": "^5.1.6",
     "faker": "^4.1.0",
-    "gulp": "^4.0.2",
-    "gulp-replace": "^1.0.0",
     "jest": "23.6.0",
     "jsdom": "^15.0.0",
     "nock": "^10.0.6",
@@ -59,7 +57,7 @@
     "email": "ahmetcanguven44@gmail.com"
   },
   "scripts": {
-    "build": "TS_NODE_FILES=true node_modules/.bin/tsc && gulp build && node_modules/.bin/webpack --config ./src/lib/webpack.config.js && gulp prepareLib",
+    "build": "TS_NODE_FILES=true node_modules/.bin/tsc && node_modules/.bin/webpack --config ./src/lib/webpack.config.js",
     "test": "NODE_TLS_REJECT_UNAUTHORIZED=0 jest --coverage --silent",
     "test:ci": "NODE_TLS_REJECT_UNAUTHORIZED=0 jest --coverage --silent --runInBand",
     "test:watch": "NODE_TLS_REJECT_UNAUTHORIZED=0 jest --coverage --watch --silent",

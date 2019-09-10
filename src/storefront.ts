@@ -93,7 +93,7 @@ export class Storefront {
      */
     private async registerDebugScripts(cb: Function) {
         this.server.addRoute(PUZZLE_DEBUGGER_LINK, HTTP_METHODS.GET, (req, res) => {
-            res.sendFile(path.join(__dirname, './public/puzzle_debug.js'));
+            res.sendFile(path.join(require.resolve('@puzzle-js/client-lib'), `puzzle_debug.min.js`));
         });
 
         cb(null);
