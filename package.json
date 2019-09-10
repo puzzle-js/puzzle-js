@@ -1,6 +1,6 @@
 {
   "name": "@puzzle-js/core",
-  "version": "1.0.0",
+  "version": "1.0.0-nr.1",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "logo": "https://image.ibb.co/jM29on/puzzlelogo.png",
@@ -86,6 +86,7 @@
     "node-fetch": "^2.5.0",
     "puzzle-warden": "^1.7.2",
     "reflect-metadata": "^0.1.12",
+    "newrelic": "^5.10.0",
     "request": "^2.88.0",
     "response-time": "^2.3.2",
     "route-cache": "^0.4.4",
