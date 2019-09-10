@@ -2,7 +2,7 @@ import faker from "faker";
 import cheerio from "cheerio"; // can mock it
 import sinon from "sinon";
 import ResourceInjector from "../src/resource-injector";
-import {EVENT, RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "../src/lib/enums";
+import {EVENT, RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "@puzzle-js/client-lib/src/enums";
 import FragmentHelper from "./helpers/fragment";
 import CleanCSS from "clean-css";
 import ResourceFactory from "../src/resourceFactory";

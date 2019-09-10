@@ -2,7 +2,7 @@ import {GatewayStorefrontInstance} from "./gatewayStorefront";
 import {Page} from "./page";
 import async from "async";
 import {EVENTS, HEALTHCHECK_PATHS, HTTP_METHODS, HTTP_STATUS_CODE} from "./enums";
-import {wait} from "./util";
+import {LIB_CONTENT_DEBUG, wait} from "./util";
 import {Logger} from "./logger";
 import {callableOnce, sealed} from "./decorators";
 import {container, TYPES} from "./base";
@@ -93,7 +93,8 @@ export class Storefront {
      */
     private async registerDebugScripts(cb: Function) {
         this.server.addRoute(PUZZLE_DEBUGGER_LINK, HTTP_METHODS.GET, (req, res) => {
-            res.sendFile(path.join(require.resolve('@puzzle-js/client-lib'), `puzzle_debug.min.js`));
+            res.set('Content-Type', 'application/javascript');
+            res.send(LIB_CONTENT_DEBUG);
         });
 
         cb(null);

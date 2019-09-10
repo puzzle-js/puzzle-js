@@ -34,11 +34,10 @@ import {Logger} from "./logger";
 import cors from "cors";
 import routeCache from "route-cache";
 import {RESOURCE_TYPE} from "@puzzle-js/client-lib/src/enums";
-import fs from "fs";
 import ResourceInjector from "./resource-injector";
+import {LIB_CONTENT} from "./util";
 
 const logger = container.get(TYPES.Logger) as Logger;
-
 
 @sealed
 export class GatewayBFF {
@@ -218,7 +217,7 @@ export class GatewayBFF {
         const fragmentVersion = fragment.config.versions[version];
 
         dom('head').prepend(ResourceInjector.wrapJsAsset({
-            content: fs.readFileSync(path.join(__dirname, `/lib/puzzle.min.js`)).toString(),
+            content: LIB_CONTENT,
             injectType: RESOURCE_INJECT_TYPE.INLINE,
             name: 'puzzle-lib',
             link: '',

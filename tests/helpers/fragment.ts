@@ -1,5 +1,5 @@
 import faker from "faker";
-import {RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "../../src/lib/enums";
+import {RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "@puzzle-js/client-lib/src/enums";
 
 export default class FragmentHelper {
 

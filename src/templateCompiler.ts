@@ -1,4 +1,6 @@
 import {ERROR_CODES, PuzzleError} from "./errors";
+import fs from "fs";
+import path from "path";
 
 export class TemplateCompiler {
     static TEMPLATE_REGEX: RegExp = /(\${.*?}?})/;
@@ -61,6 +63,7 @@ export class TemplateCompiler {
         try {
             return new Function('req', `${generatedFn}return out;`);
         } catch (e) {
+            fs.writeFileSync(path.join(__dirname, './testedScript.js'), generatedFn);
             throw new PuzzleError(ERROR_CODES.FAILED_TO_COMPILE_TEMPLATE, `${generatedFn}return out;`);
         }
     }

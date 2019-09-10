@@ -2,7 +2,7 @@ import {expect} from "chai";
 import {Template} from "../src/template";
 import {FRAGMENT_RENDER_MODES, RESOURCE_INJECT_TYPE, RESOURCE_LOCATION} from "../src/enums";
 import {createExpressMock} from "./mock/mock";
-import {EVENT, RESOURCE_TYPE} from "../src/lib/enums";
+import {EVENT, RESOURCE_TYPE} from "@puzzle-js/client-lib/src/enums";
 import nock = require("nock");
 
 describe('Template', () => {
@@ -564,7 +564,7 @@ describe('Template', () => {
                     expect(str).to.eq(null);
                 },
                 end(str: string) {
-                    expect(str).to.include('puzzleDebug');
+                    expect(str).to.include('Puzzle');
                     done();
                 },
                 status: () => ''

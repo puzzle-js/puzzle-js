@@ -21,14 +21,12 @@ import {
 } from "./types";
 import {HTTP_STATUS_CODE, REPLACE_ITEM_TYPE, RESOURCE_LOCATION} from "./enums";
 import ResourceInjector from "./resource-injector";
-import {isDebug} from "./util";
+import {isDebug, LIB_CONTENT, LIB_CONTENT_DEBUG} from "./util";
 import {TemplateClass} from "./templateClass";
 import {ERROR_CODES, PuzzleError} from "./errors";
 import {benchmark} from "./decorators";
 import {Logger} from "./logger";
 import {container, TYPES} from "./base";
-import fs from "fs";
-import path from "path";
 import {EVENT} from "@puzzle-js/client-lib/src/enums";
 import express from "express";
 
@@ -165,7 +163,7 @@ export class Template {
     /**
      * todo Bu kafa olmaz runtimeda debug not debug degismez, handler ici runtime guzel olur.
      */
-    const puzzleLib = fs.readFileSync(path.join(require.resolve('@puzzle-js/client-lib'), `/public/${isDebug ? 'puzzle_debug.min.js' : 'puzzle.min.js'}`)).toString();
+    const puzzleLib = isDebug ? LIB_CONTENT_DEBUG : LIB_CONTENT;
     const clearLibOutput = Template.replaceCustomScripts(this.dom.html().replace('{puzzleLibContent}', puzzleLib), false);
 
     logger.info(`[Compiling Page ${this.name}]`, 'Sending virtual dom to compiler');
@@ -349,7 +347,7 @@ export class Template {
     //Fire requests in parallel
     const waitedReplacementPromise = this.replaceWaitedFragments(waitedFragments, fragmentedHtml, req, isDebug);
 
-    for(let i = 0, len = chunkedFragmentReplacements.length; i < len; i++){
+    for (let i = 0, len = chunkedFragmentReplacements.length; i < len; i++) {
       waitedPromises.push(chunkedFragmentReplacements[i].fragment.getContent(TemplateCompiler.processExpression(chunkedFragmentReplacements[i].fragmentAttributes, this.pageClass, req), req));
     }
 
@@ -371,7 +369,7 @@ export class Template {
       res.flush();
 
       //Bind flush method to resolved or being resolved promises of chunked replacements
-      for(let i = 0, len = chunkedFragmentReplacements.length; i < len; i++){
+      for (let i = 0, len = chunkedFragmentReplacements.length; i < len; i++) {
         waitedPromises[i].then(this.flush(chunkedFragmentReplacements[i], jsReplacements, res, isDebug));
       }
 

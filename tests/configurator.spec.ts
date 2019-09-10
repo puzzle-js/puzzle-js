@@ -3,7 +3,7 @@ import {Configurator, GatewayConfigurator, StorefrontConfigurator} from "../src/
 import {IGatewayBFFConfiguration, IStorefrontConfig} from "../src/types";
 import {HTTP_METHODS, INJECTABLE, RESOURCE_INJECT_TYPE, RESOURCE_LOCATION} from "../src/enums";
 import * as faker from "faker";
-import {RESOURCE_TYPE} from "../src/lib/enums";
+import {RESOURCE_TYPE} from "@puzzle-js/client-lib/src/enums";
 
 describe('Configurator', () => {
   it('should create new configurator instance', () => {

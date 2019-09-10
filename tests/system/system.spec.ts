@@ -1,13 +1,13 @@
-import { expect } from "chai";
-import { Storefront } from "../../src/storefront";
+import {expect} from "chai";
+import {Storefront} from "../../src/storefront";
 import request from "supertest";
-import { GatewayBFF } from "../../src/gatewayBFF";
+import {GatewayBFF} from "../../src/gatewayBFF";
 import path from "path";
-import { GatewayConfigurator } from "../../src/configurator";
+import {GatewayConfigurator} from "../../src/configurator";
 import faker from "faker";
-import { CONTENT_REPLACE_SCRIPT, INJECTABLE, PUZZLE_LIB_SCRIPT, TRANSFER_PROTOCOLS } from "../../src/enums";
-import { TLS_CERT, TLS_KEY, TLS_PASS } from "../core.settings";
-import { EVENT } from "../../src/lib/enums";
+import {INJECTABLE, TRANSFER_PROTOCOLS} from "../../src/enums";
+import {TLS_CERT, TLS_KEY, TLS_PASS} from "../core.settings";
+import {EVENT} from "@puzzle-js/client-lib/src/enums";
 
 describe('System Tests', function () {
   const closeInstance = (instance: any) => {
@@ -389,7 +389,7 @@ describe('System Tests', function () {
 
   /** todo add model test
    * @deprecated
-  it('should render single fragment with model', function (done) {
+   it('should render single fragment with model', function (done) {
     const gatewayConfigurator = new GatewayConfigurator();
     const customModel = faker.helpers.createTransaction();
     const gatewayRender = faker.random.words();
@@ -479,7 +479,7 @@ describe('System Tests', function () {
   });
 
 
-  it('should render multiple fragments with model', function (done) {
+   it('should render multiple fragments with model', function (done) {
     const gatewayConfigurator = new GatewayConfigurator();
     const customModel = faker.helpers.createTransaction();
     const customModel2 = faker.helpers.createTransaction();

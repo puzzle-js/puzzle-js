@@ -13,7 +13,7 @@ import {
 import * as path from "path";
 import faker from "faker";
 import {TLS_CERT, TLS_KEY, TLS_PASS} from "../core.settings";
-import {EVENT} from "../../src/lib/enums";
+import {EVENT} from "@puzzle-js/client-lib/src/enums";
 
 const commonGatewayConfiguration: IGatewayBFFConfiguration = {
     api: [],
