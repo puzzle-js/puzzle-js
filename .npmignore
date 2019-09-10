@@ -1,2 +1,10 @@
-/src
-/node_modules
+src
+node_modules
+tests
+docs
+coverage
+~temp
+types
+jest.config.js
+tsconfig.json
+tslint.json
