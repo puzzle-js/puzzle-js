@@ -572,6 +572,7 @@ describe('Template', () => {
         });
     });
 
+
     describe('Output', () => {
         describe('Without Chunks', () => {
             it('should respond in single chunk when there is no fragments', (done) => {
