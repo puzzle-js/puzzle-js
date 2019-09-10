@@ -64,7 +64,7 @@ module.exports = {
 ### 1.4 Create gateway configuration file.
 */index.js*
 ```js
-const PuzzleJs = require('puzzle-microfrontends');
+const PuzzleJs = require('@puzzle-js/core');
 const path = require('path');
 
 const gateway = new PuzzleJs.Gateway({
@@ -174,7 +174,7 @@ Your fragment will be available for preview at [http://localhost:4444/my-product
 */index.js*
 
 ```js
-const PuzzleJs = require('puzzle-microfrontends');
+const PuzzleJs = require('@puzzle-js/core');
 const path = require('path');
 const fs = require('fs');
 

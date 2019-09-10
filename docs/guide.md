@@ -136,17 +136,17 @@ Only gateway can decide if a fragment should be static or not.
 To install PuzzleJs with Yarn or Npm, simply:
 
 ```bash
-yarn add puzzle-microfrontends
+yarn add @puzzle-js/core
 ```
 
 ```bash
-npm install --save puzzle-microfrontends
+npm install @puzzle-js/core
 ```
 
 Then you can start using it
 
 ```js
-const PuzzleJs = require('puzzle-microfrontends');
+const PuzzleJs = require('@puzzle-js/core');
 ```
 
 ## Storefront
@@ -154,7 +154,7 @@ An example of starting storefront with simple configuration.
 
 ### Creating Storefront
 ```js
-const Storefront = require('puzzle-microfrontends');
+const Storefront = require('@puzzle-js/core');
 const storefront = new Storefront({
   port: 4444,
   gateways: [{
@@ -346,19 +346,19 @@ Configurator is used for creating configuration for PuzzleJs with dependency inj
 
 To create a storefront configurator:
 ```js
-const { StorefrontConfigurator } = require('puzzle-microfrontends');
+const { StorefrontConfigurator } = require('@puzzle-js/core');
 const configurator = new StorefrontConfigurator();
 ```
 
 To create a gateway configurator:
 ```js
-const { GatewayConfigurator } = require('puzzle-microfrontends');
+const { GatewayConfigurator } = require('@puzzle-js/core');
 const configurator = new GatewayConfigurator();
 ```
 
 Adding config and injecting into PuzzleJs
 ```js
-const { GatewayConfigurator, Gateway } = require('puzzle-microfrontends');
+const { GatewayConfigurator, Gateway } = require('@puzzle-js/core');
 const configurator = new GatewayConfigurator();
 
 configurator.config({
