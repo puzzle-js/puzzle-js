@@ -48,16 +48,14 @@
     "supertest": "^4.0.2",
     "ts-jest": "23.10.5",
     "tslint": "^5.16.0",
-    "typescript": "^3.5.3",
-    "webpack": "^4.35.3",
-    "webpack-cli": "^3.0.8"
+    "typescript": "^3.5.3"
   },
   "author": {
     "name": "Ahmet Can Guven",
     "email": "ahmetcanguven44@gmail.com"
   },
   "scripts": {
-    "build": "TS_NODE_FILES=true node_modules/.bin/tsc && node_modules/.bin/webpack --config ./src/lib/webpack.config.js",
+    "build": "TS_NODE_FILES=true node_modules/.bin/tsc",
     "test": "NODE_TLS_REJECT_UNAUTHORIZED=0 jest --coverage --silent",
     "test:ci": "NODE_TLS_REJECT_UNAUTHORIZED=0 jest --coverage --silent --runInBand",
     "test:watch": "NODE_TLS_REJECT_UNAUTHORIZED=0 jest --coverage --watch --silent",

@@ -10,7 +10,7 @@ import {
 } from "./enums";
 import {FragmentStorefront} from "./fragment";
 import {Page} from "./page";
-import {RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "./lib/enums";
+import {RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "@puzzle-js/client-lib/src/enums";
 import {RouteConfiguration} from "puzzle-warden/dist/request-manager";
 import {MATCHER_FN} from "./cookie-version-matcher";
 import express, {CookieOptions} from "express";
