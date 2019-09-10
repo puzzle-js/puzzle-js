@@ -7,4 +7,5 @@ coverage
 types
 jest.config.js
 tsconfig.json
+.circleci
 tslint.json
