@@ -18,6 +18,7 @@ jobs:
       - restore_cache:
           keys:
             - dependencies-{{ checksum "package.json" }}
+      - run: ls
       - run: npm install
       - save_cache:
           paths:
