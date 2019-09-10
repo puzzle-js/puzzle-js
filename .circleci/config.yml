@@ -22,7 +22,6 @@ jobs:
       - save_cache:
           paths:
             - node_modules
-            - package-lock.json
           key: dependencies-{{ checksum "package.json" }}
       - run: npm run test:ci
       - store_artifacts:
