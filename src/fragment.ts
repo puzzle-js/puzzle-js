@@ -310,6 +310,7 @@ export class FragmentStorefront extends Fragment {
      */
     // @nrSegmentAsync("fragment.getContent", true)
     async getContent(attribs: any = {}, req?: Request): Promise<IFragmentContentResponse> {
+         return await newrelic.startSegment(`fragment(${this.name})`, true, async () => {
         logger.info(`Trying to get contents of fragment: ${this.name}`);
         if (!this.config) {
             logger.error(new Error(`No config provided for fragment: ${this.name}`));
@@ -386,6 +387,7 @@ export class FragmentStorefront extends Fragment {
                 cookies: {},
                 model: {}
             };
+        });
         });
     }
 
