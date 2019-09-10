@@ -21,6 +21,7 @@ import {HttpClient} from "./client";
 import {ERROR_CODES, PuzzleError} from "./errors";
 import express from "express";
 import {CookieVersionMatcher} from "./cookie-version-matcher";
+import newrelic from "newrelic";
 
 
 const logger = container.get(TYPES.Logger) as Logger;
