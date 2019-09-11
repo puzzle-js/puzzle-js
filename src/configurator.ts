@@ -3,7 +3,7 @@ import {struct} from "superstruct";
 import {IGatewayBFFConfiguration, IStorefrontConfig} from "./types";
 import {ERROR_CODES, PuzzleError} from "./errors";
 import {HTTP_METHODS, INJECTABLE, RESOURCE_INJECT_TYPE, TRANSFER_PROTOCOLS} from "./enums";
-import {RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "@puzzle-js/client-lib/src/enums";
+import {RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "@puzzle-js/client-lib/dist/enums";
 
 const apiEndpointsStructure = struct({
     path: 'string',

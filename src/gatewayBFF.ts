@@ -33,7 +33,7 @@ import {Template} from "./template";
 import {Logger} from "./logger";
 import cors from "cors";
 import routeCache from "route-cache";
-import {RESOURCE_TYPE} from "@puzzle-js/client-lib/src/enums";
+import {RESOURCE_TYPE} from "@puzzle-js/client-lib/dist/enums";
 import ResourceInjector from "./resource-injector";
 import {LIB_CONTENT} from "./util";
 

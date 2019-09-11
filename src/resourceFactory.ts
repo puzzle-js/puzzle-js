@@ -2,7 +2,7 @@ import nodeFetch from "node-fetch";
 import {EVENTS, HTTP_METHODS, RESOURCE_INJECT_TYPE} from "./enums";
 import {pubsub} from "./util";
 import {IFileResourceStorefrontDependency} from "./types";
-import {RESOURCE_TYPE} from "@puzzle-js/client-lib/src/enums";
+import {RESOURCE_TYPE} from "@puzzle-js/client-lib/dist/enums";
 
 const singletonSymbol = Symbol();
 

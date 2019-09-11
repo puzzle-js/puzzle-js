@@ -2,7 +2,7 @@ import {expect} from "chai";
 import nock from "nock";
 import ResourceFactory from "../src/resourceFactory";
 import {RESOURCE_INJECT_TYPE} from "../src/enums";
-import {RESOURCE_TYPE} from "@puzzle-js/client-lib/src/enums";
+import {RESOURCE_TYPE} from "@puzzle-js/client-lib/dist/enums";
 
 describe('Resource Factory', () => {
     beforeEach(() => {

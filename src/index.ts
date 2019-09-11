@@ -12,7 +12,7 @@ import {
 } from "./enums";
 import {GatewayConfigurator, StorefrontConfigurator} from "./configurator";
 import {Container} from "inversify";
-import {RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "@puzzle-js/client-lib/src/enums";
+import {RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "@puzzle-js/client-lib/dist/enums";
 import {httpAgent, httpsAgent} from "./client";
 import warden from "puzzle-warden";
 

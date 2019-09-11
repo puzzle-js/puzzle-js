@@ -27,7 +27,7 @@ import {ERROR_CODES, PuzzleError} from "./errors";
 import {benchmark} from "./decorators";
 import {Logger} from "./logger";
 import {container, TYPES} from "./base";
-import {EVENT} from "@puzzle-js/client-lib/src/enums";
+import {EVENT} from "@puzzle-js/client-lib/dist/enums";
 import express from "express";
 
 const logger = container.get(TYPES.Logger) as Logger;

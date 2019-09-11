@@ -7,7 +7,7 @@ import {GatewayConfigurator} from "../../src/configurator";
 import faker from "faker";
 import {INJECTABLE, TRANSFER_PROTOCOLS} from "../../src/enums";
 import {TLS_CERT, TLS_KEY, TLS_PASS} from "../core.settings";
-import {EVENT} from "@puzzle-js/client-lib/src/enums";
+import {EVENT} from "@puzzle-js/client-lib/dist/enums";
 
 describe('System Tests', function () {
   const closeInstance = (instance: any) => {
