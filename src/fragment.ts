@@ -163,20 +163,39 @@ export class FragmentBFF extends Fragment {
 }
 
 export class FragmentStorefront extends Fragment {
+  get attributes(): { [p: string]: string } {
+    return this._attributes;
+  }
+
+  set attributes(value: { [p: string]: string }) {
+    delete value.primary;
+    delete value['client-async'];
+    delete value.name;
+    delete value.from;
+    delete value.primary;
+    delete value.shouldwait;
+    delete value.partial;
+    this._attributes = value;
+  }
+
   config: IExposeFragment | undefined;
   primary = false;
   shouldWait = false;
+  clientAsync = false;
   from: string;
   gatewayPath!: string;
   fragmentUrl: string | undefined;
   assetUrl: string | undefined;
+  private _attributes: { [p: string]: string };
   private versionMatcher?: CookieVersionMatcher;
   private cachedErrorPage: string | undefined;
   private gatewayName: string;
 
-  constructor(name: string, from: string) {
+
+  constructor(name: string, from: string, attributes?: {[name: string]: string}) {
     super({name});
 
+    this._attributes = attributes || {};
     this.from = from;
   }
 

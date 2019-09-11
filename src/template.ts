@@ -40,6 +40,7 @@ export class Template {
   dom: any;
   fragments: { [name: string]: FragmentStorefront } = {};
   pageClass: TemplateClass = new TemplateClass();
+  private resourceInjector: ResourceInjector;
 
   constructor(public rawHtml: string, private name?: string) {
     this.load();
@@ -76,7 +77,7 @@ export class Template {
       }
 
       if (!dependencyList.fragments[fragment.attribs.name]) {
-        this.fragments[fragment.attribs.name] = new FragmentStorefront(fragment.attribs.name, fragment.attribs.from);
+        this.fragments[fragment.attribs.name] = new FragmentStorefront(fragment.attribs.name, fragment.attribs.from, {...fragment.attribs});
         dependencyList.fragments[fragment.attribs.name] = {
           gateway: fragment.attribs.from,
           instance: this.fragments[fragment.attribs.name]
@@ -96,6 +97,12 @@ export class Template {
         this.fragments[fragment.attribs.name].shouldWait = typeof fragment.attribs.shouldwait !== 'undefined' || (fragment.parent && fragment.parent.name === 'head') || false;
       }
 
+      if (this.fragments[fragment.attribs.name].clientAsync || typeof fragment.attribs['client-async'] != "undefined") {
+        this.fragments[fragment.attribs.name].attributes = Object.assign(this.fragments[fragment.attribs.name].attributes, fragment.attribs);
+        this.fragments[fragment.attribs.name].primary = false;
+        this.fragments[fragment.attribs.name].shouldWait = true;
+        this.fragments[fragment.attribs.name].clientAsync = true;
+      }
 
       return dependencyList;
     }, {
@@ -109,6 +116,7 @@ export class Template {
    * Compiles template and returns a function that can handle the request.
    * @param {ICookieMap} testCookies
    * @param {boolean} isDebug
+   * @param precompile
    * @returns {Promise<IFragmentEndpointHandler>}
    */
   async compile(testCookies: ICookieMap, isDebug = false, precompile = false): Promise<IFragmentEndpointHandler> {
@@ -122,14 +130,16 @@ export class Template {
       return this.buildHandler(singleFlushHandlerWithoutFragments, [], [], [], isDebug);
     }
 
-    const resourceInjector = new ResourceInjector(this.fragments, this.name, testCookies);
+    if (!this.resourceInjector) {
+      this.resourceInjector = new ResourceInjector(this.fragments, this.name, testCookies);
+    }
     const chunkedFragmentsWithShouldWait = Object.values(this.fragments).filter(fragment => fragment.config && fragment.shouldWait && !fragment.config.render.static);
     const chunkedFragmentsWithoutWait = Object.values(this.fragments).filter(fragment => fragment.config && !fragment.shouldWait && !fragment.config.render.static);
     const staticFragments = Object.values(this.fragments).filter(fragment => fragment.config && fragment.config.render.static);
 
     logger.info(`[Compiling Page ${this.name}]`, 'Injecting Puzzle Lib to head');
-    resourceInjector.injectAssets(this.dom);
-    resourceInjector.injectLibraryConfig(this.dom);
+    this.resourceInjector.injectAssets(this.dom);
+    this.resourceInjector.injectLibraryConfig(this.dom);
 
     // todo kaldir lib bagla
     const replaceScripts: any[] = [];
@@ -156,7 +166,7 @@ export class Template {
     /**
      * @deprecated Combine this with only on render start assets.
      */
-    await resourceInjector.injectStyleSheets(this.dom, precompile);
+    await this.resourceInjector.injectStyleSheets(this.dom, precompile);
 
     this.replaceEmptyTags();
 
@@ -256,7 +266,9 @@ export class Template {
     let cookies = {};
 
     await Promise.all(waitedFragments.map(async waitedFragmentReplacement => {
-      const fragmentContent = await waitedFragmentReplacement.fragment.getContent(TemplateCompiler.processExpression(waitedFragmentReplacement.fragmentAttributes, this.pageClass, req), req);
+      const attributes = TemplateCompiler.processExpression(waitedFragmentReplacement.fragmentAttributes, this.pageClass, req);
+
+      const fragmentContent = await waitedFragmentReplacement.fragment.getContent(attributes, req);
 
       if (waitedFragmentReplacement.fragment.primary) {
         statusCode = fragmentContent.status;
@@ -519,6 +531,7 @@ export class Template {
    * Creates containers for fragments should be waited
    * @param {FragmentStorefront[]} fragmentsShouldBeWaited
    * @param {IReplaceAsset[]} replaceJsAssets
+   * @param isDebug
    * @returns {IReplaceSet[]}
    */
   @benchmark(isDebug(), logger.info)
@@ -559,9 +572,15 @@ export class Template {
           }
 
           if (element.parentNode.name !== 'head') {
-            this.dom(element).replaceWith(`<div id="${fragment.name}" puzzle-fragment="${element.attribs.name}" puzzle-gateway="${element.attribs.from}" ${element.attribs.partial ? 'fragment-partial="' + element.attribs.partial + '"' : ''}>${replaceKey}</div><script>PuzzleJs.emit('${EVENT.ON_FRAGMENT_RENDERED}','${fragment.name}');</script>`);
+            if(fragment.clientAsync){
+              this.dom(element).replaceWith(`<div id="${fragment.name}" puzzle-fragment="${element.attribs.name}" puzzle-gateway="${element.attribs.from}" ${element.attribs.partial ? 'fragment-partial="' + element.attribs.partial + '"' : ''}></div>`)
+            }else{
+              this.dom(element).replaceWith(`<div id="${fragment.name}" puzzle-fragment="${element.attribs.name}" puzzle-gateway="${element.attribs.from}" ${element.attribs.partial ? 'fragment-partial="' + element.attribs.partial + '"' : ''}>${replaceKey}</div><script>PuzzleJs.emit('${EVENT.ON_FRAGMENT_RENDERED}','${fragment.name}');</script>`);
+            }
           } else {
-            this.dom(element).replaceWith(replaceKey);
+            if(!fragment.clientAsync){
+              this.dom(element).replaceWith(replaceKey);
+            }
           }
         });
 
