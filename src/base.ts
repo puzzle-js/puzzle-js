@@ -1,12 +1,16 @@
 /**
  * DI Inversifiy
  */
+require('events').EventEmitter.defaultMaxListeners = 20;
+
 import "reflect-metadata";
 import {Server} from "./server";
 import {Container} from "inversify";
 import {Logger} from "./logger";
 import {HttpClient} from "./client";
 import dnscache from "dnscache";
+
+
 
 export const TYPES = {
     Server: Symbol.for('Server'),

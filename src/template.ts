@@ -164,7 +164,7 @@ export class Template {
      * todo Bu kafa olmaz runtimeda debug not debug degismez, handler ici runtime guzel olur.
      */
     const puzzleLib = isDebug ? LIB_CONTENT_DEBUG : LIB_CONTENT;
-    const clearLibOutput = Template.replaceCustomScripts(this.dom.html().replace('{puzzleLibContent}', puzzleLib), false);
+    const clearLibOutput = Template.replaceCustomScripts(this.dom.html().replace('{puzzleLibContent}', puzzleLib), true);
 
     logger.info(`[Compiling Page ${this.name}]`, 'Sending virtual dom to compiler');
     return this.buildHandler(TemplateCompiler.compile(Template.clearHtmlContent(clearLibOutput)), chunkReplacements, waitedFragmentReplacements, replaceScripts, isDebug);
@@ -302,6 +302,7 @@ export class Template {
     this.pageClass._onRequest(req);
     const fragmentedHtml = firstFlushHandler.call(this.pageClass, req);
     const waitedReplacement = await this.replaceWaitedFragments(waitedFragments, fragmentedHtml, req, isDebug);
+
     for (const prop in waitedReplacement.headers) {
       res.set(prop, waitedReplacement.headers[prop]);
     }
@@ -311,7 +312,9 @@ export class Template {
       }
       res.cookie(prop, waitedReplacement.cookies[prop].value, waitedReplacement.cookies[prop].options);
     }
+
     res.status(waitedReplacement.statusCode);
+
     if (waitedReplacement.statusCode === HTTP_STATUS_CODE.MOVED_PERMANENTLY) {
       res.end();
       this.pageClass._onResponseEnd();
