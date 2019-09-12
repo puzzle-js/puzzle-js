@@ -6,12 +6,11 @@ import {LIB_CONTENT_DEBUG, wait} from "./util";
 import {Logger} from "./logger";
 import {callableOnce, sealed} from "./decorators";
 import {container, TYPES} from "./base";
-import {Server} from "./server";
-import {IGatewayMap, IPageMap, IStorefrontConfig} from "./types";
+import ExpressServer from "./network/express-server";
+import {IGatewayMap, IStorefrontConfig} from "./types";
 import ResourceFactory from "./resourceFactory";
 import {GATEWAY_PREPERATION_CHECK_INTERVAL, PUZZLE_DEBUGGER_LINK, TEMP_FOLDER} from "./config";
 import {StorefrontConfigurator} from "./configurator";
-import path from "path";
 import fs from "fs";
 
 const logger = container.get(TYPES.Logger) as Logger;
@@ -19,7 +18,7 @@ const logger = container.get(TYPES.Logger) as Logger;
 
 @sealed
 export class Storefront {
-    server: Server;
+    server: ExpressServer;
     config: IStorefrontConfig;
     pages: Map<string, Page> = new Map();
     gateways: IGatewayMap = {};
@@ -82,7 +81,8 @@ export class Storefront {
         if (!fs.existsSync(TEMP_FOLDER)) {
             fs.mkdirSync(TEMP_FOLDER);
         }
-        this.server.useProtocolOptions(this.config.spdy);
+        // todo we will inject options
+        // this.server.useProtocolOptions(this.config.spdy);
         this.createStorefrontPagesAndGateways();
     }
 

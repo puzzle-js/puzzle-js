@@ -17,14 +17,13 @@ import {
     IExposeConfig,
     IExposeFragment,
     IFragmentBFF,
-    IFragmentResponse,
     IGatewayBFFConfiguration
 } from "./types";
 import md5 from "md5";
 import async from "async";
 import path from "path";
 import express from "express";
-import {Server} from "./server";
+import ExpressServer from "./network/express-server";
 import {container, TYPES} from "./base";
 import cheerio from "cheerio";
 import {callableOnce, sealed} from "./decorators";
@@ -50,7 +49,7 @@ export class GatewayBFF {
     }
 
     exposedConfig: IExposeConfig;
-    server: Server;
+    server: ExpressServer;
     private config: IGatewayBFFConfiguration;
     private fragments: { [name: string]: FragmentBFF } = {};
     private apis: { [name: string]: Api } = {};
@@ -61,7 +60,7 @@ export class GatewayBFF {
      * @param {IGatewayBFFConfiguration} gatewayConfig
      * @param {Server} _server
      */
-    constructor(gatewayConfig: IGatewayBFFConfiguration | GatewayConfigurator, _server?: Server) {
+    constructor(gatewayConfig: IGatewayBFFConfiguration | GatewayConfigurator, _server?: ExpressServer) {
         this.server = _server || container.get(TYPES.Server);
 
         this.config = gatewayConfig.hasOwnProperty('configuration') ? (gatewayConfig as GatewayConfigurator).configuration : (gatewayConfig as IGatewayBFFConfiguration);
@@ -88,6 +87,7 @@ export class GatewayBFF {
         ], err => {
             if (!err) {
                 logger.info(`Gateway is listening on port ${this.config.port}`);
+                // listen ovveride edilecek
                 this.server.listen(this.config.port, cb, this.config.ipv4);
             } else {
                 throw err;
@@ -417,6 +417,7 @@ export class GatewayBFF {
      * Starts gateway and configures dependencies
      */
     private bootstrap() {
+        // options başlka yerden verilcek
         this.server.useProtocolOptions(this.config.spdy);
         this.exposedConfig = this.createExposeConfig();
         this.exposedConfig.hash = md5(JSON.stringify(this.exposedConfig));

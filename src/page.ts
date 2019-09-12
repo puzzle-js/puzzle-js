@@ -58,6 +58,7 @@ export class Page {
     this.responseHandlers[compileVersion](req, res);
   }
 
+  // bunun yeri burası değil
   post(req: express.Request, res: express.Response, next: express.NextFunction) {
     if (this.prgEnabled) {
       res.redirect(303, req.originalUrl);
