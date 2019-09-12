@@ -97,7 +97,7 @@ export class Template {
         this.fragments[fragment.attribs.name].shouldWait = typeof fragment.attribs.shouldwait !== 'undefined' || (fragment.parent && fragment.parent.name === 'head') || false;
       }
 
-      if (this.fragments[fragment.attribs.name].clientAsync || typeof fragment.attribs['client-async'] != "undefined") {
+      if (this.fragments[fragment.attribs.name].clientAsync || typeof fragment.attribs['client-async'] !== "undefined") {
         this.fragments[fragment.attribs.name].attributes = Object.assign(this.fragments[fragment.attribs.name].attributes, fragment.attribs);
         this.fragments[fragment.attribs.name].primary = false;
         this.fragments[fragment.attribs.name].shouldWait = true;
