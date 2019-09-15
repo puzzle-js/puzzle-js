@@ -24,7 +24,7 @@ import md5 from "md5";
 import async from "async";
 import path from "path";
 import express from "express";
-import {Server} from "./server";
+import {Server} from "./network";
 import {container, TYPES} from "./base";
 import cheerio from "cheerio";
 import {callableOnce, sealed} from "./decorators";
@@ -62,10 +62,8 @@ export class GatewayBFF {
      * @param {Server} _server
      */
     constructor(gatewayConfig: IGatewayBFFConfiguration | GatewayConfigurator, _server?: Server) {
-        this.server = _server || container.get(TYPES.Server);
-
         this.config = gatewayConfig.hasOwnProperty('configuration') ? (gatewayConfig as GatewayConfigurator).configuration : (gatewayConfig as IGatewayBFFConfiguration);
-
+        this.server = _server || new Server(this.config.serverOptions);
         this.bootstrap();
     }
 
@@ -87,8 +85,8 @@ export class GatewayBFF {
             this.addConfigurationRoute.bind(this)
         ], err => {
             if (!err) {
-                logger.info(`Gateway is listening on port ${this.config.port}`);
-                this.server.listen(this.config.port, cb, this.config.ipv4);
+                logger.info(`Gateway is listening on port ${this.config.serverOptions.port}`);
+                this.server.listen(cb as () => void);
             } else {
                 throw err;
             }
@@ -266,7 +264,7 @@ export class GatewayBFF {
      */
     private addFragmentRoutes(cb: Function): void {
         this.config.fragments.forEach(fragmentConfig => {
-            this.server.addRoute(Array.isArray(fragmentConfig.render.url) ? fragmentConfig.render.url.map(url => `/${fragmentConfig.name}${url}`) : `/${fragmentConfig.name}${fragmentConfig.render.url}`, HTTP_METHODS.GET, async (req, res) => {
+            this.server.handler.addRoute(Array.isArray(fragmentConfig.render.url) ? fragmentConfig.render.url.map(url => `/${fragmentConfig.name}${url}`) : `/${fragmentConfig.name}${fragmentConfig.render.url}`, HTTP_METHODS.GET, async (req, res) => {
                 const partial = req.query[PREVIEW_PARTIAL_QUERY_NAME] || DEFAULT_MAIN_PARTIAL;
                 const renderMode = req.query[RENDER_MODE_QUERY_NAME] === FRAGMENT_RENDER_MODES.STREAM ? FRAGMENT_RENDER_MODES.STREAM : FRAGMENT_RENDER_MODES.PREVIEW;
                 req.headers['originalurl'] = req.headers['originalurl'] || req.url.replace(`/${fragmentConfig.name}`, "");
@@ -294,7 +292,7 @@ export class GatewayBFF {
      */
     private addPlaceholderRoutes(cb: Function): void {
         this.config.fragments.forEach(fragment => {
-            this.server.addRoute(`/${fragment.name}/placeholder`, HTTP_METHODS.GET, async (req, res) => {
+            this.server.handler.addRoute(`/${fragment.name}/placeholder`, HTTP_METHODS.GET, async (req, res) => {
                 if (req.query.delay && +req.query.delay) {
                     res.set('content-type', 'text/html');
                     const dom = cheerio.load(`<html><head><title>${this.config.name} - ${fragment.name}</title>${this.config.isMobile ? '<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />' : ''}</head><body><div id="${fragment.name}">${this.fragments[fragment.name].placeholder(req, req.cookies[fragment.testCookie])}</div></body></html>`);
@@ -320,7 +318,7 @@ export class GatewayBFF {
      */
     private addErrorPageRoutes(cb: Function): void {
         this.config.fragments.forEach((fragment) => {
-            this.server.addRoute(`/${fragment.name}/error`, HTTP_METHODS.GET, (req, res) => {
+            this.server.handler.addRoute(`/${fragment.name}/error`, HTTP_METHODS.GET, (req, res) => {
                 res.send(this.fragments[fragment.name].errorPage(req, req.cookies[fragment.testCookie]));
             });
         });
@@ -335,7 +333,7 @@ export class GatewayBFF {
         Object.values(this.fragments).forEach(fragment => {
             const config = fragment.config;
 
-            this.server.addRoute(`/${fragment.name}/static/:staticName`, HTTP_METHODS.GET, (req, res, next) => {
+            this.server.handler.addRoute(`/${fragment.name}/static/:staticName`, HTTP_METHODS.GET, (req, res, next) => {
                 const targetVersion = req.query['__version'] || this.detectVersion(fragment, req.cookies);
                 req.url = path.join('/', fragment.name, req.cookies[config.testCookie] || targetVersion, '/static/', req.params.staticName);
                 next();
@@ -343,7 +341,7 @@ export class GatewayBFF {
 
             Object.keys(config.versions).forEach(version => {
                 const staticPath = path.join(this.config.fragmentsFolder, config.name, version, '/assets');
-                this.server.setStatic(`/${config.name}/${version}/static/`, staticPath);
+                this.server.handler.setStatic(`/${config.name}/${version}/static/`, staticPath);
             });
         });
 
@@ -355,14 +353,14 @@ export class GatewayBFF {
      * @param {Function} cb
      */
     private addHealthCheckRoutes(cb: Function) {
-        this.server.addRoute(HEALTHCHECK_PATHS, HTTP_METHODS.GET, (req, res) => {
+        this.server.handler.addRoute(HEALTHCHECK_PATHS, HTTP_METHODS.GET, (req, res) => {
             res.status(HTTP_STATUS_CODE.OK).end();
         });
         cb();
     }
 
     private addCorsPlugin(cb: Function) {
-        this.server.addUse(null, cors(
+        this.server.handler.addUse(null, cors(
             {
                 origin: this.config.corsDomains || ['*'],
                 credentials: true,
@@ -378,7 +376,7 @@ export class GatewayBFF {
      * @param {Function} cb
      */
     private addConfigurationRoute(cb: Function) {
-        this.server.addRoute('/', HTTP_METHODS.GET, (req, res) => {
+        this.server.handler.addRoute('/', HTTP_METHODS.GET, (req, res) => {
 
             if (req.query.fragment) {
                 const fragment = this.exposedConfig.fragments[req.query.fragment];
@@ -409,7 +407,8 @@ export class GatewayBFF {
      */
 
     private addCustomHeaders(cb: Function) {
-        this.server.addCustomHeaders(this.config.customHeaders);
+        // TODO: Neden uyarı veriyo bul
+        this.server.handler.addCustomHeaders(this.config.customHeaders);
         cb();
     }
 
@@ -417,8 +416,8 @@ export class GatewayBFF {
      * Starts gateway and configures dependencies
      */
     private bootstrap() {
-        this.server.useProtocolOptions(this.config.spdy);
         this.exposedConfig = this.createExposeConfig();
         this.exposedConfig.hash = md5(JSON.stringify(this.exposedConfig));
     }
+
 }
