@@ -268,6 +268,8 @@ export class Template {
     await Promise.all(waitedFragments.map(async waitedFragmentReplacement => {
       const attributes = TemplateCompiler.processExpression(waitedFragmentReplacement.fragmentAttributes, this.pageClass, req);
 
+      if(waitedFragmentReplacement.fragment.clientAsync) return;
+
       const fragmentContent = await waitedFragmentReplacement.fragment.getContent(attributes, req);
 
       if (waitedFragmentReplacement.fragment.primary) {
