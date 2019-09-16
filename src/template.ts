@@ -174,7 +174,7 @@ export class Template {
      * todo Bu kafa olmaz runtimeda debug not debug degismez, handler ici runtime guzel olur.
      */
     const puzzleLib = isDebug ? LIB_CONTENT_DEBUG : LIB_CONTENT;
-    const clearLibOutput = Template.replaceCustomScripts(this.dom.html().replace('{puzzleLibContent}', puzzleLib), true);
+    const clearLibOutput = Template.replaceCustomScripts(this.dom.html().replace('{puzzleLibContent}', puzzleLib), false);
 
     logger.info(`[Compiling Page ${this.name}]`, 'Sending virtual dom to compiler');
     return this.buildHandler(TemplateCompiler.compile(Template.clearHtmlContent(clearLibOutput)), chunkReplacements, waitedFragmentReplacements, replaceScripts, isDebug);
