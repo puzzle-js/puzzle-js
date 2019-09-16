@@ -439,6 +439,7 @@ export class FragmentStorefront extends Fragment {
 
 
     return fetch(link, {
+      timeout: 500,
       headers: {
         gateway: this.gatewayName
       }
