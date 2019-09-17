@@ -407,7 +407,6 @@ export class GatewayBFF {
      */
 
     private addCustomHeaders(cb: Function) {
-        // TODO: Neden uyarı veriyo bul
         this.server.handler.addCustomHeaders(this.config.customHeaders);
         cb();
     }

@@ -2,7 +2,7 @@ import {expect} from "chai";
 import {Server} from "../src/network";
 import request, {Response} from "supertest";
 import * as path from "path";
-import {EVENTS, HTTP_METHODS, TRANSFER_PROTOCOLS} from "../src/enums";
+import {EVENTS, HTTP_METHODS} from "../src/enums";
 import * as fs from "fs";
 import {pubsub} from "../src/util";
 import {TLS_CERT_SET, TLS_KEY, TLS_CERT} from "./core.settings";
@@ -171,7 +171,6 @@ describe('Server', () => {
 
     });
 
-
     it('should use h1 protocol when h2 configuration provided', (done) => {
         const httpServer = new Server({
             port: TEST_CONFIG.TEST_PORT,
@@ -216,6 +215,25 @@ describe('Server', () => {
         });
     });
 
+    it('should use given hostname when hostname configuration provided', (done) => {
+        const httpsServer = new Server({
+            port: TEST_CONFIG.TEST_PORT,
+            hostname: "localhost"
+        } as any);
+        const response = faker.random.words();
+
+        httpsServer.handler.addRoute('/', HTTP_METHODS.GET, (req, res) => {
+            res.end(response);
+        });
+
+        httpsServer.listen(() => {
+            request("http://localhost:" + TEST_CONFIG.TEST_PORT).get('/').expect(200).end((err, res: Response) => {
+                httpsServer.close(done);
+                expect((res as any).res.httpVersionMajor).to.eq(1);
+                expect(res.text).to.eq(response);
+            });
+        });
+    });
 
     it('should use https when key cert provided', (done) => {
         const server: Server = new Server(SERVER_OPTIONS);
@@ -283,7 +301,6 @@ describe('Server', () => {
         });
         server.close(done);
     });
-
 
     it('should add custom headers', (done) => {
         const server: Server = new Server(SERVER_OPTIONS);

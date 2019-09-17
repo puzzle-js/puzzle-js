@@ -563,6 +563,7 @@ PuzzleJs has some inner configurations you can't change using any Storefront or 
 | Property | Type | Required | Description |
 |-|-|-|-|
 | port | number | True | Port for server to listen |
+| hostname | string | False | Hostname for server |
 | http2 | boolean | False | HTTP2 option (Not Supported Yet)|
 | https | serverHttpsOptions | False | HTTPS options |
 
