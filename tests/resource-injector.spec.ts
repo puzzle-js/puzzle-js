@@ -109,7 +109,10 @@ describe('Resource Injector', () => {
         };
         const fragmentList = Object.keys(fragments).map( (fKey) => fragments[fKey] );
         let assets: any = [];
-        fragmentList.forEach((fragment) => { assets = assets.concat(fragment.config.assets)});
+        fragmentList.forEach((fragment) => { assets = assets.concat(fragment.config.assets.map(asset => ({
+            ...asset,
+            fragment: fragment.name
+        })))});
         const pageName = faker.random.word();
         const expectedConfig = {
             page: pageName,

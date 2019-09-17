@@ -97,7 +97,7 @@ export class Template {
         this.fragments[fragment.attribs.name].shouldWait = typeof fragment.attribs.shouldwait !== 'undefined' || (fragment.parent && fragment.parent.name === 'head') || false;
       }
 
-      if (this.fragments[fragment.attribs.name].clientAsync || typeof fragment.attribs['client-async'] != "undefined") {
+      if (this.fragments[fragment.attribs.name].clientAsync || typeof fragment.attribs['client-async'] !== "undefined") {
         this.fragments[fragment.attribs.name].attributes = Object.assign(this.fragments[fragment.attribs.name].attributes, fragment.attribs);
         this.fragments[fragment.attribs.name].primary = false;
         this.fragments[fragment.attribs.name].shouldWait = true;
@@ -174,7 +174,7 @@ export class Template {
      * todo Bu kafa olmaz runtimeda debug not debug degismez, handler ici runtime guzel olur.
      */
     const puzzleLib = isDebug ? LIB_CONTENT_DEBUG : LIB_CONTENT;
-    const clearLibOutput = Template.replaceCustomScripts(this.dom.html().replace('{puzzleLibContent}', puzzleLib), true);
+    const clearLibOutput = Template.replaceCustomScripts(this.dom.html().replace('{puzzleLibContent}', puzzleLib), false);
 
     logger.info(`[Compiling Page ${this.name}]`, 'Sending virtual dom to compiler');
     return this.buildHandler(TemplateCompiler.compile(Template.clearHtmlContent(clearLibOutput)), chunkReplacements, waitedFragmentReplacements, replaceScripts, isDebug);
@@ -267,6 +267,8 @@ export class Template {
 
     await Promise.all(waitedFragments.map(async waitedFragmentReplacement => {
       const attributes = TemplateCompiler.processExpression(waitedFragmentReplacement.fragmentAttributes, this.pageClass, req);
+
+      if(waitedFragmentReplacement.fragment.clientAsync) return;
 
       const fragmentContent = await waitedFragmentReplacement.fragment.getContent(attributes, req);
 

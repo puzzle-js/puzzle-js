@@ -166,12 +166,12 @@ export default class ResourceInjector {
      * @returns {Promise<void>}
      */
     private prepare() {
-        for(let fragment of Object.values(this.fragments)) {
+        for(const fragment of Object.values(this.fragments)) {
             if (!fragment.config) continue;
             const targetVersion = fragment.detectVersion(this.cookies);
             const config = this.getFragmentConfig(fragment, targetVersion);
             this.prepareFragmentFingerPrint(fragment);
-            this.prepareAssets(config);
+            this.prepareAssets(config, fragment);
             this.prepareDependencies(config);
         }
         this.libraryConfig = {
@@ -185,14 +185,16 @@ export default class ResourceInjector {
     /**
      * Prepare injectable assets from fragment and push to this.assets
      * @param { } config
+     * @param fragment
      */
-    private prepareAssets(config) {
+    private prepareAssets(config, fragment: FragmentStorefront) {
         config.assets.forEach((asset) => {
             this.assets.push({
                 loadMethod: typeof asset.loadMethod !== 'undefined' ? asset.loadMethod : RESOURCE_LOADING_TYPE.ON_PAGE_RENDER,
                 name: asset.name,
                 dependent: asset.dependent || [],
                 type: asset.type,
+                fragment: fragment.name,
                 link: asset.link,
                 preLoaded: false
             });

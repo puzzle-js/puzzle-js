@@ -41,7 +41,9 @@ module.exports = {
     });
   },
   content(req, data) {
-    return `<div class="product"><div>${data.name}</div><small>${data.price}</small></div>`;
+    return {
+      main: `<div class="product"><div>${data.name}</div><small>${data.price}</small></div>`
+    };
   }
 };
 ```
