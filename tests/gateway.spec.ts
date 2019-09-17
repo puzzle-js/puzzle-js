@@ -17,7 +17,9 @@ describe('Gateway', () => {
             api: [],
             fragments: [],
             isMobile: true,
-            port: 4446,
+            serverOptions: {
+                port: 4446
+            },
             url: 'http://localhost:4446/',
             fragmentsFolder: '',
         };
@@ -41,7 +43,9 @@ describe('Gateway', () => {
                 api: [],
                 fragments: [],
                 isMobile: true,
-                port: 4446,
+                serverOptions: {
+                    port: 4446
+                },
                 url: 'http://localhost:4446/',
                 fragmentsFolder: ''
             });
@@ -278,17 +282,18 @@ describe('Gateway', () => {
                         }
                     }
                 ],
-                port: 4440
+                serverOptions: {
+                    port: 4440
+                },
             };
 
             const bffGw = new GatewayBFF(gatewayConfiguration);
 
             bffGw.init( () => {
-                request(bffGw.server.app)
+                request(bffGw.server.handler.getApp())
                     .get('/?fragment=boutique-list')
                     .expect(200)
                     .end((err, res) => {
-                        bffGw.server.close();
 
                         expect(res.body).to.deep.eq({
                             version: 'test',
@@ -302,7 +307,9 @@ describe('Gateway', () => {
                             }
                         });
 
-                        done(err);
+                        bffGw.server.close( () => {
+                            done(err);
+                        });
                     });
             });
         });
@@ -332,18 +339,21 @@ describe('Gateway', () => {
                         }
                     }
                 ],
-                port: 4440
+                serverOptions: {
+                    port: 4440
+                },
             };
 
             const bffGw = new GatewayBFF(gatewayConfiguration);
 
             bffGw.init( () => {
-                request(bffGw.server.app)
+                request(bffGw.server.handler.getApp())
                     .get('/?fragment=boutique-list-not-exist')
                     .expect(404)
                     .end(err => {
-                        bffGw.server.close();
-                        done(err);
+                        bffGw.server.close( () => {
+                            done(err);
+                        });
                     });
             });
         });

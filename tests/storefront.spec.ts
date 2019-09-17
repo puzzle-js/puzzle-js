@@ -11,33 +11,40 @@ import {PUZZLE_DEBUGGER_LINK} from "../src/config";
 import sinon from "sinon";
 
 describe('Storefront', () => {
-    it('should create a new storefront instance', () => {
-        const storefrontConfiguration = new Storefront({
+
+    it('should create a new storefront instance', (done) => {
+        const storefront = new Storefront({
             pages: [],
-            port: 4444,
+            serverOptions: {
+                port: 4444
+            },
             gateways: [],
             dependencies: []
         });
 
-        expect(storefrontConfiguration).to.be.instanceOf(Storefront);
+        expect(storefront).to.be.instanceOf(Storefront);
+        storefront.server.close(done);
     });
 
-    it('should create a new storefront instance with configurator', () => {
+    it('should create a new storefront instance with configurator', (done) => {
         const storefrontConfigurator = new StorefrontConfigurator();
 
         storefrontConfigurator.config({
             pages: [],
-            port: 4444,
+            serverOptions: {
+                port: 4444
+            },
             gateways: [],
             dependencies: []
         });
 
-        const storefrontConfiguration = new Storefront(storefrontConfigurator);
+        const storefront = new Storefront(storefrontConfigurator);
 
-        expect(storefrontConfiguration).to.be.instanceOf(Storefront);
+        expect(storefront).to.be.instanceOf(Storefront);
+        storefront.server.close(done);
     });
 
-    it('should create new page instance when registering a new storefront', () => {
+    it('should create new page instance when registering a new storefront', (done) => {
         const pageConfiguration = {
             name: 'page',
             html: fs.readFileSync(path.join(__dirname, './templates/noFragmentsWithClass.html'), 'utf8'),
@@ -48,23 +55,28 @@ describe('Storefront', () => {
             pages: [
                 pageConfiguration
             ],
-            port: 4444,
+            serverOptions: {
+                port: 4444
+            },
             gateways: [],
             dependencies: []
         } as any);
 
 
         expect(storefrontInstance.pages.get(pageConfiguration.name)).to.be.instanceOf(Page);
+        storefrontInstance.server.close(done);
     });
 
-    it('should create new gateway instances when registering a new storefront', () => {
+    it('should create new gateway instances when registering a new storefront', (done) => {
         const gateway = {
             name: 'Browsing',
             url: 'http://browsing-gw.com'
         };
         const storefrontInstance = new Storefront({
             pages: [],
-            port: 4444,
+            serverOptions: {
+                port: 4444
+            },
             gateways: [
                 gateway
             ],
@@ -73,6 +85,7 @@ describe('Storefront', () => {
 
         expect(storefrontInstance.gateways[gateway.name]).to.be.instanceOf(GatewayStorefrontInstance);
         storefrontInstance.gateways['Browsing'].stopUpdating();
+        storefrontInstance.server.close(done);
     });
 
     it('should add health check route', done => {
@@ -86,9 +99,12 @@ describe('Storefront', () => {
             fragments: {}
         });
 
+
         const storefrontInstance = new Storefront({
             pages: [],
-            port: 4444,
+            serverOptions: {
+                port: 4444
+            },
             gateways: [
                 gateway
             ],
@@ -97,13 +113,12 @@ describe('Storefront', () => {
 
 
         storefrontInstance.init(() => {
-            request(storefrontInstance.server.app)
+            request(storefrontInstance.server.handler.getApp())
                 .get('/healthcheck')
                 .expect(200)
                 .end(err => {
-                    storefrontInstance.server.close();
                     storefrontInstance.gateways['Browsing'].stopUpdating();
-                    done(err);
+                    storefrontInstance.server.close(done);
                 });
         });
     });
@@ -121,7 +136,9 @@ describe('Storefront', () => {
 
         const storefrontInstance = new Storefront({
             pages: [],
-            port: 4444,
+            serverOptions: {
+                port: 4444
+            },
             gateways: [
                 gateway
             ],
@@ -130,13 +147,12 @@ describe('Storefront', () => {
 
 
         storefrontInstance.init(() => {
-            request(storefrontInstance.server.app)
+            request(storefrontInstance.server.handler.getApp())
                 .get(PUZZLE_DEBUGGER_LINK)
                 .expect(200)
                 .end((err, res) => {
-                    storefrontInstance.server.close();
                     storefrontInstance.gateways['Browsing'].stopUpdating();
-                    done(err);
+                    storefrontInstance.server.close(done);
                 });
         });
     });
@@ -162,7 +178,9 @@ describe('Storefront', () => {
                     condition: spy
                 }
             ],
-            port: 4444,
+            serverOptions: {
+                port: 4444
+            },
             gateways: [
                 gateway
             ],
@@ -171,13 +189,12 @@ describe('Storefront', () => {
 
 
         storefrontInstance.init(() => {
-            request(storefrontInstance.server.app)
+            request(storefrontInstance.server.handler.getApp())
                 .get('/')
                 .expect(200)
                 .end((err,res) => {
-                    storefrontInstance.server.close();
+                    storefrontInstance.server.close(done);
                     storefrontInstance.gateways['Browsing'].stopUpdating();
-                    done(err);
                 });
         });
     });
@@ -203,7 +220,9 @@ describe('Storefront', () => {
                     condition: spy
                 }
             ],
-            port: 4444,
+            serverOptions: {
+                port: 4444
+            },
             gateways: [
                 gateway
             ],
@@ -212,13 +231,12 @@ describe('Storefront', () => {
 
 
         storefrontInstance.init(() => {
-            request(storefrontInstance.server.app)
+            request(storefrontInstance.server.handler.getApp())
                 .get('/')
                 .expect(404)
                 .end((err,res) => {
-                    storefrontInstance.server.close();
                     storefrontInstance.gateways['Browsing'].stopUpdating();
-                    done(err);
+                    storefrontInstance.server.close(done);
                 });
         });
     });

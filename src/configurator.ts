@@ -2,8 +2,21 @@ import {sealed} from "./decorators";
 import {struct} from "superstruct";
 import {IGatewayBFFConfiguration, IStorefrontConfig} from "./types";
 import {ERROR_CODES, PuzzleError} from "./errors";
-import {HTTP_METHODS, INJECTABLE, RESOURCE_INJECT_TYPE, TRANSFER_PROTOCOLS} from "./enums";
+import {HTTP_METHODS, INJECTABLE, RESOURCE_INJECT_TYPE} from "./enums";
 import {RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "@puzzle-js/client-lib/dist/enums";
+
+const httpsStructure = struct({
+    allowHTTP1: struct.optional('boolean'),
+    key: struct.optional(struct.union(['string', 'buffer'])),
+    cert: struct.optional(struct.union(['string', 'buffer']))
+});
+
+const serverOptionsStructure = struct({
+    port: struct.optional('number'),
+    hostname: struct.optional('string'),
+    http2: struct.optional('boolean'),
+    https: struct.optional(httpsStructure)
+});
 
 const apiEndpointsStructure = struct({
     path: 'string',
@@ -12,13 +25,6 @@ const apiEndpointsStructure = struct({
     controller: 'string',
     routeCache: 'number?',
     cacheControl: 'string?'
-});
-
-const spdyStructure = struct({
-    key: struct.optional(struct.union(['string', 'buffer'])),
-    cert: struct.optional(struct.union(['string', 'buffer'])),
-    passphrase: 'string',
-    protocols: [struct.enum(Object.values(TRANSFER_PROTOCOLS))],
 });
 
 const customHeaderStructure = struct({
@@ -88,16 +94,14 @@ const gatewayFragmentStructure = struct({
 const gatewayStructure = struct({
     name: 'string',
     url: 'string',
+    serverOptions: serverOptionsStructure,
     fragments: [gatewayFragmentStructure],
     api: [apiStructure],
-    port: 'number',
-    ipv4: 'boolean?',
     isMobile: 'boolean?',
     authToken: 'string?',
     fragmentsFolder: 'string',
     corsDomains: struct.optional(['string']),
     corsMaxAge: 'number?',
-    spdy: struct.optional(spdyStructure),
     customHeaders: struct.optional([customHeaderStructure])
 });
 
@@ -121,14 +125,12 @@ const storefrontDependencyStructure = struct({
 
 const storefrontStructure = struct({
     gateways: [storefrontGatewaysStructure],
-    port: 'number',
+    serverOptions: serverOptionsStructure,
     authToken: 'string?',
     satisfyUpdateCount: 'number?',
-    ipv4: 'boolean?',
     pages: [storefrontPageStructure],
     pollInterval: 'number?',
     dependencies: [storefrontDependencyStructure],
-    spdy: struct.optional(spdyStructure),
     customHeaders: struct.optional([customHeaderStructure])
 });
 

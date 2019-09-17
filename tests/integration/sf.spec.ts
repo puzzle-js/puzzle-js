@@ -12,7 +12,9 @@ import {EVENT} from "@puzzle-js/client-lib/dist/enums";
 
 const commonStorefrontConfiguration = {
     gateways: [],
-    port: 4448,
+    serverOptions: {
+        port: 4448
+    },
     pages: [],
     url: 'http://localhost:4448',
     dependencies: []
@@ -20,10 +22,14 @@ const commonStorefrontConfiguration = {
 
 
 describe('Storefront', () => {
-    it('should create a new storefront instance', () => {
+    it('should create a new storefront instance', (done) => {
         const sf = new Storefront(commonStorefrontConfiguration);
 
         expect(sf).to.be.instanceOf(Storefront);
+
+        sf.server.close( () => {
+           done();
+        });
     });
 
     it('should respond 200 from healthcheck path when storefront is ready', (done) => {
@@ -33,12 +39,14 @@ describe('Storefront', () => {
             request('http://localhost:4448')
                 .get('/healthcheck')
                 .expect(200).end((err) => {
-                sf.server.close();
-                done(err);
+                sf.server.close( () => {
+                    done(err);
+                });
             });
         });
     });
 
+    /*
     it('should create a new storefront instance using spdy protocol', (done) => {
         const sf = new Storefront({
             ...commonStorefrontConfiguration,
@@ -55,8 +63,9 @@ describe('Storefront', () => {
                 .get('/healthcheck')
                 .expect(200)
                 .end((err) => {
-                    sf.server.close();
-                    done(err);
+                    sf.server.close( () => {
+                        done(err);
+                    });
                 });
         });
     }, 20000);
@@ -105,16 +114,20 @@ describe('Storefront', () => {
                 .expect(200)
                 .end((err, res) => {
 
-                    sf.server.close();
+
                     Object.values(sf.gateways).forEach(gateway => {
                         gateway.stopUpdating();
                     });
 
                     expect(res.text).to.include(`<div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Product Content</div>`);
-                    done(err);
+                    sf.server.close( () => {
+                        done(err);
+                    });
+
                 });
         });
     });
+*/
 
     it('should track gateway updates and respond with updated configuration', (done) => {
         const hash_nock = (placeholder: boolean, hash: string) => {
@@ -182,7 +195,7 @@ describe('Storefront', () => {
                                 .get('/')
                                 .expect(200)
                                 .end((err, res) => {
-                                    sf.server.close();
+
                                     Object.values(sf.gateways).forEach(gateway => {
                                         gateway.stopUpdating();
                                     });
@@ -190,8 +203,10 @@ describe('Storefront', () => {
 
                                     expect(res.text).to.include(`<body><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main" puzzle-placeholder="product_main_placeholder">Product Placeholder</div>`);
                                     expect(res.text).to.include(`</div><div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Product Content</div><script>PuzzleJs.emit('${EVENT.ON_FRAGMENT_RENDERED}','product','[puzzle-chunk="product_main"]','[puzzle-chunk-key="product_main"]');</script>`);
+                                    sf.server.close( () => {
+                                        done();
+                                    });
 
-                                    done();
                                 });
                         }, 500);
                     });
@@ -243,13 +258,16 @@ describe('Storefront', () => {
                 .expect(404)
                 .end((err, res) => {
 
-                    sf.server.close();
+
                     Object.values(sf.gateways).forEach(gateway => {
                         gateway.stopUpdating();
                     });
 
                     expect(res.text).to.include(`<body><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing">Product Content Not Found</div><`);
-                    done(err);
+                    sf.server.close(() => {
+                        done(err);
+                    });
+
                 });
         });
     });
@@ -304,14 +322,17 @@ describe('Storefront', () => {
                 .get('/detail')
                 .expect(200)
                 .end((err, res) => {
-                    sf.server.close();
+
                     Object.values(sf.gateways).forEach(gateway => {
                         gateway.stopUpdating();
                     });
 
                     expect(scope.isDone()).to.eq(true);
                     expect(res.text).to.include(`<body><div id="${fragment.name}" puzzle-fragment="${fragment.name}" puzzle-gateway="Browsing">Fragment: ${fragment.name}</div>`);
-                    done(err);
+                    sf.server.close( () => {
+                        done(err);
+                    });
+
                 });
         });
     });

@@ -1,9 +1,7 @@
 import {expect} from "chai";
 import {Configurator, GatewayConfigurator, StorefrontConfigurator} from "../src/configurator";
 import {IGatewayBFFConfiguration, IStorefrontConfig} from "../src/types";
-import {HTTP_METHODS, INJECTABLE, RESOURCE_INJECT_TYPE, RESOURCE_LOCATION} from "../src/enums";
-import * as faker from "faker";
-import {RESOURCE_TYPE} from "@puzzle-js/client-lib/dist/enums";
+import {HTTP_METHODS, INJECTABLE} from "../src/enums";
 
 describe('Configurator', () => {
   it('should create new configurator instance', () => {
@@ -43,7 +41,9 @@ describe('Configurator', () => {
       dependencies: [],
       gateways: [],
       pages: [],
-      port: 32
+      serverOptions: {
+        port: 32
+      }
     } as IStorefrontConfig;
 
     configurator.config(config);
@@ -58,7 +58,9 @@ describe('Configurator', () => {
       dependencies: [],
       gateways: [],
       pages: [],
-      port: 32
+      serverOptions: {
+        port: 32
+      }
     } as IStorefrontConfig;
 
     const test = () => {
@@ -118,7 +120,9 @@ describe('Configurator', () => {
       fragmentsFolder: '',
       name: 'Browsing',
       url: 'http://',
-      port: 32,
+      serverOptions: {
+        port: 32
+      },
       fragments: []
     } as IGatewayBFFConfiguration;
 
@@ -149,7 +153,9 @@ describe('Configurator', () => {
       fragmentsFolder: '',
       name: 'Browsing',
       url: 'http://',
-      port: 32,
+      serverOptions: {
+        port: 32
+      },
       fragments: [
         {
           versions: {
@@ -196,7 +202,9 @@ describe('Configurator', () => {
       fragmentsFolder: '',
       name: 'Browsing',
       url: 'http://',
-      port: 32,
+      serverOptions: {
+        port: 32
+      },
       fragments: [
         {
           versions: {
@@ -262,7 +270,9 @@ describe('Configurator', () => {
       fragmentsFolder: '',
       name: 'Browsing',
       url: 'http://',
-      port: 32,
+      serverOptions: {
+        port: 32
+      },
       fragments: []
     } as any;
 

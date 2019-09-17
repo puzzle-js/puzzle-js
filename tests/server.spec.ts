@@ -1,5 +1,5 @@
 import {expect} from "chai";
-import {Server} from "../src/server";
+import {Server} from "../src/network";
 import request, {Response} from "supertest";
 import * as path from "path";
 import {EVENTS, HTTP_METHODS, TRANSFER_PROTOCOLS} from "../src/enums";
@@ -15,7 +15,11 @@ const TEST_CONFIG = {
     TEST_URL: 'http://localhost:' + 3242,
     TEST_STATIC_FOLDER: path.join(__dirname, './static')
 };
-const server: Server = new Server();
+
+const SERVER_OPTIONS = {
+    port: TEST_CONFIG.TEST_PORT
+};
+
 
 describe('Server', () => {
     beforeEach(() => {
@@ -25,45 +29,42 @@ describe('Server', () => {
         }
     });
 
-    afterEach(() => {
-        server.close();
-    });
-
     it('should export server module', () => {
+        const server: Server = new Server(SERVER_OPTIONS);
         expect(server).to.be.an('object');
     });
 
     it('should has a listen method for listening port', () => {
+        const server: Server = new Server(SERVER_OPTIONS);
         expect(server.listen).to.be.a('function');
     });
 
-    it('should has a method for adding new route', () => {
-        expect(server.addRoute).to.be.a('function');
-    });
-
     it('should start listening port', done => {
+        const server: Server = new Server(SERVER_OPTIONS);
         const listenHandler = (e: Error) => {
             expect(e).to.eq(undefined);
-            done();
         };
 
-        server.listen(TEST_CONFIG.TEST_PORT, listenHandler);
+        server.listen(listenHandler as any);
+        server.close(done);
     });
 
     it('should add route', done => {
-        server.addRoute('/test', HTTP_METHODS.GET, (req, res, next) => {
+        const server: Server = new Server(SERVER_OPTIONS);
+        server.handler.addRoute('/test', HTTP_METHODS.GET, (req, res, next) => {
             res.end('OK');
         });
 
-        server.listen(TEST_CONFIG.TEST_PORT, () => {
+        server.listen(() => {
             request(TEST_CONFIG.TEST_URL).get('/test').expect(200).end((err, res) => {
                 expect(res.text).to.eq('OK');
-                done();
             });
         });
+        server.close(done);
     });
 
     it('should add route by event', (done) => {
+        const server: Server = new Server(SERVER_OPTIONS);
         pubsub.emit(EVENTS.ADD_ROUTE, {
             path: '/test',
             method: HTTP_METHODS.GET,
@@ -72,106 +73,117 @@ describe('Server', () => {
             }
         });
 
-        server.listen(TEST_CONFIG.TEST_PORT, () => {
+        server.listen(() => {
             request(TEST_CONFIG.TEST_URL).get('/test').expect(200).end((err, res) => {
                 expect(res.text).to.eq('OK');
-                done();
             });
         });
+
+        server.close(done);
+
     });
 
     it('should add uses', done => {
+        const server: Server = new Server(SERVER_OPTIONS);
         let doneCount = 0;
-        server.addUse('/test2', (req, res, next) => {
+        server.handler.addUse('/test2', (req, res, next) => {
             res.status(404).end();
             doneCount++;
             if (doneCount === 2) done();
         });
-        server.addUse(null, (req, res, next) => {
+        server.handler.addUse(null, (req, res, next) => {
             res.end();
             doneCount++;
             if (doneCount === 2) done();
         });
-        server.listen(TEST_CONFIG.TEST_PORT, () => {
+        server.listen(() => {
             request(TEST_CONFIG.TEST_URL).get('/').expect(200).end(() => {
             });
             request(TEST_CONFIG.TEST_URL).get('/test2').expect(404).end(() => {
             });
         });
+        server.close(done);
     });
 
     it('should has a method for serving static files', () => {
-        expect(server.setStatic).to.be.a('function');
+        const server: Server = new Server(SERVER_OPTIONS);
+        expect(server.handler.setStatic).to.be.a('function');
     });
 
     it('should serve static files from path', done => {
+        const server: Server = new Server(SERVER_OPTIONS);
         const testFileContents = fs.readFileSync(path.join(TEST_CONFIG.TEST_STATIC_FOLDER, './test.js'), 'utf8');
-        server.setStatic('/s', TEST_CONFIG.TEST_STATIC_FOLDER);
+        server.handler.setStatic('/s', TEST_CONFIG.TEST_STATIC_FOLDER);
 
-        server.listen(TEST_CONFIG.TEST_PORT, () => {
+        server.listen(() => {
             request(TEST_CONFIG.TEST_URL).get('/s/test.js').end((err, res) => {
                 expect(res.text).to.eq(testFileContents);
-                done();
             });
         });
+        server.close(done);
     });
 
     it('should serve static files from path globally', done => {
+        const server: Server = new Server(SERVER_OPTIONS);
         const testFileContents = fs.readFileSync(path.join(TEST_CONFIG.TEST_STATIC_FOLDER, './test.js'), 'utf8');
-        server.setStatic(null, TEST_CONFIG.TEST_STATIC_FOLDER);
+        server.handler.setStatic(null, TEST_CONFIG.TEST_STATIC_FOLDER);
 
-        server.listen(TEST_CONFIG.TEST_PORT, () => {
+        server.listen(() => {
             request(TEST_CONFIG.TEST_URL).get('/test.js').end((err, res) => {
                 expect(res.text).to.eq(testFileContents);
-                done();
             });
         });
+
+        server.close(done);
+
     });
 
     it('should respond with 200', done => {
-        server.addRoute('/healthcheck', HTTP_METHODS.GET, (req, res) => {
+        const server: Server = new Server(SERVER_OPTIONS);
+        server.handler.addRoute('/healthcheck', HTTP_METHODS.GET, (req, res) => {
             res.status(200).end();
         });
 
-        server.listen(TEST_CONFIG.TEST_PORT, () => {
+        server.listen(() => {
             request(TEST_CONFIG.TEST_URL).get('/healthcheck').expect(200).end((err, res) => {
                 expect(res.status).to.eq(200);
-                done();
             });
         });
+
+        server.close(done);
+
     });
 
     it('should add middlewares', done => {
-
-        server.addRoute('/healthcheck', HTTP_METHODS.GET, (req, res) => {
+        const server: Server = new Server(SERVER_OPTIONS);
+        server.handler.addRoute('/healthcheck', HTTP_METHODS.GET, (req, res) => {
             res.status(200).end('No it is not working');
         }, [(req: any, res: any, next: any) => {
             res.end('it is working');
         }]);
 
-        server.listen(TEST_CONFIG.TEST_PORT, () => {
+        server.listen(() => {
             request(TEST_CONFIG.TEST_URL).get('/healthcheck').expect(200).end((err, res) => {
                 expect(res.text).to.eq('it is working');
-                done();
             });
         });
+        server.close(done);
+
     });
 
-    it('should use h2 protocol when spdy configuration provided', (done) => {
-        const http2Server = new Server();
-        const response = faker.random.words();
-        http2Server.useProtocolOptions({
-            passphrase: TLS_PASS,
-            key: TLS_CERT_SET.private,
-            cert: TLS_CERT_SET.cert,
-            protocols: [TRANSFER_PROTOCOLS.H2, TRANSFER_PROTOCOLS.SPDY, TRANSFER_PROTOCOLS.HTTP1]
+    /*
+    xit('should use h2 protocol when h2 configuration provided', (done) => {
+        const http2Server = new Server({
+            port: TEST_CONFIG.TEST_PORT,
+            http2: true
         });
+        const response = faker.random.words();
 
-        http2Server.addRoute('/', HTTP_METHODS.GET, (req, res) => {
+        http2Server.handler.addRoute('/', HTTP_METHODS.GET, (req, res) => {
             res.end(response);
         });
 
-        http2Server.listen(TEST_CONFIG.TEST_PORT, () => {
+        http2Server.listen(() => {
             request(TEST_CONFIG.TEST_URL.replace('http', 'https')).get('/').expect(200).end((err, res: Response) => {
                 http2Server.close();
                 expect(res.text).to.eq(response);
@@ -179,49 +191,55 @@ describe('Server', () => {
             });
         });
     });
+    */
 
     it('should use https when key cert provided', (done) => {
-        const httpsServer = new Server();
-        const response = faker.random.words();
-        httpsServer.useProtocolOptions({
-            passphrase: TLS_PASS,
-            key: TLS_CERT_SET.private,
-            cert: TLS_CERT_SET.cert,
-            protocols: [TRANSFER_PROTOCOLS.HTTP1]
+        const server: Server = new Server(SERVER_OPTIONS);
+        const httpsServer = new Server({
+            port: TEST_CONFIG.TEST_PORT,
+            https: {
+                allowHTTP1: true,
+                key:  TLS_CERT_SET.private,
+                cert: TLS_CERT_SET.cert
+            }
         });
-
-        httpsServer.addRoute('/', HTTP_METHODS.GET, (req, res) => {
+        const response = faker.random.words();
+        httpsServer.handler.addRoute('/', HTTP_METHODS.GET, (req, res) => {
             res.end(response);
         });
 
-        httpsServer.listen(TEST_CONFIG.TEST_PORT, () => {
+        httpsServer.listen(() => {
             request(TEST_CONFIG.TEST_URL.replace('http', 'https')).get('/').expect(200).end((err, res: Response) => {
                 httpsServer.close();
                 expect(res.text).to.eq(response);
-                done(err);
             });
         });
+
+        httpsServer.close(done);
     });
 
     it('should create another server', done => {
-        const anotherServer = new Server();
+        const server: Server = new Server(SERVER_OPTIONS);
+        const anotherServer = new Server({
+            port: 7444
+        });
 
-        anotherServer.addRoute('/', HTTP_METHODS.GET, (req, res) => {
+        anotherServer.handler.addRoute('/', HTTP_METHODS.GET, (req, res) => {
             res.end('another');
         });
 
-        server.addRoute('/', HTTP_METHODS.GET, (req, res) => {
+        server.handler.addRoute('/', HTTP_METHODS.GET, (req, res) => {
             res.end('current');
         });
 
-        server.listen(TEST_CONFIG.TEST_PORT, () => {
-            anotherServer.listen(7444, () => {
+        server.listen(() => {
+            anotherServer.listen( () => {
                 request(TEST_CONFIG.TEST_URL).get('/').expect(200).end((err, res) => {
                     expect(res.text).to.eq('current');
                     request('http://localhost:7444').get('/').expect(200).end((err, res) => {
                         expect(res.text).to.eq('another');
-                        anotherServer.close();
-                        done();
+                        anotherServer.close(() => {});
+                        server.close(done);
                     });
                 });
             });
@@ -229,20 +247,22 @@ describe('Server', () => {
     });
 
     it('should disable compression when no compress query is set', (done) => {
-        server.addRoute('/lorem.css', HTTP_METHODS.GET, (req, res) => {
+        const server: Server = new Server(SERVER_OPTIONS);
+        server.handler.addRoute('/lorem.css', HTTP_METHODS.GET, (req, res) => {
             res.send(faker.lorem.paragraphs(50));
         });
 
-        server.listen(TEST_CONFIG.TEST_PORT, () => {
+        server.listen(() => {
             request(TEST_CONFIG.TEST_URL).get('/lorem.css').query({[NO_COMPRESS_QUERY_NAME]: 'true'}).expect(200).end((err, res) => {
                 expect(res.header['content-encoding']).to.not.eq('gzip');
-                done();
             });
         });
+        server.close(done);
     });
 
 
     it('should add custom headers', (done) => {
+        const server: Server = new Server(SERVER_OPTIONS);
         const customHeaders: ICustomHeader[] = [
             {key: "k1", value: "v1"},
             {key: "k2", value: "v2"},
@@ -250,18 +270,19 @@ describe('Server', () => {
             {key: "k4", value: 4},
             {key: "k5", value: 5},
         ];
-        server.addCustomHeaders(customHeaders);
-        server.listen(TEST_CONFIG.TEST_PORT, () => {
+        server.handler.addCustomHeaders(customHeaders);
+        server.listen(() => {
             request(TEST_CONFIG.TEST_URL).get('/lorem.css').query({[NO_COMPRESS_QUERY_NAME]: 'true'}).expect(200).end((err, res) => {
                 customHeaders.forEach((customHeader) => {
                     expect(res.header[customHeader.key]).to.eq(customHeader.value.toString());
                 });
-                done();
             });
         });
+        server.close(done);
     });
 
     it('should add custom headers from env', (done) => {
+        const server: Server = new Server(SERVER_OPTIONS);
         const tmpEnv = process.env;
         const env: any = {
             v1: 'v1envval',
@@ -272,16 +293,16 @@ describe('Server', () => {
             {key: "k2", value: "v2", isEnv: true},
         ];
         process.env = env;
-        server.addCustomHeaders(customHeaders);
-        server.listen(TEST_CONFIG.TEST_PORT, () => {
+        server.handler.addCustomHeaders(customHeaders);
+        server.listen(() => {
             request(TEST_CONFIG.TEST_URL).get('/lorem.css').query({[NO_COMPRESS_QUERY_NAME]: 'true'}).expect(200).end((err, res) => {
                 customHeaders.forEach((customHeader) => {
                     expect(res.header[customHeader.key]).to.eq(env[customHeader.value].toString());
                 });
                 process.env = tmpEnv;
-                done();
             });
         });
+        server.close(done);
     });
 
 });

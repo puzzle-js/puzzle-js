@@ -8,12 +8,15 @@ import cookieParser from "cookie-parser";
 import shrinkRay from "shrink-ray-current";
 import compression from "compression";
 import {injectable} from "inversify";
+import {container, TYPES} from "../base";
 
 import {pubsub} from "../util";
 import {EVENTS, HTTP_METHODS} from "../enums";
 import {ICustomHeader} from "../types";
 import {BROTLI, NO_COMPRESS_QUERY_NAME, USE_HELMET, USE_MORGAN} from "../config";
 import {Logger} from "../logger";
+
+const logger = container.get(TYPES.Logger) as Logger;
 
 const morganLoggingLevels = [
     'Date: [:date[clf]]',
@@ -70,6 +73,12 @@ export class ExpressHandler {
     }
 
     /**
+     *
+     */
+    getApp() {
+        return this.app;
+    }
+    /**
      * Registers static routes
      * @param {string | null} path
      * @param {string} source
@@ -108,7 +117,7 @@ export class ExpressHandler {
      */
     private addMiddlewares() {
         this.app.use(responseTime());
-        if (USE_MORGAN) this.app.use(morgan(morganLoggingLevels.join('||'), { stream: Logger.prototype }));
+        if (USE_MORGAN) this.app.use(morgan(morganLoggingLevels.join('||'), { stream: logger }));
         if (USE_HELMET) this.app.use(helmet());
         this.app.use(bodyParser.urlencoded({extended: true}));
         this.app.use(bodyParser.json());

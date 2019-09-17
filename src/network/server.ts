@@ -28,9 +28,12 @@ export class Server {
     }
   }
 
-  close() {
+  close(cb?: ((err?: Error | undefined) => void )) {
     if(this.instance) {
-        this.instance.close();
+      // TODO : Find out why this worked :)
+        this.instance.close( () => {
+          setTimeout(cb as (...args) => void, 100);
+        });
     }
   }
 
@@ -41,17 +44,21 @@ export class Server {
         cert: this.options.https.cert,
       };
       if (this.options.http2) {
+        /*
         return http2.createSecureServer({
           ...httpsSettings,
           allowHTTP1: typeof this.options.https.allowHTTP1 === "boolean" ? this.options.https.allowHTTP1 : true
-        }, this.handler);
+        }, this.handler.getApp());
+        */
+        console.warn(`Falling back to http1.1 as express doesn't support it yet`);
+        return https.createServer(httpsSettings, this.handler.getApp());
       } else {
-        return https.createServer(httpsSettings, this.handler);
+        return https.createServer(httpsSettings, this.handler.getApp());
       }
     } else if (this.options.http2) {
-      return http2.createServer(this.handler);
+      return http2.createServer(this.handler.getApp());
     } else {
-      return http.createServer(this.handler);
+      return http.createServer(this.handler.getApp());
     }
   }
 }

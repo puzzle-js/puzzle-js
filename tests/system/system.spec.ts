@@ -4,20 +4,19 @@ import request from "supertest";
 import {GatewayBFF} from "../../src/gatewayBFF";
 import path from "path";
 import {GatewayConfigurator} from "../../src/configurator";
-import faker from "faker";
 import {INJECTABLE, TRANSFER_PROTOCOLS} from "../../src/enums";
 import {TLS_CERT, TLS_KEY, TLS_PASS} from "../core.settings";
 import {EVENT} from "@puzzle-js/client-lib/dist/enums";
 
-describe('System Tests', function () {
-  const closeInstance = (instance: any) => {
-    instance.server.close();
+describe('System Tests', () => {
+  const closeInstance = (instance, done) => {
     if (instance.gateways) {
       Object.values(instance.gateways).forEach((instance: any) => instance.stopUpdating());
     }
+    instance.server.close(done);
   };
 
-  it('should render single fragment', function (done) {
+  it('should render single fragment',(done) => {
     const gatewayConfigurator = new GatewayConfigurator();
     gatewayConfigurator.register('handler', INJECTABLE.HANDLER, {
       data() {
@@ -35,7 +34,9 @@ describe('System Tests', function () {
       }
     });
     gatewayConfigurator.config({
-      port: 4451,
+      serverOptions: {
+        port: 4451
+      },
       name: 'Browsing',
       url: 'http://localhost:4451/',
       fragments: [
@@ -68,7 +69,9 @@ describe('System Tests', function () {
           html: '<template><html><head></head><body><fragment from="Browsing" name="example"></fragment></body></html></template>'
         }
       ],
-      port: 4450,
+      serverOptions: {
+        port: 4450
+      },
       gateways: [{
         name: 'Browsing',
         url: 'http://localhost:4451/'
@@ -83,26 +86,25 @@ describe('System Tests', function () {
     storefrontInstance.init(() => {
       console.log('Storefront is working');
 
-      request(storefrontInstance.server.app)
+      request(storefrontInstance.server.handler.getApp())
         .get('/healthcheck')
         .expect(200)
         .end(err => {
 
-          request(storefrontInstance.server.app)
+          request(storefrontInstance.server.handler.getApp())
             .get('/')
             .expect(200)
             .end((err, res) => {
-              closeInstance(storefrontInstance);
-              closeInstance(gatewayInstance);
+              closeInstance(storefrontInstance, done);
+              closeInstance(gatewayInstance, done);
               expect(res.text).to.include(`<body><div id="example" puzzle-fragment="example" puzzle-gateway="Browsing" puzzle-chunk="example_main"></div>`);
               expect(res.text).to.include(`<div style="display: none;" puzzle-fragment="example" puzzle-chunk-key="example_main">Fragment Content</div><script>PuzzleJs.emit('${EVENT.ON_FRAGMENT_RENDERED}','example','[puzzle-chunk="example_main"]','[puzzle-chunk-key="example_main"]');</script>`);
-              done(err);
             });
         });
     });
   });
 
-  it('should render single static fragment', function (done) {
+  it('should render single static fragment', (done) => {
     const gatewayConfigurator = new GatewayConfigurator();
     gatewayConfigurator.register('handler', INJECTABLE.HANDLER, {
       data() {
@@ -120,7 +122,9 @@ describe('System Tests', function () {
       }
     });
     gatewayConfigurator.config({
-      port: 4451,
+      serverOptions: {
+        port: 4451
+      },
       name: 'Browsing',
       url: 'http://localhost:4451/',
       fragments: [
@@ -154,7 +158,9 @@ describe('System Tests', function () {
           html: '<template><html><head></head><body><fragment from="Browsing" name="example"></fragment></body></html></template>'
         }
       ],
-      port: 4450,
+      serverOptions: {
+        port: 4450
+      },
       gateways: [{
         name: 'Browsing',
         url: 'http://localhost:4451/'
@@ -169,25 +175,24 @@ describe('System Tests', function () {
     storefrontInstance.init(() => {
       console.log('Storefront is working');
 
-      request(storefrontInstance.server.app)
+      request(storefrontInstance.server.handler.getApp())
         .get('/healthcheck')
         .expect(200)
         .end(err => {
 
-          request(storefrontInstance.server.app)
+          request(storefrontInstance.server.handler.getApp())
             .get('/')
             .expect(200)
             .end((err, res) => {
-              closeInstance(storefrontInstance);
-              closeInstance(gatewayInstance);
+              closeInstance(storefrontInstance, done);
+              closeInstance(gatewayInstance, done);
               expect(res.text).to.include(`<body><div id="example" puzzle-fragment="example" puzzle-gateway="Browsing" fragment-partial="main">Fragment Content</div>`);
-              done(err);
             });
         });
     });
   });
 
-  it('should render single static fragment using h2', function (done) {
+  it('should render single static fragment using HTTPS', (done) => {
     const gatewayConfigurator = new GatewayConfigurator();
     gatewayConfigurator.register('handler', INJECTABLE.HANDLER, {
       data() {
@@ -205,7 +210,13 @@ describe('System Tests', function () {
       }
     });
     gatewayConfigurator.config({
-      port: 4451,
+      serverOptions: {
+        port: 4451,
+        https: {
+          key: TLS_KEY,
+          cert: TLS_CERT
+        }
+      },
       name: 'Browsing',
       url: 'https://localhost:4451/',
       fragments: [
@@ -228,13 +239,7 @@ describe('System Tests', function () {
       ],
       api: [],
       isMobile: true,
-      fragmentsFolder: path.join(__dirname, "./fragments"),
-      spdy: {
-        protocols: [TRANSFER_PROTOCOLS.H2, TRANSFER_PROTOCOLS.SPDY, TRANSFER_PROTOCOLS.HTTP1],
-        passphrase: TLS_PASS,
-        key: TLS_KEY,
-        cert: TLS_CERT,
-      }
+      fragmentsFolder: path.join(__dirname, "./fragments")
     } as any);
     const gatewayInstance = new GatewayBFF(gatewayConfigurator);
 
@@ -245,18 +250,18 @@ describe('System Tests', function () {
           html: '<template><html><head></head><body><fragment from="Browsing" name="example"></fragment></body></html></template>'
         }
       ],
-      port: 4450,
+      serverOptions: {
+        port: 4450,
+        https: {
+          key: TLS_KEY,
+          cert: TLS_CERT
+        }
+      },
       gateways: [{
         name: 'Browsing',
         url: 'https://localhost:4451/'
       }],
-      dependencies: [],
-      spdy: {
-        protocols: [TRANSFER_PROTOCOLS.H2, TRANSFER_PROTOCOLS.SPDY, TRANSFER_PROTOCOLS.HTTP1],
-        passphrase: TLS_PASS,
-        key: TLS_KEY,
-        cert: TLS_CERT,
-      }
+      dependencies: []
     } as any);
 
     gatewayInstance.init(() => {
@@ -266,25 +271,24 @@ describe('System Tests', function () {
     storefrontInstance.init(() => {
       console.log('Storefront is working');
 
-      request(storefrontInstance.server.app)
+      request(storefrontInstance.server.handler.getApp())
         .get('/healthcheck')
         .expect(200)
         .end(err => {
 
-          request(storefrontInstance.server.app)
+          request(storefrontInstance.server.handler.getApp())
             .get('/')
             .expect(200)
             .end((err, res) => {
-              closeInstance(storefrontInstance);
-              closeInstance(gatewayInstance);
+              closeInstance(storefrontInstance, done);
+              closeInstance(gatewayInstance, done);
               expect(res.text).to.include(`<div id="example" puzzle-fragment="example" puzzle-gateway="Browsing" fragment-partial="main">Fragment Content</div>`);
-              done(err);
             });
         });
     });
   });
 
-  it('should render single fragment with header', function (done) {
+  it('should render single fragment with header', (done) => {
     const gatewayConfigurator = new GatewayConfigurator();
     const customCookieExpiredDate = new Date(Date.now() + 1000 * 60 * 60 * 4);
 
@@ -318,7 +322,9 @@ describe('System Tests', function () {
       }
     });
     gatewayConfigurator.config({
-      port: 4453,
+      serverOptions: {
+        port: 4453
+      },
       name: 'Browsing',
       url: 'http://localhost:4453/',
       fragments: [
@@ -351,7 +357,9 @@ describe('System Tests', function () {
           html: '<template><html><head></head><body><fragment from="Browsing" name="example" primary></fragment></body></html></template>'
         }
       ],
-      port: 4454,
+      serverOptions: {
+        port: 4454
+      },
       gateways: [{
         name: 'Browsing',
         url: 'http://localhost:4453/'
@@ -366,22 +374,21 @@ describe('System Tests', function () {
     storefrontInstance.init(() => {
       console.log('Storefront is working');
 
-      request(storefrontInstance.server.app)
+      request(storefrontInstance.server.handler.getApp())
         .get('/healthcheck')
         .expect(200)
         .end(err => {
 
-          request(storefrontInstance.server.app)
+          request(storefrontInstance.server.handler.getApp())
             .get('/')
             .expect(200)
             .end((err, res) => {
-              closeInstance(storefrontInstance);
-              closeInstance(gatewayInstance);
+              closeInstance(storefrontInstance, done);
+              closeInstance(gatewayInstance, done);
               expect(res.header['custom']).to.eq('custom value');
               expect(res.header['set-cookie'][0]).to.eq(`customCookie1=customValue1; Path=/; Expires=${customCookieExpiredDate.toUTCString()}`);
               expect(res.header['set-cookie'][1]).to.eq(`customCookie2=customValue2; Path=/`);
               expect(res.text).to.include(`<body><div id="example" puzzle-fragment="example" puzzle-gateway="Browsing">Fragment Content</div>`);
-              done(err);
             });
         });
     });
@@ -603,7 +610,7 @@ describe('System Tests', function () {
     });
   });**/
 
-  it('should render single fragment with header without data', function (done) {
+  it('should render single fragment with header without data',  (done) => {
     const gatewayConfigurator = new GatewayConfigurator();
     gatewayConfigurator.register('handler', INJECTABLE.HANDLER, {
       data() {
@@ -624,7 +631,9 @@ describe('System Tests', function () {
       }
     });
     gatewayConfigurator.config({
-      port: 4455,
+      serverOptions: {
+        port: 4455
+      },
       name: 'Browsing',
       url: 'http://localhost:4455/',
       fragments: [
@@ -657,7 +666,9 @@ describe('System Tests', function () {
           html: '<template><html><head></head><body><fragment from="Browsing" name="example" primary></fragment></body></html></template>'
         }
       ],
-      port: 4457,
+      serverOptions: {
+        port: 4457
+      },
       gateways: [{
         name: 'Browsing',
         url: 'http://localhost:4455/'
@@ -672,20 +683,19 @@ describe('System Tests', function () {
     storefrontInstance.init(() => {
       console.log('Storefront is working');
 
-      request(storefrontInstance.server.app)
+      request(storefrontInstance.server.handler.getApp())
         .get('/healthcheck')
         .expect(200)
         .end(err => {
 
-          request(storefrontInstance.server.app)
+          request(storefrontInstance.server.handler.getApp())
             .get('/')
             .redirects(0)
             .expect(301)
             .end((err, res) => {
-              closeInstance(storefrontInstance);
-              closeInstance(gatewayInstance);
+              closeInstance(storefrontInstance, done);
+              closeInstance(gatewayInstance, done);
               expect(res.header['location']).to.eq('https://www.trendyol.com');
-              done(err);
             });
         });
     });
