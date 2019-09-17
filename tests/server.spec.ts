@@ -5,7 +5,7 @@ import * as path from "path";
 import {EVENTS, HTTP_METHODS, TRANSFER_PROTOCOLS} from "../src/enums";
 import * as fs from "fs";
 import {pubsub} from "../src/util";
-import {TLS_CERT_SET, TLS_PASS} from "./core.settings";
+import {TLS_CERT_SET, TLS_KEY, TLS_CERT} from "./core.settings";
 import faker from "faker";
 import {NO_COMPRESS_QUERY_NAME} from "../src/config";
 import {ICustomHeader} from "../src/types";
@@ -171,27 +171,51 @@ describe('Server', () => {
 
     });
 
-    /*
-    xit('should use h2 protocol when h2 configuration provided', (done) => {
-        const http2Server = new Server({
+
+    it('should use h1 protocol when h2 configuration provided', (done) => {
+        const httpServer = new Server({
             port: TEST_CONFIG.TEST_PORT,
             http2: true
         });
         const response = faker.random.words();
 
-        http2Server.handler.addRoute('/', HTTP_METHODS.GET, (req, res) => {
+        httpServer.handler.addRoute('/', HTTP_METHODS.GET, (req, res) => {
             res.end(response);
         });
 
-        http2Server.listen(() => {
-            request(TEST_CONFIG.TEST_URL.replace('http', 'https')).get('/').expect(200).end((err, res: Response) => {
-                http2Server.close();
+        httpServer.listen(() => {
+            request(TEST_CONFIG.TEST_URL).get('/').expect(200).end((err, res: Response) => {
+                httpServer.close(done);
+                expect((res as any).res.httpVersionMajor).to.eq(1);
                 expect(res.text).to.eq(response);
-                done(err);
             });
         });
     });
-    */
+
+    it('should use secure h1 protocol when h2 secure configuration provided', (done) => {
+        const httpsServer = new Server({
+            port: TEST_CONFIG.TEST_PORT,
+            http2: true,
+            https: {
+                cert: TLS_CERT,
+                key: TLS_KEY
+            }
+        } as any);
+        const response = faker.random.words();
+
+        httpsServer.handler.addRoute('/', HTTP_METHODS.GET, (req, res) => {
+            res.end(response);
+        });
+
+        httpsServer.listen(() => {
+            request(TEST_CONFIG.TEST_URL.replace('http', 'https')).get('/').expect(200).end((err, res: Response) => {
+                httpsServer.close(done);
+                expect((res as any).res.httpVersionMajor).to.eq(1);
+                expect(res.text).to.eq(response);
+            });
+        });
+    });
+
 
     it('should use https when key cert provided', (done) => {
         const server: Server = new Server(SERVER_OPTIONS);
