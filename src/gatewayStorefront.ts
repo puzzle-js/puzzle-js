@@ -10,6 +10,7 @@ import {RouteConfiguration} from "puzzle-warden/dist/request-manager";
 import {isDeepStrictEqual} from "util";
 import warden from "puzzle-warden";
 import Timer = NodeJS.Timer;
+import {AssetManager} from "./asset-manager";
 
 const logger = container.get(TYPES.Logger) as Logger;
 const httpClient = container.get(TYPES.Client) as HttpClient;
@@ -85,19 +86,21 @@ export class GatewayStorefrontInstance {
    * Updates gateway configuration and if hash changed emits GATEWAY_UPDATED event
    * @param {IExposeConfig} data
    */
-  private update(data: IExposeConfig) {
+  private async update(data: IExposeConfig) {
     if (!this.config) {
-      logger.info(`Gateway is ready: ${this.name}`);
       this.connectWarden(data);
       this.config = data;
+      await this.warmAssets(data);
       this.events.emit(EVENTS.GATEWAY_READY, this);
+      console.log(`Gateway is ready: ${this.name}`);
     } else {
       if (data.hash !== this.config.hash) {
         if (this.satisfyUpdate(data.hash)) {
-          logger.info(`Gateway is updated: ${this.name}`);
           this.connectWarden(data);
           this.config = data;
+          this.warmAssets(data);
           this.events.emit(EVENTS.GATEWAY_UPDATED, this);
+          logger.info(`Gateway is updated: ${this.name}`);
         }
       } else {
         this.resetUpdateStatus(data.hash);
@@ -117,6 +120,17 @@ export class GatewayStorefrontInstance {
     }
 
     return false;
+  }
+
+  private async warmAssets(data: IExposeConfig) {
+    for (const fragmentName in data.fragments) {
+      if (data.fragments.hasOwnProperty(fragmentName)) {
+        for (const asset of data.fragments[fragmentName].assets) {
+          await AssetManager.getAsset(`${asset.link}?__version=${data.fragments[fragmentName].version}`, this.name);
+          console.log(`${asset.link}?__version=${data.fragments[fragmentName].version}`);
+        }
+      }
+    }
   }
 
   private connectWarden(data: IExposeConfig) {

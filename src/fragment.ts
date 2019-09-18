@@ -22,6 +22,7 @@ import {HttpClient} from "./client";
 import {ERROR_CODES, PuzzleError} from "./errors";
 import express from "express";
 import {CookieVersionMatcher} from "./cookie-version-matcher";
+import {AssetManager} from "./asset-manager";
 
 
 const logger = container.get(TYPES.Logger) as Logger;
@@ -439,25 +440,19 @@ export class FragmentStorefront extends Fragment {
     const link = (asset.link || `${this.fragmentUrl}/static/${asset.fileName}`) + `?__version=${targetVersion}`;
 
 
-    return fetch(link, {
-      timeout: 500,
-      headers: {
-        gateway: this.gatewayName
-      }
-    }).then(async res => {
-      logger.info(`Asset received: ${name}`);
-      const encoding = res.headers.get('content-encoding');
+    const res = await AssetManager.getAsset(link, this.gatewayName);
 
-      switch (encoding) {
-        case CONTENT_ENCODING_TYPES.BROTLI:
-          return await decompress(await res.buffer());
-        default:
-          return await res.text();
+    if(!res.error && res.data && res.response){
+      logger.info(`Asset received: ${name}`);
+      const encoding = res.response.headers['content-encoding'];
+
+      if (encoding === CONTENT_ENCODING_TYPES.BROTLI) {
+        const buffer = Buffer.from(res.data);
+        return await decompress(buffer);
+      } else {
+        return res.data;
       }
-    }).catch(e => {
-      logger.error(new Error(`Failed to fetch asset from gateway: ${this.fragmentUrl}/static/${asset.fileName}`));
-      return null;
-    });
+    }
   }
 
   /**
