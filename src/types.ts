@@ -5,20 +5,14 @@ import {
     REPLACE_ITEM_TYPE,
     RESOURCE_INJECT_TYPE,
     RESOURCE_JS_EXECUTE_TYPE,
-    RESOURCE_LOCATION,
-    TRANSFER_PROTOCOLS
+    RESOURCE_LOCATION
 } from "./enums";
 import {FragmentStorefront} from "./fragment";
-import {Page} from "./page";
 import {RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "@puzzle-js/client-lib/dist/enums";
 import {RouteConfiguration} from "puzzle-warden/dist/request-manager";
 import {MATCHER_FN} from "./cookie-version-matcher";
 import express, {CookieOptions} from "express";
-
-export interface IFragmentCookieMap {
-    name: string;
-    live: string;
-}
+import {IServerOptions} from "./network";
 
 export interface IFragment {
     name: string;
@@ -160,14 +154,12 @@ export interface IApiConfig {
 export interface IGatewayBFFConfiguration extends IGatewayConfiguration {
     fragments: IFragmentBFF[];
     api: IApiConfig[];
-    port: number;
-    ipv4?: boolean;
+    serverOptions: IServerOptions;
     isMobile?: boolean;
     authToken?: string;
     fragmentsFolder: string;
     corsDomains?: string[];
     corsMaxAge?: number;
-    spdy?: ISpdyConfiguration;
     customHeaders?: ICustomHeader[];
 }
 
@@ -225,41 +217,14 @@ export interface IPageConfiguration {
     condition?: (req: express.Request) => boolean;
 }
 
-export interface IPageMap {
-    [url: string]: Page;
-}
-
-export interface ISpdyConfiguration {
-    key: string | Buffer;
-    cert: string | Buffer;
-    passphrase: string;
-    protocols: TRANSFER_PROTOCOLS[];
-}
-
-export interface INodeSpdyConfiguration {
-    key: string | Buffer;
-    cert: string | Buffer;
-    passphrase: string;
-    spdy: {
-        protocols: TRANSFER_PROTOCOLS[];
-        'x-forwarded-for': boolean;
-        connection: {
-            windowSize: number;
-            autoSpdy31: boolean;
-        }
-    };
-}
-
 export interface IStorefrontConfig {
     gateways: IGatewayConfiguration[];
-    port: number;
+    serverOptions: IServerOptions;
     authToken?: string;
-    ipv4?: boolean;
     pages: IPageConfiguration[];
     pollInterval?: number;
     satisfyUpdateCount?: number;
     dependencies: IFileResourceStorefrontDependency[];
-    spdy?: ISpdyConfiguration;
     customHeaders?: ICustomHeader[];
 }
 

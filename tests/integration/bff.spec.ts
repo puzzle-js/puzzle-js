@@ -7,8 +7,7 @@ import {
     CONTENT_REPLACE_SCRIPT,
     FRAGMENT_RENDER_MODES,
     HTTP_METHODS,
-    HTTP_STATUS_CODE,
-    TRANSFER_PROTOCOLS
+    HTTP_STATUS_CODE
 } from "../../src/enums";
 import * as path from "path";
 import faker from "faker";
@@ -20,15 +19,22 @@ const commonGatewayConfiguration: IGatewayBFFConfiguration = {
     fragments: [],
     name: 'Browsing',
     url: 'http://localhost:4644',
-    port: 4644,
+    serverOptions: {
+      port: 4644
+    },
     fragmentsFolder: path.join(__dirname, 'fragments')
 };
 
 describe('BFF', () => {
-    it('should create new gateway instance', () => {
+
+    it('should create new gateway instance', (done) => {
         const bff = new GatewayBFF(commonGatewayConfiguration);
 
         expect(bff).to.be.instanceOf(GatewayBFF);
+
+        bff.server.close(() => {
+            done();
+        });
     });
 
     it('it should respond 200 from healthcheck path when gateway is ready', (done) => {
@@ -38,31 +44,34 @@ describe('BFF', () => {
             request(commonGatewayConfiguration.url)
                 .get('/liveness')
                 .expect(200).end((err) => {
-                bff.server.close();
-                done(err);
+                bff.server.close( () => {
+                    done(err);
+                });
             });
         });
     });
 
-    it('it should respond 200 from healthcheck path when gateway is ready with spdy', (done) => {
+    it('it should respond 200 from healthcheck path when gateway is ready with HTTPS', (done) => {
         const bff = new GatewayBFF({
             ...commonGatewayConfiguration,
-            spdy: {
-                protocols: [TRANSFER_PROTOCOLS.H2, TRANSFER_PROTOCOLS.SPDY, TRANSFER_PROTOCOLS.HTTP1],
-                passphrase: TLS_PASS,
-                key: TLS_KEY,
-                cert: TLS_CERT,
+            serverOptions: {
+                port: 4644,
+                https: {
+                    cert: TLS_CERT,
+                    key: TLS_KEY
+                },
             },
             url: 'https://localhost:4644'
-        } as IGatewayBFFConfiguration);
+        } as any);
 
         bff.init(() => {
             request(commonGatewayConfiguration.url.replace('http', 'https'))
                 .get('/liveness')
                 .expect(200)
                 .end((err) => {
-                    bff.server.close();
-                    done(err);
+                    bff.server.close( () => {
+                        done(err);
+                    });
                 });
         });
     });
@@ -75,8 +84,10 @@ describe('BFF', () => {
                 .get('/')
                 .expect(200).end((err, res) => {
                 expect(res.body).to.haveOwnProperty('hash');
-                bff.server.close();
-                done(err);
+                bff.server.close( () => {
+                    done(err);
+                });
+
             });
         });
     });
@@ -89,8 +100,10 @@ describe('BFF', () => {
       request(commonGatewayConfiguration.url)
         .get('/')
         .expect(401).end((err, res) => {
-        bff.server.close();
-        done(err);
+        bff.server.close( () => {
+            done(err);
+        });
+
       });
     });
   });
@@ -317,11 +330,12 @@ describe('BFF', () => {
                 .query({[RENDER_MODE_QUERY_NAME]: FRAGMENT_RENDER_MODES.STREAM})
                 .expect(200)
                 .end((err, res) => {
-                    bff.server.close();
                     expect(res.body).to.deep.eq({
                         main: '<div>Rendered Fragment ACG</div>'
                     });
-                    done(err);
+                    bff.server.close( () => {
+                        done(err);
+                    });
                 });
         });
     });
@@ -383,9 +397,11 @@ describe('BFF', () => {
                         .query({[RENDER_MODE_QUERY_NAME]: FRAGMENT_RENDER_MODES.STREAM})
                         .expect(200)
                         .end((err2, res2) => {
-                            bff.server.close();
                             expect(res2.text).to.eq(firstResponse);
-                            done(err || err2);
+                            bff.server.close( () => {
+                                done(err || err2);
+                            });
+
                         });
                 });
         });
@@ -436,11 +452,13 @@ describe('BFF', () => {
                 .expect(200)
                 .end((err, res) => {
                     if (err) throw new (err);
-                    bff.server.close();
                     expect(res.body).to.deep.eq({
                         $model: pageModel
                     });
-                    done();
+                    bff.server.close( () => {
+                        done();
+                    });
+
                 });
         });
     });
@@ -492,9 +510,11 @@ describe('BFF', () => {
                 .expect(200)
                 .end((err, res) => {
                     if (err) throw new (err);
-                    bff.server.close();
                     expect(res.text).to.include(`<script>PuzzleJs.emit("${EVENT.ON_VARIABLES}", "product", "transaction", ${JSON.stringify(pageModel)});</script>`);
-                    done();
+                    bff.server.close( () => {
+                        done();
+                    });
+
                 });
         });
     });
@@ -561,7 +581,6 @@ describe('BFF', () => {
                 .expect(200)
                 .end((err, res) => {
                     if (err) throw new (err);
-                    bff.server.close();
                     expect(res.header['failure']).to.eq('reason');
                     expect(res.body).to.deep.eq({
                         "main": "<div>Rendered Fragment Fragment</div>",
@@ -569,11 +588,13 @@ describe('BFF', () => {
                         '$headers': {failure: 'reason'},
                         '$cookies':
                             { customCookie1: { value: 'customValue1', options: { expires: customCookieExpiredDate.toISOString() } },
-                              customCookie2: { value: 'customValue2' } } }
+                                customCookie2: { value: 'customValue2' } } }
                     );
                     expect(res.header['set-cookie'][0]).to.eq(`customCookie1=customValue1; Path=/; Expires=${customCookieExpiredDate.toUTCString()}`);
                     expect(res.header['set-cookie'][1]).to.eq(`customCookie2=customValue2; Path=/`);
-                    done();
+                    bff.server.close( () => {
+                        done();
+                    });
                 });
         });
     });
@@ -629,14 +650,16 @@ describe('BFF', () => {
                 .expect(200)
                 .end((err, res) => {
                     if (err) throw new (err);
-                    bff.server.close();
                     expect(res.header['failure']).to.eq('reason');
                     expect(res.body).to.deep.eq({
                         main: '<div>Rendered Fragment test</div>',
                         '$status': 404,
                         '$headers': {failure: 'reason', location: 'https://blabla.com'}
                     });
-                    done();
+                    bff.server.close( () => {
+                        done();
+                    });
+
                 });
         });
     });
@@ -823,9 +846,11 @@ describe('BFF', () => {
                 .get('/api/test/')
                 .expect(200)
                 .end((err, res) => {
-                    bff.server.close();
                     expect(res.text).to.eq('working');
-                    done(err);
+                    bff.server.close( () => {
+                        done(err);
+                    });
+
                 });
         });
     });
@@ -880,9 +905,11 @@ describe('BFF', () => {
                 .set('Cookie', `test_v=1.0.1`)
                 .expect(200)
                 .end((err, res) => {
-                    bff.server.close();
                     expect(res.text).to.eq('working1.0.1');
-                    done(err);
+                    bff.server.close( () => {
+                        done(err);
+                    });
+
                 });
         });
     });
@@ -931,9 +958,11 @@ describe('BFF', () => {
                 .get('/product/placeholder')
                 .expect(200)
                 .end((err, res) => {
-                    bff.server.close();
                     expect(res.text).to.eq(`placeholder`);
-                    done(err);
+                    bff.server.close( () => {
+                        done(err);
+                    });
+
                 });
         });
     });
@@ -987,9 +1016,11 @@ describe('BFF', () => {
                 .get('/product')
                 .expect(HTTP_STATUS_CODE.FORBIDDEN)
                 .end((err, res) => {
-                    bff.server.close();
                     expect(res.text).to.eq(`Nope`);
-                    done(err);
+                    bff.server.close( () => {
+                        done(err);
+                    });
+
                 });
         });
     });
@@ -1039,9 +1070,11 @@ describe('BFF', () => {
                 .query({delay: 1500})
                 .expect(200)
                 .end((err, res) => {
-                    bff.server.close();
                     expect(res.text).to.eq(`<html><head><title>Browsing - product</title></head><body><div id="product">placeholder</div></body></html>${CONTENT_REPLACE_SCRIPT}<div style="display: none;" id="product-replace"><div>Rendered Fragment ACG</div></div><script>$p('#product', '#product-replace')</script>`);
-                    done(err);
+                    bff.server.close( () => {
+                        done(err);
+                    });
+
                 });
         });
     });
@@ -1091,12 +1124,13 @@ describe('BFF', () => {
                 .query({[RENDER_MODE_QUERY_NAME]: FRAGMENT_RENDER_MODES.STREAM})
                 .expect(200)
                 .end((err, res) => {
-                    bff.server.close();
                     expect(res.body).to.deep.eq({
                         main: `<div>Rendered Fragment ${key}</div>`
                     });
-                    done(err);
-                })
+                    bff.server.close( () => {
+                        done(err);
+                    });
+                });
         });
     });
 
@@ -1153,8 +1187,9 @@ describe('BFF', () => {
                 .expect(200)
                 .end((err, res) => {
                     if (err) throw new Error(err);
-                    bff.server.close();
-                    done();
+                    bff.server.close( () => {
+                        done();
+                    });
                 });
         });
     });

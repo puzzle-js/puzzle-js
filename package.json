@@ -1,7 +1,6 @@
-
 {
   "name": "@puzzle-js/core",
-  "version": "1.1.7",
+  "version": "2.0.0",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "logo": "https://image.ibb.co/jM29on/puzzlelogo.png",
@@ -88,7 +87,6 @@
     "response-time": "^2.3.2",
     "route-cache": "^0.4.4",
     "shrink-ray-current": "^4.0.0",
-    "spdy": "^4.0.0",
     "superstruct": "^0.6.2",
     "uuid": "^3.3.3",
     "winston": "^3.2.1",

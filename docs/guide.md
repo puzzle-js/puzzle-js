@@ -101,7 +101,7 @@ Chunked fragments are sent after the initial chunk. Like the example above `<div
 
 ##### ShouldWait Fragments
 
-ShoudWait fragments are the fragments that should be waited and injected into initial chunk. Let's assume a page with 2 fragments. One is shouldWait and the other is chunked.
+ShouldWait fragments are the fragments that should be waited and injected into initial chunk. Let's assume a page with 2 fragments. One is shouldWait and the other is chunked.
 ```html
 0xf3
 <html>
@@ -156,7 +156,9 @@ An example of starting storefront with simple configuration.
 ```js
 const Storefront = require('@puzzle-js/core');
 const storefront = new Storefront({
-  port: 4444,
+  serverOptions: {
+    port: 4444
+  },
   gateways: [{
     name: 'Gateway',
     url: 'https://127.0.0.1:4448/',
@@ -178,10 +180,9 @@ You can provide configuration as object or you can use [Configurator](#configura
 
 | Property | Type | Required | Description |
 |-|-|-|-|
-| port | number | True | Port to listen |
+| serverOptions | ServerOptions | True | server options |
 | gateways | gateway | True | Gateway Configuration |
 | pages | page | True | Page Configuration |
-| spdy | spdy | False | http2 and spdy configuration |
 | dependencies | dependency[] | True | Shared dependencies (React, angular, etc.) or [] |
 
 #### Gateway Definition
@@ -365,7 +366,9 @@ configurator.config({
   api: [],
   name: 'Gateway',
   url: 'http://gateway.com/',
-  port: 32,
+  serverOptions: {
+      port: 32
+  },
   fragments: [
     {
       versions: {
@@ -431,7 +434,9 @@ new Gateway({
   fragmentsFolder: '',
   name: 'Gateway',
   url: 'http://gateway.com',
-  port: 32,
+  serverOptions: {
+    port: 32
+  },
   fragments: []
 })
 ```
@@ -465,7 +470,9 @@ configurator.config({
   ],
   name: 'Gateway',
   url: 'http://gateway.com/',
-  port: 32,
+  serverOptions: {
+    port: 32
+  },
   fragments: []
 });
 
@@ -475,7 +482,7 @@ With this feature, you can easily manage your configuration on a separate file. 
 
 | Name | Description |
 | - | - |
-| Middleware | Used for adding express middlewares |
+| Middleware | Used for adding express middleware |
 | Handler | Used for custom handlers, read [Handler](#handler) |
 | Custom | Can be used for anything |
 
@@ -549,3 +556,19 @@ PuzzleJs has some inner configurations you can't change using any Storefront or 
 | DEBUG_INFORMATION | false | It enables debug information globally |
 | NO_COMPRESS_QUERY_NAME | '__noCompress' | It disables compression for that request |
 
+## Configuration Models
+
+### Server Options
+** HTTP/2 Does not supported yet
+| Property | Type | Required | Description |
+|-|-|-|-|
+| port | number | True | Port for server to listen |
+| hostname | string | False | Hostname for server |
+| http2 | boolean | False | HTTP2 option (Not Supported Yet)|
+| https | serverHttpsOptions | False | HTTPS options |
+
+#### Server Https Options
+| Property | Type | Required | Description |
+|-|-|-|-|
+| cert | string | True | Certificate for HTTPS |
+| key | string | True | Key for HTTPS |

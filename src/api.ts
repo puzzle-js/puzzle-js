@@ -1,4 +1,4 @@
-import {Server} from "./server";
+import {Server} from "./network";
 import {API_ROUTE_PREFIX} from "./config";
 import path from "path";
 import {IApiConfig, IApiHandlerModule, ICookieMap} from "./types";
@@ -21,10 +21,10 @@ export class Api {
 
     /**
      * Registers API endpoints /{API_PREFIX}/{APINAME}
-     * @param {Server} app
+     * @param {Server} server
      */
-    registerEndpoints(app: Server) {
-        app.addUse(`/${API_ROUTE_PREFIX}/${this.config.name}`, (req, res, next) => {
+    registerEndpoints(server: Server) {
+        server.handler.addUse(`/${API_ROUTE_PREFIX}/${this.config.name}`, (req, res, next) => {
             const requestVersion = this.detectVersion(req.cookies);
 
             req.headers["originalurl"] = req.url;
@@ -37,7 +37,7 @@ export class Api {
             const apiHandler = this.config.versions[version];
 
             apiHandler.endpoints.forEach(endpoint => {
-                app.addRoute(`/${API_ROUTE_PREFIX}/${this.config.name}/${version}${endpoint.path}`, endpoint.method, this.handler[version][endpoint.controller], endpoint.middlewares);
+                server.handler.addRoute(`/${API_ROUTE_PREFIX}/${this.config.name}/${version}${endpoint.path}`, endpoint.method, this.handler[version][endpoint.controller], endpoint.middlewares);
             });
         });
     }

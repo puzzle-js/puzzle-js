@@ -1,11 +1,11 @@
 import { Api } from "../src/api";
 import { expect } from "chai";
 import { HTTP_METHODS } from "../src/enums";
-import { Server } from "../src/server";
+import { Server } from "../src/network";
 import supertest from "supertest";
 import faker from "faker";
 
-describe('Api', function () {
+describe('Api',  () => {
   it('should create a new api instance', () => {
     const api = new Api({
       liveVersion: '1.0.0',
@@ -73,7 +73,7 @@ describe('Api', function () {
     api.registerEndpoints(server);
 
 
-    supertest(server.app)
+    supertest(server.handler.getApp())
       .get('/api/browsing/history')
       .expect(200)
       .end((err, res) => {
@@ -126,7 +126,7 @@ describe('Api', function () {
     api.registerEndpoints(server);
 
 
-    supertest(server.app)
+    supertest(server.handler.getApp())
       .get('/api/browsing/history')
       .set('Cookie', `browsing-version=1.0.1`)
       .expect(200)
@@ -196,7 +196,7 @@ describe('Api', function () {
     api.registerEndpoints(server);
 
 
-    supertest(server.app)
+    supertest(server.handler.getApp())
       .get(`/api/browsing/${firstParam}/${secondParam}`)
       .expect(200)
       .end(() => {

@@ -110,7 +110,9 @@ const gateway = new PuzzleJs.Gateway({
       }
     }
   ],
-  port: 4444,
+  serverOptions: {
+    port: 4444
+  },
   url: 'http://localhost:4444',
   fragmentsFolder: path.join(__dirname, "./src/fragments")
 });
@@ -181,7 +183,9 @@ const path = require('path');
 const fs = require('fs');
 
 const storefront = new PuzzleJs.Storefront({
-  port: 4445,
+  serverOptions: {
+    port: 4445
+  },
   gateways: [
     {
       name: 'Browsing',

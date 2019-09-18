@@ -16,6 +16,7 @@ import path from "path";
 import {container, TYPES} from "./base";
 import {Logger} from "./logger";
 import {decompress} from "iltorb";
+// TODO: remove this
 import {Request} from 'express';
 import {HttpClient} from "./client";
 import {ERROR_CODES, PuzzleError} from "./errors";

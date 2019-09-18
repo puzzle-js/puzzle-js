@@ -6,12 +6,11 @@ import {LIB_CONTENT_DEBUG, wait} from "./util";
 import {Logger} from "./logger";
 import {callableOnce, sealed} from "./decorators";
 import {container, TYPES} from "./base";
-import {Server} from "./server";
-import {IGatewayMap, IPageMap, IStorefrontConfig} from "./types";
+import {Server} from "./network";
+import {IGatewayMap, IStorefrontConfig} from "./types";
 import ResourceFactory from "./resourceFactory";
 import {GATEWAY_PREPERATION_CHECK_INTERVAL, PUZZLE_DEBUGGER_LINK, TEMP_FOLDER} from "./config";
 import {StorefrontConfigurator} from "./configurator";
-import path from "path";
 import fs from "fs";
 
 const logger = container.get(TYPES.Logger) as Logger;
@@ -32,14 +31,12 @@ export class Storefront {
      * @param {Server} _server
      */
     constructor(storefrontConfig: IStorefrontConfig | StorefrontConfigurator, _server?: Server) {
-        this.server = _server || container.get(TYPES.Server);
-
         if (storefrontConfig instanceof StorefrontConfigurator) {
             this.config = storefrontConfig.configuration;
         } else {
             this.config = storefrontConfig;
         }
-
+        this.server = _server || new Server(this.config.serverOptions);
         this.bootstrap();
     }
 
@@ -60,10 +57,10 @@ export class Storefront {
             this.addPageRoute.bind(this)
         ], err => {
             if (!err) {
-                this.server.listen(this.config.port, () => {
-                    logger.info(`Storefront is listening on port ${this.config.port}`);
+                this.server.listen(() => {
+                    logger.info(`Storefront is listening on port ${this.config.serverOptions.port}`);
                     cb && cb();
-                }, this.config.ipv4);
+                });
             } else {
                 throw err;
             }
@@ -82,7 +79,6 @@ export class Storefront {
         if (!fs.existsSync(TEMP_FOLDER)) {
             fs.mkdirSync(TEMP_FOLDER);
         }
-        this.server.useProtocolOptions(this.config.spdy);
         this.createStorefrontPagesAndGateways();
     }
 
@@ -92,7 +88,7 @@ export class Storefront {
      * @returns {Promise<void>}
      */
     private async registerDebugScripts(cb: Function) {
-        this.server.addRoute(PUZZLE_DEBUGGER_LINK, HTTP_METHODS.GET, (req, res) => {
+        this.server.handler.addRoute(PUZZLE_DEBUGGER_LINK, HTTP_METHODS.GET, (req, res) => {
             res.set('Content-Type', 'application/javascript');
             res.send(LIB_CONTENT_DEBUG);
         });
@@ -149,7 +145,7 @@ export class Storefront {
      */
     private addHealthCheckRoute(cb: Function) {
         logger.info(`Registering healthcheck routes: ${HEALTHCHECK_PATHS}`);
-        this.server.addRoute(HEALTHCHECK_PATHS, HTTP_METHODS.GET, (req, res) => {
+        this.server.handler.addRoute(HEALTHCHECK_PATHS, HTTP_METHODS.GET, (req, res) => {
             res.status(HTTP_STATUS_CODE.OK).end();
         });
 
@@ -162,7 +158,7 @@ export class Storefront {
      */
 
     private addCustomHeaders(cb: Function) {
-        this.server.addCustomHeaders(this.config.customHeaders);
+        this.server.handler.addCustomHeaders(this.config.customHeaders);
         cb();
     }
 
@@ -175,7 +171,7 @@ export class Storefront {
             const page = this.pages.get(pageConfiguration.name);
             if(page){
                 logger.info(`Adding page ${pageConfiguration.name} route: ${pageConfiguration.url}`);
-                this.server.addRoute(pageConfiguration.url, HTTP_METHODS.GET, (req, res, next) => {
+                this.server.handler.addRoute(pageConfiguration.url, HTTP_METHODS.GET, (req, res, next) => {
                     logger.info(`Request route name: ${page.name} - ${req.url} - ${JSON.stringify(req.headers)}`);
                     if (typeof pageConfiguration.condition === 'function' ? pageConfiguration.condition(req) : true) {
                         page.handle(req, res);
@@ -183,7 +179,7 @@ export class Storefront {
                         next();
                     }
                 });
-                this.server.addRoute(pageConfiguration.url, HTTP_METHODS.POST, (req, res, next) => {
+                this.server.handler.addRoute(pageConfiguration.url, HTTP_METHODS.POST, (req, res, next) => {
                     page.post(req, res, next);
                 });
             }
