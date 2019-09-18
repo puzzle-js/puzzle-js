@@ -127,7 +127,6 @@ export class GatewayStorefrontInstance {
       if (data.fragments.hasOwnProperty(fragmentName)) {
         for (const asset of data.fragments[fragmentName].assets) {
           await AssetManager.getAsset(`${asset.link}?__version=${data.fragments[fragmentName].version}`, this.name);
-          console.log(`${asset.link}?__version=${data.fragments[fragmentName].version}`);
         }
       }
     }
