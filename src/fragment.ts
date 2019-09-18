@@ -440,19 +440,9 @@ export class FragmentStorefront extends Fragment {
     const link = (asset.link || `${this.fragmentUrl}/static/${asset.fileName}`) + `?__version=${targetVersion}`;
 
 
-    const res = await AssetManager.getAsset(link, this.gatewayName);
+    return await AssetManager.getAsset(link, this.gatewayName);
 
-    if(!res.error && res.data && res.response){
-      logger.info(`Asset received: ${name}`);
-      const encoding = res.response.headers['content-encoding'];
 
-      if (encoding === CONTENT_ENCODING_TYPES.BROTLI) {
-        const buffer = Buffer.from(res.data);
-        return await decompress(buffer);
-      } else {
-        return res.data;
-      }
-    }
   }
 
   /**

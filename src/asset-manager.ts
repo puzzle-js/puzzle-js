@@ -2,6 +2,8 @@ import warden from "puzzle-warden";
 import * as request from "request";
 import {container, TYPES} from "./base";
 import {Logger} from "./logger";
+import {CONTENT_ENCODING_TYPES} from "./enums";
+import {decompress} from "iltorb";
 
 const logger = container.get(TYPES.Logger) as Logger;
 
@@ -11,7 +13,7 @@ class AssetManager {
     warden.register('Assets', {
       identifier: '{url}{query.__version}',
       gzip: true,
-      holder:true,
+      holder: true,
       timeout: 2000,
       cache: {
         duration: '30 days'
@@ -23,7 +25,7 @@ class AssetManager {
     });
   }
 
-  static async getAsset(url: string, gateway: string): Promise<{ error: any, response: request.Response | undefined, data: any }> {
+  static async getAsset(url: string, gateway: string): Promise<string> {
     return new Promise((resolve, reject) => {
       warden.request('Assets', {
         headers: {
@@ -31,9 +33,18 @@ class AssetManager {
         },
         url,
         method: 'get'
-      }, (error, response, data) => {
+      }, async (error, response, data) => {
         if (!error && data) {
-          resolve({error, response, data});
+          logger.info(`Asset received: ${url}`);
+          const encoding = response.headers['content-encoding'];
+          let content = data;
+
+          if (encoding === CONTENT_ENCODING_TYPES.BROTLI) {
+            const buffer = Buffer.from(data);
+            content = await decompress(buffer);
+          }
+
+          resolve(content);
         } else {
           logger.error(new Error(`Failed to fetch asset from gateway: ${url}`));
           reject({error, response});
