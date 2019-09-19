@@ -12,6 +12,7 @@ import ResourceFactory from "./resourceFactory";
 import {GATEWAY_PREPERATION_CHECK_INTERVAL, PUZZLE_DEBUGGER_LINK, TEMP_FOLDER} from "./config";
 import {StorefrontConfigurator} from "./configurator";
 import fs from "fs";
+import {AssetManager} from "./asset-manager";
 
 const logger = container.get(TYPES.Logger) as Logger;
 
@@ -80,6 +81,7 @@ export class Storefront {
             fs.mkdirSync(TEMP_FOLDER);
         }
         this.createStorefrontPagesAndGateways();
+        AssetManager.init();
     }
 
     /**

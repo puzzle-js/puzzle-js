@@ -5,6 +5,7 @@ import {IExposeFragment} from "../src/types";
 import nock from "nock";
 import {FRAGMENT_RENDER_MODES, RESOURCE_INJECT_TYPE, RESOURCE_LOCATION} from "../src/enums";
 import {RESOURCE_TYPE} from "@puzzle-js/client-lib/dist/enums";
+import {AssetManager} from "../src/asset-manager";
 
 describe('Fragment', () => {
     describe('BFF', () => {
@@ -236,6 +237,8 @@ describe('Fragment', () => {
 
         it('should fetch the asset with the desired name', async () => {
             const productScript = `<script>console.log('Product Script')</script>`;
+
+            AssetManager.init();
 
             const scope = nock('http://asset-serving-test.com')
                 .log(console.log)

@@ -1,6 +1,6 @@
 {
   "name": "@puzzle-js/core",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "logo": "https://image.ibb.co/jM29on/puzzlelogo.png",
@@ -57,7 +57,7 @@
   },
   "scripts": {
     "build": "TS_NODE_FILES=true node_modules/.bin/tsc",
-    "test": "NODE_TLS_REJECT_UNAUTHORIZED=0 node_modules/.bin/jest --coverage --silent",
+    "test": "NODE_TLS_REJECT_UNAUTHORIZED=0 node_modules/.bin/jest tests/fragment.spec.ts \"--testNamePattern=^Fragment Storefront should return asset path if public asset external link provided$\" --coverage --silent --runInBand --detectOpenHandles",
     "test:ci": "NODE_TLS_REJECT_UNAUTHORIZED=0 node_modules/.bin/jest --coverage --silent --runInBand",
     "test:watch": "NODE_TLS_REJECT_UNAUTHORIZED=0 node_modules/.bin/jest --coverage --watch --silent",
     "publish:beta": "npm publish --tag=beta",
@@ -81,7 +81,7 @@
     "md5": "^2.2.1",
     "morgan": "^1.9.1",
     "node-fetch": "^2.5.0",
-    "puzzle-warden": "^1.7.2",
+    "puzzle-warden": "^1.7.3",
     "reflect-metadata": "^0.1.12",
     "request": "^2.88.0",
     "response-time": "^2.3.2",
