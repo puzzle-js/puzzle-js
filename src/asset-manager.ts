@@ -16,7 +16,7 @@ class AssetManager {
       holder: true,
       timeout: 2000,
       cache: {
-        duration: '30 days'
+        duration: '10 days'
       },
       retry: {
         count: 5,
