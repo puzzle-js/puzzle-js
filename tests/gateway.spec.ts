@@ -510,7 +510,7 @@ describe('Gateway', () => {
                                 assets: [],
                                 dependencies: [],
                                 handler: {
-                                    content(req: any, data: any) {
+                                    content(data: any) {
                                         return {
                                             main: `Requested:${data}`
                                         };

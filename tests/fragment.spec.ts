@@ -34,7 +34,7 @@ describe('Fragment', () => {
 
         it('should render fragment as json format', async () => {
             const fragmentConfig = JSON.parse(JSON.stringify(commonFragmentBffConfiguration));
-            fragmentConfig.versions.test.handler.content = (req: any, data: any) => {
+            fragmentConfig.versions.test.handler.content = (data: any) => {
                 return {
                     main: `${data} was here`
                 };
@@ -61,7 +61,7 @@ describe('Fragment', () => {
 
         it('should throw at render error when not static and no data', done => {
             const fragmentConfig = JSON.parse(JSON.stringify(commonFragmentBffConfiguration));
-            fragmentConfig.versions.test.handler.content = (req: any, data: any) => `${data} was here`;
+            fragmentConfig.versions.test.handler.content = (data: any) => `${data} was here`;
             const fragment = new FragmentBFF(fragmentConfig);
             fragment.render({} as any, '1.0.0').then(data => done(data)).catch(e => {
                 expect(e.message).to.include('Failed to find data handler');
@@ -71,7 +71,7 @@ describe('Fragment', () => {
 
         it('should render live version when failed to find target version', done => {
             const fragmentConfig = JSON.parse(JSON.stringify(commonFragmentBffConfiguration));
-            fragmentConfig.versions.test.handler.content = (req: any, data: any) => ({
+            fragmentConfig.versions.test.handler.content = (data: any) => ({
                 main: `${data} was here`
             });
             fragmentConfig.versions.test.handler.data = () => {

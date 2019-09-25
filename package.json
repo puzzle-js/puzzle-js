@@ -57,7 +57,7 @@
   },
   "scripts": {
     "build": "TS_NODE_FILES=true node_modules/.bin/tsc",
-    "test": "NODE_TLS_REJECT_UNAUTHORIZED=0 node_modules/.bin/jest tests/fragment.spec.ts \"--testNamePattern=^Fragment Storefront should return asset path if public asset external link provided$\" --coverage --silent --runInBand --detectOpenHandles",
+    "test": "NODE_TLS_REJECT_UNAUTHORIZED=0 node_modules/.bin/jest --coverage --silent",
     "test:ci": "NODE_TLS_REJECT_UNAUTHORIZED=0 node_modules/.bin/jest --coverage --silent --runInBand",
     "test:watch": "NODE_TLS_REJECT_UNAUTHORIZED=0 node_modules/.bin/jest --coverage --watch --silent",
     "publish:beta": "npm publish --tag=beta",
