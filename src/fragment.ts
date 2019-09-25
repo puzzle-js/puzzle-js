@@ -73,7 +73,7 @@ export class FragmentBFF extends Fragment {
           };
         }
         if (dataResponse.data) {
-          const renderedPartials = handler.content(clearedRequest, dataResponse.data);
+          const renderedPartials = handler.content(dataResponse.data);
           delete dataResponse.data;
           return {
             ...renderedPartials,
