@@ -133,7 +133,7 @@ describe('BFF', () => {
     //             ] as IFileResourceAsset[],
     //             dependencies: [],
     //             handler: {
-    //               content(req: any, data: any) {
+    //               content(data: any) {
     //                 return {
     //                   main: `<div>Rendered Fragment ${data.username}</div>`
     //                 };
@@ -192,7 +192,7 @@ describe('BFF', () => {
     //             ] as IFileResourceAsset[],
     //             dependencies: [],
     //             handler: {
-    //               content(req: any, data: any) {
+    //               content(data: any) {
     //                 return {
     //                   main: `<div>Rendered Fragment ${data.username}</div>`
     //                 };
@@ -250,7 +250,7 @@ describe('BFF', () => {
     //             ] as IFileResourceAsset[],
     //             dependencies: [],
     //             handler: {
-    //               content(req: any, data: any) {
+    //               content(data: any) {
     //                 return {
     //                   main: `<div>Rendered Fragment ${data.username}</div>`,
     //                   another: `<div>another partial</div>`
@@ -302,7 +302,7 @@ describe('BFF', () => {
                             assets: [],
                             dependencies: [],
                             handler: {
-                                content(req: any, data: any) {
+                                content(data: any) {
                                     return {
                                         main: `<div>Rendered Fragment ${data.username}</div>`
                                     };
@@ -343,7 +343,7 @@ describe('BFF', () => {
     it('should export fragment content in stream mode with route cache', (done) => {
 
         const handler = {
-            content(req: any, data: any) {
+            content(data: any) {
                 const random = faker.random.word();
                 return {
                     main: `<div>${random}</div>`
@@ -537,7 +537,7 @@ describe('BFF', () => {
                             assets: [],
                             dependencies: [],
                             handler: {
-                                content(req: any, data: any) {
+                                content(data: any) {
                                     return {
                                         main: `<div>Rendered Fragment ${data.username}</div>`
                                     };
@@ -615,7 +615,7 @@ describe('BFF', () => {
                             assets: [],
                             dependencies: [],
                             handler: {
-                                content(req: any, data: any) {
+                                content(data: any) {
 
                                     return {
                                         main: `<div>Rendered Fragment ${data.username}</div>`
@@ -688,7 +688,7 @@ describe('BFF', () => {
     //             ],
     //             dependencies: [],
     //             handler: {
-    //               content(req: any, data: any) {
+    //               content(data: any) {
     //                 return {
     //                   main: `<div>Rendered Fragment ${data.username}</div>`
     //                 };
@@ -747,7 +747,7 @@ describe('BFF', () => {
     //             ],
     //             dependencies: [],
     //             handler: {
-    //               content(req: any, data: any) {
+    //               content(data: any) {
     //                 return {
     //                   main: `<div>Rendered Fragment ${data.username}</div>`
     //                 };
@@ -776,7 +776,7 @@ describe('BFF', () => {
     //             ],
     //             dependencies: [],
     //             handler: {
-    //               content(req: any, data: any) {
+    //               content(data: any) {
     //                 return {
     //                   main: `<div>Rendered Fragment ${data.username}</div>`
     //                 };
@@ -931,7 +931,7 @@ describe('BFF', () => {
                             assets: [],
                             dependencies: [],
                             handler: {
-                                content(req: any, data: any) {
+                                content(data: any) {
                                     return {
                                         main: `<div>Rendered Fragment ${data.username}</div>`
                                     };
@@ -989,7 +989,7 @@ describe('BFF', () => {
                             assets: [],
                             dependencies: [],
                             handler: {
-                                content(req: any, data: any) {
+                                content(data: any) {
                                     return {
                                         main: `<div>Rendered Fragment ${data.username}</div>`
                                     };
@@ -1042,7 +1042,7 @@ describe('BFF', () => {
                             assets: [],
                             dependencies: [],
                             handler: {
-                                content(req: any, data: any) {
+                                content(data: any) {
                                     return {
                                         main: `<div>Rendered Fragment ${data.username}</div>`
                                     };
@@ -1096,7 +1096,7 @@ describe('BFF', () => {
                             assets: [],
                             dependencies: [],
                             handler: {
-                                content(req: any, data: any) {
+                                content(data: any) {
                                     return {
                                         main: `<div>Rendered Fragment ${data.key || ''}</div>`
                                     };
