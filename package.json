@@ -1,6 +1,6 @@
 {
   "name": "@puzzle-js/core",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "logo": "https://image.ibb.co/jM29on/puzzlelogo.png",
