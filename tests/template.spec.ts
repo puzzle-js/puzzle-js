@@ -45,7 +45,6 @@ describe('Template', () => {
               "name": "product",
             },
             clientAsync: false,
-            disabled: false,
             name: 'product',
             primary: false,
             shouldWait: false,
@@ -94,7 +93,6 @@ describe('Template', () => {
               "primary": "",
             },
             clientAsync: false,
-            disabled: false,
             name: 'product',
             primary: true,
             shouldWait: true,
@@ -126,7 +124,6 @@ describe('Template', () => {
               "disabled": "${'true'}"
             },
             clientAsync: false,
-            disabled: true,
             name: 'product',
             primary: false,
             shouldWait: false,
@@ -182,7 +179,6 @@ describe('Template', () => {
               "partial": "notification",
             },
             clientAsync: false,
-            disabled: false,
             name: 'product',
             primary: true,
             shouldWait: true,
@@ -220,7 +216,6 @@ describe('Template', () => {
               "shouldwait": "",
             },
             clientAsync: false,
-            disabled: false,
             name: 'product',
             primary: false,
             shouldWait: true,
@@ -260,7 +255,6 @@ describe('Template', () => {
               "partial": "a",
             },
             clientAsync: false,
-            disabled: false,
             name: 'product',
             primary: false,
             shouldWait: true,
@@ -365,7 +359,6 @@ describe('Template', () => {
             _attributes: {"from": "Browsing", "name": "product", "partial": "meta"},
             name: 'product',
             clientAsync: false,
-            disabled: false,
             primary: false,
             shouldWait: true,
             from: "Browsing"
@@ -534,7 +527,7 @@ describe('Template', () => {
     });
   });
 
-  it('should parse disabled config fragments and do not inject them into first flush', (done) => {
+  it('should parse disabled config fragments and do not inject them', (done) => {
     let scope = nock('http://my-test-gateway-static-3.com', {
       reqheaders: {
         gateway: 'gateway'
@@ -580,10 +573,10 @@ describe('Template', () => {
     template.compile({}).then(handler => {
       handler({}, createExpressMock({
         write(str: string) {
-          expect(str).to.eq(null);
+          expect(str).to.eq(`<div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main"></div></div>`);
         },
         end(str: string) {
-          expect(str).to.eq(`<div><fragment from="Browsing" name="product" disabled="true"></fragment></div>`);
+          expect(str).to.eq(`<script>PuzzleJs.emit('0');</script></body></html>`);
           done();
         },
         status: () => ''

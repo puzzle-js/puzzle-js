@@ -230,8 +230,7 @@ export default class ResourceInjector {
             chunked: fragment.config ? (fragment.shouldWait || (fragment.config.render.static || false)) : false,
             clientAsync: fragment.clientAsync,
             attributes: fragment.attributes,
-            source: fragment.assetUrl || fragment.fragmentUrl,
-            disabled: fragment.disabled
+            source: fragment.assetUrl || fragment.fragmentUrl
         });
     }
 

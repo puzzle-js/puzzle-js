@@ -84,11 +84,6 @@ export class Template {
         };
       }
 
-      if (fragment.attribs.disabled !== undefined) {
-        const processedExpression = TemplateCompiler.processExpression({ disabled: fragment.attribs.disabled }, this.pageClass);
-        this.fragments[fragment.attribs.name].disabled = processedExpression.disabled === "true";
-      }
-
       if (!this.fragments[fragment.attribs.name].primary) {
         if (typeof fragment.attribs.primary !== 'undefined') {
           if (primaryName != null && primaryName !== fragment.attribs.name) throw new PuzzleError(ERROR_CODES.MULTIPLE_PRIMARY_FRAGMENTS);
@@ -221,7 +216,6 @@ export class Template {
    */
   private async replaceStaticFragments(fragments: FragmentStorefront[], replaceAssets: IReplaceAsset[]): Promise<void> {
     for (const fragment of fragments) {
-      if (fragment.disabled) continue;
       const partialElements: any = [];
       let mainElement: any = null;
       this.dom(`fragment[name="${fragment.name}"][from="${fragment.from}"]`).each((i, element) => {
@@ -273,7 +267,7 @@ export class Template {
 
     await Promise.all(waitedFragments.map(async waitedFragmentReplacement => {
       const attributes = TemplateCompiler.processExpression(waitedFragmentReplacement.fragmentAttributes, this.pageClass, req);
-      if (waitedFragmentReplacement.fragment.clientAsync || waitedFragmentReplacement.fragment.disabled) return;
+      if (waitedFragmentReplacement.fragment.clientAsync || attributes.disabled === "true") return;
 
       const fragmentContent = await waitedFragmentReplacement.fragment.getContent(attributes, req);
 
@@ -370,7 +364,9 @@ export class Template {
     const waitedReplacementPromise = this.replaceWaitedFragments(waitedFragments, fragmentedHtml, req, isDebug);
 
     for (let i = 0, len = chunkedFragmentReplacements.length; i < len; i++) {
-      waitedPromises.push(chunkedFragmentReplacements[i].fragment.getContent(TemplateCompiler.processExpression(chunkedFragmentReplacements[i].fragmentAttributes, this.pageClass, req), req));
+      const attributes = TemplateCompiler.processExpression(chunkedFragmentReplacements[i].fragmentAttributes, this.pageClass, req);
+      if(attributes.disabled === "true") continue;
+      waitedPromises.push(chunkedFragmentReplacements[i].fragment.getContent(attributes, req));
     }
 
     //Wait for first flush
@@ -392,6 +388,8 @@ export class Template {
 
       //Bind flush method to resolved or being resolved promises of chunked replacements
       for (let i = 0, len = chunkedFragmentReplacements.length; i < len; i++) {
+        const attributes = TemplateCompiler.processExpression(chunkedFragmentReplacements[i].fragmentAttributes, this.pageClass, req);
+        if(attributes.disabled === "true") continue;
         waitedPromises[i].then(this.flush(chunkedFragmentReplacements[i], jsReplacements, res, isDebug));
       }
 
@@ -496,7 +494,6 @@ export class Template {
     const chunkReplacements: IReplaceSet[] = [];
 
     chunkedFragments.forEach(fragment => {
-      if (fragment.disabled) return;
       const replaceItems: IReplaceItem[] = [];
       let fragmentAttributes = {};
       this.dom(`fragment[from="${fragment.from}"][name="${fragment.name}"]`)
@@ -547,7 +544,6 @@ export class Template {
     const waitedFragmentReplacements: IReplaceSet[] = [];
 
     fragmentsShouldBeWaited.forEach(fragment => {
-      if (fragment.disabled) return;
       const replaceItems: IReplaceItem[] = [];
       let fragmentAttributes = {};
 

@@ -184,7 +184,6 @@ export class FragmentStorefront extends Fragment {
   primary = false;
   shouldWait = false;
   clientAsync = false;
-  disabled = false;
   from: string;
   gatewayPath!: string;
   fragmentUrl: string | undefined;
@@ -380,7 +379,6 @@ export class FragmentStorefront extends Fragment {
     delete query.partial;
     delete query.primary;
     delete query.shouldwait;
-    delete query.disabled;
 
     const routeRequest = req && parsedRequest ? `${parsedRequest.pathname.replace('/' + this.name, '')}?${querystring.stringify(query)}` : `/?${querystring.stringify(query)}`;
 

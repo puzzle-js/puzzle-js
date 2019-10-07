@@ -66,7 +66,7 @@
     "lint:ts:fix": "./node_modules/.bin/tslint -p ./tsconfig.json --fix"
   },
   "dependencies": {
-    "@puzzle-js/client-lib": "^1.1.5",
+    "@puzzle-js/client-lib": "^1.1.6",
     "async": "^3.0.1",
     "cheerio": "^1.0.0-rc.2",
     "clean-css": "^4.1.11",

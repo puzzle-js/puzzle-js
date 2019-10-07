@@ -50,7 +50,6 @@ describe('Page', () => {
             },
             name: 'header',
             clientAsync: false,
-            disabled: false,
             primary: false,
             shouldWait: false,
             from: "Browsing"
@@ -66,7 +65,6 @@ describe('Page', () => {
             name: 'content',
             primary: false,
             clientAsync: false,
-            disabled: false,
             shouldWait: false,
             from: "Browsing"
           }
@@ -81,7 +79,6 @@ describe('Page', () => {
             name: 'footer',
             primary: false,
             clientAsync: false,
-            disabled: false,
             shouldWait: false,
             from: "Browsing"
           }
