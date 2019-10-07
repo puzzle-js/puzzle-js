@@ -287,10 +287,10 @@
     "@types/istanbul-reports" "^1.1.1"
     "@types/yargs" "^13.0.0"
 
-"@puzzle-js/client-lib@^1.1.4":
-  version "1.1.4"
-  resolved "https://registry.yarnpkg.com/@puzzle-js/client-lib/-/client-lib-1.1.4.tgz#377c9bc7ae2ffc1e466afad0a0bec5966b61e63f"
-  integrity sha512-JiCM3kFlJh9cMcuIEdH6TuBwhxfyS0i1IU2/5Ry/03VJ0SrkJUlW5FoeAYbwsQJSNN1NY328qmghRab0VFkOrA==
+"@puzzle-js/client-lib@^1.1.6":
+  version "1.1.6"
+  resolved "https://registry.yarnpkg.com/@puzzle-js/client-lib/-/client-lib-1.1.6.tgz#827bf4cc4eb1a6da028097b6061fd9fd812c8d08"
+  integrity sha512-ZZ6VF0U0cgHsqcbxLtykTKz4fEkYVNYKYHi5PtyXflCnUIkV8vJkfTcPJdHhRIiWqfiuAD/dmOj3XRTQsKQDMw==
 
 "@sinonjs/commons@^1", "@sinonjs/commons@^1.3.0", "@sinonjs/commons@^1.4.0":
   version "1.6.0"
@@ -539,10 +539,10 @@
   dependencies:
     "@types/node" "*"
 
-"@types/node@*", "@types/node@^12.7.4":
-  version "12.7.5"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-12.7.5.tgz#e19436e7f8e9b4601005d73673b6dc4784ffcc2f"
-  integrity sha512-9fq4jZVhPNW8r+UYKnxF1e2HkDWOWKM5bC2/7c9wPV835I0aOrVbS/Hw/pWPk2uKrNXQqg9Z959Kz+IYDd5p3w==
+"@types/node@*", "@types/node@^12.7.11":
+  version "12.7.11"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-12.7.11.tgz#be879b52031cfb5d295b047f5462d8ef1a716446"
+  integrity sha512-Otxmr2rrZLKRYIybtdG/sgeO+tHY20GxeDjcGmUnmmlCWyEnv2a2x1ZXBo3BTec4OiTXMQCiazB8NMBf0iRlFw==
 
 "@types/range-parser@*":
   version "1.2.3"
