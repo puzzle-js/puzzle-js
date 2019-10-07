@@ -77,7 +77,7 @@ export class Template {
       }
 
       if (!dependencyList.fragments[fragment.attribs.name]) {
-        this.fragments[fragment.attribs.name] = new FragmentStorefront(fragment.attribs.name, fragment.attribs.from, {...fragment.attribs});
+        this.fragments[fragment.attribs.name] = new FragmentStorefront(fragment.attribs.name, fragment.attribs.from, { ...fragment.attribs });
         dependencyList.fragments[fragment.attribs.name] = {
           gateway: fragment.attribs.from,
           instance: this.fragments[fragment.attribs.name]
@@ -267,8 +267,7 @@ export class Template {
 
     await Promise.all(waitedFragments.map(async waitedFragmentReplacement => {
       const attributes = TemplateCompiler.processExpression(waitedFragmentReplacement.fragmentAttributes, this.pageClass, req);
-
-      if(waitedFragmentReplacement.fragment.clientAsync) return;
+      if (waitedFragmentReplacement.fragment.clientAsync || attributes.disabled === "true") return;
 
       const fragmentContent = await waitedFragmentReplacement.fragment.getContent(attributes, req);
 
@@ -365,7 +364,9 @@ export class Template {
     const waitedReplacementPromise = this.replaceWaitedFragments(waitedFragments, fragmentedHtml, req, isDebug);
 
     for (let i = 0, len = chunkedFragmentReplacements.length; i < len; i++) {
-      waitedPromises.push(chunkedFragmentReplacements[i].fragment.getContent(TemplateCompiler.processExpression(chunkedFragmentReplacements[i].fragmentAttributes, this.pageClass, req), req));
+      const attributes = TemplateCompiler.processExpression(chunkedFragmentReplacements[i].fragmentAttributes, this.pageClass, req);
+      if(attributes.disabled === "true") continue;
+      waitedPromises.push(chunkedFragmentReplacements[i].fragment.getContent(attributes, req));
     }
 
     //Wait for first flush
@@ -387,6 +388,8 @@ export class Template {
 
       //Bind flush method to resolved or being resolved promises of chunked replacements
       for (let i = 0, len = chunkedFragmentReplacements.length; i < len; i++) {
+        const attributes = TemplateCompiler.processExpression(chunkedFragmentReplacements[i].fragmentAttributes, this.pageClass, req);
+        if(attributes.disabled === "true") continue;
         waitedPromises[i].then(this.flush(chunkedFragmentReplacements[i], jsReplacements, res, isDebug));
       }
 

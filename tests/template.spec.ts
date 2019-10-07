@@ -103,6 +103,37 @@ describe('Template', () => {
     });
   });
 
+  it('should parse fragment attribute disabled', () => {
+    const template = new Template('<template><div><fragment from="Browsing" name="product" disabled="${\'true\'}"></fragment></div></template>');
+
+    const dependencyList = template.getDependencies();
+    expect(dependencyList).to.deep.include({
+      gateways: {
+        Browsing: {
+          gateway: null,
+          ready: false
+        }
+      },
+      fragments: {
+        product: {
+          gateway: 'Browsing',
+          instance: {
+            "_attributes": {
+              "from": "Browsing",
+              "name": "product",
+              "disabled": "${'true'}"
+            },
+            clientAsync: false,
+            name: 'product',
+            primary: false,
+            shouldWait: false,
+            from: "Browsing"
+          }
+        }
+      }
+    });
+  });
+
   it('should throw error when multiple primary fragments', () => {
     const template = new Template(`
             <template>
@@ -489,6 +520,63 @@ describe('Template', () => {
         },
         end(str: string) {
           expect(str).to.include(`<div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" fragment-partial="main"><div>Static Fragment</div></div><script>PuzzleJs.emit('1','product');</script><div></div></div>`);
+          done();
+        },
+        status: () => ''
+      }));
+    });
+  });
+
+  it('should parse disabled config fragments and do not inject them', (done) => {
+    let scope = nock('http://my-test-gateway-static-3.com', {
+      reqheaders: {
+        gateway: 'gateway'
+      }
+    })
+        .get('/product/')
+        .query({
+          __renderMode: FRAGMENT_RENDER_MODES.STREAM
+        })
+        .reply(200, {
+          main: '<div>Disabled Fragment</div>',
+        });
+
+
+    const template = new Template(`
+                <template>
+                    <div>
+                        <fragment from="Browsing" name="product" disabled="${true}"> </fragment>
+                    </div>
+                </template>
+            `);
+
+    template.getDependencies();
+
+    template.fragments.product.update({
+      render: {
+        url: '/'
+      },
+      dependencies: [],
+      assets: [
+        {
+          injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
+          fileName: 'test.bundle.js',
+          name: 'bundle',
+          type: RESOURCE_TYPE.JS,
+          location: RESOURCE_LOCATION.BODY_END
+        }
+      ] as any,
+      testCookie: 'test',
+      version: '1.0.0'
+    }, 'http://my-test-gateway-static-3.com', 'gateway');
+
+    template.compile({}).then(handler => {
+      handler({}, createExpressMock({
+        write(str: string) {
+          expect(str).to.eq(`<div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main"></div></div>`);
+        },
+        end(str: string) {
+          expect(str).to.eq(`<script>PuzzleJs.emit('0');</script></body></html>`);
           done();
         },
         status: () => ''
