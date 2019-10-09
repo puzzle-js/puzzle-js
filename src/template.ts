@@ -270,7 +270,7 @@ export class Template {
       if (waitedFragmentReplacement.fragment.clientAsync) return;
 
       let fragmentContent;
-      if((typeof attributes.if === "boolean" && attributes.if) || attributes.if === "true"){
+      if((typeof attributes.if === "boolean" && !attributes.if) || attributes.if === "false"){
         fragmentContent = "";
       } else {
         fragmentContent = await waitedFragmentReplacement.fragment.getContent(attributes, req);
@@ -285,7 +285,7 @@ export class Template {
       waitedFragmentReplacement.replaceItems
         .forEach(replaceItem => {
           if (replaceItem.type === REPLACE_ITEM_TYPE.CONTENT) {
-            if((typeof attributes.if === "boolean" && attributes.if) || attributes.if === "true" ){
+            if((typeof attributes.if === "boolean" && !attributes.if) || attributes.if === "false" ){
               template = template.replace(replaceItem.key, () => fragmentContent);
               return;
             }
@@ -374,7 +374,7 @@ export class Template {
 
     for (let i = 0, len = chunkedFragmentReplacements.length; i < len; i++) {
       const attributes = TemplateCompiler.processExpression(chunkedFragmentReplacements[i].fragmentAttributes, this.pageClass, req);
-      if((typeof attributes.if === "boolean" && attributes.if) || attributes.if === "true" ) continue;
+      if((typeof attributes.if === "boolean" && !attributes.if) || attributes.if === "false" ) continue;
       waitedPromises.push({i, data: chunkedFragmentReplacements[i].fragment.getContent(attributes, req)});
     }
 
@@ -404,7 +404,7 @@ export class Template {
       res.end(`<script>PuzzleJs.emit('${EVENT.ON_PAGE_LOAD}');</script></body></html>`);
       this.pageClass._onResponseEnd();
     }
-  };
+  }
 
 
   /**
@@ -584,7 +584,7 @@ export class Template {
 
           if (element.parentNode.name !== 'head') {
             if(fragment.clientAsync){
-              this.dom(element).replaceWith(`<div id="${fragment.name}" puzzle-fragment="${element.attribs.name}" puzzle-gateway="${element.attribs.from}" ${element.attribs.partial ? 'fragment-partial="' + element.attribs.partial + '"' : ''}></div>`)
+              this.dom(element).replaceWith(`<div id="${fragment.name}" puzzle-fragment="${element.attribs.name}" puzzle-gateway="${element.attribs.from}" ${element.attribs.partial ? 'fragment-partial="' + element.attribs.partial + '"' : ''}></div>`);
             }else{
               this.dom(element).replaceWith(`<div id="${fragment.name}" puzzle-fragment="${element.attribs.name}" puzzle-gateway="${element.attribs.from}" ${element.attribs.partial ? 'fragment-partial="' + element.attribs.partial + '"' : ''}>${replaceKey}</div><script>PuzzleJs.emit('${EVENT.ON_FRAGMENT_RENDERED}','${fragment.name}');</script>`);
             }

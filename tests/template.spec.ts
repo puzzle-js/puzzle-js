@@ -104,7 +104,7 @@ describe('Template', () => {
   });
 
   it('should parse fragment attribute if', () => {
-    const template = new Template('<template><div><fragment from="Browsing" name="product" if="${\'true\'}"></fragment></div></template>');
+    const template = new Template('<template><div><fragment from="Browsing" name="product" if="${\'false\'}"></fragment></div></template>');
 
     const dependencyList = template.getDependencies();
     expect(dependencyList).to.deep.include({
@@ -121,7 +121,7 @@ describe('Template', () => {
             "_attributes": {
               "from": "Browsing",
               "name": "product",
-              "if": "${'true'}"
+              "if": "${'false'}"
             },
             clientAsync: false,
             name: 'product',
@@ -545,7 +545,7 @@ describe('Template', () => {
     const template = new Template(`
                 <template>
                     <div>
-                        <fragment from="Browsing" name="product" if="${true}"> </fragment>
+                        <fragment from="Browsing" name="product" if="${false}"> </fragment>
                     </div>
                 </template>
             `);
