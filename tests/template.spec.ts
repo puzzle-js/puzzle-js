@@ -103,8 +103,8 @@ describe('Template', () => {
     });
   });
 
-  it('should parse fragment attribute disabled', () => {
-    const template = new Template('<template><div><fragment from="Browsing" name="product" disabled="${\'true\'}"></fragment></div></template>');
+  it('should parse fragment attribute if', () => {
+    const template = new Template('<template><div><fragment from="Browsing" name="product" if="${\'true\'}"></fragment></div></template>');
 
     const dependencyList = template.getDependencies();
     expect(dependencyList).to.deep.include({
@@ -121,7 +121,7 @@ describe('Template', () => {
             "_attributes": {
               "from": "Browsing",
               "name": "product",
-              "disabled": "${'true'}"
+              "if": "${'true'}"
             },
             clientAsync: false,
             name: 'product',
@@ -527,7 +527,7 @@ describe('Template', () => {
     });
   });
 
-  it('should parse disabled config fragments and do not inject them', (done) => {
+  it('should parse if config fragments and do not inject them', (done) => {
     let scope = nock('http://my-test-gateway-static-3.com', {
       reqheaders: {
         gateway: 'gateway'
@@ -538,14 +538,14 @@ describe('Template', () => {
           __renderMode: FRAGMENT_RENDER_MODES.STREAM
         })
         .reply(200, {
-          main: '<div>Disabled Fragment</div>',
+          main: '<div>Conditional Fragment</div>',
         });
 
 
     const template = new Template(`
                 <template>
                     <div>
-                        <fragment from="Browsing" name="product" disabled="${true}"> </fragment>
+                        <fragment from="Browsing" name="product" if="${true}"> </fragment>
                     </div>
                 </template>
             `);
