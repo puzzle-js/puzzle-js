@@ -267,9 +267,14 @@ export class Template {
 
     await Promise.all(waitedFragments.map(async waitedFragmentReplacement => {
       const attributes = TemplateCompiler.processExpression(waitedFragmentReplacement.fragmentAttributes, this.pageClass, req);
-      if (waitedFragmentReplacement.fragment.clientAsync || attributes.disabled === "true") return;
+      if (waitedFragmentReplacement.fragment.clientAsync) return;
 
-      const fragmentContent = await waitedFragmentReplacement.fragment.getContent(attributes, req);
+      let fragmentContent;
+      if((typeof attributes.if === "boolean" && !attributes.if) || attributes.if === "false"){
+        fragmentContent = "";
+      } else {
+        fragmentContent = await waitedFragmentReplacement.fragment.getContent(attributes, req);
+      }
 
       if (waitedFragmentReplacement.fragment.primary) {
         statusCode = fragmentContent.status;
@@ -280,6 +285,10 @@ export class Template {
       waitedFragmentReplacement.replaceItems
         .forEach(replaceItem => {
           if (replaceItem.type === REPLACE_ITEM_TYPE.CONTENT) {
+            if((typeof attributes.if === "boolean" && !attributes.if) || attributes.if === "false" ){
+              template = template.replace(replaceItem.key, () => fragmentContent);
+              return;
+            }
             const fragmentInject = fragmentContent.html[replaceItem.partial] || CONTENT_NOT_FOUND_ERROR;
             template = template.replace(replaceItem.key, () => fragmentInject + Template.fragmentModelScript(waitedFragmentReplacement.fragment, fragmentContent.model, isDebug));
           }
@@ -358,15 +367,15 @@ export class Template {
     const fragmentedHtml = firstFlushHandler.call(this.pageClass, req).replace('</body>', '').replace('</html>', '');
     res.set('transfer-encoding', 'chunked');
     res.set('content-type', 'text/html; charset=UTF-8');
-    const waitedPromises: Array<Promise<any>> = [];
+    const waitedPromises: any = [];
 
     //Fire requests in parallel
     const waitedReplacementPromise = this.replaceWaitedFragments(waitedFragments, fragmentedHtml, req, isDebug);
 
     for (let i = 0, len = chunkedFragmentReplacements.length; i < len; i++) {
       const attributes = TemplateCompiler.processExpression(chunkedFragmentReplacements[i].fragmentAttributes, this.pageClass, req);
-      if(attributes.disabled === "true") continue;
-      waitedPromises.push(chunkedFragmentReplacements[i].fragment.getContent(attributes, req));
+      if((typeof attributes.if === "boolean" && !attributes.if) || attributes.if === "false" ) continue;
+      waitedPromises.push({i, data: chunkedFragmentReplacements[i].fragment.getContent(attributes, req)});
     }
 
     //Wait for first flush
@@ -387,18 +396,15 @@ export class Template {
       res.flush();
 
       //Bind flush method to resolved or being resolved promises of chunked replacements
-      for (let i = 0, len = chunkedFragmentReplacements.length; i < len; i++) {
-        const attributes = TemplateCompiler.processExpression(chunkedFragmentReplacements[i].fragmentAttributes, this.pageClass, req);
-        if(attributes.disabled === "true") continue;
-        waitedPromises[i].then(this.flush(chunkedFragmentReplacements[i], jsReplacements, res, isDebug));
-      }
-
+      waitedPromises.forEach(waitedPromise => {
+        waitedPromise.data.then(this.flush(chunkedFragmentReplacements[waitedPromise.i], jsReplacements, res, isDebug));
+      });
       //Close stream after all chunked fragments done
-      await Promise.all(waitedPromises);
+      await Promise.all(waitedPromises.map(waitedPromise => waitedPromise.data));
       res.end(`<script>PuzzleJs.emit('${EVENT.ON_PAGE_LOAD}');</script></body></html>`);
       this.pageClass._onResponseEnd();
     }
-  };
+  }
 
 
   /**
@@ -578,7 +584,7 @@ export class Template {
 
           if (element.parentNode.name !== 'head') {
             if(fragment.clientAsync){
-              this.dom(element).replaceWith(`<div id="${fragment.name}" puzzle-fragment="${element.attribs.name}" puzzle-gateway="${element.attribs.from}" ${element.attribs.partial ? 'fragment-partial="' + element.attribs.partial + '"' : ''}></div>`)
+              this.dom(element).replaceWith(`<div id="${fragment.name}" puzzle-fragment="${element.attribs.name}" puzzle-gateway="${element.attribs.from}" ${element.attribs.partial ? 'fragment-partial="' + element.attribs.partial + '"' : ''}></div>`);
             }else{
               this.dom(element).replaceWith(`<div id="${fragment.name}" puzzle-fragment="${element.attribs.name}" puzzle-gateway="${element.attribs.from}" ${element.attribs.partial ? 'fragment-partial="' + element.attribs.partial + '"' : ''}>${replaceKey}</div><script>PuzzleJs.emit('${EVENT.ON_FRAGMENT_RENDERED}','${fragment.name}');</script>`);
             }

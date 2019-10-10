@@ -145,7 +145,7 @@ export default class ResourceInjector {
                 }
             }
         }
-    };
+    }
 
     /**
      * Returns fragment config using targeted version

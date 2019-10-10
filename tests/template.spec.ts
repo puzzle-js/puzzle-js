@@ -103,8 +103,8 @@ describe('Template', () => {
     });
   });
 
-  it('should parse fragment attribute disabled', () => {
-    const template = new Template('<template><div><fragment from="Browsing" name="product" disabled="${\'true\'}"></fragment></div></template>');
+  it('should parse fragment attribute if', () => {
+    const template = new Template('<template><div><fragment from="Browsing" name="product" if="${\'false\'}"></fragment></div></template>');
 
     const dependencyList = template.getDependencies();
     expect(dependencyList).to.deep.include({
@@ -121,7 +121,7 @@ describe('Template', () => {
             "_attributes": {
               "from": "Browsing",
               "name": "product",
-              "disabled": "${'true'}"
+              "if": "${'false'}"
             },
             clientAsync: false,
             name: 'product',
@@ -527,7 +527,7 @@ describe('Template', () => {
     });
   });
 
-  it('should parse disabled config fragments and do not inject them', (done) => {
+  it('should parse if config fragments and do not inject them', (done) => {
     let scope = nock('http://my-test-gateway-static-3.com', {
       reqheaders: {
         gateway: 'gateway'
@@ -538,14 +538,14 @@ describe('Template', () => {
           __renderMode: FRAGMENT_RENDER_MODES.STREAM
         })
         .reply(200, {
-          main: '<div>Disabled Fragment</div>',
+          main: '<div>Conditional Fragment</div>',
         });
 
 
     const template = new Template(`
                 <template>
                     <div>
-                        <fragment from="Browsing" name="product" disabled="${true}"> </fragment>
+                        <fragment from="Browsing" name="product" if="${false}"> </fragment>
                     </div>
                 </template>
             `);
@@ -577,6 +577,63 @@ describe('Template', () => {
         },
         end(str: string) {
           expect(str).to.eq(`<script>PuzzleJs.emit('0');</script></body></html>`);
+          done();
+        },
+        status: () => ''
+      }));
+    });
+  });
+
+  it('should parse if config fragments with shouldWait and do not inject them', (done) => {
+    let scope = nock('http://my-test-gateway-static-3.com', {
+      reqheaders: {
+        gateway: 'gateway'
+      }
+    })
+        .get('/product/')
+        .query({
+          __renderMode: FRAGMENT_RENDER_MODES.STREAM
+        })
+        .reply(200, {
+          main: '<div>Conditional Fragment</div>',
+        });
+
+
+    const template = new Template(`
+                <template>
+                    <div>
+                        <fragment from="Browsing" name="product" shouldWait if="${false}"> </fragment>
+                    </div>
+                </template>
+            `);
+
+    template.getDependencies();
+
+    template.fragments.product.update({
+      render: {
+        url: '/'
+      },
+      dependencies: [],
+      assets: [
+        {
+          injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
+          fileName: 'test.bundle.js',
+          name: 'bundle',
+          type: RESOURCE_TYPE.JS,
+          location: RESOURCE_LOCATION.BODY_END
+        }
+      ] as any,
+      testCookie: 'test',
+      version: '1.0.0'
+    }, 'http://my-test-gateway-static-3.com', 'gateway');
+
+    template.compile({}).then(handler => {
+      handler({}, createExpressMock({
+        write(str: string) {
+          expect(str).to.eq(null);
+        },
+        end(str: string) {
+          expect(str).to.eq(`<div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing"></div><script>PuzzleJs.emit('1','product');</script></div>`);
           done();
         },
         status: () => ''
