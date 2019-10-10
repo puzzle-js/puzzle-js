@@ -3,6 +3,7 @@ import nock from "nock";
 import ResourceFactory from "../src/resourceFactory";
 import {RESOURCE_INJECT_TYPE} from "../src/enums";
 import {RESOURCE_TYPE} from "@puzzle-js/client-lib/dist/enums";
+import {AssetManager} from "../src/asset-manager";
 
 describe('Resource Factory', () => {
     beforeEach(() => {
@@ -107,6 +108,8 @@ describe('Resource Factory', () => {
     });
 
     it('should overload inject type if provided. JS, INLINE, LINK', async () => {
+        AssetManager.init();
+        
         const dependency = {
             type: RESOURCE_TYPE.JS,
             name: 'ty',
@@ -136,6 +139,9 @@ describe('Resource Factory', () => {
     });
 
     it('should overload inject type if provided. CSS, INLINE, LINK', async () => {
+
+        AssetManager.init();
+
         const dependency = {
             type: RESOURCE_TYPE.CSS,
             name: 'ty',
