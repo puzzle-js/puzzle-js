@@ -1,8 +1,8 @@
 {
   "name": "@puzzle-js/core",
   "version": "2.2.1",
-  "main": "./dist/src/index.js",
-  "types": "./dist/src/index.d.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "logo": "https://image.ibb.co/jM29on/puzzlelogo.png",
   "license": "MIT",
   "homepage": "https://puzzle-js.github.io/puzzle-js/",
