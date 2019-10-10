@@ -78,10 +78,7 @@
   },
   "include": [
     "src/",
-    "types"
-  ],
-  "exclude": [
-    "tests",
+    "types",
     "node_modules/@puzzle-js/client-lib"
   ]
 }
