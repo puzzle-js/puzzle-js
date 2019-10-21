@@ -39,9 +39,10 @@ export class TemplateCompiler {
     /**
      * Compiles given html string into function that acceps req as an argument.
      * @param {string} template
+     * @param stringOnly
      * @returns {Function}
      */
-    static compile(template: string): Function {
+    static compile(template: string, stringOnly = false): Function | string {
         if (!this.isExpression(template)) return () => template;
         let generatedFn = `let out = '';`;
         const partials = template.split(this.TEMPLATE_REGEX);
@@ -61,7 +62,12 @@ export class TemplateCompiler {
             }
         }
         try {
-            return new Function('req', `${generatedFn}return out;`);
+            if(stringOnly){
+                return `${generatedFn}return out;`;
+            }else{
+                return new Function('req', `${generatedFn}return out;`);
+            }
+
         } catch (e) {
             fs.writeFileSync(path.join(__dirname, './testedScript.js'), generatedFn);
             throw new PuzzleError(ERROR_CODES.FAILED_TO_COMPILE_TEMPLATE, `${generatedFn}return out;`);

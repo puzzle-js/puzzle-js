@@ -297,6 +297,11 @@ export interface FragmentModel {
     [name: string]: any;
 }
 
+export interface ShellConfiguration {
+    fragments: any;
+    html: string;
+}
+
 export interface ICustomHeader {
     key: string;
     isEnv?: boolean;

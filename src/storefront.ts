@@ -13,6 +13,7 @@ import {GATEWAY_PREPERATION_CHECK_INTERVAL, PUZZLE_DEBUGGER_LINK, TEMP_FOLDER} f
 import {StorefrontConfigurator} from "./configurator";
 import fs from "fs";
 import {AssetManager} from "./asset-manager";
+import {ApplicationShell} from "./shell";
 
 const logger = container.get(TYPES.Logger) as Logger;
 
@@ -24,6 +25,7 @@ export class Storefront {
     pages: Map<string, Page> = new Map();
     gateways: IGatewayMap = {};
     private gatewaysReady = 0;
+    private shell: ApplicationShell;
 
 
     /**
@@ -32,6 +34,7 @@ export class Storefront {
      * @param {Server} _server
      */
     constructor(storefrontConfig: IStorefrontConfig | StorefrontConfigurator, _server?: Server) {
+        this.shell = new ApplicationShell();
         if (storefrontConfig instanceof StorefrontConfigurator) {
             this.config = storefrontConfig.configuration;
         } else {
@@ -55,7 +58,8 @@ export class Storefront {
             this.addCustomHeaders.bind(this),
             this.addHealthCheckRoute.bind(this),
             this.preLoadPages.bind(this),
-            this.addPageRoute.bind(this)
+            this.createShell.bind(this),
+            this.addPageRoute.bind(this),
         ], err => {
             if (!err) {
                 this.server.listen(() => {
@@ -65,6 +69,13 @@ export class Storefront {
             } else {
                 throw err;
             }
+        });
+    }
+
+    private createShell(cb: Function){
+        this.shell.setup(this.pages, this.config).then(_ => {
+            this.server.handler.addRoute('/__application_shell', HTTP_METHODS.GET, this.shell.handle);
+            cb();
         });
     }
 

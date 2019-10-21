@@ -29,6 +29,7 @@ export default class ResourceInjector {
         this.prepare();
     }
 
+
     /**
      * Injects prepared assets to dom
      * @param { CheerioStatic } dom
@@ -50,6 +51,41 @@ export default class ResourceInjector {
             }
         });
     }
+
+    
+    createInlineInjectionQueue(){
+        const loadList: any = [];
+
+        this.libraryConfig.assets.forEach(asset => {
+            const fragment = this.libraryConfig.fragments.find(i => i.name === asset.fragment);
+            if (fragment) {
+                if (!asset.preLoaded) {
+                    asset.preLoaded = true;
+                    asset.defer = true;
+
+                    if (asset.dependent) {
+                        asset.dependent.forEach((dependencyName) => {
+                            const dependency = this.libraryConfig.dependencies.filter(dependency => dependency.name === dependencyName);
+                            const dependencyContent = dependency[0];
+                            if (dependencyContent && !dependencyContent.preLoaded) {
+                                if (loadList.indexOf(dependencyContent) === -1) {
+                                    loadList.push(dependencyContent.link);
+                                    dependencyContent.preLoaded = true;
+                                }
+                            }
+                        });
+                    }
+
+                    if (loadList.indexOf(asset) === -1) {
+                        loadList.push(asset.link);
+                    }
+                }
+            }
+        });
+
+        return loadList;
+    }
+
 
     /**
      * Injects library config to dom

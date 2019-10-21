@@ -77,7 +77,7 @@ export class Template {
       }
 
       if (!dependencyList.fragments[fragment.attribs.name]) {
-        this.fragments[fragment.attribs.name] = new FragmentStorefront(fragment.attribs.name, fragment.attribs.from, { ...fragment.attribs });
+        this.fragments[fragment.attribs.name] = new FragmentStorefront(fragment.attribs.name, fragment.attribs.from, {...fragment.attribs});
         dependencyList.fragments[fragment.attribs.name] = {
           gateway: fragment.attribs.from,
           instance: this.fragments[fragment.attribs.name]
@@ -127,7 +127,7 @@ export class Template {
       logger.info(`[Compiling Page ${this.name}]`, 'No fragments detected, implementing single flush handler');
       this.replaceEmptyTags();
       const singleFlushHandlerWithoutFragments = TemplateCompiler.compile(Template.clearHtmlContent(this.dom.html()));
-      return this.buildHandler(singleFlushHandlerWithoutFragments, [], [], [], isDebug);
+      return this.buildHandler(singleFlushHandlerWithoutFragments as Function, [], [], [], isDebug);
     }
 
     if (!this.resourceInjector) {
@@ -177,7 +177,7 @@ export class Template {
     const clearLibOutput = Template.replaceCustomScripts(this.dom.html().replace('{puzzleLibContent}', puzzleLib), false);
 
     logger.info(`[Compiling Page ${this.name}]`, 'Sending virtual dom to compiler');
-    return this.buildHandler(TemplateCompiler.compile(Template.clearHtmlContent(clearLibOutput)), chunkReplacements, waitedFragmentReplacements, replaceScripts, isDebug);
+    return this.buildHandler(TemplateCompiler.compile(Template.clearHtmlContent(clearLibOutput)) as Function, chunkReplacements, waitedFragmentReplacements, replaceScripts, isDebug);
   }
 
 
@@ -270,7 +270,7 @@ export class Template {
       if (waitedFragmentReplacement.fragment.clientAsync) return;
 
       let fragmentContent;
-      if((typeof attributes.if === "boolean" && !attributes.if) || attributes.if === "false"){
+      if ((typeof attributes.if === "boolean" && !attributes.if) || attributes.if === "false") {
         fragmentContent = "";
       } else {
         fragmentContent = await waitedFragmentReplacement.fragment.getContent(attributes, req);
@@ -285,7 +285,7 @@ export class Template {
       waitedFragmentReplacement.replaceItems
         .forEach(replaceItem => {
           if (replaceItem.type === REPLACE_ITEM_TYPE.CONTENT) {
-            if((typeof attributes.if === "boolean" && !attributes.if) || attributes.if === "false" ){
+            if ((typeof attributes.if === "boolean" && !attributes.if) || attributes.if === "false") {
               template = template.replace(replaceItem.key, () => fragmentContent);
               return;
             }
@@ -374,7 +374,7 @@ export class Template {
 
     for (let i = 0, len = chunkedFragmentReplacements.length; i < len; i++) {
       const attributes = TemplateCompiler.processExpression(chunkedFragmentReplacements[i].fragmentAttributes, this.pageClass, req);
-      if((typeof attributes.if === "boolean" && !attributes.if) || attributes.if === "false" ) continue;
+      if ((typeof attributes.if === "boolean" && !attributes.if) || attributes.if === "false") continue;
       waitedPromises.push({i, data: chunkedFragmentReplacements[i].fragment.getContent(attributes, req)});
     }
 
@@ -583,13 +583,13 @@ export class Template {
           }
 
           if (element.parentNode.name !== 'head') {
-            if(fragment.clientAsync){
+            if (fragment.clientAsync) {
               this.dom(element).replaceWith(`<div id="${fragment.name}" puzzle-fragment="${element.attribs.name}" puzzle-gateway="${element.attribs.from}" ${element.attribs.partial ? 'fragment-partial="' + element.attribs.partial + '"' : ''}></div>`);
-            }else{
+            } else {
               this.dom(element).replaceWith(`<div id="${fragment.name}" puzzle-fragment="${element.attribs.name}" puzzle-gateway="${element.attribs.from}" ${element.attribs.partial ? 'fragment-partial="' + element.attribs.partial + '"' : ''}>${replaceKey}</div><script>PuzzleJs.emit('${EVENT.ON_FRAGMENT_RENDERED}','${fragment.name}');</script>`);
             }
           } else {
-            if(!fragment.clientAsync){
+            if (!fragment.clientAsync) {
               this.dom(element).replaceWith(replaceKey);
             }
           }
@@ -607,7 +607,7 @@ export class Template {
   }
 
 
-  private static replaceCustomScripts(template: string, encode: boolean) {
+  static replaceCustomScripts(template: string, encode: boolean) {
     return encode ?
       template.replace(/<puzzle-script>/g, '<!--custom-script').replace(/<\/puzzle-script>/g, '/custom-script-->') :
       template.replace(/<!--custom-script/g, '<script>').replace(/\/custom-script-->/g, '</script>');

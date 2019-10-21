@@ -81,6 +81,7 @@
     "md5": "^2.2.1",
     "morgan": "^1.9.1",
     "node-fetch": "^2.5.0",
+    "path-to-regexp": "^3.1.0",
     "puzzle-warden": "^1.7.3",
     "reflect-metadata": "^0.1.12",
     "request": "^2.88.0",
