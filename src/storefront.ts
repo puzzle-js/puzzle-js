@@ -86,7 +86,7 @@ export class Storefront {
     private async registerDebugScripts(cb: Function) {
         this.server.handler.addRoute(PUZZLE_DEBUGGER_LINK, HTTP_METHODS.GET, (req, res) => {
             res.set('Content-Type', 'application/javascript');
-            res.send(LIB_CONTENT);
+            res.send(LIB_CONTENT_DEBUG);
         });
 
         cb(null);
