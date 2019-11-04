@@ -2,14 +2,14 @@ import {GatewayStorefrontInstance} from "./gatewayStorefront";
 import {Page} from "./page";
 import async from "async";
 import {EVENTS, HEALTHCHECK_PATHS, HTTP_METHODS, HTTP_STATUS_CODE} from "./enums";
-import {LIB_CONTENT_DEBUG, wait} from "./util";
+import {LIB_CONTENT, LIB_CONTENT_DEBUG, wait} from "./util";
 import {Logger} from "./logger";
 import {callableOnce, sealed} from "./decorators";
 import {container, TYPES} from "./base";
 import {Server} from "./network";
 import {IGatewayMap, IStorefrontConfig} from "./types";
 import ResourceFactory from "./resourceFactory";
-import {GATEWAY_PREPERATION_CHECK_INTERVAL, PUZZLE_DEBUGGER_LINK, TEMP_FOLDER} from "./config";
+import {GATEWAY_PREPERATION_CHECK_INTERVAL, PUZZLE_DEBUGGER_LINK, PUZZLE_LIB_LINK, TEMP_FOLDER} from "./config";
 import {StorefrontConfigurator} from "./configurator";
 import fs from "fs";
 import {AssetManager} from "./asset-manager";
@@ -49,9 +49,10 @@ export class Storefront {
     init(cb?: Function) {
         logger.info('Starting Puzzle Storefront');
         async.series([
+            this.addPuzzleLibRoute.bind(this),
+            this.registerDebugScripts.bind(this),
             this.registerDependencies.bind(this),
             this.waitForGateways.bind(this),
-            this.registerDebugScripts.bind(this),
             this.addCustomHeaders.bind(this),
             this.addHealthCheckRoute.bind(this),
             this.preLoadPages.bind(this),
@@ -66,6 +67,29 @@ export class Storefront {
                 throw err;
             }
         });
+    }
+
+    private addPuzzleLibRoute(cb: Function){
+        this.server.handler.addRoute(PUZZLE_LIB_LINK, HTTP_METHODS.GET, (req, res) => {
+            res.set('Content-Type', 'application/javascript');
+            res.send(LIB_CONTENT);
+        });
+
+        cb(null);
+    }
+
+    /**
+     * Creates static routes for debugging scripts
+     * @param {Function} cb
+     * @returns {Promise<void>}
+     */
+    private async registerDebugScripts(cb: Function) {
+        this.server.handler.addRoute(PUZZLE_DEBUGGER_LINK, HTTP_METHODS.GET, (req, res) => {
+            res.set('Content-Type', 'application/javascript');
+            res.send(LIB_CONTENT_DEBUG);
+        });
+
+        cb(null);
     }
 
     private preLoadPages(cb: Function) {
@@ -84,19 +108,7 @@ export class Storefront {
         AssetManager.init();
     }
 
-    /**
-     * Creates static routes for debugging scripts
-     * @param {Function} cb
-     * @returns {Promise<void>}
-     */
-    private async registerDebugScripts(cb: Function) {
-        this.server.handler.addRoute(PUZZLE_DEBUGGER_LINK, HTTP_METHODS.GET, (req, res) => {
-            res.set('Content-Type', 'application/javascript');
-            res.send(LIB_CONTENT_DEBUG);
-        });
 
-        cb(null);
-    }
 
     /**
      * Waits for gateways to be prepared

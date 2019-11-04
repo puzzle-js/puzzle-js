@@ -1,6 +1,6 @@
 {
   "name": "@puzzle-js/core",
-  "version": "2.2.2",
+  "version": "2.3.0",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "logo": "https://image.ibb.co/jM29on/puzzlelogo.png",
@@ -93,3 +93,4 @@
     "winston-graylog2": "^2.1.2"
   }
 }
+
