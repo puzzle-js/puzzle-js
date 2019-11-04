@@ -4,7 +4,7 @@ import {TemplateCompiler} from "./templateCompiler";
 import {
   CHEERIO_CONFIGURATION,
   CONTENT_NOT_FOUND_ERROR,
-  NON_SELF_CLOSING_TAGS,
+  NON_SELF_CLOSING_TAGS, PUZZLE_DEBUGGER_LINK, PUZZLE_LIB_LINK,
   TEMPLATE_FRAGMENT_TAG_NAME
 } from "./config";
 import {
@@ -139,7 +139,7 @@ export class Template {
 
     logger.info(`[Compiling Page ${this.name}]`, 'Injecting Puzzle Lib to head');
     this.resourceInjector.injectAssets(this.dom);
-    this.resourceInjector.injectLibraryConfig(this.dom);
+    this.resourceInjector.injectLibraryConfig(this.dom, isDebug);
 
     // todo kaldir lib bagla
     const replaceScripts: any[] = [];
@@ -170,11 +170,7 @@ export class Template {
 
     this.replaceEmptyTags();
 
-    /**
-     * todo Bu kafa olmaz runtimeda debug not debug degismez, handler ici runtime guzel olur.
-     */
-    const puzzleLib = isDebug ? LIB_CONTENT_DEBUG : LIB_CONTENT;
-    const clearLibOutput = Template.replaceCustomScripts(this.dom.html().replace('{puzzleLibContent}', puzzleLib), false);
+    const clearLibOutput = Template.replaceCustomScripts(this.dom.html(), false);
 
     logger.info(`[Compiling Page ${this.name}]`, 'Sending virtual dom to compiler');
     return this.buildHandler(TemplateCompiler.compile(Template.clearHtmlContent(clearLibOutput)), chunkReplacements, waitedFragmentReplacements, replaceScripts, isDebug);

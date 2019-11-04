@@ -21,7 +21,7 @@ export class TemplateClass {
     }
 
     toDataAttribute(str: string) {
-        return new Buffer(str).toString('base64');
+        return Buffer.from(str).toString('base64');
     }
 
     [name: string]: any;
