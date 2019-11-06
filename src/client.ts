@@ -63,7 +63,11 @@ export class HttpClient {
       const requestOptions = {
         url: requestUrl,
         method: 'get',
-        json: true
+        json: true,
+        allowWarmUp: true,
+        errorThresholdPercentage: 60,
+        resetTimeout: 5000,
+        enabled: true
       } as any;
 
       if (options) {
