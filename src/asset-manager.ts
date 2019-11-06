@@ -30,15 +30,9 @@ class AssetManager {
         url,
         method: 'get'
       }, async (error, response, data) => {
-        if (!error && data) {
+        if (!error && data && response) {
           logger.info(`Asset received: ${url}`);
-          const encoding = response.headers['content-encoding'];
-          let content = data;
-          if (encoding === CONTENT_ENCODING_TYPES.BROTLI) {
-            const buffer = Buffer.from(data);
-            content = await decompress(buffer);
-          }
-          resolve(content);
+          resolve(data as string);
         } else {
           logger.error(new Error(`Failed to fetch asset from gateway: ${url}`));
           reject({error, response});

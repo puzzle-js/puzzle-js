@@ -382,6 +382,7 @@ export class FragmentStorefront extends Fragment {
 
     const routeRequest = req && parsedRequest ? `${parsedRequest.pathname.replace('/' + this.name, '')}?${querystring.stringify(query)}` : `/?${querystring.stringify(query)}`;
 
+
     return httpClient.get(`${this.fragmentUrl}${routeRequest}`, this.name, {
       json: true,
       gzip: true,

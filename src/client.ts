@@ -4,6 +4,9 @@ import {injectable} from "inversify";
 import request, {CoreOptions} from "request";
 import {DEFAULT_CONTENT_TIMEOUT, KEEP_ALIVE_MSECS, PUZZLE_MAX_SOCKETS} from "./config";
 import warden from "puzzle-warden";
+import supra from "supra-http";
+
+// warden.debug = true;
 
 export interface IRequestOptions {
   timeout: number;
@@ -55,34 +58,40 @@ export class HttpClient {
     });
   }
 
-  get(requestUrl: string, fragmentName: string, options?: request.CoreOptions): Promise<{ response: request.Response, data: any }> {
-    if (!HttpClient.httpClient && !HttpClient.httpsClient) {
-      console.error('Creating new agent for pool');
-      this.init('PuzzleJs Default Client');
-    }
-
-    const client = requestUrl.startsWith('https') ? HttpClient.httpsClient : HttpClient.httpClient;
-
-    return new Promise(function (resolve, reject) {
+  get(requestUrl: string, fragmentName: string, options?: request.CoreOptions): Promise<{ response: http.IncomingMessage, data: any }> {
+    return new Promise((resolve, reject) => {
       const requestOptions = {
         url: requestUrl,
         method: 'get',
-        ...options
+        json: true
       } as any;
 
-      const cb: request.RequestCallback = (err, response, data) => {
-        if (err) reject(err);
+      if (options) {
+        requestOptions.headers = options.headers;
+        requestOptions.httpTimeout = options.timeout;
+      }
 
-        resolve({
-          response,
-          data
-        });
-      };
 
       if (warden.isRouteRegistered(fragmentName)) {
-        warden.request(fragmentName, requestOptions, cb);
+        warden.request(fragmentName, requestOptions, (err, response, data) => {
+          if (!err && response && data) {
+            resolve({
+              response,
+              data
+            });
+          } else {
+            reject(err);
+          }
+        });
       } else {
-        client(requestOptions, cb);
+        supra.request(fragmentName, requestOptions.url, requestOptions)
+          .then(res => {
+            resolve({
+              response: res.response,
+              data: res.json || res.body
+            });
+          })
+          .catch(reject);
       }
     });
   }

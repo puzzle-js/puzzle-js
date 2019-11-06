@@ -17,10 +17,10 @@ describe('Http(s) Client', function () {
         const scope = nock('https://trendyol.com');
         scope
             .get('/test')
-            .reply(200, 'working');
+            .reply(200, {data: 'working'});
 
         const res = await client.get('https://trendyol.com/test', '');
-        expect(res.data).to.eq('working');
+        expect(res.data).to.deep.eq({data: 'working'});
     });
 
     it('should send post request and fetch response', async () => {
