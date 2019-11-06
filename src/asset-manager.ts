@@ -1,17 +1,16 @@
 import warden from "puzzle-warden";
-import * as request from "request";
 import {container, TYPES} from "./base";
 import {Logger} from "./logger";
-import {CONTENT_ENCODING_TYPES} from "./enums";
-import {decompress} from "iltorb";
+
 const logger = container.get(TYPES.Logger) as Logger;
+
 class AssetManager {
   static init() {
     warden.register('Assets', {
       identifier: '{url}{query.__version}',
       gzip: true,
       holder: true,
-      timeout: 2000,
+      httpTimeout: 2000,
       cache: {
         duration: '10 days'
       },
@@ -21,6 +20,7 @@ class AssetManager {
       }
     });
   }
+
   static async getAsset(url: string, gateway?: string): Promise<string> {
     return new Promise((resolve, reject) => {
       warden.request('Assets', {
@@ -28,7 +28,8 @@ class AssetManager {
           gateway
         } : {},
         url,
-        method: 'get'
+        method: 'get',
+        enabled: false
       }, async (error, response, data) => {
         if (!error && data && response) {
           logger.info(`Asset received: ${url}`);
@@ -41,6 +42,7 @@ class AssetManager {
     });
   }
 }
+
 export {
   AssetManager
 };
