@@ -2,7 +2,7 @@ import http from "http";
 import https from "https";
 import {injectable} from "inversify";
 import request, {CoreOptions} from "request";
-import {DEFAULT_CONTENT_TIMEOUT, KEEP_ALIVE_MSECS, PUZZLE_MAX_SOCKETS} from "./config";
+import {CIRCUIT_ENABLED, DEFAULT_CONTENT_TIMEOUT, KEEP_ALIVE_MSECS, PUZZLE_MAX_SOCKETS} from "./config";
 import warden from "puzzle-warden";
 import supra from "supra-http";
 
@@ -67,7 +67,7 @@ export class HttpClient {
         allowWarmUp: true,
         errorThresholdPercentage: 60,
         resetTimeout: 5000,
-        enabled: true
+        enabled: CIRCUIT_ENABLED
       } as any;
 
       if (options) {
