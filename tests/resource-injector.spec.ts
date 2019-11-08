@@ -158,9 +158,10 @@ describe('Resource Injector', () => {
         const assets = c1.assets.concat(c2.assets).filter((asset) => asset.type === RESOURCE_TYPE.CSS);
         const deps = c1.dependencies.concat(c2.dependencies).filter((dep) => dep.type === RESOURCE_TYPE.CSS);
 
-        const expectedDependencyList = assets.concat(deps).map( (res) => res.name);
+        let expectedDependencyList = assets.concat(deps).map( (res) => res.name);
+        expectedDependencyList = expectedDependencyList.filter((v,i) => expectedDependencyList.indexOf(v) === i); // remove dublications
         const expectedCssContent = expectedDependencyList.concat([""]); // for last -CSS-
-
+        
         // assert
         const result = dom("head").children("style[puzzle-dependency=dynamic-css]");
         expect(result.attr()["dependency-list"].split(",").sort()).toEqual(expectedDependencyList.sort());
