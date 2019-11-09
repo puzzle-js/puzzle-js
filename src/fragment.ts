@@ -293,7 +293,7 @@ export class FragmentStorefront extends Fragment {
     logger.info(`Trying to get error page of fragment: ${this.name}`);
 
     if (!this.config || !this.config.render.error) {
-      logger.warn(new Error('Error is not enabled for fragment'));
+      logger.warn('Error page is not enabled for fragment');
       return '';
     }
 
@@ -312,7 +312,7 @@ export class FragmentStorefront extends Fragment {
         return html;
       })
       .catch(err => {
-        logger.error(`Failed to fetch error for fragment: ${this.fragmentUrl}/error`, err);
+        logger.error(`Failed to fetch error page for fragment: ${this.fragmentUrl}/error`, err);
         return '';
       });
   }
