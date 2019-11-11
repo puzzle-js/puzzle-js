@@ -17,12 +17,16 @@ export class Page {
   gatewayDependencies: IPageDependentGateways;
   responseHandlers: IResponseHandlers = {};
   template: Template;
+  condition?: (req: express.Request) => false | true;
+  name: string;
   private waitingCompilers: { [key: string]: Promise<IFragmentEndpointHandler> } = {};
   private rawHtml: string;
   private prgEnabled = false;
 
-  constructor(html: string, gatewayMap: IGatewayMap, public name: string) {
+  constructor(html: string, gatewayMap: IGatewayMap, name: string, condition: (req: express.Request) => false | true) {
     this.rawHtml = html;
+    this.name = name;
+    this.condition = condition;
     this.template = new Template(html, this.name);
     this.gatewayDependencies = this.template.getDependencies();
 
@@ -84,6 +88,7 @@ export class Page {
         this.gatewayDependencies.gateways[gatewayName].gateway = gatewayMap[gatewayName];
         if (!!gatewayMap[gatewayName].config) {
           this.gatewayDependencies.gateways[gatewayName].ready = true;
+          this.updateFragmentsConfig(this.gatewayDependencies.gateways[gatewayName].gateway!);
         } else {
           gatewayMap[gatewayName].events.once(EVENTS.GATEWAY_READY, this.gatewayReady.bind(this));
         }

@@ -43,6 +43,8 @@ export const USE_MORGAN = loadConfigurationFromEnv('USE_MORGAN') || false;
 export const BROTLI = loadConfigurationFromEnv('BROTLI') || false;
 export const CIRCUIT_ENABLED = loadConfigurationFromEnv("CIRCUIT_ENABLED") || false;
 
+export const SENTRY_IP = loadConfigurationFromEnv("SENTRY_PATH") || "ws://127.0.0.1:4400";
+
 export const TEMP_FOLDER = path.join(process.cwd(), '/~temp');
 
 export const SATISFY_COMPILE_AMOUNT = 5;

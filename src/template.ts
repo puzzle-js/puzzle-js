@@ -133,6 +133,8 @@ export class Template {
     if (!this.resourceInjector) {
       this.resourceInjector = new ResourceInjector(this.fragments, this.name, testCookies);
     }
+
+    console.log(this.fragments);
     const chunkedFragmentsWithShouldWait = Object.values(this.fragments).filter(fragment => fragment.config && fragment.shouldWait && !fragment.config.render.static);
     const chunkedFragmentsWithoutWait = Object.values(this.fragments).filter(fragment => fragment.config && !fragment.shouldWait && !fragment.config.render.static);
     const staticFragments = Object.values(this.fragments).filter(fragment => fragment.config && fragment.config.render.static);
@@ -173,6 +175,7 @@ export class Template {
     const clearLibOutput = Template.replaceCustomScripts(this.dom.html(), false);
 
     logger.info(`[Compiling Page ${this.name}]`, 'Sending virtual dom to compiler');
+
     return this.buildHandler(TemplateCompiler.compile(Template.clearHtmlContent(clearLibOutput)), chunkReplacements, waitedFragmentReplacements, replaceScripts, isDebug);
   }
 
@@ -261,6 +264,7 @@ export class Template {
     let headers = {};
     let cookies = {};
 
+
     await Promise.all(waitedFragments.map(async waitedFragmentReplacement => {
       const attributes = TemplateCompiler.processExpression(waitedFragmentReplacement.fragmentAttributes, this.pageClass, req);
       if (waitedFragmentReplacement.fragment.clientAsync) return;
@@ -319,6 +323,7 @@ export class Template {
   async nonChunkedHandler(firstFlushHandler: Function, waitedFragments: IReplaceSet[], isDebug: boolean, req: express.Request, res: CompressionStreamResponse) {
     this.pageClass._onRequest(req);
     const fragmentedHtml = firstFlushHandler.call(this.pageClass, req);
+
     const waitedReplacement = await this.replaceWaitedFragments(waitedFragments, fragmentedHtml, req, isDebug);
 
     for (const prop in waitedReplacement.headers) {

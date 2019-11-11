@@ -194,7 +194,7 @@ export class FragmentStorefront extends Fragment {
   private gatewayName: string;
 
 
-  constructor(name: string, from: string, attributes?: {[name: string]: string}) {
+  constructor(name: string, from: string, attributes?: { [name: string]: string }) {
     super({name});
 
     this._attributes = attributes || {};
@@ -382,7 +382,7 @@ export class FragmentStorefront extends Fragment {
 
     const routeRequest = req && parsedRequest ? `${parsedRequest.pathname.replace('/' + this.name, '')}?${querystring.stringify(query)}` : `/?${querystring.stringify(query)}`;
 
-
+    console.log(`${this.fragmentUrl}${routeRequest}`);
     return httpClient.get(`${this.fragmentUrl}${routeRequest}`, this.name, {
       json: true,
       gzip: true,

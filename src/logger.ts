@@ -24,9 +24,9 @@ const alignedWithColorsAndTime = winston.format.combine(
  */
 const createTransports = () => {
     const transports: any[] = [];
-    if (process.env.ENABLE_CONSOLE_ERROR || process.env.NODE_ENV != 'production' || process.env.ENVIRONMENT != "production") {
+    if (process.env.ENABLE_CONSOLE_ERROR || process.env.NODE_ENV !== 'production' || process.env.ENVIRONMENT !== "production") {
         transports.push(new winston.transports.Console({
-            level: process.env.logLevel || 'warn',
+            level: process.env.logLevel || 'info',
             handleExceptions: false,
             json: true,
             colorize: true,
