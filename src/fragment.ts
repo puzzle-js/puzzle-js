@@ -183,6 +183,7 @@ export class FragmentStorefront extends Fragment {
   config: IExposeFragment | undefined;
   primary = false;
   shouldWait = false;
+  static = false;
   clientAsync = false;
   from: string;
   gatewayPath!: string;

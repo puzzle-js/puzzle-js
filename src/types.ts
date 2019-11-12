@@ -1,11 +1,12 @@
 import {GatewayStorefrontInstance} from "./gatewayStorefront";
 import {NextFunction, Request, Response} from "express-serve-static-core";
 import {
-    HTTP_METHODS,
-    REPLACE_ITEM_TYPE,
-    RESOURCE_INJECT_TYPE,
-    RESOURCE_JS_EXECUTE_TYPE,
-    RESOURCE_LOCATION
+  FragmentSentryConfig,
+  HTTP_METHODS,
+  REPLACE_ITEM_TYPE,
+  RESOURCE_INJECT_TYPE,
+  RESOURCE_JS_EXECUTE_TYPE,
+  RESOURCE_LOCATION
 } from "./enums";
 import {FragmentStorefront} from "./fragment";
 import {RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "@puzzle-js/client-lib/dist/enums";
@@ -215,6 +216,7 @@ export interface IPageConfiguration {
     url: string | string[];
     name: string;
     condition?: (req: express.Request) => boolean;
+    fragments?: Record<string, FragmentSentryConfig>;
 }
 
 export interface IStorefrontConfig {
@@ -307,3 +309,5 @@ export interface SatisfyUpdateMap {
     count: number;
     hash: string | null;
 }
+
+

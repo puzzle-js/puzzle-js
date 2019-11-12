@@ -52,7 +52,8 @@ describe('Page', () => {
             clientAsync: false,
             primary: false,
             shouldWait: false,
-            from: "Browsing"
+            from: "Browsing",
+            static: false
           }
         },
         content: {
@@ -66,7 +67,8 @@ describe('Page', () => {
             primary: false,
             clientAsync: false,
             shouldWait: false,
-            from: "Browsing"
+            from: "Browsing",
+            static: false
           }
         },
         footer: {
@@ -80,7 +82,8 @@ describe('Page', () => {
             primary: false,
             clientAsync: false,
             shouldWait: false,
-            from: "Browsing"
+            from: "Browsing",
+            static: false
           }
         }
       },

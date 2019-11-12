@@ -48,7 +48,8 @@ describe('Template', () => {
             name: 'product',
             primary: false,
             shouldWait: false,
-            from: "Browsing"
+            from: "Browsing",
+            static: false
           }
         }
       }
@@ -96,7 +97,8 @@ describe('Template', () => {
             name: 'product',
             primary: true,
             shouldWait: true,
-            from: "Browsing"
+            from: "Browsing",
+            static: false
           }
         }
       }
@@ -127,7 +129,8 @@ describe('Template', () => {
             name: 'product',
             primary: false,
             shouldWait: false,
-            from: "Browsing"
+            from: "Browsing",
+            static: false
           }
         }
       }
@@ -182,7 +185,8 @@ describe('Template', () => {
             name: 'product',
             primary: true,
             shouldWait: true,
-            from: "Browsing"
+            from: "Browsing",
+            static: false
           }
         }
       }
@@ -219,7 +223,8 @@ describe('Template', () => {
             name: 'product',
             primary: false,
             shouldWait: true,
-            from: "Browsing"
+            from: "Browsing",
+            static: false
           }
         }
       }
@@ -258,8 +263,8 @@ describe('Template', () => {
             name: 'product',
             primary: false,
             shouldWait: true,
-            from: "Browsing"
-
+            from: "Browsing",
+            static: false
           }
         }
       }
@@ -361,7 +366,8 @@ describe('Template', () => {
             clientAsync: false,
             primary: false,
             shouldWait: true,
-            from: "Browsing"
+            from: "Browsing",
+            static: false
           }
         }
       }
@@ -533,13 +539,13 @@ describe('Template', () => {
         gateway: 'gateway'
       }
     })
-        .get('/product/')
-        .query({
-          __renderMode: FRAGMENT_RENDER_MODES.STREAM
-        })
-        .reply(200, {
-          main: '<div>Conditional Fragment</div>',
-        });
+      .get('/product/')
+      .query({
+        __renderMode: FRAGMENT_RENDER_MODES.STREAM
+      })
+      .reply(200, {
+        main: '<div>Conditional Fragment</div>',
+      });
 
 
     const template = new Template(`
@@ -590,13 +596,13 @@ describe('Template', () => {
         gateway: 'gateway'
       }
     })
-        .get('/product/')
-        .query({
-          __renderMode: FRAGMENT_RENDER_MODES.STREAM
-        })
-        .reply(200, {
-          main: '<div>Conditional Fragment</div>',
-        });
+      .get('/product/')
+      .query({
+        __renderMode: FRAGMENT_RENDER_MODES.STREAM
+      })
+      .reply(200, {
+        main: '<div>Conditional Fragment</div>',
+      });
 
 
     const template = new Template(`

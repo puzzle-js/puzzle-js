@@ -13,6 +13,9 @@ class SentrySocket {
     const cbResponse = (status: boolean) => {
       if (!cbRespondStatus) {
         cbRespondStatus = true;
+        if(!status){
+          this.client.disconnect();
+        }
         cb(status);
       }
     };

@@ -15,6 +15,7 @@ import fs from "fs";
 import {AssetManager} from "./asset-manager";
 import {SentrySocket} from "./socket";
 import {Template} from "./template";
+import {SentryConnectorStorefront} from "./sentry-connector";
 
 const logger = container.get(TYPES.Logger) as Logger;
 
@@ -26,7 +27,7 @@ export class Storefront {
   pages: Map<string, Page> = new Map();
   gateways: IGatewayMap = {};
   private gatewaysReady = 0;
-  private sentrySocket: SentrySocket;
+  sentrySocket: SentrySocket;
 
 
   /**
@@ -55,64 +56,17 @@ export class Storefront {
   init(cb?: Function) {
     this.sentrySocket.connect((sentryConnected: boolean) => {
       if (!sentryConnected) {
+        console.log('Starting PuzzleJs storefront from source');
         this.start(cb);
       } else {
-        this.initFromSentry(() => {
+        SentryConnectorStorefront.loadFromSentry(this, () => {
           this.start(cb);
         });
       }
     });
   }
 
-  private initFromSentry(cb: Function) {
-    console.log('Starting PuzzleJs Storefront from Sentry configuration');
-    let pageList = false;
-    let gatewayConfiguration = false;
-
-    const checkValidation = () => {
-      if (pageList && gatewayConfiguration) {
-        console.log('Ready to start');
-        cb();
-      }
-    };
-
-    this.sentrySocket.client.on('gateways', (gateways: IGatewayConfiguration[]) => {
-      this.config.gateways = gateways;
-      gatewayConfiguration = true;
-      checkValidation();
-    });
-
-    this.sentrySocket.client.on('pages', (pages: IPageConfiguration[]) => {
-      this.config.pages = pages.map(page => ({
-        ...page,
-        condition: page.condition ? eval(page.condition as unknown as string) : undefined,
-      }));
-      pageList = true;
-      checkValidation();
-    });
-
-    this.sentrySocket.client.on('page.delete', name => {
-      this.pages.delete(name);
-    });
-
-    this.sentrySocket.client.on('page.update', async (data: { name: string, page: IPageConfiguration }) => {
-      console.log(`Updating page ${data.name} from Sentry`);
-      const pageExists = this.pages.has(data.name);
-      const newPage = new Page(data.page.html, this.gateways, data.name, eval(data.page.condition as unknown as string));
-      await newPage.reCompile();
-      this.pages.set(data.name, newPage);
-      if (!pageExists) {
-        this.addPage(data.page);
-      }
-      console.log(`Updated page ${data.name} from Sentry`);
-    });
-
-    this.sentrySocket.client.emit('gateways.get');
-    this.sentrySocket.client.emit('pages.get');
-  }
-
   private start(cb?: Function) {
-    console.log('Starting PuzzleJs storefront from source');
     this.bootstrap();
     async.series([
       this.addPuzzleLibRoute.bind(this),
@@ -201,7 +155,7 @@ export class Storefront {
     });
 
     this.config.pages.forEach(pageConfiguration => {
-      this.pages.set(pageConfiguration.name, new Page(pageConfiguration.html, this.gateways, pageConfiguration.name, eval(pageConfiguration.condition as unknown as string)));
+      this.pages.set(pageConfiguration.name, new Page(pageConfiguration.html, this.gateways, pageConfiguration.name, eval(pageConfiguration.condition as unknown as string), pageConfiguration.fragments));
     });
   }
 
@@ -241,7 +195,7 @@ export class Storefront {
     cb();
   }
 
-  private addPage(page: IPageConfiguration) {
+  addPage(page: IPageConfiguration) {
     logger.info(`Adding page ${page.name} route: ${page.url}`);
     this.server.handler.addRoute(page.url, HTTP_METHODS.GET, (req, res, next) => {
       const currentPage = this.pages.get(page.name);
