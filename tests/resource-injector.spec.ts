@@ -118,7 +118,8 @@ describe('Resource Injector', () => {
             page: pageName,
             fragments: fragmentList.map((fragment) => ({ "name": fragment.name, "chunked": (fragment.config ? (fragment.shouldWait || (fragment.config.render.static || false)) : false) })),
             assets: assets.filter((asset) => asset.type === RESOURCE_TYPE.JS),
-            dependencies: []
+            dependencies: [],
+            peers: []
         };
         expectedConfig.assets.forEach((asset) => { asset.preLoaded = false });
 
@@ -161,7 +162,7 @@ describe('Resource Injector', () => {
         let expectedDependencyList = assets.concat(deps).map( (res) => res.name);
         expectedDependencyList = expectedDependencyList.filter((v,i) => expectedDependencyList.indexOf(v) === i); // remove dublications
         const expectedCssContent = expectedDependencyList.concat([""]); // for last -CSS-
-        
+
         // assert
         const result = dom("head").children("style[puzzle-dependency=dynamic-css]");
         expect(result.attr()["dependency-list"].split(",").sort()).toEqual(expectedDependencyList.sort());

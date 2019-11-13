@@ -1,6 +1,6 @@
 {
   "name": "@puzzle-js/core",
-  "version": "2.3.6",
+  "version": "2.4.0",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "logo": "https://image.ibb.co/jM29on/puzzlelogo.png",
@@ -57,6 +57,7 @@
   },
   "scripts": {
     "build": "TS_NODE_FILES=true node_modules/.bin/tsc",
+    "build:watch": "TS_NODE_FILES=true node_modules/.bin/tsc --watch",
     "test": "NODE_TLS_REJECT_UNAUTHORIZED=0 node_modules/.bin/jest --coverage --silent",
     "test:ci": "NODE_TLS_REJECT_UNAUTHORIZED=0 node_modules/.bin/jest --coverage --silent --runInBand",
     "test:watch": "NODE_TLS_REJECT_UNAUTHORIZED=0 node_modules/.bin/jest --coverage --watch --silent",
@@ -66,7 +67,7 @@
     "lint:ts:fix": "./node_modules/.bin/tslint -p ./tsconfig.json --fix"
   },
   "dependencies": {
-    "@puzzle-js/client-lib": "^1.1.7",
+    "@puzzle-js/client-lib": "^1.2.0",
     "async": "^3.0.1",
     "cheerio": "^1.0.0-rc.2",
     "clean-css": "^4.1.11",
