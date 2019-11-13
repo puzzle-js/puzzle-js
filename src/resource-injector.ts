@@ -10,7 +10,7 @@ import {
 import ResourceFactory from "./resourceFactory";
 import {RESOURCE_INJECT_TYPE, RESOURCE_JS_EXECUTE_TYPE} from "./enums";
 import CleanCSS from "clean-css";
-import {EXTERNAL_STYLE_SHEETS, PUZZLE_DEBUGGER_LINK, PUZZLE_LIB_LINK} from "./config";
+import {EXTERNAL_STYLE_SHEETS, PEERS, PUZZLE_DEBUGGER_LINK, PUZZLE_LIB_LINK} from "./config";
 
 export default class ResourceInjector {
 
@@ -126,7 +126,9 @@ export default class ResourceInjector {
               if (!injectedStyles.has(dep.name)) {
                 injectedStyles.add(dep.name);
                 const dependency = ResourceFactory.instance.get(dep.name);
-                dom('head').append(`<link rel="stylesheet" data-puzzle-dep="${dependency.name} "href="${dependency.link}" />`);
+                if (dependency) {
+                  dom('head').append(`<link rel="stylesheet" data-puzzle-dep="${dependency.name} "href="${dependency.link}" />`);
+                }
               }
             });
 
@@ -221,7 +223,8 @@ export default class ResourceInjector {
       page: this.pageName,
       fragments: this.fragmentFingerPrints,
       assets: this.assets.filter(asset => asset.type === RESOURCE_TYPE.JS),
-      dependencies: this.dependencies
+      dependencies: this.dependencies,
+      peers: PEERS
     } as IPageLibConfiguration;
   }
 
@@ -272,6 +275,7 @@ export default class ResourceInjector {
       name: fragment.name,
       chunked: fragment.config ? (fragment.shouldWait || (fragment.config.render.static || false)) : false,
       clientAsync: fragment.clientAsync,
+      asyncDecentralized: fragment.asyncDecentralized,
       attributes: fragment.attributes,
       source: fragment.assetUrl || fragment.fragmentUrl
     });

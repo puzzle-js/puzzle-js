@@ -3,7 +3,7 @@ import cheerio from "cheerio";
 import {TemplateCompiler} from "./templateCompiler";
 import {
   CHEERIO_CONFIGURATION,
-  CONTENT_NOT_FOUND_ERROR,
+  CONTENT_NOT_FOUND_ERROR, GUN_PATH,
   NON_SELF_CLOSING_TAGS, PUZZLE_DEBUGGER_LINK, PUZZLE_LIB_LINK,
   TEMPLATE_FRAGMENT_TAG_NAME
 } from "./config";
@@ -77,7 +77,7 @@ export class Template {
       }
 
       if (!dependencyList.fragments[fragment.attribs.name]) {
-        this.fragments[fragment.attribs.name] = new FragmentStorefront(fragment.attribs.name, fragment.attribs.from, { ...fragment.attribs });
+        this.fragments[fragment.attribs.name] = new FragmentStorefront(fragment.attribs.name, fragment.attribs.from, {...fragment.attribs});
         dependencyList.fragments[fragment.attribs.name] = {
           gateway: fragment.attribs.from,
           instance: this.fragments[fragment.attribs.name]
@@ -97,11 +97,12 @@ export class Template {
         this.fragments[fragment.attribs.name].shouldWait = typeof fragment.attribs.shouldwait !== 'undefined' || (fragment.parent && fragment.parent.name === 'head') || false;
       }
 
-      if (this.fragments[fragment.attribs.name].clientAsync || typeof fragment.attribs['client-async'] !== "undefined") {
+      if (this.fragments[fragment.attribs.name].clientAsync || (typeof fragment.attribs['client-async'] !== "undefined" || typeof fragment.attribs['async-c2'] !== "undefined")) {
         this.fragments[fragment.attribs.name].attributes = Object.assign(this.fragments[fragment.attribs.name].attributes, fragment.attribs);
         this.fragments[fragment.attribs.name].primary = false;
         this.fragments[fragment.attribs.name].shouldWait = true;
         this.fragments[fragment.attribs.name].clientAsync = true;
+        this.fragments[fragment.attribs.name].asyncDecentralized = this.fragments[fragment.attribs.name].asyncDecentralized || typeof fragment.attribs['async-c2'] !== "undefined";
       }
 
       return dependencyList;
@@ -141,11 +142,17 @@ export class Template {
     this.resourceInjector.injectAssets(this.dom);
     this.resourceInjector.injectLibraryConfig(this.dom, isDebug);
 
+    const pageDecentrealized = Object.values(this.fragments).some(fragment => fragment.asyncDecentralized);
+
+    if(pageDecentrealized){
+      this.dom('head').prepend(`<script src="${GUN_PATH}"> </script>`);
+    }
+
     // todo kaldir lib bagla
     const replaceScripts: any[] = [];
 
     logger.info(`[Compiling Page ${this.name}]`, 'Adding containers for waited fragments');
-    const waitedFragmentReplacements: IReplaceSet[] = this.replaceWaitedFragmentContainers(chunkedFragmentsWithShouldWait, replaceScripts, isDebug);
+    const waitedFragmentReplacements: IReplaceSet[] = await this.replaceWaitedFragmentContainers(chunkedFragmentsWithShouldWait, replaceScripts, isDebug);
 
     logger.info(`[Compiling Page ${this.name}]`, 'Adding containers for chunked fragments');
     const chunkReplacements: IReplaceSet[] = this.replaceChunkedFragmentContainers(chunkedFragmentsWithoutWait);
@@ -266,7 +273,7 @@ export class Template {
       if (waitedFragmentReplacement.fragment.clientAsync) return;
 
       let fragmentContent;
-      if((typeof attributes.if === "boolean" && !attributes.if) || attributes.if === "false"){
+      if ((typeof attributes.if === "boolean" && !attributes.if) || attributes.if === "false") {
         fragmentContent = "";
       } else {
         fragmentContent = await waitedFragmentReplacement.fragment.getContent(attributes, req);
@@ -281,7 +288,7 @@ export class Template {
       waitedFragmentReplacement.replaceItems
         .forEach(replaceItem => {
           if (replaceItem.type === REPLACE_ITEM_TYPE.CONTENT) {
-            if((typeof attributes.if === "boolean" && !attributes.if) || attributes.if === "false" ){
+            if ((typeof attributes.if === "boolean" && !attributes.if) || attributes.if === "false") {
               template = template.replace(replaceItem.key, () => fragmentContent);
               return;
             }
@@ -370,7 +377,7 @@ export class Template {
 
     for (let i = 0, len = chunkedFragmentReplacements.length; i < len; i++) {
       const attributes = TemplateCompiler.processExpression(chunkedFragmentReplacements[i].fragmentAttributes, this.pageClass, req);
-      if((typeof attributes.if === "boolean" && !attributes.if) || attributes.if === "false" ) continue;
+      if ((typeof attributes.if === "boolean" && !attributes.if) || attributes.if === "false") continue;
       waitedPromises.push({i, data: chunkedFragmentReplacements[i].fragment.getContent(attributes, req)});
     }
 
@@ -542,10 +549,10 @@ export class Template {
    * @returns {IReplaceSet[]}
    */
   @benchmark(isDebug(), logger.info)
-  private replaceWaitedFragmentContainers(fragmentsShouldBeWaited: FragmentStorefront[], replaceJsAssets: IReplaceAsset[], isDebug: boolean) {
+  private async replaceWaitedFragmentContainers(fragmentsShouldBeWaited: FragmentStorefront[], replaceJsAssets: IReplaceAsset[], isDebug: boolean) {
     const waitedFragmentReplacements: IReplaceSet[] = [];
 
-    fragmentsShouldBeWaited.forEach(fragment => {
+    for (const fragment of fragmentsShouldBeWaited) {
       const replaceItems: IReplaceItem[] = [];
       let fragmentAttributes = {};
 
@@ -553,17 +560,20 @@ export class Template {
       let contentStart = '';
       let contentEnd = ``;
 
-      jsReplacements && jsReplacements.replaceItems.filter(item => item.location === RESOURCE_LOCATION.CONTENT_START).forEach(replaceItem => {
-        contentStart += ResourceInjector.wrapJsAsset(replaceItem);
-      });
+      if (jsReplacements) {
+        jsReplacements.replaceItems.filter(item => item.location === RESOURCE_LOCATION.CONTENT_START).forEach(replaceItem => {
+          contentStart += ResourceInjector.wrapJsAsset(replaceItem);
+        });
 
-      jsReplacements && jsReplacements.replaceItems.filter(item => item.location === RESOURCE_LOCATION.CONTENT_END).forEach(replaceItem => {
-        contentEnd += ResourceInjector.wrapJsAsset(replaceItem);
-      });
+        jsReplacements.replaceItems.filter(item => item.location === RESOURCE_LOCATION.CONTENT_END).forEach(replaceItem => {
+          contentEnd += ResourceInjector.wrapJsAsset(replaceItem);
+        });
+      }
 
       this.dom(contentStart).insertBefore(this.dom(`fragment[from="${fragment.from}"][name="${fragment.name}"]`).first());
       this.dom(contentEnd).insertAfter(this.dom(`fragment[from="${fragment.from}"][name="${fragment.name}"]`).last());
 
+      const asyncPlaceholder = fragment.config && fragment.config.render.placeholder ? await fragment.getPlaceholder() : '';
 
       this.dom(`fragment[from="${fragment.from}"][name="${fragment.name}"]`)
         .each((i, element) => {
@@ -579,13 +589,13 @@ export class Template {
           }
 
           if (element.parentNode.name !== 'head') {
-            if(fragment.clientAsync){
-              this.dom(element).replaceWith(`<div id="${fragment.name}" puzzle-fragment="${element.attribs.name}" puzzle-gateway="${element.attribs.from}" ${element.attribs.partial ? 'fragment-partial="' + element.attribs.partial + '"' : ''}></div>`);
-            }else{
+            if (fragment.clientAsync) {
+              this.dom(element).replaceWith(`<div id="${fragment.name}" puzzle-fragment="${element.attribs.name}" puzzle-gateway="${element.attribs.from}" ${element.attribs.partial ? 'fragment-partial="' + element.attribs.partial + '"' : ''}>${asyncPlaceholder}</div>`);
+            } else {
               this.dom(element).replaceWith(`<div id="${fragment.name}" puzzle-fragment="${element.attribs.name}" puzzle-gateway="${element.attribs.from}" ${element.attribs.partial ? 'fragment-partial="' + element.attribs.partial + '"' : ''}>${replaceKey}</div><script>PuzzleJs.emit('${EVENT.ON_FRAGMENT_RENDERED}','${fragment.name}');</script>`);
             }
           } else {
-            if(!fragment.clientAsync){
+            if (!fragment.clientAsync) {
               this.dom(element).replaceWith(replaceKey);
             }
           }
@@ -597,7 +607,7 @@ export class Template {
         replaceItems,
         fragmentAttributes
       });
-    });
+    }
 
     return waitedFragmentReplacements;
   }
