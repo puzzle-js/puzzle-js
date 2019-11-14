@@ -183,6 +183,7 @@ export class FragmentStorefront extends Fragment {
   config: IExposeFragment | undefined;
   primary = false;
   shouldWait = false;
+  asyncDecentralized = false;
   static = false;
   clientAsync = false;
   from: string;
@@ -195,7 +196,7 @@ export class FragmentStorefront extends Fragment {
   private gatewayName: string;
 
 
-  constructor(name: string, from: string, attributes?: { [name: string]: string }) {
+  constructor(name: string, from: string, attributes?: {[name: string]: string}) {
     super({name});
 
     this._attributes = attributes || {};

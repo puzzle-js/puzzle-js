@@ -3,8 +3,8 @@ import cheerio from "cheerio";
 import {TemplateCompiler} from "./templateCompiler";
 import {
   CHEERIO_CONFIGURATION,
-  CONTENT_NOT_FOUND_ERROR,
-  NON_SELF_CLOSING_TAGS,
+  CONTENT_NOT_FOUND_ERROR, GUN_PATH,
+  NON_SELF_CLOSING_TAGS, PUZZLE_DEBUGGER_LINK, PUZZLE_LIB_LINK,
   TEMPLATE_FRAGMENT_TAG_NAME
 } from "./config";
 import {
@@ -80,7 +80,7 @@ export class Template {
       }
 
       if (!dependencyList.fragments[fragment.attribs.name]) {
-        this.fragments[fragment.attribs.name] = new FragmentStorefront(fragment.attribs.name, fragment.attribs.from, {...fragment.attribs});
+        this.fragments[fragment.attribs.name] = new FragmentStorefront(fragment.attribs.name, fragment.attribs.from, { ...fragment.attribs });
         dependencyList.fragments[fragment.attribs.name] = {
           gateway: fragment.attribs.from,
           instance: this.fragments[fragment.attribs.name]
@@ -119,11 +119,12 @@ export class Template {
           this.fragments[fragment.attribs.name].shouldWait = typeof fragment.attribs.shouldwait !== 'undefined' || (fragment.parent && fragment.parent.name === 'head') || false;
         }
 
-        if (this.fragments[fragment.attribs.name].clientAsync || typeof fragment.attribs['client-async'] !== "undefined") {
+        if (this.fragments[fragment.attribs.name].clientAsync || (typeof fragment.attribs['client-async'] !== "undefined" || typeof fragment.attribs['async-c2'] !== "undefined")) {
           this.fragments[fragment.attribs.name].attributes = Object.assign(this.fragments[fragment.attribs.name].attributes, fragment.attribs);
           this.fragments[fragment.attribs.name].primary = false;
           this.fragments[fragment.attribs.name].shouldWait = true;
           this.fragments[fragment.attribs.name].clientAsync = true;
+          this.fragments[fragment.attribs.name].asyncDecentralized = this.fragments[fragment.attribs.name].asyncDecentralized || typeof fragment.attribs['async-c2'] !== "undefined";
         }
       }
 
@@ -170,6 +171,12 @@ export class Template {
     logger.info(`[Compiling Page ${this.name}]`, 'Injecting Puzzle Lib to head');
     this.resourceInjector.injectAssets(this.dom);
     this.resourceInjector.injectLibraryConfig(this.dom, isDebug);
+
+    const pageDecentrealized = Object.values(this.fragments).some(fragment => fragment.asyncDecentralized);
+
+    if(pageDecentrealized){
+      this.dom('head').prepend(`<script src="${GUN_PATH}"> </script>`);
+    }
 
     // todo kaldir lib bagla
     const replaceScripts: any[] = [];
@@ -313,7 +320,7 @@ export class Template {
       waitedFragmentReplacement.replaceItems
         .forEach(replaceItem => {
           if (replaceItem.type === REPLACE_ITEM_TYPE.CONTENT) {
-            if ((typeof attributes.if === "boolean" && !attributes.if) || attributes.if === "false") {
+            if((typeof attributes.if === "boolean" && !attributes.if) || attributes.if === "false" ){
               template = template.replace(replaceItem.key, () => fragmentContent);
               return;
             }
@@ -403,7 +410,7 @@ export class Template {
 
     for (let i = 0, len = chunkedFragmentReplacements.length; i < len; i++) {
       const attributes = TemplateCompiler.processExpression(chunkedFragmentReplacements[i].fragmentAttributes, this.pageClass, req);
-      if ((typeof attributes.if === "boolean" && !attributes.if) || attributes.if === "false") continue;
+      if((typeof attributes.if === "boolean" && !attributes.if) || attributes.if === "false" ) continue;
       waitedPromises.push({i, data: chunkedFragmentReplacements[i].fragment.getContent(attributes, req)});
     }
 
