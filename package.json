@@ -34,7 +34,6 @@
     "@types/response-time": "^2.3.4",
     "@types/serve-static": "^1.13.3",
     "@types/sinon": "^7.0.13",
-    "@types/socket.io-client": "^1.4.32",
     "@types/spdy": "^3.4.4",
     "@types/supertest": "^2.0.4",
     "@types/uuid": "^3.4.3",
@@ -68,7 +67,7 @@
     "lint:ts:fix": "./node_modules/.bin/tslint -p ./tsconfig.json --fix"
   },
   "dependencies": {
-    "@puzzle-js/client-lib": "^1.2.1",
+    "@puzzle-js/client-lib": "^1.2.2",
     "async": "^3.0.1",
     "cheerio": "^1.0.0-rc.2",
     "clean-css": "^4.1.11",
