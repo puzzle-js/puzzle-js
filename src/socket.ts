@@ -1,5 +1,5 @@
 import socket from "socket.io-client";
-import {SENTRY_IP} from "./config";
+import {SENTRY_PATH} from "./config";
 
 class SentrySocket {
   client: SocketIOClient.Socket;
@@ -20,15 +20,15 @@ class SentrySocket {
       }
     };
 
-    console.log('Connecting to sentry at host', SENTRY_IP);
-    this.client = socket(SENTRY_IP);
+    console.log('Connecting to sentry at host', SENTRY_PATH);
+    this.client = socket(SENTRY_PATH);
 
     this.client.on('connect', () => {
       cbResponse(true);
     });
 
     this.client.on('connect_error', _ => {
-      console.log('Connection to sentry failed', SENTRY_IP);
+      console.log('Connection to sentry failed', SENTRY_PATH);
       cbResponse(false);
     });
   }

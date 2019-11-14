@@ -35,15 +35,16 @@ class SentryConnectorStorefront {
       storefront.pages.delete(name);
     });
 
-    storefront.sentrySocket.client.on('page.update', async (data: { name: string, page: IPageConfiguration }) => {
+    storefront.sentrySocket.client.on('page.update', async (data: IPageConfiguration) => {
       console.log(`Updating page ${data.name} from Sentry`);
       const pageExists = storefront.pages.get(data.name);
-      const newPage = new Page(data.page.html, storefront.gateways, data.name, data.page.condition ? eval(data.page.condition as unknown as string) : undefined, data.page.fragments);
+      const newPage = new Page(data.html, storefront.gateways, data.name, data.condition ? eval(data.condition as unknown as string) : undefined, data.fragments);
       await newPage.reCompile();
       storefront.pages.set(data.name, newPage);
       if (!pageExists) {
-        storefront.addPage(data.page);
+        storefront.addPage(data);
       } else {
+        console.log('Cleaning existing page');
         pageExists.cleanUpEvents();
       }
       console.log(`Updated page ${data.name} from Sentry`);
