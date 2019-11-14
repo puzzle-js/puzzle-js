@@ -44,7 +44,6 @@ class SentryConnectorStorefront {
       if (!pageExists) {
         storefront.addPage(data);
       } else {
-        console.log('Cleaning existing page');
         pageExists.cleanUpEvents();
       }
       console.log(`Updated page ${data.name} from Sentry`);

@@ -56,7 +56,6 @@ export class ExpressHandler {
      * @param {RequestHandlerParams[]} middlewares
      */
     addRoute(path: string | string[], method: HTTP_METHODS, handler: (req: Request, res: Response, next: NextFunction) => any, middlewares: any[] = []) {
-        console.log(path, method, 'adder')
         this.app[method](path, middlewares, handler);
     }
 
