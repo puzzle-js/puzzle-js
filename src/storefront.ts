@@ -197,7 +197,16 @@ export class Storefront {
 
   addPage(page: IPageConfiguration) {
     logger.info(`Adding page ${page.name} route: ${page.url}`);
-    this.server.handler.addRoute(page.url, HTTP_METHODS.GET, (req, res, next) => {
+
+    let parsedUrl;
+
+    try {
+      parsedUrl = JSON.parse(page.url as any);
+    } catch (e) {
+      parsedUrl = page.url;
+    }
+
+    this.server.handler.addRoute(parsedUrl, HTTP_METHODS.GET, (req, res, next) => {
       const currentPage = this.pages.get(page.name);
       if (currentPage) {
         logger.info(`Request route name: ${page.name} - ${req.url} - ${JSON.stringify(req.headers)}`);
