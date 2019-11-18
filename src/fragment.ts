@@ -184,6 +184,7 @@ export class FragmentStorefront extends Fragment {
   primary = false;
   shouldWait = false;
   asyncDecentralized = false;
+  static = false;
   clientAsync = false;
   from: string;
   gatewayPath!: string;

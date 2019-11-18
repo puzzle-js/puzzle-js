@@ -53,7 +53,8 @@ describe('Page', () => {
             asyncDecentralized: false,
             primary: false,
             shouldWait: false,
-            from: "Browsing"
+            from: "Browsing",
+            static: false
           }
         },
         content: {
@@ -68,7 +69,8 @@ describe('Page', () => {
             clientAsync: false,
             asyncDecentralized: false,
             shouldWait: false,
-            from: "Browsing"
+            from: "Browsing",
+            static: false
           }
         },
         footer: {
@@ -83,7 +85,8 @@ describe('Page', () => {
             clientAsync: false,
             asyncDecentralized: false,
             shouldWait: false,
-            from: "Browsing"
+            from: "Browsing",
+            static: false
           }
         }
       },

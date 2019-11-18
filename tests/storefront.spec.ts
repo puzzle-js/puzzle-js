@@ -62,30 +62,10 @@ describe('Storefront', () => {
             dependencies: []
         } as any);
 
-
-        expect(storefrontInstance.pages.get(pageConfiguration.name)).to.be.instanceOf(Page);
-        storefrontInstance.server.close(done);
-    });
-
-    it('should create new gateway instances when registering a new storefront', (done) => {
-        const gateway = {
-            name: 'Browsing',
-            url: 'http://browsing-gw.com'
-        };
-        const storefrontInstance = new Storefront({
-            pages: [],
-            serverOptions: {
-                port: 4444
-            },
-            gateways: [
-                gateway
-            ],
-            dependencies: []
+        storefrontInstance.init(_ => {
+            expect(storefrontInstance.pages.get(pageConfiguration.name)).to.be.instanceOf(Page);
+            storefrontInstance.server.close(done);
         });
-
-        expect(storefrontInstance.gateways[gateway.name]).to.be.instanceOf(GatewayStorefrontInstance);
-        storefrontInstance.gateways['Browsing'].stopUpdating();
-        storefrontInstance.server.close(done);
     });
 
     it('should add health check route', done => {

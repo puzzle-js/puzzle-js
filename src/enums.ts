@@ -90,3 +90,10 @@ export enum TRANSFER_PROTOCOLS {
 export enum CONTENT_ENCODING_TYPES {
     BROTLI = 'br'
 }
+
+export enum FragmentSentryConfig {
+    STATIC,
+    CLIENT_ASYNC,
+    WAITED,
+    PRIMARY
+}

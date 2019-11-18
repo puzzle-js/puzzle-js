@@ -1,6 +1,6 @@
 import {Template} from "./template";
 import {GatewayStorefrontInstance} from "./gatewayStorefront";
-import {EVENTS} from "./enums";
+import {EVENTS, FragmentSentryConfig} from "./enums";
 import {
   ICookieMap,
   ICookieObject,
@@ -17,14 +17,25 @@ export class Page {
   gatewayDependencies: IPageDependentGateways;
   responseHandlers: IResponseHandlers = {};
   template: Template;
+  condition?: (req: express.Request) => false | true;
+  name: string;
   private waitingCompilers: { [key: string]: Promise<IFragmentEndpointHandler> } = {};
   private rawHtml: string;
   private prgEnabled = false;
+  private fragmentsSentryConfiguration?: Record<string, FragmentSentryConfig>;
+  cleanUpEvents: () => void;
 
-  constructor(html: string, gatewayMap: IGatewayMap, public name: string) {
+  constructor(html: string, gatewayMap: IGatewayMap, name: string, condition?: (req: express.Request) => false | true, fragmentsSentryConfiguration?: Record<string, FragmentSentryConfig>) {
     this.rawHtml = html;
-    this.template = new Template(html, this.name);
+    this.name = name;
+
+    this.fragmentsSentryConfiguration = fragmentsSentryConfiguration;
+    this.condition = condition;
+    this.template = new Template(html, this.name, fragmentsSentryConfiguration);
     this.gatewayDependencies = this.template.getDependencies();
+
+    this.gatewayUpdated = this.gatewayUpdated.bind(this);
+    this.gatewayReady = this.gatewayReady.bind(this);
 
     this.preparePageDependencies(gatewayMap);
     this.checkPageReady();
@@ -77,17 +88,34 @@ export class Page {
    * @param {IGatewayMap} gatewayMap
    */
   private preparePageDependencies(gatewayMap: IGatewayMap) {
-    Object.keys(gatewayMap)
+
+    const cleanUpCodes = Object.keys(gatewayMap)
       .filter(gatewayName => this.gatewayDependencies.gateways[gatewayMap[gatewayName].name])
-      .forEach(gatewayName => {
-        gatewayMap[gatewayName].events.on(EVENTS.GATEWAY_UPDATED, this.gatewayUpdated.bind(this));
+      .map(gatewayName => {
+
+        gatewayMap[gatewayName].events.on(EVENTS.GATEWAY_UPDATED, this.gatewayUpdated);
         this.gatewayDependencies.gateways[gatewayName].gateway = gatewayMap[gatewayName];
         if (!!gatewayMap[gatewayName].config) {
           this.gatewayDependencies.gateways[gatewayName].ready = true;
+          this.updateFragmentsConfig(this.gatewayDependencies.gateways[gatewayName].gateway!);
         } else {
-          gatewayMap[gatewayName].events.once(EVENTS.GATEWAY_READY, this.gatewayReady.bind(this));
+          gatewayMap[gatewayName].events.once(EVENTS.GATEWAY_READY, this.gatewayReady);
         }
+
+        return () => {
+          gatewayMap[gatewayName].events.removeListener(EVENTS.GATEWAY_UPDATED, this.gatewayUpdated);
+          gatewayMap[gatewayName].events.removeListener(EVENTS.GATEWAY_READY, this.gatewayReady);
+        };
       });
+
+    this.cleanUpEvents = () => {
+      cleanUpCodes.forEach(cb => cb());
+    };
+  }
+
+
+  clean() {
+    this.cleanUpEvents();
   }
 
   /**
