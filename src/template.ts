@@ -160,7 +160,7 @@ export class Template {
 
     Object.values(this.fragments).forEach(fragment => {
       if (fragment.config) {
-        fragment.config.render.static = fragment.static;
+        fragment.static = fragment.config.render.static = fragment.config.render.static || fragment.static;
       }
     });
 

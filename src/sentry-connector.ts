@@ -10,7 +10,6 @@ class SentryConnectorStorefront {
 
     const checkValidation = () => {
       if (pageList && gatewayConfiguration) {
-        console.log('Ready to start');
         cb();
       }
     };
