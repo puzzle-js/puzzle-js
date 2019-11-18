@@ -221,7 +221,7 @@ export class Storefront {
     });
 
 
-    this.server.handler.addRoute(page.url, HTTP_METHODS.POST, (req, res, next) => {
+    this.server.handler.addRoute(parsedUrl, HTTP_METHODS.POST, (req, res, next) => {
       const currentPage = this.pages.get(page.name);
       if (currentPage) {
         currentPage.post(req, res, next);
