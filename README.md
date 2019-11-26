@@ -73,7 +73,7 @@ Read the [guide](./docs/guide.md) to familiarize yourself with how PuzzleJs work
 ### Showcase
 
 <a href="https://m.trendyol.com" title="Trendyol" target="_blank">
-    <img src="http://i64.tinypic.com/x2qcmb.png" width="80">
+    <img src="https://www.trendyol.com/content/images/trendyol-online-white.png" width="80">
 </a>
 
 ### Contributions
