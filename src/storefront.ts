@@ -87,7 +87,7 @@ export class Storefront {
         throw err;
       }
     });
-  }
+  } 
 
   private addPuzzleLibRoute(cb: Function) {
     this.server.handler.addRoute(PUZZLE_LIB_LINK, HTTP_METHODS.GET, (req, res) => {
