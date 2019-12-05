@@ -46,13 +46,17 @@ describe('Configuration', () => {
   });
 
   describe('when value does not exist in sentry configuration', () => {
-    it('should return value from process environment', () => {
+    it('should return value from process environment', async () => {
       // Arrange
+      const storefrontName = 'tr';
+      process.env.CUSTOM_ENV_VAR = word();
 
       // Act
+      await $configuration.setup(Platform.Storefront, storefrontName);
+      const envVar = $configuration.get('CUSTOM_ENV_VAR');
 
       // Assert
-
+      expect(envVar).to.be.eq(process.env.CUSTOM_ENV_VAR);
     });
   });
 
