@@ -23,7 +23,7 @@ describe('Configuration', () => {
     process.env.envVar = envVar;
 
     // Act
-    $configuration.setup(Platform.Storefront, storefrontName);
+    await $configuration.setup(Platform.Storefront, storefrontName);
 
     //Assert
     expect($configuration.getInstance()).to.be.instanceof($configuration);
@@ -36,8 +36,8 @@ describe('Configuration', () => {
     process.env.envVar = envVar;
 
     // Act
-    $configuration.setup(Platform.Storefront, storefrontName);
-    $configuration.setup(Platform.Gateway, word());
+    await $configuration.setup(Platform.Storefront, storefrontName);
+    await $configuration.setup(Platform.Gateway, word());
 
     //Assert
     expect($configuration.getInstance()).to.be.instanceof($configuration);
@@ -57,13 +57,16 @@ describe('Configuration', () => {
   });
 
   describe('when value exists in sentry configuration', () => {
-    it('should return value from sentry configuration', () => {
+    it('should return value from sentry configuration', async () => {
       // Arrange
-      
+      const storefrontName = 'tr';
+
       // Act
+      await $configuration.setup(Platform.Storefront, storefrontName);
+      const envVar = $configuration.get('sefa');
 
       // Assert
-
+      expect(envVar).to.be.eq(false);
     });
   });
 });

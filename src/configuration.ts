@@ -29,7 +29,9 @@ class Configuration {
   }
 
   private getSentryData(resolve, reject) {
+    console.log("getting data")
     this.sentrySocket.client.on(`configurations.${this.platform}.${this.name}`, (data) => {
+      console.log("got data", data)
       if (!data || typeof data !== 'object') reject();
       console.log(`got config for ${this.platform}-${this.name}, data, ${JSON.stringify(data)}`);
       this.sentryEnv = new Map(Object.entries(data));
@@ -39,9 +41,12 @@ class Configuration {
   }
 
   private init() {
-    if (!this.sentrySocket.client.connected) {
+    if (!this.sentrySocket.client || !this.sentrySocket.client.connected) {
+      console.log("not connected, connecting")
       return new Promise((resolve, reject) => {
+        console.log("promise1")
         this.sentrySocket.connect((connected) => {
+          console.log("connected ", connected)
           if (connected) {
             this.getSentryData(resolve, reject);
           } else {
