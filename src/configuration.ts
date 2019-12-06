@@ -1,19 +1,38 @@
 import { Platform } from './enums';
 import { SentrySocket } from './socket';
 
+class Config {
+  string: string;
+  number: number;
+  boolean: boolean;
+  constructor(value: any) {
+    this.string = String(value);
+    this.number = Number(value);
+    this.boolean = this.stringToBoolean(String(value));
+  }
+
+  stringToBoolean(str: string): boolean {
+    switch (str.toLowerCase().trim()) {
+      case "true": case "1": return true;
+      case "false": case "0": case null: return false;
+      default: return Boolean(str);
+    }
+  }
+}
+
 class Configuration {
   private static instance: Configuration | null;
   private platform: Platform;
   private name: string;
   private sentrySocket: SentrySocket;
-  private processEnv: Map<string, any>;
-  private sentryEnv: Map<string, any>;
+  private processEnv: Map<string, Config>;
+  private sentryEnv: Map<string, Config>;
 
   private constructor(platfrom: Platform, name: string) {
     this.platform = platfrom;
     this.name = name;
     this.sentrySocket = new SentrySocket();
-    this.processEnv = new Map(Object.entries(process.env));
+    this.processEnv = new Map(this.mapObjectToConfig(process.env));
   }
 
   static async setup(platform: Platform, name: string): Promise<void> {
@@ -22,19 +41,20 @@ class Configuration {
       try {
         await Configuration.instance.init();
       } catch (e) {
-        console.log(`Can not init Configuration for ${platform} - ${name}`);
-        throw Error(e);
+        throw Error(`Can not init Configuration for ${platform} - ${name}, Error: ${e}`);
       }
     }
   }
 
+  private mapObjectToConfig(obj): Array<[string, Config]> {
+    return Object.entries(obj).map(pair => [pair[0], new Config(pair[1])]);
+  }
+
   private getSentryData(resolve, reject) {
-    console.log("getting data")
     this.sentrySocket.client.on(`configurations.${this.platform}.${this.name}`, (data) => {
-      console.log("got data", data)
       if (!data || typeof data !== 'object') reject();
       console.log(`got config for ${this.platform}-${this.name}, data, ${JSON.stringify(data)}`);
-      this.sentryEnv = new Map(Object.entries(data));
+      this.sentryEnv = new Map(this.mapObjectToConfig(data));
       resolve();
     });
     this.sentrySocket.client.emit(`configurations.${this.platform}.get`, { name: this.name });
@@ -42,11 +62,8 @@ class Configuration {
 
   private init() {
     if (!this.sentrySocket.client || !this.sentrySocket.client.connected) {
-      console.log("not connected, connecting")
       return new Promise((resolve, reject) => {
-        console.log("promise1")
         this.sentrySocket.connect((connected) => {
-          console.log("connected ", connected)
           if (connected) {
             this.getSentryData(resolve, reject);
           } else {
@@ -76,18 +93,33 @@ class Configuration {
     return Configuration.instance ? Configuration.instance.name : null;
   }
 
-  static get(value: string) {
+  static get(value: string): Partial<Pick<Config, 'string' | 'boolean' | 'number'>> {
     let instance: Configuration;
+    let result: Config | undefined;
+
     if (Configuration.instance) {
       instance = Configuration.instance;
     } else {
       throw Error("Instance does not exists");
     }
-    const sentryValue = instance.sentryEnv.get(value);
-    if (sentryValue === null || sentryValue === undefined) {
-      return instance.processEnv.get(value);
+
+    result = instance.sentryEnv.get(value);
+
+    if (typeof result !== 'undefined') {
+      return result;
     }
-    return sentryValue;
+
+    result = instance.processEnv.get(value);
+
+    if (typeof result !== 'undefined') {
+      return result;
+    }
+
+    return {
+      string: undefined,
+      boolean: undefined,
+      number: undefined
+    };
   }
 }
 

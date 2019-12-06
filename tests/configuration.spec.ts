@@ -56,7 +56,7 @@ describe('Configuration', () => {
       const envVar = $configuration.get('CUSTOM_ENV_VAR');
 
       // Assert
-      expect(envVar).to.be.eq(process.env.CUSTOM_ENV_VAR);
+      expect(envVar.string).to.be.eq(process.env.CUSTOM_ENV_VAR);
     });
   });
 
@@ -70,7 +70,7 @@ describe('Configuration', () => {
       const envVar = $configuration.get('sefa');
 
       // Assert
-      expect(envVar).to.be.eq(false);
+      expect(envVar.boolean).to.be.eq(false);
     });
   });
 });
