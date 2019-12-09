@@ -1,7 +1,7 @@
 import { Platform } from './enums';
 import { SentrySocket } from './socket';
 
-class Config {
+class CastedObject {
   string: string;
   number: number;
   boolean: boolean;
@@ -11,7 +11,7 @@ class Config {
     this.boolean = this.stringToBoolean(String(value));
   }
 
-  stringToBoolean(str: string): boolean {
+  private stringToBoolean(str: string): boolean {
     switch (str.toLowerCase().trim()) {
       case "true": case "1": return true;
       case "false": case "0": case null: return false;
@@ -25,8 +25,8 @@ class Configuration {
   private platform: Platform;
   private name: string;
   private sentrySocket: SentrySocket;
-  private processEnv: Map<string, Config>;
-  private sentryEnv: Map<string, Config>;
+  private processEnv: Map<string, CastedObject>;
+  private sentryEnv: Map<string, CastedObject>;
 
   private constructor(platfrom: Platform, name: string) {
     this.platform = platfrom;
@@ -35,19 +35,19 @@ class Configuration {
     this.processEnv = new Map(this.mapObjectToConfig(process.env));
   }
 
-  static async setup(platform: Platform, name: string): Promise<void> {
+  static async setup(platform: Platform, name: string, checkIfSentryIsConnected = true): Promise<void> {
     if (!Configuration.instance) {
       Configuration.instance = new Configuration(platform, name);
       try {
-        await Configuration.instance.init();
+        await Configuration.instance.init(checkIfSentryIsConnected);
       } catch (e) {
         throw Error(`Can not init Configuration for ${platform} - ${name}, Error: ${e}`);
       }
     }
   }
 
-  private mapObjectToConfig(obj): Array<[string, Config]> {
-    return Object.entries(obj).map(pair => [pair[0], new Config(pair[1])]);
+  private mapObjectToConfig(obj): Array<[string, CastedObject]> {
+    return Object.entries(obj).map(pair => [pair[0], new CastedObject(pair[1])]);
   }
 
   private getSentryData(resolve, reject) {
@@ -60,8 +60,8 @@ class Configuration {
     this.sentrySocket.client.emit(`configurations.${this.platform}.get`, { name: this.name });
   }
 
-  private init() {
-    if (!this.sentrySocket.client || !this.sentrySocket.client.connected) {
+  private init(checkIfSentryIsConnected) {
+    if (checkIfSentryIsConnected && (!this.sentrySocket.client || !this.sentrySocket.client.connected)) {
       return new Promise((resolve, reject) => {
         this.sentrySocket.connect((connected) => {
           if (connected) {
@@ -93,9 +93,9 @@ class Configuration {
     return Configuration.instance ? Configuration.instance.name : null;
   }
 
-  static get(value: string): Partial<Pick<Config, 'string' | 'boolean' | 'number'>> {
+  static get(value: string): Partial<Pick<CastedObject, 'string' | 'boolean' | 'number'>> {
     let instance: Configuration;
-    let result: Config | undefined;
+    let result: CastedObject | undefined;
 
     if (Configuration.instance) {
       instance = Configuration.instance;
@@ -103,7 +103,7 @@ class Configuration {
       throw Error("Instance does not exists");
     }
 
-    result = instance.sentryEnv.get(value);
+    result = instance.sentryEnv ? instance.sentryEnv.get(value) : undefined;
 
     if (typeof result !== 'undefined') {
       return result;
@@ -124,3 +124,4 @@ class Configuration {
 }
 
 export { Configuration as $configuration };
+export { CastedObject };
