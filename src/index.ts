@@ -15,6 +15,7 @@ import {Container} from "inversify";
 import {RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "@puzzle-js/client-lib/dist/enums";
 import {httpAgent, httpsAgent} from "./client";
 import warden from "puzzle-warden";
+import { $configuration } from "./configuration";
 
 
 export = {
@@ -38,5 +39,6 @@ export = {
         HTTP_STATUS_CODE,
         INJECTABLE
     },
-    container: container as Container
+    container: container as Container,
+    $configuration
 };
