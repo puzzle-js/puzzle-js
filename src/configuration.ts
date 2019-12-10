@@ -18,6 +18,10 @@ class CastedObject {
       default: return Boolean(str);
     }
   }
+
+  static toMap(obj: object): Map<string, CastedObject> {
+    return new Map(Object.entries(obj).map(pair => [pair[0], new CastedObject(pair[1])]));
+  }
 }
 
 class Configuration {
@@ -32,7 +36,7 @@ class Configuration {
     this.platform = platfrom;
     this.name = name;
     this.sentrySocket = new SentrySocket();
-    this.processEnv = new Map(this.mapObjectToConfig(process.env));
+    this.processEnv = CastedObject.toMap(process.env);
   }
 
   static async setup(platform: Platform, name: string, checkIfSentryIsConnected = true): Promise<void> {
@@ -46,18 +50,27 @@ class Configuration {
     }
   }
 
-  private mapObjectToConfig(obj): Array<[string, CastedObject]> {
-    return Object.entries(obj).map(pair => [pair[0], new CastedObject(pair[1])]);
+  private subscribeForSentryConfigUpdate() {
+    this.sentrySocket.client.on(`configurations.${this.platform}.${this.name}.update`, (data) => {
+      if (!data || typeof data !== 'object') return;
+      console.log(`got config update for ${this.platform}-${this.name}, data, ${JSON.stringify(data)}`);
+      this.updateSentryMap(data);
+    });
+  }
+
+  private updateSentryMap(data) {
+    this.sentryEnv = CastedObject.toMap(data);
   }
 
   private getSentryData(resolve, reject) {
     this.sentrySocket.client.on(`configurations.${this.platform}.${this.name}`, (data) => {
       if (!data || typeof data !== 'object') reject();
       console.log(`got config for ${this.platform}-${this.name}, data, ${JSON.stringify(data)}`);
-      this.sentryEnv = new Map(this.mapObjectToConfig(data));
+      this.updateSentryMap(data);
       resolve();
     });
     this.sentrySocket.client.emit(`configurations.${this.platform}.get`, { name: this.name });
+    this.subscribeForSentryConfigUpdate();
   }
 
   private init(checkIfSentryIsConnected) {
