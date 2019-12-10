@@ -97,3 +97,8 @@ export enum FragmentSentryConfig {
     WAITED,
     PRIMARY
 }
+
+export enum Platform {
+    Storefront = 'storefront',
+    Gateway = 'gateway'
+}
