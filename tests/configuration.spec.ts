@@ -262,7 +262,7 @@ describe('Configuration', () => {
     ($configuration.getInstance() as any).subscribeForSentryConfigUpdate();
 
     // Assert
-    expect(onStub.called).to.be.eq(true);
+    expect(onStub.calledWith(`configurations.${Platform.Gateway}.${gatewayName}.update`)).to.be.eq(true);
     expect(updateSentryMapStub.calledWith(callbackData)).to.be.eq(false);
   });
 
@@ -294,7 +294,7 @@ describe('Configuration', () => {
     ($configuration.getInstance() as any).getSentryData(resolveStub, rejectStub);
 
     // Assert
-    expect(onStub.called).to.be.eq(true);
+    expect(onStub.calledWith(`configurations.${Platform.Gateway}.${gatewayName}`)).to.be.eq(true);
     expect(resolveStub.called).to.be.eq(true);
     expect(rejectStub.called).to.be.eq(false);
     expect(updateSentryMapStub.calledWith(callbackData)).to.be.eq(true);
