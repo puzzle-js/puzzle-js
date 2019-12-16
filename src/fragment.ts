@@ -212,10 +212,9 @@ export class FragmentStorefront extends Fragment {
    */
   update(config: IExposeFragment, gatewayUrl: string, gatewayName: string, assetUrl?: string | undefined) {
     if (assetUrl) {
-      this.assetUrl = url.resolve(assetUrl, this.name);
+      this.assetUrl = url.resolve(assetUrl.endsWith('/') ? assetUrl: `${assetUrl}/`, this.name);
     }
-    this.fragmentUrl = url.resolve(gatewayUrl, this.name);
-
+    this.fragmentUrl = url.resolve(gatewayUrl.endsWith('/') ? gatewayUrl: `${gatewayUrl}/`, this.name);
     const hostname = url.parse(gatewayUrl).hostname;
     if (hostname) {
       this.gatewayPath = hostname;
