@@ -47,11 +47,12 @@ export class FragmentBFF extends Fragment {
     const targetVersion = version || this.config.version;
     const handler = this.handler[targetVersion] || this.handler[this.config.version];
     const clearedRequest = this.clearRequest(req);
+    const responseLocals = this.clearResponse(res);
     if (handler) {
       if (handler.data) {
         let dataResponse;
         try {
-          dataResponse = await handler.data(clearedRequest);
+          dataResponse = await handler.data(clearedRequest, responseLocals);
         } catch (e) {
           logger.error(`Failed to fetch data for fragment ${this.config.name}`, req.url, req.query, req.params, req.headers, e);
           return {
@@ -90,6 +91,10 @@ export class FragmentBFF extends Fragment {
     } else {
       throw new Error(`Failed to find fragment version. Fragment: ${this.config.name}, Version: ${version || this.config.version}`);
     }
+  }
+
+  private clearResponse(res: any) {
+    return res && res.locals ? res.locals : {};
   }
 
   /**

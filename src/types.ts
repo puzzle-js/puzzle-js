@@ -1,5 +1,5 @@
-import {GatewayStorefrontInstance} from "./gatewayStorefront";
-import {NextFunction, Request, Response} from "express-serve-static-core";
+import { GatewayStorefrontInstance } from "./gatewayStorefront";
+import { NextFunction, Request, Response } from "express-serve-static-core";
 import {
   HTTP_METHODS,
   REPLACE_ITEM_TYPE,
@@ -8,10 +8,10 @@ import {
   RESOURCE_LOCATION,
   TRANSFER_PROTOCOLS
 } from "./enums";
-import {FragmentStorefront} from "./fragment";
-import {Page} from "./page";
-import {RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "./lib/enums";
-import {RouteConfiguration} from "puzzle-warden/dist/request-manager";
+import { FragmentStorefront } from "./fragment";
+import { Page } from "./page";
+import { RESOURCE_LOADING_TYPE, RESOURCE_TYPE } from "./lib/enums";
+import { RouteConfiguration } from "puzzle-warden/dist/request-manager";
 
 export interface IFragmentCookieMap {
   name: string;
@@ -39,8 +39,9 @@ export interface IFragmentHandler {
     [name: string]: string;
   };
   placeholder: () => string;
-  data: (req: object) => Promise<HandlerDataResponse>;
+  data: (req: object, res: object) => Promise<HandlerDataResponse>;
 }
+
 
 export interface HandlerDataResponse {
   [name: string]: any,
@@ -308,7 +309,7 @@ export interface FragmentModel {
 }
 
 export interface ICustomHeader {
- key: string;
- isEnv?: boolean;
- value: string | number;
+  key: string;
+  isEnv?: boolean;
+  value: string | number;
 }

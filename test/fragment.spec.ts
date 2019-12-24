@@ -1,11 +1,14 @@
 import "mocha";
-import {expect} from "chai";
+import { expect } from "chai";
 import "../src/base";
-import {FragmentBFF, FragmentStorefront} from "../src/fragment";
-import {IExposeFragment} from "../src/types";
+import { FragmentBFF, FragmentStorefront } from "../src/fragment";
+import { IExposeFragment } from "../src/types";
 import nock from "nock";
-import {FRAGMENT_RENDER_MODES, RESOURCE_INJECT_TYPE, RESOURCE_LOCATION} from "../src/enums";
-import {RESOURCE_TYPE} from "../src/lib/enums";
+import { FRAGMENT_RENDER_MODES, RESOURCE_INJECT_TYPE, RESOURCE_LOCATION } from "../src/enums";
+import { RESOURCE_TYPE } from "../src/lib/enums";
+import faker from "faker";
+
+const { lorem: { word } } = faker;
 
 describe('Fragment', () => {
   describe('BFF', () => {
@@ -40,12 +43,54 @@ describe('Fragment', () => {
         };
       };
       fragmentConfig.versions.test.handler.data = () => {
-        return {data: 'acg'};
+        return { data: 'acg' };
       };
       const fragment = new FragmentBFF(fragmentConfig);
       const response = await fragment.render({} as any, {});
       expect(response).to.deep.eq({
         main: `acg was here`
+      });
+    });
+
+    it('should render fragment with response locals', async () => {
+      const localKey = word();
+      const locals = {
+        [localKey]: word()
+      }
+
+      const fragmentConfig = JSON.parse(JSON.stringify(commonFragmentBffConfiguration));
+      fragmentConfig.versions.test.handler.content = (req: any, data: any) => {
+        return {
+          main: `${data} was here`
+        };
+      };
+      fragmentConfig.versions.test.handler.data = (req: any, res: any) => {
+        return { data: res[localKey] };
+      };
+      const fragment = new FragmentBFF(fragmentConfig);
+      const response = await fragment.render({} as any, { locals });
+      expect(response).to.deep.eq({
+        main: `${locals[localKey]} was here`
+      });
+    });
+
+    it('should render fragment without response locals', async () => {
+      const localKey = word();
+      const dataKey = word();
+
+      const fragmentConfig = JSON.parse(JSON.stringify(commonFragmentBffConfiguration));
+      fragmentConfig.versions.test.handler.content = (req: any, data: any) => {
+        return {
+          main: data
+        };
+      };
+      fragmentConfig.versions.test.handler.data = (req: any, res: any) => {
+        return { data: res[localKey] + dataKey };
+      };
+      const fragment = new FragmentBFF(fragmentConfig);
+      const response = await fragment.render({} as any, {});
+      expect(response).to.deep.eq({
+        main: `undefined${dataKey}`
       });
     });
 
@@ -75,7 +120,7 @@ describe('Fragment', () => {
         main: `${data} was here`
       });
       fragmentConfig.versions.test.handler.data = () => {
-        return {data: 'acg'};
+        return { data: 'acg' };
       };
       const fragment = new FragmentBFF(fragmentConfig);
       fragment.render({} as any, {}, 'no_version').then(data => {
@@ -100,7 +145,6 @@ describe('Fragment', () => {
         const fragment = new FragmentBFF(fragmentConfig);
       }).to.throw();
     });
-
 
     it('should throw error when fails to find requested fragment placeholder', () => {
       const bff = {
@@ -176,7 +220,7 @@ describe('Fragment', () => {
         .get('/product/placeholder')
         .reply(200, placeholderContent);
       const fragment = new FragmentStorefront('product', 'test');
-      fragment.update(commonFragmentConfig, 'http://local.gatewaysimulator.com','');
+      fragment.update(commonFragmentConfig, 'http://local.gatewaysimulator.com', '');
 
       const placeholder = await fragment.getPlaceholder();
       expect(placeholder).to.eq(placeholderContent);
@@ -184,7 +228,7 @@ describe('Fragment', () => {
 
     it('should return empty placeholder on any exception', async () => {
       const fragment = new FragmentStorefront('product', 'test');
-      fragment.update(commonFragmentConfig, 'http://local.gatewaysimulator.com','');
+      fragment.update(commonFragmentConfig, 'http://local.gatewaysimulator.com', '');
 
       const placeholder = await fragment.getPlaceholder();
       expect(placeholder).to.eq('');
@@ -196,10 +240,10 @@ describe('Fragment', () => {
       };
       const scope = nock('http://local.gatewaysimulator.com')
         .get('/product/')
-        .query({__renderMode: FRAGMENT_RENDER_MODES.STREAM})
+        .query({ __renderMode: FRAGMENT_RENDER_MODES.STREAM })
         .reply(200, fragmentContent);
       const fragment = new FragmentStorefront('product', 'test');
-      fragment.update(commonFragmentConfig, 'http://local.gatewaysimulator.com','');
+      fragment.update(commonFragmentConfig, 'http://local.gatewaysimulator.com', '');
 
       const content = await fragment.getContent();
       expect(content.html).to.deep.eq(fragmentContent);
@@ -211,13 +255,13 @@ describe('Fragment', () => {
       };
       const scope = nock('http://local.gatewaysimulator.com')
         .get('/product/')
-        .query({__renderMode: FRAGMENT_RENDER_MODES.STREAM, custom: 'Trendyol'})
+        .query({ __renderMode: FRAGMENT_RENDER_MODES.STREAM, custom: 'Trendyol' })
         .reply(200, fragmentContent);
       const fragment = new FragmentStorefront('product', 'test');
-      fragment.update(commonFragmentConfig, 'http://local.gatewaysimulator.com','');
+      fragment.update(commonFragmentConfig, 'http://local.gatewaysimulator.com', '');
 
 
-      const content = await fragment.getContent({custom: 'Trendyol'});
+      const content = await fragment.getContent({ custom: 'Trendyol' });
 
       expect(content.html).to.deep.eq(fragmentContent);
     });
@@ -241,10 +285,10 @@ describe('Fragment', () => {
           name: 'product-bundle',
           injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
           type: RESOURCE_TYPE.JS
-        }as any
+        } as any
       ];
 
-      fragment.update(fragmentContent, 'http://asset-serving-test.com','');
+      fragment.update(fragmentContent, 'http://asset-serving-test.com', '');
 
       const scriptContent = await fragment.getAsset('product-bundle', '1.0.0');
 
