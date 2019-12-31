@@ -60,7 +60,6 @@ export class FragmentBFF extends Fragment {
   async render(req: express.Request, version: string, res: express.Response): Promise<HandlerDataResponse> {
     const handler = this.handler[version] || this.handler[this.config.version];
     const clearedRequest = this.clearRequest(req);
-    console.error("sanane");
     const clearedResponse = this.clearResponse(res);
     if (handler) {
       if (handler.data) {
