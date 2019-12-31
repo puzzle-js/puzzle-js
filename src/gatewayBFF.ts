@@ -1,5 +1,5 @@
-import {FragmentBFF} from "./fragment";
-import {Api} from "./api";
+import { FragmentBFF } from "./fragment";
+import { Api } from "./api";
 import {
   CONTENT_REPLACE_SCRIPT,
   DEFAULT_MAIN_PARTIAL,
@@ -10,7 +10,7 @@ import {
   RESOURCE_INJECT_TYPE,
   RESOURCE_JS_EXECUTE_TYPE,
 } from "./enums";
-import {PREVIEW_PARTIAL_QUERY_NAME, RENDER_MODE_QUERY_NAME, VERSION_QUERY_NAME} from "./config";
+import { PREVIEW_PARTIAL_QUERY_NAME, RENDER_MODE_QUERY_NAME, VERSION_QUERY_NAME } from "./config";
 import {
   FragmentModel,
   ICookieMap,
@@ -24,18 +24,18 @@ import md5 from "md5";
 import async from "async";
 import path from "path";
 import express from "express";
-import {Server} from "./network";
-import {container, TYPES} from "./base";
+import { Server } from "./network";
+import { container, TYPES } from "./base";
 import cheerio from "cheerio";
-import {callableOnce, sealed} from "./decorators";
-import {GatewayConfigurator} from "./configurator";
-import {Template} from "./template";
-import {Logger} from "./logger";
+import { callableOnce, sealed } from "./decorators";
+import { GatewayConfigurator } from "./configurator";
+import { Template } from "./template";
+import { Logger } from "./logger";
 import cors from "cors";
 import routeCache from "route-cache";
-import {RESOURCE_TYPE} from "@puzzle-js/client-lib/dist/enums";
+import { RESOURCE_TYPE } from "@puzzle-js/client-lib/dist/enums";
 import ResourceInjector from "./resource-injector";
-import {LIB_CONTENT} from "./util";
+import { LIB_CONTENT } from "./util";
 
 const logger = container.get(TYPES.Logger) as Logger;
 
@@ -161,7 +161,7 @@ export class GatewayBFF {
     const fragment = this.fragments[fragmentName];
     if (fragment) {
       const version = this.detectVersion(fragment, cookie, forcedVersion);
-      const fragmentContent = await fragment.render(req, version);
+      const fragmentContent = await fragment.render(req, version, res);
 
       const gatewayContent = {
         content: fragmentContent,
@@ -300,7 +300,7 @@ export class GatewayBFF {
           res.set('content-type', 'text/html');
           const dom = cheerio.load(`<html><head><title>${this.config.name} - ${fragment.name}</title>${this.config.isMobile ? '<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />' : ''}</head><body><div id="${fragment.name}">${this.fragments[fragment.name].placeholder(req, req.cookies[fragment.testCookie])}</div></body></html>`);
           res.write(dom.html());
-          const gatewayContent = await this.fragments[fragment.name].render(req, req.cookies[fragment.testCookie]);
+          const gatewayContent = await this.fragments[fragment.name].render(req, req.cookies[fragment.testCookie], res);
           res.write(`${CONTENT_REPLACE_SCRIPT}<div style="display: none;" id="${fragment.name}-replace">${gatewayContent[DEFAULT_MAIN_PARTIAL]}</div>`);
           setTimeout(() => {
             res.write(`<script>$p('#${fragment.name}', '#${fragment.name}-replace')</script>`);

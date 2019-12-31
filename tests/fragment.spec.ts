@@ -1,11 +1,15 @@
-import {expect} from "chai";
+import { expect } from "chai";
 import "../src/base";
-import {FragmentBFF, FragmentStorefront} from "../src/fragment";
-import {IExposeFragment} from "../src/types";
+import { FragmentBFF, FragmentStorefront } from "../src/fragment";
+import { IExposeFragment } from "../src/types";
 import nock from "nock";
-import {FRAGMENT_RENDER_MODES, RESOURCE_INJECT_TYPE, RESOURCE_LOCATION} from "../src/enums";
-import {RESOURCE_TYPE} from "@puzzle-js/client-lib/dist/enums";
-import {AssetManager} from "../src/asset-manager";
+import { FRAGMENT_RENDER_MODES, RESOURCE_INJECT_TYPE, RESOURCE_LOCATION } from "../src/enums";
+import { RESOURCE_TYPE } from "@puzzle-js/client-lib/dist/enums";
+import { AssetManager } from "../src/asset-manager";
+import * as express from 'express';
+import faker from "faker";
+
+const { lorem: { word } } = faker;
 
 describe('Fragment', () => {
     describe('BFF', () => {
@@ -40,10 +44,10 @@ describe('Fragment', () => {
                 };
             };
             fragmentConfig.versions.test.handler.data = () => {
-                return {data: 'acg'};
+                return { data: 'acg' };
             };
             const fragment = new FragmentBFF(fragmentConfig);
-            const response = await fragment.render({} as any, '1.0.0');
+            const response = await fragment.render({} as express.Request, '1.0.0', {} as express.Response);
             expect(response).to.deep.eq({
                 main: `acg was here`
             });
@@ -59,11 +63,53 @@ describe('Fragment', () => {
             expect(response).to.eq('placeholder');
         });
 
+        it('should render fragment with response locals', async () => {
+            const localKey = word();
+            const locals = {
+                [localKey]: word()
+            };
+
+            const fragmentConfig = JSON.parse(JSON.stringify(commonFragmentBffConfiguration));
+            fragmentConfig.versions.test.handler.content = (data: any) => {
+                return {
+                    main: `${data} was here`
+                };
+            };
+            fragmentConfig.versions.test.handler.data = (req: any, res: any) => {
+                return { data: res[localKey] };
+            };
+            const fragment = new FragmentBFF(fragmentConfig);
+            const response = await fragment.render({} as express.Request, word(), { locals } as express.Response);
+            expect(response).to.deep.eq({
+                main: `${locals[localKey]} was here`
+            });
+        });
+
+        it('should render fragment without response locals', async () => {
+            const localKey = word();
+            const dataKey = word();
+
+            const fragmentConfig = JSON.parse(JSON.stringify(commonFragmentBffConfiguration));
+            fragmentConfig.versions.test.handler.content = (data: any) => {
+                return {
+                    main: data
+                };
+            };
+            fragmentConfig.versions.test.handler.data = (req: any, res: any) => {
+                return { data: res[localKey] + dataKey };
+            };
+            const fragment = new FragmentBFF(fragmentConfig);
+            const response = await fragment.render({} as express.Request, word(), {} as express.Response);
+            expect(response).to.deep.eq({
+                main: `undefined${dataKey}`
+            });
+        });
+
         it('should throw at render error when not static and no data', done => {
             const fragmentConfig = JSON.parse(JSON.stringify(commonFragmentBffConfiguration));
-            fragmentConfig.versions.test.handler.content = (data: any) => `${data} was here`;
+            fragmentConfig.versions.test.handler.content = (data: unknown) => `${data} was here`;
             const fragment = new FragmentBFF(fragmentConfig);
-            fragment.render({} as any, '1.0.0').then(data => done(data)).catch(e => {
+            fragment.render({} as express.Request, '1.0.0', {} as express.Response).then(data => done(data)).catch(e => {
                 expect(e.message).to.include('Failed to find data handler');
                 done();
             });
@@ -75,10 +121,10 @@ describe('Fragment', () => {
                 main: `${data} was here`
             });
             fragmentConfig.versions.test.handler.data = () => {
-                return {data: 'acg'};
+                return { data: 'acg' };
             };
             const fragment = new FragmentBFF(fragmentConfig);
-            fragment.render({} as any, 'no_version').then(data => {
+            fragment.render({} as express.Request, 'no_version', {} as express.Response).then(data => {
                 expect(data.main).to.include('was here');
                 done();
             });
@@ -137,7 +183,7 @@ describe('Fragment', () => {
             const fragment = new FragmentBFF(fragmentConfig);
 
             try {
-                await fragment.render({} as any, '123');
+                await fragment.render({} as express.Request, '123', {} as express.Response);
             } catch (err) {
                 return;
             }
@@ -209,7 +255,7 @@ describe('Fragment', () => {
             };
             const scope = nock('http://local.gatewaysimulator.com')
                 .get('/product/')
-                .query({__renderMode: FRAGMENT_RENDER_MODES.STREAM})
+                .query({ __renderMode: FRAGMENT_RENDER_MODES.STREAM })
                 .reply(200, fragmentContent);
             const fragment = new FragmentStorefront('product', 'test');
             fragment.update(commonFragmentConfig, 'http://local.gatewaysimulator.com', '');
@@ -224,13 +270,13 @@ describe('Fragment', () => {
             };
             const scope = nock('http://local.gatewaysimulator.com')
                 .get('/product/')
-                .query({__renderMode: FRAGMENT_RENDER_MODES.STREAM, custom: 'Trendyol'})
+                .query({ __renderMode: FRAGMENT_RENDER_MODES.STREAM, custom: 'Trendyol' })
                 .reply(200, fragmentContent);
             const fragment = new FragmentStorefront('product', 'test');
             fragment.update(commonFragmentConfig, 'http://local.gatewaysimulator.com', '');
 
 
-            const content = await fragment.getContent({custom: 'Trendyol'});
+            const content = await fragment.getContent({ custom: 'Trendyol' });
 
             expect(content.html).to.deep.eq(fragmentContent);
         });
@@ -243,7 +289,7 @@ describe('Fragment', () => {
             const scope = nock('http://asset-serving-test.com')
                 .log(console.log)
                 .get('/product/static/bundle.min.js')
-                .query({__version: '1.0.0'})
+                .query({ __version: '1.0.0' })
                 .reply(200, productScript);
 
             const fragment = new FragmentStorefront('product', 'test');
@@ -368,7 +414,7 @@ describe('Fragment', () => {
         it('should return empty content when error accrued and error page does not exists', async () => {
             nock('http://local.gatewaysimulator.com')
                 .get('/error-page-test/')
-                .query({__renderMode: FRAGMENT_RENDER_MODES.STREAM})
+                .query({ __renderMode: FRAGMENT_RENDER_MODES.STREAM })
                 .replyWithError({});
 
             nock('http://local.gatewaysimulator.com')
@@ -388,7 +434,7 @@ describe('Fragment', () => {
 
             nock('http://local.gatewaysimulator.com')
                 .get('/error-page-test/')
-                .query({__renderMode: FRAGMENT_RENDER_MODES.STREAM})
+                .query({ __renderMode: FRAGMENT_RENDER_MODES.STREAM })
                 .replyWithError({});
 
             nock('http://local.gatewaysimulator.com')
@@ -399,12 +445,12 @@ describe('Fragment', () => {
             fragment.update(commonFragmentConfig, 'http://local.gatewaysimulator.com', '');
 
             // getErrorPage is async in update we need async check
-            setTimeout( async () => {
+            setTimeout(async () => {
                 const content = await fragment.getContent();
                 expect(content.html).to.deep.eq(JSON.parse(errorPageContent));
                 expect(content.status).to.eq(200);
                 done();
-            }, 100)
+            }, 100);
 
         });
 
