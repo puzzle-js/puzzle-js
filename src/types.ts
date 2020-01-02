@@ -1,19 +1,19 @@
-import {GatewayStorefrontInstance} from "./gatewayStorefront";
-import {NextFunction, Request, Response} from "express-serve-static-core";
+import { GatewayStorefrontInstance } from "./gatewayStorefront";
+import { NextFunction, Request, Response } from "express-serve-static-core";
 import {
-  FragmentSentryConfig,
-  HTTP_METHODS,
-  REPLACE_ITEM_TYPE,
-  RESOURCE_INJECT_TYPE,
-  RESOURCE_JS_EXECUTE_TYPE,
-  RESOURCE_LOCATION
+    FragmentSentryConfig,
+    HTTP_METHODS,
+    REPLACE_ITEM_TYPE,
+    RESOURCE_INJECT_TYPE,
+    RESOURCE_JS_EXECUTE_TYPE,
+    RESOURCE_LOCATION
 } from "./enums";
-import {FragmentStorefront} from "./fragment";
-import {RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "@puzzle-js/client-lib/dist/enums";
-import {RouteConfiguration} from "puzzle-warden/dist/request-manager";
-import {MATCHER_FN} from "./cookie-version-matcher";
-import express, {CookieOptions} from "express";
-import {IServerOptions} from "./network";
+import { FragmentStorefront } from "./fragment";
+import { RESOURCE_LOADING_TYPE, RESOURCE_TYPE } from "@puzzle-js/client-lib/dist/enums";
+import { RouteConfiguration } from "puzzle-warden/dist/request-manager";
+import { MATCHER_FN } from "./cookie-version-matcher";
+import express, { CookieOptions } from "express";
+import { IServerOptions } from "./network";
 
 export interface IFragment {
     name: string;
@@ -40,7 +40,7 @@ export interface IFragmentHandler {
     error: () => {
         main: string
     };
-    data: (req: object) => Promise<HandlerDataResponse>;
+    data: (req: object, res: object) => Promise<HandlerDataResponse>;
 }
 
 export interface HandlerDataResponse {
