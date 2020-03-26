@@ -154,9 +154,7 @@ export class Template {
       return this.buildHandler(singleFlushHandlerWithoutFragments, [], [], [], isDebug);
     }
 
-    if (!this.resourceInjector) {
-      this.resourceInjector = new ResourceInjector(this.fragments, this.name, testCookies);
-    }
+    this.resourceInjector = new ResourceInjector(this.fragments, this.name, testCookies);
 
     Object.values(this.fragments).forEach(fragment => {
       if (fragment.config) {
