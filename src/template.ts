@@ -155,6 +155,7 @@ export class Template {
     }
 
     this.resourceInjector = new ResourceInjector(this.fragments, this.name, testCookies);
+    logger.info('resource injector instance created');
 
     Object.values(this.fragments).forEach(fragment => {
       if (fragment.config) {
