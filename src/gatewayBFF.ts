@@ -227,10 +227,11 @@ export class GatewayBFF {
     }));
 
     fragmentVersion.assets.forEach(asset => {
+      const assetUrl = asset.fileName ?  `/${fragment.name}/static/${asset.fileName}` : asset.link;
       if (asset.type === RESOURCE_TYPE.JS) {
-        dom('body').append(`<script puzzle-asset="${asset.name}" src="/${fragment.name}/static/${asset.fileName}" type="text/javascript"${RESOURCE_JS_EXECUTE_TYPE.SYNC}></script>`);
+        dom('body').append(`<script puzzle-asset="${asset.name}" src="${assetUrl}" type="text/javascript"${RESOURCE_JS_EXECUTE_TYPE.SYNC}></script>`);
       } else if (asset.type === RESOURCE_TYPE.CSS) {
-        dom('head').append(`<link puzzle-asset="${asset.name}" rel="stylesheet" href="/${fragment.name}/static/${asset.fileName}" />`);
+        dom('head').append(`<link puzzle-asset="${asset.name}" rel="stylesheet" href="${assetUrl}" />`);
       }
     });
 

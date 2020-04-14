@@ -9,6 +9,7 @@ import {GatewayConfigurator} from "../src/configurator";
 import {DEFAULT_POLLING_INTERVAL} from "../src/config";
 import faker from "faker";
 import request from "supertest";
+import {RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "@puzzle-js/client-lib/dist/enums";
 
 describe('Gateway', () => {
     describe('BFF', () => {
@@ -567,6 +568,125 @@ describe('Gateway', () => {
                 done();
             });
         });
+
+        it('should render fragment in preview mode with given assets with filename', async () => {
+            const gatewayConfiguration: IGatewayBFFConfiguration = {
+                ...commonGatewayConfiguration,
+                fragments: [
+                    {
+                        name: 'boutique-list',
+                        version: 'test',
+                        render: {
+                            url: '/'
+                        },
+                        testCookie: 'fragment_test',
+                        versions: {
+                            'test': {
+                                assets: [
+                                    {
+                                        fileName: 'test-asset-1-filename.js',
+                                        link: 'test-asset-1-link.js',
+                                        loadMethod: RESOURCE_LOADING_TYPE.ON_RENDER_START,
+                                        type: RESOURCE_TYPE.JS,
+                                        name: 'test-asset-1-name',
+                                    },
+                                    {
+                                        fileName: 'test-asset-2-filename.css',
+                                        link: 'test-asset-2-link.css',
+                                        loadMethod: RESOURCE_LOADING_TYPE.ON_RENDER_START,
+                                        type: RESOURCE_TYPE.CSS,
+                                        name: 'test-asset-2-name',
+                                    }
+                                ],
+                                dependencies: [],
+                                handler: {
+                                    content(data: any) {
+                                        return {
+                                            main: `Requested:${data}`
+                                        };
+                                    },
+                                    data(req: any) {
+                                        return {
+                                            data: `Url:${req.url}`
+                                        };
+                                    },
+                                    placeholder() {
+                                        return "Placeholder";
+                                    }
+                                } as any
+                            }
+                        }
+                    }
+                ]
+            };
+
+            const bffGw = new GatewayBFF(gatewayConfiguration);
+            await bffGw.renderFragment({url: 'test'} as any, 'boutique-list', FRAGMENT_RENDER_MODES.PREVIEW, DEFAULT_MAIN_PARTIAL, createExpressMock({
+                send: (gwResponse: string) => {
+                    if (!gwResponse) throw new Error('No response from gateway');
+                    expect(gwResponse).to.include(`<script puzzle-dependency="puzzle-lib" type="text/javascript">puzzleLibScript</script><title>Browsing - boutique-list</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><link puzzle-asset="test-asset-2-name" rel="stylesheet" href="/boutique-list/static/test-asset-2-filename.css"></head><body><div id="boutique-list">Requested:Url:test</div><script puzzle-asset="test-asset-1-name" src="/boutique-list/static/test-asset-1-filename.js" type="text/javascript"></script>`);
+                }
+            }) as any,{});
+        });
+
+        it('should render fragment in preview mode with given assets without filename', async () => {
+            const gatewayConfiguration: IGatewayBFFConfiguration = {
+                ...commonGatewayConfiguration,
+                fragments: [
+                    {
+                        name: 'boutique-list',
+                        version: 'test',
+                        render: {
+                            url: '/'
+                        },
+                        testCookie: 'fragment_test',
+                        versions: {
+                            'test': {
+                                assets: [
+                                    {
+                                        link: 'test-asset-1-link.js',
+                                        loadMethod: RESOURCE_LOADING_TYPE.ON_RENDER_START,
+                                        type: RESOURCE_TYPE.JS,
+                                        name: 'test-asset-1-name',
+                                    },
+                                    {
+                                        link: 'test-asset-2-link.css',
+                                        loadMethod: RESOURCE_LOADING_TYPE.ON_RENDER_START,
+                                        type: RESOURCE_TYPE.CSS,
+                                        name: 'test-asset-2-name',
+                                    }
+                                ],
+                                dependencies: [],
+                                handler: {
+                                    content(data: any) {
+                                        return {
+                                            main: `Requested:${data}`
+                                        };
+                                    },
+                                    data(req: any) {
+                                        return {
+                                            data: `Url:${req.url}`
+                                        };
+                                    },
+                                    placeholder() {
+                                        return "Placeholder";
+                                    }
+                                } as any
+                            }
+                        }
+                    }
+                ]
+            };
+
+            const bffGw = new GatewayBFF(gatewayConfiguration);
+            await bffGw.renderFragment({url: 'test'} as any, 'boutique-list', FRAGMENT_RENDER_MODES.PREVIEW, DEFAULT_MAIN_PARTIAL, createExpressMock({
+                send: (gwResponse: string) => {
+                    if (!gwResponse) throw new Error('No response from gateway');
+                    expect(gwResponse).to.include(`<script puzzle-dependency="puzzle-lib" type="text/javascript">puzzleLibScript</script><title>Browsing - boutique-list</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><link puzzle-asset="test-asset-2-name" rel="stylesheet" href="test-asset-2-link.css"></head><body><div id="boutique-list">Requested:Url:test</div><script puzzle-asset="test-asset-1-name" src="test-asset-1-link.js" type="text/javascript"></script>`);
+                }
+            }) as any,{});
+        });
+
     });
 
     describe('Storefront', () => {
