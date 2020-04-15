@@ -361,7 +361,11 @@ export class Template {
     const waitedReplacement = await this.replaceWaitedFragments(waitedFragments, fragmentedHtml, req, isDebug);
 
     for (const prop in waitedReplacement.headers) {
-      res.set(prop, waitedReplacement.headers[prop]);
+      try {
+        res.set(prop, waitedReplacement.headers[prop]);
+      }catch (e) {
+        logger.error(`[Invalid Headers ${this.name}]`, e.toString());
+      }
     }
     for (const prop in waitedReplacement.cookies) {
       if (waitedReplacement.cookies[prop].options && waitedReplacement.cookies[prop].options.expires) {
@@ -416,7 +420,11 @@ export class Template {
     //Wait for first flush
     const waitedReplacement = await waitedReplacementPromise;
 
-    res.set(waitedReplacement.headers);
+    try {
+      res.set(waitedReplacement.headers);
+    }catch (e) {
+      logger.error(`[Invalid Headers ${this.name}]`, e.toString());
+    }
 
     for (const prop in waitedReplacement.cookies) {
       res.cookie(prop, waitedReplacement.cookies[prop].value, waitedReplacement.cookies[prop].options);
