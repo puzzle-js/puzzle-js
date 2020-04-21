@@ -103,7 +103,7 @@ describe('System Tests', () => {
         });
     });
   });
-  
+
 
   it('should render single static fragment using HTTPS', (done) => {
     const gatewayConfigurator = new GatewayConfigurator();
