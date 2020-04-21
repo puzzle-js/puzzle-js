@@ -286,10 +286,10 @@
     "@types/istanbul-reports" "^1.1.1"
     "@types/yargs" "^13.0.0"
 
-"@puzzle-js/client-lib@^1.2.3":
-  version "1.2.3"
-  resolved "https://registry.yarnpkg.com/@puzzle-js/client-lib/-/client-lib-1.2.3.tgz#d99037a16d24b912912a848db997577c4906914e"
-  integrity sha512-vq/JeBEcArW1UABUrCC10NnTdpbjQQhsdVGZNU9fQBkeq//pvmXXMGvjLqTwwkqxWfGcStE1i3gr0h40YZtaSQ==
+"@puzzle-js/client-lib@^1.3.0":
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/@puzzle-js/client-lib/-/client-lib-1.3.0.tgz#867bbd917a4857822631fd3dfea63843fa08aa5d"
+  integrity sha512-avnAn9DvLFtf1Em9U/afm99Eq47NZSY06Bt4hK9vcq5a2+KE8v4Hr0D9zpaD/ZNrqf7XKn4Sbb2aNHgPkEdZ4g==
 
 "@sinonjs/commons@^1", "@sinonjs/commons@^1.3.0", "@sinonjs/commons@^1.4.0", "@sinonjs/commons@^1.7.0":
   version "1.7.0"
@@ -450,10 +450,10 @@
   resolved "https://registry.yarnpkg.com/@types/faker/-/faker-4.1.8.tgz#95240361f1379addae0a005ced7c5c77b0b1e1d8"
   integrity sha512-9ARxZRyXXCMMf8KjYhnD+GHE789HGwIqa1dolCRl/C6ExwvBIUmnIktLeY71TPmFOQiU3DQwrbQEX0pkyqX1tQ==
 
-"@types/helmet@0.0.37":
-  version "0.0.37"
-  resolved "https://registry.yarnpkg.com/@types/helmet/-/helmet-0.0.37.tgz#6b150f30219c0d6563e8e0a3fbcad8dd90fa4f68"
-  integrity sha512-E45vdnx+7+HIN5jsywhzfd+hUI/2yBFr6RT7tsMVrwp+uTvyVANBf4dyVUNW/+ZqAvcx23t2YtGTndQJR3tXIA==
+"@types/helmet@0.0.45":
+  version "0.0.45"
+  resolved "https://registry.yarnpkg.com/@types/helmet/-/helmet-0.0.45.tgz#3eab6550a4e19acf86012596a7f1981529480fd5"
+  integrity sha512-PsLZI1NqKpXvsMZxh66xAZtpKiTeW+swY8a8LnCNSBbM/mvwU41P3BYoEqkJM9RbITPsq4uhIH0NkIsL9fzPbg==
   dependencies:
     "@types/express" "*"
 
