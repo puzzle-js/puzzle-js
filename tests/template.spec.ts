@@ -1460,7 +1460,6 @@ describe('Template', () => {
             main: 'Trendyol',
           });
 
-
         const template = new Template(`
                     <template>
                         <html>
@@ -1506,6 +1505,42 @@ describe('Template', () => {
               }
               done(err);
             },
+            status(statusCode: number) {
+              expect(statusCode).to.eq(404);
+            }
+          }));
+        });
+      });
+
+      it('should return given status code', () => {
+        let scope = nock('http://my-test-gateway-chunked.com', {
+          reqheaders: {
+            gateway: 'gateway'
+          }
+        })
+          .get('/404')
+          .query({
+            __renderMode: FRAGMENT_RENDER_MODES.STREAM
+          })
+          .reply(200, {
+            main: 'Trendyol',
+          });
+
+        const template = new Template(`
+                    <template>
+                        <html>
+                            <head> </head>
+                            <body> </body>
+                        </html>
+                    </template>
+                `);
+
+        template.pageClass.onRequest = (request) => {
+          request.statusCode = 404;
+        };
+
+        template.compile({}).then(handler => {
+          handler({}, createExpressMock({
             status(statusCode: number) {
               expect(statusCode).to.eq(404);
             }
