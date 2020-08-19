@@ -370,9 +370,9 @@ export class Template {
       res.cookie(prop, waitedReplacement.cookies[prop].value, waitedReplacement.cookies[prop].options);
     }
 
-    res.status(waitedReplacement.statusCode);
+    res.status(req.statusCode || waitedReplacement.statusCode);
 
-    if (waitedReplacement.statusCode === HTTP_STATUS_CODE.MOVED_PERMANENTLY) {
+    if (req.statusCode === HTTP_STATUS_CODE.MOVED_PERMANENTLY || waitedReplacement.statusCode === HTTP_STATUS_CODE.MOVED_PERMANENTLY) {
       res.end();
       this.pageClass._onResponseEnd();
     } else {
@@ -391,13 +391,15 @@ export class Template {
    * @param req
    * @param res
    */
-  async chunkedHandler(firstFlushHandler: Function,
-                       waitedFragments: IReplaceSet[],
-                       chunkedFragmentReplacements: IReplaceSet[],
-                       jsReplacements: IReplaceAsset[],
-                       isDebug: boolean,
-                       req: express.Request,
-                       res: CompressionStreamResponse) {
+  async chunkedHandler(
+    firstFlushHandler: Function,
+    waitedFragments: IReplaceSet[],
+    chunkedFragmentReplacements: IReplaceSet[],
+    jsReplacements: IReplaceAsset[],
+    isDebug: boolean,
+    req: express.Request,
+    res: CompressionStreamResponse
+  ) {
     this.pageClass._onRequest(req);
     const fragmentedHtml = firstFlushHandler.call(this.pageClass, req).replace('</body>', '').replace('</html>', '');
     res.set('transfer-encoding', 'chunked');
@@ -422,8 +424,8 @@ export class Template {
       res.cookie(prop, waitedReplacement.cookies[prop].value, waitedReplacement.cookies[prop].options);
     }
 
-    res.status(waitedReplacement.statusCode);
-    if (waitedReplacement.statusCode === HTTP_STATUS_CODE.MOVED_PERMANENTLY) {
+    res.status(req.statusCode || waitedReplacement.statusCode);
+    if (req.statusCode === HTTP_STATUS_CODE.MOVED_PERMANENTLY || waitedReplacement.statusCode === HTTP_STATUS_CODE.MOVED_PERMANENTLY) {
       res.end();
       this.pageClass._onResponseEnd();
     } else {
