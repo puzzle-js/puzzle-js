@@ -23,7 +23,7 @@ export const CHEERIO_CONFIGURATION = loadConfigurationFromEnv('CHEERIO_CONFIGURA
     normalizeWhitespace: true,
     recognizeSelfClosing: true,
     xmlMode: true,
-    lowerCaseAttributeNames: true,
+    lowerCaseAttributeNames: false,
     decodeEntities: false
 };
 export const TEMPLATE_FRAGMENT_TAG_NAME = loadConfigurationFromEnv('TEMPLATE_FRAGMENT_TAG_NAME') || 'fragment';
