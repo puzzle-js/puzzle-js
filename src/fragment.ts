@@ -161,7 +161,7 @@ export class FragmentBFF extends Fragment {
       if (configurationHandler) {
         this.handler[version] = configurationHandler;
       } else {
-        const module = require(path.join(process.cwd(), `/src/fragments/`, this.config.name, version));
+        const module = require(path.join(process.cwd(), this.config.folderPath || `/src/fragments/`, this.config.name, version));
         this.handler[version] = this.checkModuleType(module);
       }
     });
