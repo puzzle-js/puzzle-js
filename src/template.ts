@@ -177,6 +177,16 @@ export class Template {
       this.dom('head').prepend(`<script src="${GUN_PATH}"> </script>`);
     }
 
+    // replace meta async
+    for(let i = 0,len = chunkedFragmentsWithShouldWait.length;i < len;i++){
+          const fragment = chunkedFragmentsWithShouldWait[i];
+          if (fragment.clientAsync){
+              this.dom(`head fragment[name="${fragment.name}"]`).each((i, el) => {
+                  this.dom(el).replaceWith(`<meta fragment-name="${fragment.name}" fragment-partial="${el.attribs.partial}">`)
+              })
+          }
+      }
+    
     // todo kaldir lib bagla
     const replaceScripts: any[] = [];
 
