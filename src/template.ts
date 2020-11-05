@@ -182,7 +182,7 @@ export class Template {
           const fragment = chunkedFragmentsWithShouldWait[i];
           if (fragment.clientAsync){
               this.dom(`head fragment[name="${fragment.name}"]`).each((i, el) => {
-                  this.dom(el).replaceWith(`<meta fragment-name="${fragment.name}" fragment-partial="${el.attribs.partial}">`)
+                  this.dom(el).replaceWith(`<meta puzzle-fragment="${fragment.name}" fragment-partial="${el.attribs.partial}">`)
               })
           }
       }
