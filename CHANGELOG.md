@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
+# [3.32.14] - 18-11-2020
+### Add
+- Check for redirectionEnabled attribute to allow secondary fragments redirect.
+
 # [3.32.10] - 5-11-2020
 ### Update
 - Update puzzle/lib version
