@@ -140,6 +140,39 @@ describe('Template', () => {
     });
   });
 
+  it('should parse fragment attribute if', () => {
+    const template = new Template('<template><div><fragment from="Browsing" name="product" enable-redirect></fragment></div></template>');
+
+    const dependencyList = template.getDependencies();
+    expect(dependencyList).to.deep.include({
+      gateways: {
+        Browsing: {
+          gateway: null,
+          ready: false
+        }
+      },
+      fragments: {
+        product: {
+          gateway: 'Browsing',
+          instance: {
+            "_attributes": {
+              "from": "Browsing",
+              "name": "product",
+              "enable-redirect": ""
+            },
+            clientAsync: false,
+            asyncDecentralized: false,
+            name: 'product',
+            primary: false,
+            shouldWait: false,
+            from: "Browsing",
+            static: false
+          }
+        }
+      }
+    });
+  });
+
   it('should throw error when multiple primary fragments', () => {
     const template = new Template(`
             <template>
