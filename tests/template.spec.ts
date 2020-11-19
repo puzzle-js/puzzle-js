@@ -140,9 +140,8 @@ describe('Template', () => {
     });
   });
 
-  it('should parse fragment attribute if', () => {
+  it('should parse fragment attribute enable-redirect', () => {
     const template = new Template('<template><div><fragment from="Browsing" name="product" enable-redirect></fragment></div></template>');
-
     const dependencyList = template.getDependencies();
     expect(dependencyList).to.deep.include({
       gateways: {
