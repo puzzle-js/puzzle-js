@@ -182,8 +182,8 @@ export class Template {
           const fragment = chunkedFragmentsWithShouldWait[i];
           if (fragment.clientAsync){
               this.dom(`head fragment[name="${fragment.name}"]`).each((i, el) => {
-                  this.dom(el).replaceWith(`<meta puzzle-fragment="${fragment.name}" fragment-partial="${el.attribs.partial}">`)
-              })
+                  this.dom(el).replaceWith(`<meta puzzle-fragment="${fragment.name}" fragment-partial="${el.attribs.partial}">`);
+              });
           }
       }
     
@@ -324,6 +324,11 @@ export class Template {
         statusCode = fragmentContent.status;
         headers = fragmentContent.headers;
         cookies = fragmentContent.cookies;
+      } else if (waitedFragmentReplacement.fragmentAttributes && waitedFragmentReplacement.fragmentAttributes.enableRedirect) {
+        if (statusCode === HTTP_STATUS_CODE.OK) {
+          statusCode = fragmentContent.status;
+          headers["location"] = fragmentContent.headers["location"] || "";
+        }
       }
 
       waitedFragmentReplacement.replaceItems
