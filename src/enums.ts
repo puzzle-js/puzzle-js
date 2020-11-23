@@ -67,6 +67,7 @@ export const HEALTHCHECK_PATHS = ['/healthcheck', '/liveness', '/readiness'];
 export enum HTTP_STATUS_CODE {
     OK = 200,
     MOVED_PERMANENTLY = 301,
+    MOVED_TEMPORARILY = 302,
     NOT_MODIFIED = 304,
     BAD_REQUEST = 400,
     UNAUTHORIZED = 401,
