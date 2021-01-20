@@ -2,6 +2,7 @@ export class TemplateClass {
     onCreate: Function | undefined;
     onRequest: Function | undefined;
     onChunk: Function | undefined;
+    onResponse: Function | undefined;
     onResponseEnd: Function | undefined;
 
     _onCreate(...args: any[]) {
@@ -14,6 +15,10 @@ export class TemplateClass {
 
     _onChunk(...args: any[]) {
         this.onChunk && this.onChunk(...args);
+    }
+
+    _onResponse(...args: any[]) {
+        this.onResponse && this.onResponse(...args);
     }
 
     _onResponseEnd(...args: any[]) {
