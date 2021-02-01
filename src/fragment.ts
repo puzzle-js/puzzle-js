@@ -410,7 +410,7 @@ export class FragmentStorefront extends Fragment {
       };
     }).catch(async (err) => {
       const puzzleError = new PuzzleError(ERROR_CODES.FAILED_TO_GET_FRAGMENT_CONTENT, this.name, `${this.fragmentUrl}${routeRequest}`);
-      logger.error(puzzleError, { name: this.name, url: `${this.fragmentUrl}${routeRequest}`, requestConfiguration, error: err });
+      logger.error(puzzleError.toString(), { name: this.name, url: `${this.fragmentUrl}${routeRequest}`, error: err });
 
       const errorPage = await this.getErrorPage();
 
