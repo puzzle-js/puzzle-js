@@ -400,7 +400,7 @@ export class Template {
     }
 
     res.status(req.statusCode || waitedReplacement.statusCode);
-
+    this.pageClass._onResponse(res);
     if (req.statusCode === HTTP_STATUS_CODE.MOVED_PERMANENTLY || waitedReplacement.statusCode === HTTP_STATUS_CODE.MOVED_PERMANENTLY) {
       res.end();
       this.pageClass._onResponseEnd();
@@ -454,6 +454,7 @@ export class Template {
     }
 
     res.status(req.statusCode || waitedReplacement.statusCode);
+    this.pageClass._onResponse(res);
     if (req.statusCode === HTTP_STATUS_CODE.MOVED_PERMANENTLY || waitedReplacement.statusCode === HTTP_STATUS_CODE.MOVED_PERMANENTLY) {
       res.end();
       this.pageClass._onResponseEnd();
