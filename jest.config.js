@@ -7,6 +7,7 @@ module.exports = {
   ],
   collectCoverageFrom: [
     'src/**/*.ts',
-    '!src/index.ts'
+    '!src/index.ts',
+    '!src/sentry-connector.ts',
   ]
 };
