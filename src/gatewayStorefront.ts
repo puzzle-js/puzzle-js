@@ -78,7 +78,7 @@ export class GatewayStorefrontInstance {
       const json = await res.json();
       this.update(json);
     } catch (e) {
-      logger.error(`Failed to fetch gateway configuration: ${this.name}`, e);
+      logger.error(`Failed to fetch gateway configuration: ${this.name}`, { error: e });
     }
   }
 
