@@ -67,7 +67,13 @@ export class FragmentBFF extends Fragment {
         try {
           dataResponse = await handler.data(clearedRequest, clearedResponse);
         } catch (e) {
-          logger.error(`Failed to fetch data for fragment ${this.config.name}`, req.url, req.query, req.params, req.headers, e);
+          logger.error(`Failed to fetch data for fragment ${this.config.name}`, {
+            url: req.url,
+            query: req.query,
+            params: req.params,
+            headers: req.headers,
+            error: e
+          });
           return {
             $status: 500
           };
@@ -264,12 +270,12 @@ export class FragmentStorefront extends Fragment {
     logger.info(`Trying to get placeholder of fragment: ${this.name}`);
 
     if (!this.config) {
-      logger.error(new Error(`No config provided for fragment: ${this.name}`));
+      logger.error(`No config provided for fragment: ${this.name}`);
       return '';
     }
 
     if (!this.config.render.placeholder) {
-      logger.error(new Error('Placeholder is not enabled for fragment'));
+      logger.error('Placeholder is not enabled for fragment');
       return '';
     }
 
@@ -284,7 +290,7 @@ export class FragmentStorefront extends Fragment {
         return html;
       })
       .catch(err => {
-        logger.error(`Failed to fetch placeholder for fragment: ${this.fragmentUrl}/placeholder`, err);
+        logger.error(`Failed to fetch placeholder for fragment: ${this.fragmentUrl}/placeholder`, { error: err });
         return '';
       });
   }
@@ -317,7 +323,7 @@ export class FragmentStorefront extends Fragment {
         return html;
       })
       .catch(err => {
-        logger.error(`Failed to fetch error page for fragment: ${this.fragmentUrl}/error`, err);
+        logger.error(`Failed to fetch error page for fragment: ${this.fragmentUrl}/error`, { error: err });
         return '';
       });
   }
@@ -338,7 +344,7 @@ export class FragmentStorefront extends Fragment {
   async getContent(attribs: any = {}, req?: express.Request): Promise<IFragmentContentResponse> {
     logger.info(`Trying to get contents of fragment: ${this.name}`);
     if (!this.config) {
-      logger.error(new Error(`No config provided for fragment: ${this.name}`));
+      logger.error(`No config provided for fragment: ${this.name}`);
       return {
         status: 500,
         html: {},
@@ -403,7 +409,8 @@ export class FragmentStorefront extends Fragment {
         model: res.data.$model || {}
       };
     }).catch(async (err) => {
-      logger.error(new PuzzleError(ERROR_CODES.FAILED_TO_GET_FRAGMENT_CONTENT, this.name, `${this.fragmentUrl}${routeRequest}`), this.name, `${this.fragmentUrl}${routeRequest}`, `${this.fragmentUrl}${routeRequest}`, { json: true, ...requestConfiguration }, err);
+      const puzzleError = new PuzzleError(ERROR_CODES.FAILED_TO_GET_FRAGMENT_CONTENT, this.name, `${this.fragmentUrl}${routeRequest}`);
+      logger.error(puzzleError.toString(), { name: this.name, url: `${this.fragmentUrl}${routeRequest}`, error: err });
 
       const errorPage = await this.getErrorPage();
 
@@ -427,7 +434,7 @@ export class FragmentStorefront extends Fragment {
     logger.info(`Trying to get asset: ${name}`);
 
     if (!this.config) {
-      logger.error(new Error(`No config provided for fragment: ${this.name}`));
+      logger.error(`No config provided for fragment: ${this.name}`);
       return null;
     }
 
@@ -440,7 +447,7 @@ export class FragmentStorefront extends Fragment {
     const asset = fragmentVersion.assets.find(asset => asset.name === name);
 
     if (!asset) {
-      logger.error(new Error(`Asset not declared in fragments asset list: ${name}`));
+      logger.error(`Asset not declared in fragments asset list: ${name}`);
       return null;
     }
 
@@ -459,14 +466,14 @@ export class FragmentStorefront extends Fragment {
    */
   getAssetPath(name: string) {
     if (!this.config) {
-      logger.error(new Error(`No config provided for fragment: ${this.name}`));
+      logger.error(`No config provided for fragment: ${this.name}`);
       return null;
     }
 
     const asset = this.config.assets.find(asset => asset.name === name);
 
     if (!asset) {
-      logger.error(new Error(`Asset not declared in fragments asset list: ${name}`));
+      logger.error(`Asset not declared in fragments asset list: ${name}`);
       return null;
     }
 
