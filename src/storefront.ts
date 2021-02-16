@@ -7,14 +7,13 @@ import {Logger} from "./logger";
 import {callableOnce, sealed} from "./decorators";
 import {container, TYPES} from "./base";
 import {Server} from "./network";
-import {IGatewayConfiguration, IGatewayMap, IPageConfiguration, IStorefrontConfig} from "./types";
+import {IGatewayMap, IPageConfiguration, IStorefrontConfig} from "./types";
 import ResourceFactory from "./resourceFactory";
 import {GATEWAY_PREPERATION_CHECK_INTERVAL, PUZZLE_DEBUGGER_LINK, PUZZLE_LIB_LINK, TEMP_FOLDER} from "./config";
 import {StorefrontConfigurator} from "./configurator";
 import fs from "fs";
 import {AssetManager} from "./asset-manager";
 import {SentrySocket} from "./socket";
-import {Template} from "./template";
 import {SentryConnectorStorefront} from "./sentry-connector";
 
 const logger = container.get(TYPES.Logger) as Logger;
@@ -87,7 +86,7 @@ export class Storefront {
         throw err;
       }
     });
-  } 
+  }
 
   private addPuzzleLibRoute(cb: Function) {
     this.server.handler.addRoute(PUZZLE_LIB_LINK, HTTP_METHODS.GET, (req, res) => {
