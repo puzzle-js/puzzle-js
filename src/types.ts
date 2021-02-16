@@ -94,6 +94,7 @@ export interface IFragmentBFF extends IFragment {
     testCookie: string;
     warden?: RouteConfiguration;
     render: IFragmentBFFRender;
+    folderPath?: string;
 }
 
 

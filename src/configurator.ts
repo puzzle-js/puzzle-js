@@ -83,6 +83,7 @@ const gatewayFragmentVersionStructure = struct({
 const gatewayFragmentStructure = struct({
     name: 'string',
     testCookie: 'string',
+    folderPath: 'string?',
     prg: struct.optional('boolean'),
     render: gatewayRenderStructure,
     warden: struct.optional('object'),

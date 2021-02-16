@@ -3,34 +3,19 @@ import {injectable} from "inversify";
 const winston = require('winston');
 const WinstonGraylog2 = require('winston-graylog2');
 const logLevels = winston.config.npm.levels;
-/**
- * Logs Levels
- */
-const alignedWithColorsAndTime = winston.format.combine(
-    winston.format.colorize(),
-    winston.format.timestamp(),
-    winston.format.align(),
-    winston.format.printf((info: any) => {
-        const {
-            timestamp, level, message, ...args
-        } = info;
-        const ts = timestamp.slice(0, 19).replace('T', ' ');
-        return `${ts} [${level}]: ${message} ${Object.keys(args).length ? JSON.stringify(args, null, 2) : ''}`;
-    }),
-);
+
 /**
  * Creates winston transports
  * @returns {Array}
  */
 const createTransports = () => {
     const transports: any[] = [];
-    if (process.env.ENABLE_CONSOLE_ERROR || process.env.NODE_ENV !== 'production' || process.env.ENVIRONMENT !== "production") {
+    if (process.env.ENABLE_CONSOLE_ERROR === "true") {
         transports.push(new winston.transports.Console({
             level: process.env.logLevel || 'warn',
             handleExceptions: false,
-            json: true,
-            colorize: true,
-            format: alignedWithColorsAndTime
+            json: false,
+            colorize: false
         }));
     }
 
@@ -72,12 +57,13 @@ const _logger = winston.createLogger({
 });
 export const logger: any = {};
 Object.keys(logLevels).forEach(level => {
-    logger[level] = function () {
-        let log = ``;
-        for (let i = 0, len = arguments.length; i < len; i++) {
-            log += `${JSON.stringify(arguments[i], null, 4)}\r\n`;
-        }
-        _logger[level](log);
+    logger[level] = function (message: string, meta?: object) {
+        _logger[level](
+            {
+                message,
+                meta
+            }
+        );
     };
 });
 /**
@@ -96,6 +82,7 @@ if (process.env.NODE_ENV === 'production') {
 @injectable()
 export class Logger {
     logger: any;
+
     [name: string]: (...args: any[]) => void;
 
 

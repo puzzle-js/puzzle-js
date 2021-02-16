@@ -35,7 +35,7 @@ class AssetManager {
           logger.info(`Asset received: ${url}`);
           resolve(data as string);
         } else {
-          logger.error(new Error(`Failed to fetch asset from gateway: ${url}`));
+          logger.error(`Failed to fetch asset from gateway: ${url}`);
           reject({error, response});
         }
       });

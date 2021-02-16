@@ -177,6 +177,16 @@ export class Template {
       this.dom('head').prepend(`<script src="${GUN_PATH}"> </script>`);
     }
 
+    // replace meta async
+    for(let i = 0,len = chunkedFragmentsWithShouldWait.length;i < len;i++){
+          const fragment = chunkedFragmentsWithShouldWait[i];
+          if (fragment.clientAsync){
+              this.dom(`head fragment[name="${fragment.name}"]`).each((i, el) => {
+                  this.dom(el).replaceWith(`<meta puzzle-fragment="${fragment.name}" fragment-partial="${el.attribs.partial}">`);
+              });
+          }
+      }
+    
     // todo kaldir lib bagla
     const replaceScripts: any[] = [];
 
@@ -297,6 +307,7 @@ export class Template {
     let statusCode = HTTP_STATUS_CODE.OK;
     let headers = {};
     let cookies = {};
+    
 
 
     await Promise.all(waitedFragments.map(async waitedFragmentReplacement => {
@@ -311,9 +322,27 @@ export class Template {
       }
 
       if (waitedFragmentReplacement.fragment.primary) {
-        statusCode = fragmentContent.status;
-        headers = fragmentContent.headers;
-        cookies = fragmentContent.cookies;
+        if(fragmentContent.status === HTTP_STATUS_CODE.MOVED_PERMANENTLY || fragmentContent.status === HTTP_STATUS_CODE.MOVED_TEMPORARILY){
+          statusCode = fragmentContent.status;
+          headers = fragmentContent.headers;
+        } else {
+          if((statusCode === HTTP_STATUS_CODE.MOVED_PERMANENTLY || statusCode === HTTP_STATUS_CODE.MOVED_TEMPORARILY)){
+            delete fragmentContent.headers['location'];
+          }else{
+            statusCode = fragmentContent.status;
+          }
+          
+          headers = {
+            ...headers,
+            ...fragmentContent.headers
+          };
+        }
+        cookies = fragmentContent.cookies; 
+      } else if (waitedFragmentReplacement.fragmentAttributes && waitedFragmentReplacement.fragmentAttributes.enableRedirect) {
+        if ((fragmentContent.status === HTTP_STATUS_CODE.MOVED_PERMANENTLY || fragmentContent.status === HTTP_STATUS_CODE.MOVED_TEMPORARILY) && (statusCode === 200 || statusCode === 404)) {
+          statusCode = fragmentContent.status;
+          headers["location"] = fragmentContent.headers["location"] || "";
+        }
       }
 
       waitedFragmentReplacement.replaceItems
@@ -371,7 +400,7 @@ export class Template {
     }
 
     res.status(req.statusCode || waitedReplacement.statusCode);
-
+    this.pageClass._onResponse(res);
     if (req.statusCode === HTTP_STATUS_CODE.MOVED_PERMANENTLY || waitedReplacement.statusCode === HTTP_STATUS_CODE.MOVED_PERMANENTLY) {
       res.end();
       this.pageClass._onResponseEnd();
@@ -425,6 +454,7 @@ export class Template {
     }
 
     res.status(req.statusCode || waitedReplacement.statusCode);
+    this.pageClass._onResponse(res);
     if (req.statusCode === HTTP_STATUS_CODE.MOVED_PERMANENTLY || waitedReplacement.statusCode === HTTP_STATUS_CODE.MOVED_PERMANENTLY) {
       res.end();
       this.pageClass._onResponseEnd();
