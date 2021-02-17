@@ -10,6 +10,7 @@ export default class FragmentHelper {
             name: faker.lorem.word().split(' ')[0],
             shouldWait: faker.random.boolean(),
             testCookie: faker.random.word().split(' ')[0],
+            attributes: {},
             config: {
                 version: "1.0.0",
                 assets: FragmentHelper.createAssets(assetSize),

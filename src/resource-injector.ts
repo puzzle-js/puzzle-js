@@ -277,7 +277,7 @@ export default class ResourceInjector {
       clientAsync: fragment.clientAsync,
       asyncDecentralized: fragment.asyncDecentralized,
       attributes: fragment.attributes,
-      source: fragment.assetUrl || fragment.fragmentUrl
+      source: fragment.attributes['async-url'] || fragment.assetUrl || fragment.fragmentUrl
     });
   }
 

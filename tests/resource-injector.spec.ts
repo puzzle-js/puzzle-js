@@ -116,7 +116,7 @@ describe('Resource Injector', () => {
         const pageName = faker.random.word();
         const expectedConfig = {
             page: pageName,
-            fragments: fragmentList.map((fragment) => ({ "name": fragment.name, "chunked": (fragment.config ? (fragment.shouldWait || (fragment.config.render.static || false)) : false) })),
+            fragments: fragmentList.map((fragment) => ({ "name": fragment.name, attributes: fragment.attributes, "chunked": (fragment.config ? (fragment.shouldWait || (fragment.config.render.static || false)) : false) })),
             assets: assets.filter((asset) => asset.type === RESOURCE_TYPE.JS),
             dependencies: [],
             peers: []
