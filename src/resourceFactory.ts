@@ -38,7 +38,7 @@ export default class ResourceFactory {
     const dependency = this.resources[dependencyName];
     if (dependency && dependency.link) {
       return await AssetManager.getAsset(dependency.link);
-    } else if (dependency.content) {
+    } else if (dependency && dependency.content) {
       return dependency.content;
     } else {
       return `<!-- Puzzle dependency: ${dependencyName} not found -->`;

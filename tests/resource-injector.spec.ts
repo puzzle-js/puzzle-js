@@ -146,7 +146,12 @@ describe('Resource Injector', () => {
         sandbox.stub(fragments.f1, "getAsset").callsFake((arg) => arg + "-CSS-");
         sandbox.stub(fragments.f2, "getAsset").callsFake((arg) => arg + "-CSS-");
         sandbox.stub(ResourceFactory.instance, "getRawContent").callsFake( (arg): any => arg + "-CSS-");
-        sandbox.stub(CleanCSS.prototype, "minify").callsFake( (arg): any => ({ styles: arg }));
+        sandbox.stub(CleanCSS.prototype, "minify").callsFake((arg): any => ({ styles: arg }));
+        fragments.f1.config.dependencies.push({
+            name: faker.lorem.word().split(' ')[0],
+            type: faker.random.arrayElement([RESOURCE_TYPE.JS, RESOURCE_TYPE.CSS]),
+            content: faker.lorem.word()
+        });
 
         // act
         const dom = cheerio.load("<html><head></head><body></body></html>");
