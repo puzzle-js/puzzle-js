@@ -165,7 +165,7 @@ const storefront = new Storefront({
   }],
   pages: [{
     name: 'page-name',
-    url: '/mypage'
+    url: '/mypage',
     html: '<template><!DOCTYPE html><html><head></head><body><div>PuzzeJs</div><fragment from="Gateway" name="example"></fragment></body></html></template>'
   }],
   dependencies: []
