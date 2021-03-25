@@ -39,7 +39,6 @@ jobs:
             - LICENSE
             - package.json
             - package-lock.json
-            - yarn.lock
             - .npmignore
             - dist
   deploy:
