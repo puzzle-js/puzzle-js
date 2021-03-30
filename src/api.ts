@@ -1,8 +1,8 @@
-import {Server} from "./network";
-import {API_ROUTE_PREFIX} from "./config";
+import { Server } from "./network";
+import { API_ROUTE_PREFIX } from "./config";
 import path from "path";
-import {IApiConfig, IApiHandlerModule, ICookieMap} from "./types";
-import {CookieVersionMatcher} from "./cookie-version-matcher";
+import { IApiConfig, IApiHandlerModule, ICookieMap } from "./types";
+import { CookieVersionMatcher } from "./cookie-version-matcher";
 
 export class Api {
     config: IApiConfig;
@@ -17,6 +17,15 @@ export class Api {
         }
 
         this.prepareHandlers();
+    }
+
+    private controllerWrapper(handler) {
+        return (req, res) => {
+            handler(req, res).catch((e) => {
+                console.error({ action: "PUZZLE_BFF_HANDLER_UNHANDLED_ERROR", error: e });
+                return res.status(500).send();
+            });
+        };
     }
 
     /**
@@ -37,7 +46,7 @@ export class Api {
             const apiHandler = this.config.versions[version];
 
             apiHandler.endpoints.forEach(endpoint => {
-                server.handler.addRoute(`/${API_ROUTE_PREFIX}/${this.config.name}/${version}${endpoint.path}`, endpoint.method, this.handler[version][endpoint.controller], endpoint.middlewares);
+                server.handler.addRoute(`/${API_ROUTE_PREFIX}/${this.config.name}/${version}${endpoint.path}`, endpoint.method, this.controllerWrapper(this.handler[version][endpoint.controller]), endpoint.middlewares);
             });
         });
     }
