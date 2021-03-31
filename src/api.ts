@@ -22,7 +22,8 @@ export class Api {
     private controllerWrapper(handler) {
         return (req, res) => {
             handler(req, res).catch((e) => {
-                console.error({ action: "PUZZLE_BFF_HANDLER_UNHANDLED_ERROR", error: e });
+                console.error("PUZZLE_BFF_HANDLER_UNHANDLED_ERROR");
+                console.error(e);
                 return res.status(500).send();
             });
         };
