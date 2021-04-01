@@ -20,12 +20,14 @@ export class Api {
     }
 
     private controllerWrapper(handler) {
-        return (req, res) => {
-            handler(req, res).catch((e) => {
+        return async (req, res) => {
+            try {
+                await handler(req, res)
+            } catch (e) {
                 console.error("PUZZLE_BFF_HANDLER_UNHANDLED_ERROR");
-                console.error(e);
+                console.log(e);
                 return res.status(500).send();
-            });
+            }
         };
     }
 
