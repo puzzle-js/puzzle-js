@@ -77,4 +77,4 @@ Read the [guide](./docs/guide.md) to familiarize yourself with how PuzzleJs work
 </a>
 
 ### Contributions
-Feel free to contribute to PuzzleJs, please read [Contributions](./docs/contributions.md) for detailed information.
+Feel free to contribute to PuzzleJs, please read [Contributions](./docs/CONTRIBUTING.md) for detailed information.
