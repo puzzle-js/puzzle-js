@@ -98,7 +98,7 @@ export class ExpressHandler {
      */
     addCustomHeaders(customHeaders?: ICustomHeader[]) {
         if (customHeaders) {
-            this.addUse(null, (req, res, next) => {
+            this.addUse(null, function customHeadersMid(req, res, next) {
                 customHeaders.forEach((customHeader) => {
                     let value: string | undefined = customHeader.value.toString();
                     if (customHeader.isEnv && value && process.env[value]) {
