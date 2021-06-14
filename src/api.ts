@@ -22,7 +22,7 @@ export class Api {
     private controllerWrapper(handler) {
         return async (req, res) => {
             try {
-                await handler(req, res)
+                await handler(req, res);
             } catch (e) {
                 console.error("PUZZLE_BFF_HANDLER_UNHANDLED_ERROR");
                 console.log(e);
