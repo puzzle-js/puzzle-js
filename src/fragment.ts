@@ -196,6 +196,7 @@ export class FragmentStorefront extends Fragment {
   asyncDecentralized = false;
   static = false;
   clientAsync = false;
+  clientAsyncForce = false;
   from: string;
   gatewayPath!: string;
   fragmentUrl: string | undefined;

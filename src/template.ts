@@ -96,6 +96,7 @@ export class Template {
           this.fragments[fragment.attribs.name].primary = false;
           this.fragments[fragment.attribs.name].shouldWait = true;
           this.fragments[fragment.attribs.name].clientAsync = true;
+          this.fragments[fragment.attribs.name].clientAsyncForce = this.fragments[fragment.attribs.name].clientAsyncForce || typeof fragment.attribs['client-async-force'] !== "undefined";
         } else if (fragmentType === FragmentSentryConfig.WAITED || (fragment.parent && fragment.parent.name === 'head')) {
           this.fragments[fragment.attribs.name].shouldWait = true;
         } else if (fragmentType === FragmentSentryConfig.PRIMARY && primaryName === null) {
@@ -124,6 +125,7 @@ export class Template {
           this.fragments[fragment.attribs.name].primary = false;
           this.fragments[fragment.attribs.name].shouldWait = true;
           this.fragments[fragment.attribs.name].clientAsync = true;
+          this.fragments[fragment.attribs.name].clientAsyncForce = this.fragments[fragment.attribs.name].clientAsyncForce || typeof fragment.attribs['client-async-force'] !== "undefined";
           this.fragments[fragment.attribs.name].asyncDecentralized = this.fragments[fragment.attribs.name].asyncDecentralized || typeof fragment.attribs['async-c2'] !== "undefined";
         }
       }
