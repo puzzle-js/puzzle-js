@@ -190,9 +190,7 @@ describe('Template', () => {
         product: {
           gateway: 'Browsing',
           instance: {
-            "_attributes": {
-              "client-async-force": ""
-            },
+            "_attributes": {},
             clientAsync: true,
             clientAsyncForce: true,
             asyncDecentralized: false,
