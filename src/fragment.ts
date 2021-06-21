@@ -182,6 +182,7 @@ export class FragmentStorefront extends Fragment {
   set attributes(value: { [p: string]: string }) {
     delete value.primary;
     delete value['client-async'];
+    delete value['client-async-force'];
     delete value.name;
     delete value.from;
     delete value.primary;
