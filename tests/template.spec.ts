@@ -47,6 +47,7 @@ describe('Template', () => {
             clientAsync: false,
             clientAsyncForce: false,
             asyncDecentralized: false,
+            onDemand: false,
             name: 'product',
             primary: false,
             shouldWait: false,
@@ -98,6 +99,7 @@ describe('Template', () => {
             clientAsync: false,
             clientAsyncForce: false,
             asyncDecentralized: false,
+            onDemand: false,
             name: 'product',
             primary: true,
             shouldWait: true,
@@ -132,6 +134,7 @@ describe('Template', () => {
             clientAsync: false,
             clientAsyncForce: false,
             asyncDecentralized: false,
+            onDemand: false,
             name: 'product',
             primary: false,
             shouldWait: false,
@@ -165,6 +168,7 @@ describe('Template', () => {
             clientAsync: false,
             clientAsyncForce: false,
             asyncDecentralized: false,
+            onDemand: false,
             name: 'product',
             primary: false,
             shouldWait: false,
@@ -193,6 +197,37 @@ describe('Template', () => {
             "_attributes": {},
             clientAsync: true,
             clientAsyncForce: true,
+            asyncDecentralized: false,
+            onDemand: false,
+            name: 'product',
+            primary: false,
+            shouldWait: true,
+            from: "Browsing",
+            static: false
+          }
+        }
+      }
+    });
+  });
+
+  it('should parse fragment attribute on-demand', () => {
+    const template = new Template('<template><div><fragment from="Browsing" name="product" client-async on-demand></fragment></div></template>');
+    const dependencyList = template.getDependencies();
+    expect(dependencyList).to.deep.include({
+      gateways: {
+        Browsing: {
+          gateway: null,
+          ready: false
+        }
+      },
+      fragments: {
+        product: {
+          gateway: 'Browsing',
+          instance: {
+            "_attributes": {},
+            clientAsync: true,
+            clientAsyncForce: false,
+            onDemand: true,
             asyncDecentralized: false,
             name: 'product',
             primary: false,
@@ -252,6 +287,7 @@ describe('Template', () => {
             clientAsync: false,
             clientAsyncForce: false,
             asyncDecentralized: false,
+            onDemand: false,
             name: 'product',
             primary: true,
             shouldWait: true,
@@ -292,6 +328,7 @@ describe('Template', () => {
             clientAsync: false,
             clientAsyncForce: false,
             asyncDecentralized: false,
+            onDemand: false,
             name: 'product',
             primary: false,
             shouldWait: true,
@@ -334,6 +371,7 @@ describe('Template', () => {
             clientAsync: false,
             clientAsyncForce: false,
             asyncDecentralized: false,
+            onDemand: false,
             name: 'product',
             primary: false,
             shouldWait: true,
@@ -440,6 +478,7 @@ describe('Template', () => {
             clientAsync: false,
             clientAsyncForce: false,
             asyncDecentralized: false,
+            onDemand: false,
             primary: false,
             shouldWait: true,
             from: "Browsing",

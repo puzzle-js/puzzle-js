@@ -183,6 +183,7 @@ export class FragmentStorefront extends Fragment {
     delete value.primary;
     delete value['client-async'];
     delete value['client-async-force'];
+    delete value['on-demand'];
     delete value.name;
     delete value.from;
     delete value.primary;
@@ -198,6 +199,7 @@ export class FragmentStorefront extends Fragment {
   static = false;
   clientAsync = false;
   clientAsyncForce = false;
+  onDemand = false;
   from: string;
   gatewayPath!: string;
   fragmentUrl: string | undefined;
