@@ -52,6 +52,7 @@ describe('Page', () => {
             clientAsync: false,
             clientAsyncForce: false,
             asyncDecentralized: false,
+            onDemand: false,
             primary: false,
             shouldWait: false,
             from: "Browsing",
@@ -70,6 +71,7 @@ describe('Page', () => {
             clientAsync: false,
             clientAsyncForce: false,
             asyncDecentralized: false,
+            onDemand: false,
             shouldWait: false,
             from: "Browsing",
             static: false
@@ -87,6 +89,7 @@ describe('Page', () => {
             clientAsync: false,
             clientAsyncForce: false,
             asyncDecentralized: false,
+            onDemand: false,
             shouldWait: false,
             from: "Browsing",
             static: false
