@@ -22,7 +22,7 @@
     "@types/express": "^4.17.1",
     "@types/express-serve-static-core": "^4.16.9",
     "@types/faker": "^4.1.2",
-    "@types/helmet": "0.0.37",
+    "@types/helmet": "4.0.0",
     "@types/jest": "^24.0.18",
     "@types/jsdom": "^12.2.3",
     "@types/md5": "^2.1.32",
