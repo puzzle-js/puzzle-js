@@ -275,6 +275,8 @@ export default class ResourceInjector {
       name: fragment.name,
       chunked: fragment.config ? (fragment.shouldWait || (fragment.config.render.static || false)) : false,
       clientAsync: fragment.clientAsync,
+      clientAsyncForce: fragment.clientAsyncForce,
+      onDemand: fragment.onDemand,
       asyncDecentralized: fragment.asyncDecentralized,
       attributes: fragment.attributes,
       source: fragment.attributes['source'] || fragment.assetUrl || fragment.fragmentUrl
