@@ -656,7 +656,8 @@ export class Template {
 
           if (element.parentNode.name !== 'head') {
             if (fragment.clientAsync) {
-              this.dom(element).replaceWith(`<div id="${fragment.name}" puzzle-fragment="${element.attribs.name}" puzzle-gateway="${element.attribs.from}" ${element.attribs.partial ? 'fragment-partial="' + element.attribs.partial + '"' : ''}>${asyncPlaceholder}</div>`);
+              const placeholder = typeof asyncPlaceholder === 'object' ? asyncPlaceholder[partial] || "" : asyncPlaceholder;
+              this.dom(element).replaceWith(`<div id="${fragment.name}" puzzle-fragment="${element.attribs.name}" puzzle-gateway="${element.attribs.from}" ${element.attribs.partial ? 'fragment-partial="' + element.attribs.partial + '"' : ''}>${placeholder}</div>`);
             } else {
               this.dom(element).replaceWith(`<div id="${fragment.name}" puzzle-fragment="${element.attribs.name}" puzzle-gateway="${element.attribs.from}" ${element.attribs.partial ? 'fragment-partial="' + element.attribs.partial + '"' : ''}>${replaceKey}</div><script>PuzzleJs.emit('${EVENT.ON_FRAGMENT_RENDERED}','${fragment.name}');</script>`);
             }
