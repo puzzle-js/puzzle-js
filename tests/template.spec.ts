@@ -1369,6 +1369,73 @@ describe('Template', () => {
         });
       });
 
+      it('should respond correctly with partial and main placeholders with client-async mode', done => {
+        const placeholderContent = "{\"main\":\"<div>placeholder</div>\",\"partial-1\":\"<div>partial placeholder</div>\"}"
+        let scope = nock('http://my-test-gateway-chunked.com', {
+          reqheaders: {
+            gateway: 'gateway'
+          }
+        })
+          .get('/product/')
+          .query({
+            __renderMode: FRAGMENT_RENDER_MODES.STREAM
+          })
+          .reply(200, {
+            main: 'Trendyol',
+          })
+          .get('/product/placeholder')
+          .reply(200, placeholderContent);
+
+
+        const template = new Template(`
+                    <template>
+                        <html>
+                            <head>
+                            
+                            </head>
+                            <body>
+                            <div>
+                                <fragment from="Browsing" name="product" client-async ></fragment>
+                                <fragment from="Browsing" name="product" partial="partial-1" ></fragment>
+                            </div>
+                            </body>
+                        </html>
+                    </template>
+                `);
+
+        template.getDependencies();
+
+        template.fragments.product.update({
+          render: {
+            url: '/',
+            placeholder: true
+          },
+          dependencies: [],
+          assets: [],
+          testCookie: 'test',
+          version: '1.0.0'
+        }, 'http://my-test-gateway-chunked.com', 'gateway');
+
+        let err: boolean | null = null;
+        let chunks: string[] = [];
+
+        template.compile({}).then(handler => {
+          handler({}, createExpressMock({
+            write(str: string) {
+              expect(str).to.include(`<div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main" puzzle-placeholder="product_main_placeholder">${JSON.parse(placeholderContent)['main']}</div></div>`);
+              expect(str).to.include(`<div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" fragment-partial="partial-1"><div>${JSON.parse(placeholderContent)['partial-1']}</div></div>`);
+            },
+            end(str: string) {
+              done();
+            },
+            set(headerName: string, value: string) {
+
+            },
+            status: () => ''
+          }));
+        });
+      });
+
       it('should respond one single wait one chunked fragment', done => {
         let scope = nock('http://my-test-gateway-chunked-2.com', {
           reqheaders: {

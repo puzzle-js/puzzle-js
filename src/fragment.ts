@@ -290,8 +290,14 @@ export class FragmentStorefront extends Fragment {
     })
       .then(res => res.text())
       .then(html => {
-        logger.info(`Received placeholder contents of fragment: ${this.name}`);
-        return html;
+        try{
+          const placeholderContent = JSON.parse(html);
+          logger.info(`Received placeholder contents: ${placeholderContent} of fragment: ${this.name}`);
+          return placeholderContent
+        }catch(e) {
+          logger.info(`Received placeholder contents of fragment: ${this.name} as string`);
+          return html
+        }
       })
       .catch(err => {
         logger.error(`Failed to fetch placeholder for fragment: ${this.fragmentUrl}/placeholder`, { error: err });
