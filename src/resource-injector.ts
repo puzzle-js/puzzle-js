@@ -171,7 +171,7 @@ export default class ResourceInjector {
   private async loadCSSData(cssData: { [name: string]: string[] }, fragment: FragmentStorefront, precompile: boolean) {
     const targetVersion = fragment.detectVersion(this.cookies, precompile);
     const config = this.getFragmentConfig(fragment, targetVersion);
-    if (config) {
+    if (config && !this.asyncCssAssetsLoadEnabled(fragment)) {
       const cssAssets = config.assets.filter(asset => asset.type === RESOURCE_TYPE.CSS);
       const cssDependencies = config.dependencies.filter(dependency => dependency.type === RESOURCE_TYPE.CSS);
 
@@ -222,7 +222,7 @@ export default class ResourceInjector {
     this.libraryConfig = {
       page: this.pageName,
       fragments: this.fragmentFingerPrints,
-      assets: this.assets.filter(asset => asset.type === RESOURCE_TYPE.JS),
+      assets: this.assets,
       dependencies: this.dependencies,
       peers: PEERS
     } as IPageLibConfiguration;
@@ -235,6 +235,10 @@ export default class ResourceInjector {
    */
   private prepareAssets(config, fragment: FragmentStorefront) {
     config.assets.forEach((asset) => {
+      if (asset.type === RESOURCE_TYPE.CSS && !this.asyncCssAssetsLoadEnabled(fragment)) {
+        return;
+      }
+
       this.assets.push({
         loadMethod: typeof asset.loadMethod !== 'undefined' ? asset.loadMethod : RESOURCE_LOADING_TYPE.ON_PAGE_RENDER,
         name: asset.name,
@@ -276,11 +280,20 @@ export default class ResourceInjector {
       chunked: fragment.config ? (fragment.shouldWait || (fragment.config.render.static || false)) : false,
       clientAsync: fragment.clientAsync,
       clientAsyncForce: fragment.clientAsyncForce,
+      criticalCss: fragment.criticalCss,
       onDemand: fragment.onDemand,
       asyncDecentralized: fragment.asyncDecentralized,
       attributes: fragment.attributes,
       source: fragment.attributes['source'] || fragment.assetUrl || fragment.fragmentUrl
     });
+  }
+
+  /**
+   * Checks that asynchronous css asset loading is enabled
+   * @param fragment
+   */
+  private asyncCssAssetsLoadEnabled(fragment: FragmentStorefront): boolean {
+    return fragment.clientAsync && !fragment.criticalCss;
   }
 
   /**
