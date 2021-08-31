@@ -42,11 +42,11 @@ export default class ResourceInjector {
    */
   injectAssets(dom: CheerioStatic) {
     this.assets.forEach(asset => {
-      if (asset.loadMethod === RESOURCE_LOADING_TYPE.ON_RENDER_START) {
+      if (asset.type === RESOURCE_TYPE.JS && asset.loadMethod === RESOURCE_LOADING_TYPE.ON_RENDER_START) {
         asset.preLoaded = true;
         if (Array.isArray(asset.dependent) && asset.dependent.length > 0) {
           this.dependencies.forEach(dependency => {
-            if (Array.isArray(asset.dependent) && asset.dependent.indexOf(dependency.name) > -1 && !dependency.preLoaded) {
+            if (dependency.type === RESOURCE_TYPE.JS && Array.isArray(asset.dependent) && asset.dependent.indexOf(dependency.name) > -1 && !dependency.preLoaded) {
               dependency.preLoaded = true;
               ResourceInjector.injectDefaultJsAsset(dependency, dom);
             }
