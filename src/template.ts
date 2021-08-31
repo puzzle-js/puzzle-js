@@ -216,6 +216,7 @@ export class Template {
      * @deprecated Combine this with only on render start assets.
      */
     await this.resourceInjector.injectStyleSheets(this.dom, precompile);
+    await this.resourceInjector.injectCriticalStyleSheets(this.dom, precompile);
 
     this.replaceEmptyTags();
 

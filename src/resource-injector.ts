@@ -115,13 +115,13 @@ export default class ResourceInjector {
           const addEscapeCharacters = output.styles.replace(/content:"/g, 'content:"\\');
           dom('head').append(`<style puzzle-dependency="dynamic-css" dependency-list="${cssData.dependencyNames.join(',')}">${addEscapeCharacters}</style>`);
         }
-        resolve();
+        resolve(null);
       } else {
         const injectedStyles = new Set();
         for (const fragment of Object.values(this.fragments)) {
           const targetVersion = fragment.detectVersion(this.cookies, precompile);
           const config = this.getFragmentConfig(fragment, targetVersion);
-          if (config && !this.asyncCssAssetsLoadEnabled(fragment)) {
+          if (config && !fragment.clientAsync) {
             config.dependencies.filter(dep => dep.type === RESOURCE_TYPE.CSS).forEach(dep => {
               if (!injectedStyles.has(dep.name)) {
                 injectedStyles.add(dep.name);
@@ -140,8 +140,49 @@ export default class ResourceInjector {
             });
           }
         }
-        resolve();
+        resolve(null);
       }
+    });
+  }
+
+  /**
+   * Merges, minifies critical stylesheets and inject them to dom
+   * @param { CheerioStatic } dom
+   * @param { boolean } precompile
+   * @returns {Promise<void>}
+   */
+  async injectCriticalStyleSheets(dom: CheerioStatic, precompile: boolean) {
+    return new Promise(async (resolve) => {
+      if (!EXTERNAL_STYLE_SHEETS) {
+        return resolve(null);
+      }
+
+      const _CleanCss = new CleanCSS({
+        level: {
+          1: {
+            all: true
+          }
+        }
+      } as any);
+
+      const cssData: Record<string, string[]> = {
+        styleSheets: [],
+        dependencyNames: []
+      };
+
+      for (const fragment of Object.values(this.fragments)) {
+        if (fragment.clientAsync && fragment.criticalCss) {
+          await this.loadCSSData(cssData, fragment, precompile);
+        }
+      }
+
+
+      if (cssData.styleSheets.length > 0) {
+        const output = _CleanCss.minify(cssData.styleSheets.join(''));
+        const addEscapeCharacters = output.styles.replace(/content:"/g, 'content:"\\');
+        dom('head').append(`<style puzzle-dependency="dynamic-css" dependency-list="${cssData.dependencyNames.join(',')}">${addEscapeCharacters}</style>`);
+      }
+      resolve(null);
     });
   }
 
