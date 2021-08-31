@@ -125,6 +125,7 @@ export class Template {
           this.fragments[fragment.attribs.name].shouldWait = true;
           this.fragments[fragment.attribs.name].clientAsync = true;
           this.fragments[fragment.attribs.name].clientAsyncForce = this.fragments[fragment.attribs.name].clientAsyncForce || typeof fragment.attribs['client-async-force'] !== "undefined";
+          this.fragments[fragment.attribs.name].criticalCss = this.fragments[fragment.attribs.name].criticalCss || typeof fragment.attribs['critical-css'] !== "undefined";
           this.fragments[fragment.attribs.name].onDemand = this.fragments[fragment.attribs.name].onDemand || typeof fragment.attribs['on-demand'] !== "undefined";
           this.fragments[fragment.attribs.name].asyncDecentralized = this.fragments[fragment.attribs.name].asyncDecentralized || typeof fragment.attribs['async-c2'] !== "undefined";
         }
