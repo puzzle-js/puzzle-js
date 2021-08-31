@@ -47,6 +47,7 @@ describe('Template', () => {
             clientAsync: false,
             clientAsyncForce: false,
             asyncDecentralized: false,
+            criticalCss: false,
             onDemand: false,
             name: 'product',
             primary: false,
@@ -99,6 +100,7 @@ describe('Template', () => {
             clientAsync: false,
             clientAsyncForce: false,
             asyncDecentralized: false,
+            criticalCss: false,
             onDemand: false,
             name: 'product',
             primary: true,
@@ -134,6 +136,7 @@ describe('Template', () => {
             clientAsync: false,
             clientAsyncForce: false,
             asyncDecentralized: false,
+            criticalCss: false,
             onDemand: false,
             name: 'product',
             primary: false,
@@ -168,6 +171,7 @@ describe('Template', () => {
             clientAsync: false,
             clientAsyncForce: false,
             asyncDecentralized: false,
+            criticalCss: false,
             onDemand: false,
             name: 'product',
             primary: false,
@@ -198,6 +202,7 @@ describe('Template', () => {
             clientAsync: true,
             clientAsyncForce: true,
             asyncDecentralized: false,
+            criticalCss: false,
             onDemand: false,
             name: 'product',
             primary: false,
@@ -227,7 +232,39 @@ describe('Template', () => {
             "_attributes": {},
             clientAsync: true,
             clientAsyncForce: false,
+            criticalCss: false,
             onDemand: true,
+            asyncDecentralized: false,
+            name: 'product',
+            primary: false,
+            shouldWait: true,
+            from: "Browsing",
+            static: false
+          }
+        }
+      }
+    });
+  });
+
+  it('should parse fragment attribute critical-css', () => {
+    const template = new Template('<template><div><fragment from="Browsing" name="product" client-async critical-css></fragment></div></template>');
+    const dependencyList = template.getDependencies();
+    expect(dependencyList).to.deep.include({
+      gateways: {
+        Browsing: {
+          gateway: null,
+          ready: false
+        }
+      },
+      fragments: {
+        product: {
+          gateway: 'Browsing',
+          instance: {
+            "_attributes": {},
+            clientAsync: true,
+            clientAsyncForce: false,
+            criticalCss: true,
+            onDemand: false,
             asyncDecentralized: false,
             name: 'product',
             primary: false,
@@ -287,6 +324,7 @@ describe('Template', () => {
             clientAsync: false,
             clientAsyncForce: false,
             asyncDecentralized: false,
+            criticalCss: false,
             onDemand: false,
             name: 'product',
             primary: true,
@@ -328,6 +366,7 @@ describe('Template', () => {
             clientAsync: false,
             clientAsyncForce: false,
             asyncDecentralized: false,
+            criticalCss: false,
             onDemand: false,
             name: 'product',
             primary: false,
@@ -371,6 +410,7 @@ describe('Template', () => {
             clientAsync: false,
             clientAsyncForce: false,
             asyncDecentralized: false,
+            criticalCss: false,
             onDemand: false,
             name: 'product',
             primary: false,
@@ -478,6 +518,7 @@ describe('Template', () => {
             clientAsync: false,
             clientAsyncForce: false,
             asyncDecentralized: false,
+            criticalCss: false,
             onDemand: false,
             primary: false,
             shouldWait: true,

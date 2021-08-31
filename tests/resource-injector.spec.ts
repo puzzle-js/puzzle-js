@@ -247,6 +247,7 @@ describe('Resource Injector', () => {
         };
         const depName = faker.lorem.word();
         const dep = fragments.f1.config.dependencies[0];
+        fragments.f1.config.assets[0].type = RESOURCE_TYPE.JS;
         fragments.f1.config.assets[0].dependent = [depName];
         dep.name = depName;
         dep.type = RESOURCE_TYPE.JS;
