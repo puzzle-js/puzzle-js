@@ -3,6 +3,9 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
+# [3.47.1] - 31-08-2021
+### Fixed
+- Fix for css injection for client async fragments
 # [3.47.0] - 31-08-2021
 ### Added
 - Css assets of client async fragments will be downloaded asynchronously. Also, the styles of the client async fragment with the critical-css property will be in the source code.
