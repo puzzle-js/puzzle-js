@@ -121,7 +121,7 @@ export default class ResourceInjector {
         for (const fragment of Object.values(this.fragments)) {
           const targetVersion = fragment.detectVersion(this.cookies, precompile);
           const config = this.getFragmentConfig(fragment, targetVersion);
-          if (config) {
+          if (config && !this.asyncCssAssetsLoadEnabled(fragment)) {
             config.dependencies.filter(dep => dep.type === RESOURCE_TYPE.CSS).forEach(dep => {
               if (!injectedStyles.has(dep.name)) {
                 injectedStyles.add(dep.name);
