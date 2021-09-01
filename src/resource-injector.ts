@@ -121,7 +121,7 @@ export default class ResourceInjector {
         for (const fragment of Object.values(this.fragments)) {
           const targetVersion = fragment.detectVersion(this.cookies, precompile);
           const config = this.getFragmentConfig(fragment, targetVersion);
-          if (config && !fragment.clientAsync) {
+          if (config) {
             config.dependencies.filter(dep => dep.type === RESOURCE_TYPE.CSS).forEach(dep => {
               if (!injectedStyles.has(dep.name)) {
                 injectedStyles.add(dep.name);
@@ -132,12 +132,14 @@ export default class ResourceInjector {
               }
             });
 
-            config.assets.filter(dep => dep.type === RESOURCE_TYPE.CSS).forEach(dep => {
-              if (!injectedStyles.has(dep.name)) {
-                injectedStyles.add(dep.name);
-                dom('head').append(`<link rel="stylesheet" data-puzzle-dep="${dep.name} "href="${dep.link}" />`);
-              }
-            });
+            if (!fragment.clientAsync) {
+              config.assets.filter(dep => dep.type === RESOURCE_TYPE.CSS).forEach(dep => {
+                if (!injectedStyles.has(dep.name)) {
+                  injectedStyles.add(dep.name);
+                  dom('head').append(`<link rel="stylesheet" data-puzzle-dep="${dep.name} "href="${dep.link}" />`);
+                }
+              });
+            }
           }
         }
         resolve(null);
