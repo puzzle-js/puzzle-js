@@ -172,6 +172,7 @@ export class Template {
 
     logger.info(`[Compiling Page ${this.name}]`, 'Injecting Puzzle Lib to head');
     this.resourceInjector.injectAssets(this.dom);
+    this.resourceInjector.injectDependencies(this.dom);
     this.resourceInjector.injectLibraryConfig(this.dom, isDebug);
 
     const pageDecentrealized = Object.values(this.fragments).some(fragment => fragment.asyncDecentralized);

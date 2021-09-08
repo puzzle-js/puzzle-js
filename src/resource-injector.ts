@@ -58,6 +58,27 @@ export default class ResourceInjector {
   }
 
   /**
+   * Injects prepared dependencies to dom
+   * @param { CheerioStatic } dom
+   * @returns {Promise<void>}
+   */
+  injectDependencies(dom: CheerioStatic) {
+    this.dependencies.forEach(dependency => {
+      if (dependency.type === RESOURCE_TYPE.JS && dependency.loadMethod === RESOURCE_LOADING_TYPE.ON_RENDER_START) {
+        const library = ResourceInjector.wrapJsAsset({
+          link: dependency.link,
+          name: dependency.name,
+          injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
+          executeType: RESOURCE_JS_EXECUTE_TYPE.SYNC,
+          content: ''
+        });
+
+        dom('head').prepend(library);
+      }
+    });
+  }
+
+  /**
    * Injects library config to dom
    * @param { CheerioStatic } dom
    * @param isDebug
@@ -266,7 +287,7 @@ export default class ResourceInjector {
       page: this.pageName,
       fragments: this.fragmentFingerPrints,
       assets: this.assets,
-      dependencies: this.dependencies,
+      dependencies: this.dependencies.filter((dependency) => dependency.type === RESOURCE_TYPE.JS && dependency.loadMethod !== RESOURCE_LOADING_TYPE.ON_RENDER_START),
       peers: PEERS
     } as IPageLibConfiguration;
   }
@@ -307,7 +328,8 @@ export default class ResourceInjector {
           name: dependency.name,
           link: dependencyData.link,
           type: dependency.type,
-          preLoaded: false
+          preLoaded: false,
+          loadMethod: dependencyData.loadMethod
         });
       }
     });

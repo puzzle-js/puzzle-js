@@ -74,6 +74,7 @@ export interface IFileResourceAsset extends IFileResource {
 }
 
 export interface IFileResourceStorefrontDependency extends IFileResource {
+    loadMethod?: RESOURCE_LOADING_TYPE;
     content?: string;
     link?: string;
 }
