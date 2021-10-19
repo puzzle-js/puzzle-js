@@ -6,6 +6,7 @@ import {
     REPLACE_ITEM_TYPE,
     RESOURCE_INJECT_TYPE,
     RESOURCE_JS_EXECUTE_TYPE,
+    RESOURCE_CSS_EXECUTE_TYPE,
     RESOURCE_LOCATION
 } from "./enums";
 import { FragmentStorefront } from "./fragment";
@@ -75,6 +76,7 @@ export interface IFileResourceAsset extends IFileResource {
 
 export interface IFileResourceStorefrontDependency extends IFileResource {
     loadMethod?: RESOURCE_LOADING_TYPE;
+    executeType?: RESOURCE_JS_EXECUTE_TYPE | RESOURCE_CSS_EXECUTE_TYPE;
     content?: string;
     link?: string;
 }
@@ -285,7 +287,7 @@ export interface IWrappingJsAsset {
     name: string;
     link: string | null | undefined;
     content: string | null | undefined;
-    executeType: RESOURCE_JS_EXECUTE_TYPE;
+    executeType: RESOURCE_JS_EXECUTE_TYPE | RESOURCE_CSS_EXECUTE_TYPE;
 }
 
 export interface IFragmentResponse {

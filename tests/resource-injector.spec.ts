@@ -6,6 +6,7 @@ import {EVENT, RESOURCE_LOADING_TYPE, RESOURCE_TYPE} from "@puzzle-js/client-lib
 import FragmentHelper from "./helpers/fragment";
 import CleanCSS from "clean-css";
 import ResourceFactory from "../src/resourceFactory";
+import { RESOURCE_CSS_EXECUTE_TYPE } from "../src/enums";
 
 const sandbox = sinon.createSandbox();
 
@@ -213,6 +214,61 @@ describe('Resource Injector', () => {
         expect(result.contents().first().text().split("-CSS-").sort()).toEqual(expectedCssContent.sort());
         done();
 
+    });
+
+    it("should inject external style sheets dependecies as async", async (done) => {
+        // arrange
+        const fragments = {
+            "f1": FragmentHelper.create(),
+            "f2": FragmentHelper.create()
+        };
+        const dependency = {
+            name: faker.lorem.word().split(' ')[0],
+            type: RESOURCE_TYPE.CSS,
+            content: faker.lorem.word(),
+            executeType: RESOURCE_CSS_EXECUTE_TYPE.ASYNC
+        };
+
+        sandbox.stub(fragments.f1, "getAsset").callsFake((arg) => arg + "-CSS-");
+        sandbox.stub(fragments.f2, "getAsset").callsFake((arg) => arg + "-CSS-");
+        sandbox.stub(ResourceFactory.instance, "get").callsFake( (arg): any => dependency);
+        fragments.f1.config.dependencies.push(dependency);
+
+        // act
+        const dom = cheerio.load("<html><head></head><body></body></html>");
+        const resourceInjector = new ResourceInjector(fragments, "", {});
+        await resourceInjector.injectStyleSheets(dom as any, false, true);
+
+        // assert
+        expect(dom("head").find(`link[data-puzzle-dep=${dependency.name}]`).attr()["rel"]).toEqual("preload");
+        done();
+    });
+
+    it("should inject external style sheets dependecies as sync", async (done) => {
+        // arrange
+        const fragments = {
+            "f1": FragmentHelper.create(),
+            "f2": FragmentHelper.create()
+        };
+        const dependency = {
+            name: faker.lorem.word().split(' ')[0],
+            type: RESOURCE_TYPE.CSS,
+            content: faker.lorem.word()
+        };
+
+        sandbox.stub(fragments.f1, "getAsset").callsFake((arg) => arg + "-CSS-");
+        sandbox.stub(fragments.f2, "getAsset").callsFake((arg) => arg + "-CSS-");
+        sandbox.stub(ResourceFactory.instance, "get").callsFake( (arg): any => dependency);
+        fragments.f1.config.dependencies.push(dependency);
+
+        // act
+        const dom = cheerio.load("<html><head></head><body></body></html>");
+        const resourceInjector = new ResourceInjector(fragments, "", {});
+        await resourceInjector.injectStyleSheets(dom as any, false, true);
+
+        // assert
+        expect(dom("head").find(`link[data-puzzle-dep="${dependency.name} "]`).attr()["rel"]).toEqual("stylesheet");
+        done();
     });
 
     it("should inject error message if asset invalid", () => {

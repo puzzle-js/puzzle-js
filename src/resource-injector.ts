@@ -8,7 +8,7 @@ import {
   IPageLibDependency
 } from "@puzzle-js/client-lib/dist/types";
 import ResourceFactory from "./resourceFactory";
-import {RESOURCE_INJECT_TYPE, RESOURCE_JS_EXECUTE_TYPE} from "./enums";
+import {RESOURCE_INJECT_TYPE, RESOURCE_JS_EXECUTE_TYPE, RESOURCE_CSS_EXECUTE_TYPE} from "./enums";
 import CleanCSS from "clean-css";
 import {EXTERNAL_STYLE_SHEETS, PEERS, PUZZLE_DEBUGGER_LINK, PUZZLE_LIB_LINK} from "./config";
 
@@ -69,7 +69,7 @@ export default class ResourceInjector {
           link: dependency.link,
           name: dependency.name,
           injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
-          executeType: RESOURCE_JS_EXECUTE_TYPE.SYNC,
+          executeType: dependency.executeType || RESOURCE_JS_EXECUTE_TYPE.SYNC,
           content: ''
         });
 
@@ -110,9 +110,9 @@ export default class ResourceInjector {
    * @param { boolean } precompile
    * @returns {Promise<void>}
    */
-  async injectStyleSheets(dom: CheerioStatic, precompile: boolean) {
+  async injectStyleSheets(dom: CheerioStatic, precompile: boolean, force?: boolean) {
     return new Promise(async (resolve) => {
-      if (!EXTERNAL_STYLE_SHEETS) {
+      if (!EXTERNAL_STYLE_SHEETS && !force) {
         const _CleanCss = new CleanCSS({
           level: {
             1: {
@@ -147,7 +147,12 @@ export default class ResourceInjector {
               if (!injectedStyles.has(dep.name)) {
                 injectedStyles.add(dep.name);
                 const dependency = ResourceFactory.instance.get(dep.name);
-                if (dependency) {
+                if (dependency.executeType === RESOURCE_CSS_EXECUTE_TYPE.ASYNC) {
+                  dom('head').append(`
+                    <link data-puzzle-dep="${dependency.name}" rel="preload" href="${dependency.link}" as="style" onload="this.rel='stylesheet'">
+                    <noscript><link data-puzzle-dep="${dependency.name}" rel="stylesheet" href="${dependency.link}"></noscript>
+                  `);
+                } else {
                   dom('head').append(`<link rel="stylesheet" data-puzzle-dep="${dependency.name} "href="${dependency.link}" />`);
                 }
               }
@@ -157,7 +162,10 @@ export default class ResourceInjector {
               config.assets.filter(dep => dep.type === RESOURCE_TYPE.CSS).forEach(dep => {
                 if (!injectedStyles.has(dep.name)) {
                   injectedStyles.add(dep.name);
-                  dom('head').append(`<link rel="stylesheet" data-puzzle-dep="${dep.name} "href="${dep.link}" />`);
+                  dom('head').append(`
+                    <link data-puzzle-dep="${dep.name}" rel="preload" href="${dep.link}" as="style" onload="this.rel='stylesheet'">
+                    <noscript><link data-puzzle-dep="${dep.name}" rel="stylesheet" href="${dep.link}"></noscript>
+                  `);
                 }
               });
             }
@@ -329,6 +337,7 @@ export default class ResourceInjector {
           link: dependencyData.link,
           type: dependency.type,
           preLoaded: false,
+          executeType: dependencyData.executeType,
           loadMethod: dependencyData.loadMethod
         });
       }
