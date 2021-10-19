@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
+
+# [3.49.0] - 19-10-2021
+### Added
+- Added execute type property for dependencies to inject assets as async or sync
 # [3.48.0] - 08-09-2021
 ### Added
 - Added load method property for js dependencies to inject js file to head on render start
