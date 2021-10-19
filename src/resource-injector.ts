@@ -110,9 +110,9 @@ export default class ResourceInjector {
    * @param { boolean } precompile
    * @returns {Promise<void>}
    */
-  async injectStyleSheets(dom: CheerioStatic, precompile: boolean, injextExternalForce?: boolean) {
+  async injectStyleSheets(dom: CheerioStatic, precompile: boolean, injectExternalForce?: boolean) {
     return new Promise(async (resolve) => {
-      if (!EXTERNAL_STYLE_SHEETS && !injextExternalForce) {
+      if (!EXTERNAL_STYLE_SHEETS && !injectExternalForce) {
         const _CleanCss = new CleanCSS({
           level: {
             1: {
