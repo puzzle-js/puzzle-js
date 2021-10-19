@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 # [3.49.0] - 19-10-2021
 ### Added
-- Added execute type property for dependencies to inject assets as async or sync
+- Added execute type property for dependencies to inject as async or sync
 # [3.48.0] - 08-09-2021
 ### Added
 - Added load method property for js dependencies to inject js file to head on render start
