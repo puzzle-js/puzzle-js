@@ -271,6 +271,24 @@ describe('Resource Injector', () => {
         done();
     });
 
+    it("should inject external style sheets assets as async if it is enabled", async (done) => {
+        // arrange
+        const fragments = {
+            "f1": FragmentHelper.create()
+        };
+
+        sandbox.stub(fragments.f1, "getAsset").callsFake((arg) => arg + "-CSS-");
+
+        // act
+        const dom = cheerio.load("<html><head></head><body></body></html>");
+        const resourceInjector = new ResourceInjector(fragments, "", {});
+        await resourceInjector.injectStyleSheets(dom as any, false, true, true);
+
+        // assert
+        expect(dom("head").find("noscript").length).toEqual(fragments.f1.config.assets.filter(asset => asset.type === RESOURCE_TYPE.CSS).length);
+        done();
+    });
+
     it("should inject error message if asset invalid", () => {
 
         // arrange
