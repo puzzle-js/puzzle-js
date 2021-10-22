@@ -37,6 +37,7 @@ export const NON_SELF_CLOSING_TAGS = ['div', 'span', 'p'];
 export const PUZZLE_MAX_SOCKETS = +loadConfigurationFromEnv('MAX_SOCKETS') || Infinity;
 export const KEEP_ALIVE_MSECS = +loadConfigurationFromEnv('KEEP_ALIVE_MSECS') || 1000;
 export const EXTERNAL_STYLE_SHEETS = loadConfigurationFromEnv("EXTERNAL_STYLE_SHEETS") || false;
+export const CSS_ASSETS_ASYNC_LOAD_ENABLED = loadConfigurationFromEnv("CSS_ASSETS_ASYNC_LOAD_ENABLED") || false;
 
 
 export const USE_HELMET = loadConfigurationFromEnv('USE_HELMET') || false;

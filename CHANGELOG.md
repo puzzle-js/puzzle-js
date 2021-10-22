@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+# [3.49.1] - 20-10-2021
+### Added
+- Added a config for loading css assets of fragments asynchronously.
 # [3.49.0] - 19-10-2021
 ### Added
 - Added execute type property for dependencies to inject as async or sync and after that all css assets will be loaded async to eliminate rendering blocking.
