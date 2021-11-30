@@ -30,7 +30,7 @@ export class Server {
   close(cb?: ((err?: Error | undefined) => void )) {
     if(this.instance) {
         this.instance.close( () => {
-          setTimeout(cb as (...args) => void, 100);
+          if (cb) cb();
         });
     }
   }
