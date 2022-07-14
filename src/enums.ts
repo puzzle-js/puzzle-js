@@ -49,6 +49,11 @@ export enum RESOURCE_JS_EXECUTE_TYPE {
     SYNC = ''
 }
 
+export enum RESOURCE_CSS_EXECUTE_TYPE {
+    ASYNC = 'async',
+    SYNC = ''
+}
+
 /**
  * PuzzleLib will replace this feature.
  * @deprecated

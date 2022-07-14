@@ -125,6 +125,7 @@ export class Template {
           this.fragments[fragment.attribs.name].shouldWait = true;
           this.fragments[fragment.attribs.name].clientAsync = true;
           this.fragments[fragment.attribs.name].clientAsyncForce = this.fragments[fragment.attribs.name].clientAsyncForce || typeof fragment.attribs['client-async-force'] !== "undefined";
+          this.fragments[fragment.attribs.name].criticalCss = this.fragments[fragment.attribs.name].criticalCss || typeof fragment.attribs['critical-css'] !== "undefined";
           this.fragments[fragment.attribs.name].onDemand = this.fragments[fragment.attribs.name].onDemand || typeof fragment.attribs['on-demand'] !== "undefined";
           this.fragments[fragment.attribs.name].asyncDecentralized = this.fragments[fragment.attribs.name].asyncDecentralized || typeof fragment.attribs['async-c2'] !== "undefined";
         }
@@ -171,6 +172,7 @@ export class Template {
 
     logger.info(`[Compiling Page ${this.name}]`, 'Injecting Puzzle Lib to head');
     this.resourceInjector.injectAssets(this.dom);
+    this.resourceInjector.injectDependencies(this.dom);
     this.resourceInjector.injectLibraryConfig(this.dom, isDebug);
 
     const pageDecentrealized = Object.values(this.fragments).some(fragment => fragment.asyncDecentralized);
@@ -215,6 +217,7 @@ export class Template {
      * @deprecated Combine this with only on render start assets.
      */
     await this.resourceInjector.injectStyleSheets(this.dom, precompile);
+    await this.resourceInjector.injectCriticalStyleSheets(this.dom, precompile);
 
     this.replaceEmptyTags();
 
@@ -656,7 +659,8 @@ export class Template {
 
           if (element.parentNode.name !== 'head') {
             if (fragment.clientAsync) {
-              this.dom(element).replaceWith(`<div id="${fragment.name}" puzzle-fragment="${element.attribs.name}" puzzle-gateway="${element.attribs.from}" ${element.attribs.partial ? 'fragment-partial="' + element.attribs.partial + '"' : ''}>${asyncPlaceholder}</div>`);
+              const placeholder = typeof asyncPlaceholder === 'object' ? asyncPlaceholder[partial] || "" : asyncPlaceholder;
+              this.dom(element).replaceWith(`<div id="${fragment.name}" puzzle-fragment="${element.attribs.name}" puzzle-gateway="${element.attribs.from}" ${element.attribs.partial ? 'fragment-partial="' + element.attribs.partial + '"' : ''}>${placeholder}</div>`);
             } else {
               this.dom(element).replaceWith(`<div id="${fragment.name}" puzzle-fragment="${element.attribs.name}" puzzle-gateway="${element.attribs.from}" ${element.attribs.partial ? 'fragment-partial="' + element.attribs.partial + '"' : ''}>${replaceKey}</div><script>PuzzleJs.emit('${EVENT.ON_FRAGMENT_RENDERED}','${fragment.name}');</script>`);
             }

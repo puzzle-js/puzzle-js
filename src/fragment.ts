@@ -184,6 +184,7 @@ export class FragmentStorefront extends Fragment {
     delete value['client-async'];
     delete value['client-async-force'];
     delete value['on-demand'];
+    delete value['critical-css'];
     delete value.name;
     delete value.from;
     delete value.primary;
@@ -199,6 +200,7 @@ export class FragmentStorefront extends Fragment {
   static = false;
   clientAsync = false;
   clientAsyncForce = false;
+  criticalCss = false;
   onDemand = false;
   from: string;
   gatewayPath!: string;
@@ -290,8 +292,14 @@ export class FragmentStorefront extends Fragment {
     })
       .then(res => res.text())
       .then(html => {
-        logger.info(`Received placeholder contents of fragment: ${this.name}`);
-        return html;
+        try{
+          const placeholderContent = JSON.parse(html);
+          logger.info(`Received placeholder contents: ${placeholderContent} of fragment: ${this.name}`);
+          return placeholderContent
+        }catch(e) {
+          logger.info(`Received placeholder contents of fragment: ${this.name} as string`);
+          return html
+        }
       })
       .catch(err => {
         logger.error(`Failed to fetch placeholder for fragment: ${this.fragmentUrl}/placeholder`, { error: err });
