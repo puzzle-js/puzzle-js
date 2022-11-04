@@ -316,7 +316,7 @@ export class FragmentStorefront extends Fragment {
     logger.info(`Trying to get error page of fragment: ${this.name}`);
 
     if (!this.config || !this.config.render.error) {
-      logger.warn('Error page is not enabled for fragment');
+      logger.warn(`Error page is not enabled for fragment: ${this.name}`);
       return '';
     }
 
