@@ -241,6 +241,19 @@ describe('Fragment', () => {
             expect(placeholder).to.eq(placeholderContent);
         });
 
+        it('should return placeholders for main and partials', async () => {
+            const placeholderContent = "{\"main\":\"<div>placeholder</div>\",\"partial-1\":\"<div>partial placeholder</div>\"}"
+            const scope = nock('http://local.gatewaysimulator.com')
+                .get('/product/placeholder')
+                .reply(200, placeholderContent);
+            const fragment = new FragmentStorefront('product', 'test');
+            fragment.update(commonFragmentConfig, 'http://local.gatewaysimulator.com', '');
+
+            const placeholder = await fragment.getPlaceholder();
+            expect(placeholder["partial-1"]).to.eq(JSON.parse(placeholderContent)["partial-1"]);
+            expect(placeholder["main"]).to.eq(JSON.parse(placeholderContent)["main"]);
+        });
+
         it('should return empty placeholder on any exception', async () => {
             const fragment = new FragmentStorefront('product', 'test');
             fragment.update(commonFragmentConfig, 'http://local.gatewaysimulator.com', '');

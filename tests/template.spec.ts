@@ -47,6 +47,7 @@ describe('Template', () => {
             clientAsync: false,
             clientAsyncForce: false,
             asyncDecentralized: false,
+            criticalCss: false,
             onDemand: false,
             name: 'product',
             primary: false,
@@ -99,6 +100,7 @@ describe('Template', () => {
             clientAsync: false,
             clientAsyncForce: false,
             asyncDecentralized: false,
+            criticalCss: false,
             onDemand: false,
             name: 'product',
             primary: true,
@@ -134,6 +136,7 @@ describe('Template', () => {
             clientAsync: false,
             clientAsyncForce: false,
             asyncDecentralized: false,
+            criticalCss: false,
             onDemand: false,
             name: 'product',
             primary: false,
@@ -168,6 +171,7 @@ describe('Template', () => {
             clientAsync: false,
             clientAsyncForce: false,
             asyncDecentralized: false,
+            criticalCss: false,
             onDemand: false,
             name: 'product',
             primary: false,
@@ -198,6 +202,7 @@ describe('Template', () => {
             clientAsync: true,
             clientAsyncForce: true,
             asyncDecentralized: false,
+            criticalCss: false,
             onDemand: false,
             name: 'product',
             primary: false,
@@ -227,7 +232,39 @@ describe('Template', () => {
             "_attributes": {},
             clientAsync: true,
             clientAsyncForce: false,
+            criticalCss: false,
             onDemand: true,
+            asyncDecentralized: false,
+            name: 'product',
+            primary: false,
+            shouldWait: true,
+            from: "Browsing",
+            static: false
+          }
+        }
+      }
+    });
+  });
+
+  it('should parse fragment attribute critical-css', () => {
+    const template = new Template('<template><div><fragment from="Browsing" name="product" client-async critical-css></fragment></div></template>');
+    const dependencyList = template.getDependencies();
+    expect(dependencyList).to.deep.include({
+      gateways: {
+        Browsing: {
+          gateway: null,
+          ready: false
+        }
+      },
+      fragments: {
+        product: {
+          gateway: 'Browsing',
+          instance: {
+            "_attributes": {},
+            clientAsync: true,
+            clientAsyncForce: false,
+            criticalCss: true,
+            onDemand: false,
             asyncDecentralized: false,
             name: 'product',
             primary: false,
@@ -287,6 +324,7 @@ describe('Template', () => {
             clientAsync: false,
             clientAsyncForce: false,
             asyncDecentralized: false,
+            criticalCss: false,
             onDemand: false,
             name: 'product',
             primary: true,
@@ -328,6 +366,7 @@ describe('Template', () => {
             clientAsync: false,
             clientAsyncForce: false,
             asyncDecentralized: false,
+            criticalCss: false,
             onDemand: false,
             name: 'product',
             primary: false,
@@ -371,6 +410,7 @@ describe('Template', () => {
             clientAsync: false,
             clientAsyncForce: false,
             asyncDecentralized: false,
+            criticalCss: false,
             onDemand: false,
             name: 'product',
             primary: false,
@@ -478,6 +518,7 @@ describe('Template', () => {
             clientAsync: false,
             clientAsyncForce: false,
             asyncDecentralized: false,
+            criticalCss: false,
             onDemand: false,
             primary: false,
             shouldWait: true,
@@ -1360,6 +1401,73 @@ describe('Template', () => {
                 err = e;
               }
               done(err);
+            },
+            set(headerName: string, value: string) {
+
+            },
+            status: () => ''
+          }));
+        });
+      });
+
+      it('should respond correctly with partial and main placeholders with client-async mode', done => {
+        const placeholderContent = "{\"main\":\"<div>placeholder</div>\",\"partial-1\":\"<div>partial placeholder</div>\"}"
+        let scope = nock('http://my-test-gateway-chunked.com', {
+          reqheaders: {
+            gateway: 'gateway'
+          }
+        })
+          .get('/product/')
+          .query({
+            __renderMode: FRAGMENT_RENDER_MODES.STREAM
+          })
+          .reply(200, {
+            main: 'Trendyol',
+          })
+          .get('/product/placeholder')
+          .reply(200, placeholderContent);
+
+
+        const template = new Template(`
+                    <template>
+                        <html>
+                            <head>
+                            
+                            </head>
+                            <body>
+                            <div>
+                                <fragment from="Browsing" name="product" client-async ></fragment>
+                                <fragment from="Browsing" name="product" partial="partial-1" ></fragment>
+                            </div>
+                            </body>
+                        </html>
+                    </template>
+                `);
+
+        template.getDependencies();
+
+        template.fragments.product.update({
+          render: {
+            url: '/',
+            placeholder: true
+          },
+          dependencies: [],
+          assets: [],
+          testCookie: 'test',
+          version: '1.0.0'
+        }, 'http://my-test-gateway-chunked.com', 'gateway');
+
+        let err: boolean | null = null;
+        let chunks: string[] = [];
+
+        template.compile({}).then(handler => {
+          handler({}, createExpressMock({
+            write(str: string) {
+              expect(str).to.include(`<div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main" puzzle-placeholder="product_main_placeholder">${JSON.parse(placeholderContent)['main']}</div></div>`);
+              expect(str).to.include(`<div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" fragment-partial="partial-1"><div>${JSON.parse(placeholderContent)['partial-1']}</div></div>`);
+            },
+            end(str: string) {
+              done();
             },
             set(headerName: string, value: string) {
 

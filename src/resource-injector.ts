@@ -8,9 +8,9 @@ import {
   IPageLibDependency
 } from "@puzzle-js/client-lib/dist/types";
 import ResourceFactory from "./resourceFactory";
-import {RESOURCE_INJECT_TYPE, RESOURCE_JS_EXECUTE_TYPE} from "./enums";
+import {RESOURCE_INJECT_TYPE, RESOURCE_JS_EXECUTE_TYPE, RESOURCE_CSS_EXECUTE_TYPE} from "./enums";
 import CleanCSS from "clean-css";
-import {EXTERNAL_STYLE_SHEETS, PEERS, PUZZLE_DEBUGGER_LINK, PUZZLE_LIB_LINK} from "./config";
+import {EXTERNAL_STYLE_SHEETS, PEERS, PUZZLE_DEBUGGER_LINK, PUZZLE_LIB_LINK, CSS_ASSETS_ASYNC_LOAD_ENABLED} from "./config";
 
 export default class ResourceInjector {
 
@@ -42,17 +42,38 @@ export default class ResourceInjector {
    */
   injectAssets(dom: CheerioStatic) {
     this.assets.forEach(asset => {
-      if (asset.loadMethod === RESOURCE_LOADING_TYPE.ON_RENDER_START) {
+      if (asset.type === RESOURCE_TYPE.JS && asset.loadMethod === RESOURCE_LOADING_TYPE.ON_RENDER_START) {
         asset.preLoaded = true;
         if (Array.isArray(asset.dependent) && asset.dependent.length > 0) {
           this.dependencies.forEach(dependency => {
-            if (Array.isArray(asset.dependent) && asset.dependent.indexOf(dependency.name) > -1 && !dependency.preLoaded) {
+            if (dependency.type === RESOURCE_TYPE.JS && Array.isArray(asset.dependent) && asset.dependent.indexOf(dependency.name) > -1 && !dependency.preLoaded) {
               dependency.preLoaded = true;
               ResourceInjector.injectDefaultJsAsset(dependency, dom);
             }
           });
         }
         ResourceInjector.injectDefaultJsAsset(asset, dom);
+      }
+    });
+  }
+
+  /**
+   * Injects prepared dependencies to dom
+   * @param { CheerioStatic } dom
+   * @returns {Promise<void>}
+   */
+  injectDependencies(dom: CheerioStatic) {
+    this.dependencies.forEach(dependency => {
+      if (dependency.type === RESOURCE_TYPE.JS && dependency.loadMethod === RESOURCE_LOADING_TYPE.ON_RENDER_START) {
+        const library = ResourceInjector.wrapJsAsset({
+          link: dependency.link,
+          name: dependency.name,
+          injectType: RESOURCE_INJECT_TYPE.EXTERNAL,
+          executeType: dependency.executeType || RESOURCE_JS_EXECUTE_TYPE.SYNC,
+          content: ''
+        });
+
+        dom('head').prepend(library);
       }
     });
   }
@@ -89,9 +110,9 @@ export default class ResourceInjector {
    * @param { boolean } precompile
    * @returns {Promise<void>}
    */
-  async injectStyleSheets(dom: CheerioStatic, precompile: boolean) {
+  async injectStyleSheets(dom: CheerioStatic, precompile: boolean, injectExternalForce?: boolean, cssAsyncLoadEnabled?: boolean) {
     return new Promise(async (resolve) => {
-      if (!EXTERNAL_STYLE_SHEETS) {
+      if (!EXTERNAL_STYLE_SHEETS && !injectExternalForce) {
         const _CleanCss = new CleanCSS({
           level: {
             1: {
@@ -115,7 +136,7 @@ export default class ResourceInjector {
           const addEscapeCharacters = output.styles.replace(/content:"/g, 'content:"\\');
           dom('head').append(`<style puzzle-dependency="dynamic-css" dependency-list="${cssData.dependencyNames.join(',')}">${addEscapeCharacters}</style>`);
         }
-        resolve();
+        resolve(null);
       } else {
         const injectedStyles = new Set();
         for (const fragment of Object.values(this.fragments)) {
@@ -127,21 +148,78 @@ export default class ResourceInjector {
                 injectedStyles.add(dep.name);
                 const dependency = ResourceFactory.instance.get(dep.name);
                 if (dependency) {
-                  dom('head').append(`<link rel="stylesheet" data-puzzle-dep="${dependency.name} "href="${dependency.link}" />`);
+                  if (dependency.executeType === RESOURCE_CSS_EXECUTE_TYPE.ASYNC) {
+                    dom('head').append(`
+                      <link data-puzzle-dep="${dependency.name}" rel="preload" href="${dependency.link}" as="style" onload="this.rel='stylesheet'">
+                      <noscript><link data-puzzle-dep="${dependency.name}" rel="stylesheet" href="${dependency.link}"></noscript>
+                    `);
+                  } else {
+                    dom('head').append(`<link rel="stylesheet" data-puzzle-dep="${dependency.name} "href="${dependency.link}" />`);
+                  }
                 }
               }
             });
 
-            config.assets.filter(dep => dep.type === RESOURCE_TYPE.CSS).forEach(dep => {
-              if (!injectedStyles.has(dep.name)) {
-                injectedStyles.add(dep.name);
-                dom('head').append(`<link rel="stylesheet" data-puzzle-dep="${dep.name} "href="${dep.link}" />`);
-              }
-            });
+            if (!fragment.clientAsync) {
+              config.assets.filter(dep => dep.type === RESOURCE_TYPE.CSS).forEach(dep => {
+                if (!injectedStyles.has(dep.name)) {
+                  injectedStyles.add(dep.name);
+                  if (CSS_ASSETS_ASYNC_LOAD_ENABLED || cssAsyncLoadEnabled) {
+                    dom('head').append(`
+                      <link data-puzzle-dep="${dep.name}" rel="preload" href="${dep.link}" as="style" onload="this.rel='stylesheet'">
+                      <noscript><link data-puzzle-dep="${dep.name}" rel="stylesheet" href="${dep.link}"></noscript>
+                    `);
+                  } else {
+                    dom('head').append(`<link rel="stylesheet" data-puzzle-dep="${dep.name} "href="${dep.link}" />`);
+                  }
+                }
+              });
+            }
           }
         }
-        resolve();
+        resolve(null);
       }
+    });
+  }
+
+  /**
+   * Merges, minifies critical stylesheets and inject them to dom
+   * @param { CheerioStatic } dom
+   * @param { boolean } precompile
+   * @returns {Promise<void>}
+   */
+  async injectCriticalStyleSheets(dom: CheerioStatic, precompile: boolean) {
+    return new Promise(async (resolve) => {
+      if (!EXTERNAL_STYLE_SHEETS) {
+        return resolve(null);
+      }
+
+      const _CleanCss = new CleanCSS({
+        level: {
+          1: {
+            all: true
+          }
+        }
+      } as any);
+
+      const cssData: Record<string, string[]> = {
+        styleSheets: [],
+        dependencyNames: []
+      };
+
+      for (const fragment of Object.values(this.fragments)) {
+        if (fragment.clientAsync && fragment.criticalCss) {
+          await this.loadCSSData(cssData, fragment, precompile);
+        }
+      }
+
+
+      if (cssData.styleSheets.length > 0) {
+        const output = _CleanCss.minify(cssData.styleSheets.join(''));
+        const addEscapeCharacters = output.styles.replace(/content:"/g, 'content:"\\');
+        dom('head').append(`<style puzzle-dependency="dynamic-css" dependency-list="${cssData.dependencyNames.join(',')}">${addEscapeCharacters}</style>`);
+      }
+      resolve(null);
     });
   }
 
@@ -171,7 +249,7 @@ export default class ResourceInjector {
   private async loadCSSData(cssData: { [name: string]: string[] }, fragment: FragmentStorefront, precompile: boolean) {
     const targetVersion = fragment.detectVersion(this.cookies, precompile);
     const config = this.getFragmentConfig(fragment, targetVersion);
-    if (config) {
+    if (config && !this.asyncCssAssetsLoadEnabled(fragment)) {
       const cssAssets = config.assets.filter(asset => asset.type === RESOURCE_TYPE.CSS);
       const cssDependencies = config.dependencies.filter(dependency => dependency.type === RESOURCE_TYPE.CSS);
 
@@ -222,8 +300,8 @@ export default class ResourceInjector {
     this.libraryConfig = {
       page: this.pageName,
       fragments: this.fragmentFingerPrints,
-      assets: this.assets.filter(asset => asset.type === RESOURCE_TYPE.JS),
-      dependencies: this.dependencies,
+      assets: this.assets,
+      dependencies: this.dependencies.filter((dependency) => dependency.type === RESOURCE_TYPE.JS && dependency.loadMethod !== RESOURCE_LOADING_TYPE.ON_RENDER_START),
       peers: PEERS
     } as IPageLibConfiguration;
   }
@@ -235,6 +313,10 @@ export default class ResourceInjector {
    */
   private prepareAssets(config, fragment: FragmentStorefront) {
     config.assets.forEach((asset) => {
+      if (asset.type === RESOURCE_TYPE.CSS && !this.asyncCssAssetsLoadEnabled(fragment)) {
+        return;
+      }
+
       this.assets.push({
         loadMethod: typeof asset.loadMethod !== 'undefined' ? asset.loadMethod : RESOURCE_LOADING_TYPE.ON_PAGE_RENDER,
         name: asset.name,
@@ -260,7 +342,9 @@ export default class ResourceInjector {
           name: dependency.name,
           link: dependencyData.link,
           type: dependency.type,
-          preLoaded: false
+          preLoaded: false,
+          executeType: dependencyData.executeType,
+          loadMethod: dependencyData.loadMethod
         });
       }
     });
@@ -276,11 +360,20 @@ export default class ResourceInjector {
       chunked: fragment.config ? (fragment.shouldWait || (fragment.config.render.static || false)) : false,
       clientAsync: fragment.clientAsync,
       clientAsyncForce: fragment.clientAsyncForce,
+      criticalCss: fragment.criticalCss,
       onDemand: fragment.onDemand,
       asyncDecentralized: fragment.asyncDecentralized,
       attributes: fragment.attributes,
       source: fragment.attributes['source'] || fragment.assetUrl || fragment.fragmentUrl
     });
+  }
+
+  /**
+   * Checks that asynchronous css asset loading is enabled
+   * @param fragment
+   */
+  private asyncCssAssetsLoadEnabled(fragment: FragmentStorefront): boolean {
+    return fragment.clientAsync && !fragment.criticalCss;
   }
 
   /**

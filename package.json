@@ -1,6 +1,6 @@
 {
   "name": "@puzzle-js/core",
-  "version": "3.45.0",
+  "version": "3.50.2",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "logo": "https://image.ibb.co/jM29on/puzzlelogo.png",
@@ -67,7 +67,7 @@
     "lint:ts:fix": "./node_modules/.bin/tslint -p ./tsconfig.json --fix"
   },
   "dependencies": {
-    "@puzzle-js/client-lib": "^1.5.0",
+    "@puzzle-js/client-lib": "^1.6.5",
     "@types/socket.io-client": "^1.4.32",
     "async": "^3.0.1",
     "cheerio": "^1.0.0-rc.2",

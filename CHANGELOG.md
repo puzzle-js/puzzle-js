@@ -4,6 +4,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+# [3.50.1] - 13-09-2022
+### Changed
+- Added more info to the reject body of get asset method (asset manager).
+
+# [3.49.1] - 20-10-2021
+### Added
+- Added a config for loading css assets of fragments asynchronously.
+# [3.49.0] - 19-10-2021
+### Added
+- Added execute type property for dependencies to inject as async or sync and after that all css assets will be loaded async to eliminate rendering blocking.
+# [3.48.0] - 08-09-2021
+### Added
+- Added load method property for js dependencies to inject js file to head on render start
+# [3.47.2] - 31-08-2021
+### Fixed
+- Fix for css injection for client async fragments
+# [3.47.0] - 31-08-2021
+### Added
+- Css assets of client async fragments will be downloaded asynchronously. Also, the styles of the client async fragment with the critical-css property will be in the source code.
+# [3.46.0] - 23-11-2020
+### Added
+- main and partial placeholders seperated for client-async mode, now placeholder payload can be string or an object
+# [3.45.0] - 23-11-2020
+### Added
+- Implemented on demand client async feature.Fragments can be loaded externally according to user action.
 # [3.33.0] - 23-11-2020
 ### Fix
 - Fix for redirectionEnabled attribute to allow ssr redirection.

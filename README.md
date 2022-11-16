@@ -70,11 +70,39 @@ Read the [guide](./docs/guide.md) to familiarize yourself with how PuzzleJs work
 
 ### [Changelog](./CHANGELOG.md)
 
-### Showcase
+### Showcases
 
-<a href="https://m.trendyol.com" title="Trendyol" target="_blank">
-    <img src="https://www.trendyol.com/content/images/trendyol-online-white.png" width="80">
-</a>
+<p align="center">
+	<a href="#">
+		<img alt="trendyol international mweb" src="https://user-images.githubusercontent.com/32804505/196795499-17e7132f-9646-41c3-9296-8cc8d076ecb2.png">
+		<br>
+	</a>
+	<em>
+	<span>trendyol international<a href="https://www.trendyol.com/de"> mobile web site</a> <p align="center">(Please turn on devtool mobile emulator mod to view mweb site)</p></span>
+	</em>		
+</p>
+
+<p align="center">
+	<a href="#">
+		<img alt="trendyol international web" src="https://user-images.githubusercontent.com/32804505/196795543-2c3449e6-d0d1-418f-963b-9d03f9e9a9aa.png">
+		<br>
+	</a>
+	<em>
+	<span>trendyol international <a href="https://www.trendyol.com/de"> web site</a></span>
+	</em>		
+</p>
+
+<p align="center">
+	<a href="#">
+		<img alt="trendyol turkey mweb" src="https://user-images.githubusercontent.com/32804505/196795524-0ca97ab8-0da5-4e5c-846c-50eab77af131.png">
+		<br>
+	</a>
+	<em>
+	<span>trendyol turkey <a href="https://www.trendyol.com"> mobile web site</a> <p align="center">(Please turn on devtool mobile emulator mod to view mweb site)</p></span>
+	</em>		
+</p>
+
+
 
 ### Contributions
 Feel free to contribute to PuzzleJs, please read [Contributions](./docs/CONTRIBUTING.md) for detailed information.
