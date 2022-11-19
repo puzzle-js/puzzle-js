@@ -91,10 +91,10 @@ describe('Template', () => {
         throw new Error('Wrong express method, it should be end for single fragments');
       },
       end(str: string) {
-        expect(str).to.eq('<template><div><fragment from="Browsing" name="product"></fragment></div></template>');
+        expect(str).to.eq('<template><div><fragment from="Browsing" name="product" client-async></fragment></div></template>');
       },
       send(str: string) {
-        expect(str).to.eq('<template><div><fragment from="Browsing" name="product"></fragment></div></template>');
+        expect(str).to.eq('<template><div><fragment from="Browsing" name="product" client-async></fragment></div></template>');
       }
     }));
   });
