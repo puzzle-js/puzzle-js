@@ -43,7 +43,6 @@ export class Template {
   private resourceInjector: ResourceInjector;
   private fragmentSentryConfiguration?: Record<string, FragmentSentryConfig>;
   private intersectionObserverOptions?: IntersectionObserverInit;
-  private 
 
   constructor(public rawHtml: string, private name?: string, fragmentSentryConfiguration?: Record<string, FragmentSentryConfig>, intersectionObserverOptions?: IntersectionObserverInit ) {
     this.fragmentSentryConfiguration = fragmentSentryConfiguration;
