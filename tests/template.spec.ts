@@ -60,7 +60,6 @@ describe('Template', () => {
     });
   });
 
-
   it('should compile page with script without fragments', async () => {
     const template = new Template('<script>module.exports = {onCreate(){this.title = "Puzzle"}}</script><template><div><span>${this.title}</span></div></template>');
     const handler = await template.compile({});
