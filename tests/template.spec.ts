@@ -78,12 +78,12 @@ describe('Template', () => {
   });
 
   it('should compile page with Intersection Observer options', async () => {
-    const fragmentSentryConfig: Record<string, FragmentSentryConfig> = { a: FragmentSentryConfig.CLIENT_ASYNC };
+    const fragmentSentryConfig: Record<string, FragmentSentryConfig> = { product: FragmentSentryConfig.CLIENT_ASYNC };
     
     const intersectionObserverOptions: IntersectionObserverInit = {
       rootMargin: "500px",
     }
-    const template = new Template('<script>module.exports = {onCreate(){this.title = "Puzzle"}}</script><template><div><span>${this.title}</span></div></template>', "product-detail-async", fragmentSentryConfig ,intersectionObserverOptions  );
+    const template = new Template('<script>module.exports = {onCreate(){this.title = "Puzzle"}}</script><template><div><fragment from="Browsing" name="product"></fragment></div></template>', "product-detail-async", fragmentSentryConfig ,intersectionObserverOptions  );
     const handler = await template.compile({});
 
     handler({}, createExpressMock({
@@ -91,10 +91,10 @@ describe('Template', () => {
         throw new Error('Wrong express method, it should be end for single fragments');
       },
       end(str: string) {
-        expect(str).to.eq('<div><span>Puzzle</span></div>');
+        expect(str).to.eq('<template><div><fragment from="Browsing" name="product"></fragment></div></template>');
       },
       send(str: string) {
-        expect(str).to.eq('<div><span>Puzzle</span></div>');
+        expect(str).to.eq('<template><div><fragment from="Browsing" name="product"></fragment></div></template>');
       }
     }));
   });

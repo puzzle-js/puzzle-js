@@ -151,7 +151,7 @@ export class Template {
   async compile(testCookies: ICookieMap, isDebug = false, precompile = false): Promise<IFragmentEndpointHandler> {
     logger.info(`[Compiling Page ${this.name}]`, 'Creating virtual dom');
     this.load();
-
+    
     if (Object.keys(this.fragments).length === 0) {
       logger.info(`[Compiling Page ${this.name}]`, 'No fragments detected, implementing single flush handler');
       this.replaceEmptyTags();
