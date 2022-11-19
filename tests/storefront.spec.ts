@@ -179,6 +179,51 @@ describe('Storefront', () => {
         });
     });
 
+    it('should add route with intersectionObserverOptions', done => {
+        const spy = sinon.stub().returns(true);
+        const gateway = {
+            name: 'Browsing',
+            url: 'http://browsing-gw.com'
+        };
+
+        const scope = createGateway(gateway.name, gateway.url, {
+            hash: '1234',
+            fragments: {}
+        });
+
+        const storefrontInstance = new Storefront({
+            pages: [
+                {
+                    url: '/',
+                    html: '<template><html><head></head><body></body></html></template>',
+                    name: 'test',
+                    condition: spy,
+                    intersectionObserverOptions: {
+                        rootMargin: "10px"
+                    }
+                }
+            ],
+            serverOptions: {
+                port: 4444
+            },
+            gateways: [
+                gateway
+            ],
+            dependencies: []
+        });
+
+
+        storefrontInstance.init(() => {
+            request(storefrontInstance.server.handler.getApp())
+                .get('/')
+                .expect(200)
+                .end((err,res) => {
+                    storefrontInstance.server.close(done);
+                    storefrontInstance.gateways['Browsing'].stopUpdating();
+                });
+        });
+    });
+
     it('should pass page if condition is not validf', done => {
         const spy = sinon.stub().returns(false);
         const gateway = {

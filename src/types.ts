@@ -220,6 +220,7 @@ export interface IPageConfiguration {
     url: string | string[];
     name: string;
     condition?: (req: express.Request) => boolean;
+    intersectionObserverOptions?: IntersectionObserverInit;
     fragments?: Record<string, FragmentSentryConfig>;
 }
 
