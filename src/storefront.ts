@@ -154,7 +154,7 @@ export class Storefront {
     });
 
     this.config.pages.forEach(pageConfiguration => {
-      this.pages.set(pageConfiguration.name, new Page(pageConfiguration.html, this.gateways, pageConfiguration.name, eval(pageConfiguration.condition as unknown as string), pageConfiguration.fragments));
+      this.pages.set(pageConfiguration.name, new Page(pageConfiguration.html, this.gateways, pageConfiguration.name, eval(pageConfiguration.condition as unknown as string), pageConfiguration.fragments, pageConfiguration.intersectionObserverOptions));
     });
   }
 

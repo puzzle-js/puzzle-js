@@ -37,7 +37,7 @@ class SentryConnectorStorefront {
     storefront.sentrySocket.client.on('page.update', async (data: IPageConfiguration) => {
       console.log(`Updating page ${data.name} from Sentry`);
       const pageExists = storefront.pages.get(data.name);
-      const newPage = new Page(data.html, storefront.gateways, data.name, data.condition ? eval(data.condition as unknown as string) : undefined, data.fragments);
+      const newPage = new Page(data.html, storefront.gateways, data.name, data.condition ? eval(data.condition as unknown as string) : undefined, data.fragments, data.intersectionObserverOptions);
       await newPage.reCompile();
       storefront.pages.set(data.name, newPage);
       if (!pageExists) {

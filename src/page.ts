@@ -23,15 +23,22 @@ export class Page {
   private rawHtml: string;
   private prgEnabled = false;
   private fragmentsSentryConfiguration?: Record<string, FragmentSentryConfig>;
+  
   cleanUpEvents: () => void;
 
-  constructor(html: string, gatewayMap: IGatewayMap, name: string, condition?: (req: express.Request) => false | true, fragmentsSentryConfiguration?: Record<string, FragmentSentryConfig>) {
+  constructor(html: string, gatewayMap: IGatewayMap, name: string, condition?: (req: express.Request) => false | true, fragmentsSentryConfiguration?: Record<string, FragmentSentryConfig>, intersectionObserverOptions?: IntersectionObserverInit) {
     this.rawHtml = html;
     this.name = name;
 
     this.fragmentsSentryConfiguration = fragmentsSentryConfiguration;
     this.condition = condition;
-    this.template = new Template(html, this.name, fragmentsSentryConfiguration);
+    
+    if(typeof intersectionObserverOptions !== "undefined") {
+      this.template = new Template(html, this.name, fragmentsSentryConfiguration, intersectionObserverOptions);  
+    } else {
+      this.template = new Template(html, this.name, fragmentsSentryConfiguration);
+    }
+    
     this.gatewayDependencies = this.template.getDependencies();
 
     this.gatewayUpdated = this.gatewayUpdated.bind(this);
