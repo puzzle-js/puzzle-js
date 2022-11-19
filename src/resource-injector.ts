@@ -21,11 +21,13 @@ export default class ResourceInjector {
   private readonly fragmentFingerPrints: IPageFragmentConfig[];
   private readonly assets: IPageLibAsset[];
   private readonly dependencies: IPageLibDependency[];
+  private readonly intersectionObserverOptions?: IntersectionObserverInit;
   private libraryConfig: IPageLibConfiguration;
 
-  constructor(fragments: { [name: string]: FragmentStorefront }, pageName: string | undefined, cookies: ICookieMap) {
+  constructor(fragments: { [name: string]: FragmentStorefront }, pageName: string | undefined, cookies: ICookieMap, intersectionObserverOptions?: IntersectionObserverInit) {
     this.fragments = fragments;
     this.cookies = cookies;
+    this.intersectionObserverOptions = intersectionObserverOptions;
 
     this.fragmentFingerPrints = [];
     this.assets = [];
@@ -302,7 +304,8 @@ export default class ResourceInjector {
       fragments: this.fragmentFingerPrints,
       assets: this.assets,
       dependencies: this.dependencies.filter((dependency) => dependency.type === RESOURCE_TYPE.JS && dependency.loadMethod !== RESOURCE_LOADING_TYPE.ON_RENDER_START),
-      peers: PEERS
+      peers: PEERS,
+      intersectionObserverOptions: this.intersectionObserverOptions,
     } as IPageLibConfiguration;
   }
 

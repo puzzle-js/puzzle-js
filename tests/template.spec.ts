@@ -1,6 +1,6 @@
 import {expect} from "chai";
 import {Template} from "../src/template";
-import {FRAGMENT_RENDER_MODES, RESOURCE_INJECT_TYPE, RESOURCE_LOCATION} from "../src/enums";
+import {FragmentSentryConfig, FRAGMENT_RENDER_MODES, RESOURCE_INJECT_TYPE, RESOURCE_LOCATION} from "../src/enums";
 import {createExpressMock} from "./mock/mock";
 import {EVENT, RESOURCE_TYPE} from "@puzzle-js/client-lib/dist/enums";
 import nock = require("nock");
@@ -77,6 +77,43 @@ describe('Template', () => {
     }));
   });
 
+  it('should compile page with Intersection Observer options', async () => {
+    const fragmentSentryConfig: Record<string, FragmentSentryConfig> = { product: FragmentSentryConfig.CLIENT_ASYNC };
+    
+    const intersectionObserverOptions: IntersectionObserverInit = {
+      rootMargin: "500px",
+    }
+    const template = new Template('<template><div><fragment from="Browsing" name="product" client-async></fragment></div></template>', "product-detail-async", fragmentSentryConfig ,intersectionObserverOptions);
+    const dependencyList = template.getDependencies();
+    expect(dependencyList).to.deep.include({
+      gateways: {
+        Browsing: {
+          gateway: null,
+          ready: false
+        }
+      },
+      fragments: {
+        product: {
+          gateway: 'Browsing',
+          instance: {
+            "_attributes": {},
+            clientAsync: true,
+            clientAsyncForce: false,
+            asyncDecentralized: false,
+            criticalCss: false,
+            onDemand: false,
+            name: 'product',
+            primary: false,
+            shouldWait: true,
+            from: "Browsing",
+            static: false
+          }
+        }
+      }
+    });
+
+
+  });
   it('should parse fragment attribute primary', () => {
     const template = new Template('<template><div><fragment from="Browsing" name="product" primary></fragment></div></template>');
 

@@ -42,10 +42,11 @@ export class Template {
   pageClass: TemplateClass = new TemplateClass();
   private resourceInjector: ResourceInjector;
   private fragmentSentryConfiguration?: Record<string, FragmentSentryConfig>;
+  private intersectionObserverOptions?: IntersectionObserverInit;
 
-  constructor(public rawHtml: string, private name?: string, fragmentSentryConfiguration?: Record<string, FragmentSentryConfig>) {
+  constructor(public rawHtml: string, private name?: string, fragmentSentryConfiguration?: Record<string, FragmentSentryConfig>, intersectionObserverOptions?: IntersectionObserverInit ) {
     this.fragmentSentryConfiguration = fragmentSentryConfiguration;
-
+    this.intersectionObserverOptions = intersectionObserverOptions;
     this.load();
     this.bindPageClass();
     this.pageClass._onCreate();
@@ -149,7 +150,7 @@ export class Template {
   async compile(testCookies: ICookieMap, isDebug = false, precompile = false): Promise<IFragmentEndpointHandler> {
     logger.info(`[Compiling Page ${this.name}]`, 'Creating virtual dom');
     this.load();
-
+    
     if (Object.keys(this.fragments).length === 0) {
       logger.info(`[Compiling Page ${this.name}]`, 'No fragments detected, implementing single flush handler');
       this.replaceEmptyTags();
@@ -157,7 +158,12 @@ export class Template {
       return this.buildHandler(singleFlushHandlerWithoutFragments, [], [], [], isDebug);
     }
 
-    this.resourceInjector = new ResourceInjector(this.fragments, this.name, testCookies);
+    if(this.intersectionObserverOptions) {
+      this.resourceInjector = new ResourceInjector(this.fragments, this.name, testCookies, this.intersectionObserverOptions);
+    }else {
+      this.resourceInjector = new ResourceInjector(this.fragments, this.name, testCookies);
+    }    
+    
     logger.info('resource injector instance created');
 
     Object.values(this.fragments).forEach(fragment => {

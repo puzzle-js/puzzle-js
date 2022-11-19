@@ -136,6 +136,47 @@ describe('Resource Injector', () => {
 
     });
 
+    it("should inject library config with intersection observer opts", () => {
+
+        // arrange
+        const fragments = {
+            "f1":  FragmentHelper.create(),
+            "f2":  FragmentHelper.create()
+        };
+
+        const intersectionObserverOptions: IntersectionObserverInit = {
+            rootMargin: "500px",
+        }
+
+        const fragmentList = Object.keys(fragments).map( (fKey) => fragments[fKey] );
+        let assets: any = [];
+        fragmentList.forEach((fragment) => { assets = assets.concat(fragment.config.assets.map(asset => ({
+            ...asset,
+            fragment: fragment.name
+        })))});
+        const pageName = faker.random.word();
+        const expectedConfig = {
+            page: pageName,
+            fragments: fragmentList.map((fragment) => ({ "name": fragment.name, attributes: fragment.attributes, "chunked": (fragment.config ? (fragment.shouldWait || (fragment.config.render.static || false)) : false) })),
+            assets: assets.filter((asset) => asset.type === RESOURCE_TYPE.JS),
+            dependencies: [],
+            intersectionObserverOptions: intersectionObserverOptions,
+            peers: []
+        };
+        expectedConfig.assets.forEach((asset) => { asset.preLoaded = false });
+
+        // act
+        const dom = cheerio.load("<html><head></head><body></body></html>");
+        const resourceInjector = new ResourceInjector(fragments, pageName, {}, intersectionObserverOptions);
+        resourceInjector.injectLibraryConfig(dom as any);
+
+        // assert
+        const libConfigStr = dom("head").children("script[puzzle-dependency=puzzle-lib-config]").contents().first().text();
+        const libConfig = JSON.parse(libConfigStr.split(`PuzzleJs.emit('${EVENT.ON_RENDER_START}');PuzzleJs.emit('${EVENT.ON_CONFIG}','`)[1].split("');")[0]);
+        expect(libConfig).toEqual(expectedConfig);
+
+    });
+
     it("should inject style sheets using default version", async (done) => {
 
         // arrange
