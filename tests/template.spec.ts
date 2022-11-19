@@ -83,20 +83,36 @@ describe('Template', () => {
     const intersectionObserverOptions: IntersectionObserverInit = {
       rootMargin: "500px",
     }
-    const template = new Template('<script>module.exports = {onCreate(){this.title = "Puzzle"}}</script><template><div><fragment from="Browsing" name="product" client-async></fragment></div></template>', "product-detail-async", fragmentSentryConfig ,intersectionObserverOptions  );
-    const handler = await template.compile({});
-
-    handler({}, createExpressMock({
-      write(str: string) {
-        throw new Error('Wrong express method, it should be end for single fragments');
+    const template = new Template('<template><div><fragment from="Browsing" name="product" client-async></fragment></div></template>', "product-detail-async", fragmentSentryConfig ,intersectionObserverOptions);
+    const dependencyList = template.getDependencies();
+    expect(dependencyList).to.deep.include({
+      gateways: {
+        Browsing: {
+          gateway: null,
+          ready: false
+        }
       },
-      end(str: string) {
-        expect(str).to.eq('<template><div><fragment from="Browsing" name="product" client-async></fragment></div></template>');
-      },
-      send(str: string) {
-        expect(str).to.eq('<template><div><fragment from="Browsing" name="product" client-async></fragment></div></template>');
+      fragments: {
+        product: {
+          gateway: 'Browsing',
+          instance: {
+            "_attributes": {},
+            clientAsync: true,
+            clientAsyncForce: false,
+            asyncDecentralized: false,
+            criticalCss: false,
+            onDemand: false,
+            name: 'product',
+            primary: false,
+            shouldWait: true,
+            from: "Browsing",
+            static: false
+          }
+        }
       }
-    }));
+    });
+
+
   });
   it('should parse fragment attribute primary', () => {
     const template = new Template('<template><div><fragment from="Browsing" name="product" primary></fragment></div></template>');
