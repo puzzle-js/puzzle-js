@@ -157,12 +157,12 @@ export class Template {
       const singleFlushHandlerWithoutFragments = TemplateCompiler.compile(Template.clearHtmlContent(this.dom.html()));
       return this.buildHandler(singleFlushHandlerWithoutFragments, [], [], [], isDebug);
     }
-
-    if(this.intersectionObserverOptions) {
+    console.log("options -->", this.intersectionObserverOptions)
+    if (this.intersectionObserverOptions) {
       this.resourceInjector = new ResourceInjector(this.fragments, this.name, testCookies, this.intersectionObserverOptions);
-    }else {
+    } else {
       this.resourceInjector = new ResourceInjector(this.fragments, this.name, testCookies);
-    }    
+    }
     
     logger.info('resource injector instance created');
 
