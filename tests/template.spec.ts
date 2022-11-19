@@ -83,7 +83,7 @@ describe('Template', () => {
     const intersectionObserverOptions: IntersectionObserverInit = {
       rootMargin: "500px",
     }
-    const template = new Template('<script>module.exports = {onCreate(){this.title = "Puzzle"}}</script><template><div><fragment from="Browsing" name="product"></fragment></div></template>', "product-detail-async", fragmentSentryConfig ,intersectionObserverOptions  );
+    const template = new Template('<script>module.exports = {onCreate(){this.title = "Puzzle"}}</script><template><div><fragment from="Browsing" name="product" client-async></fragment></div></template>', "product-detail-async", fragmentSentryConfig ,intersectionObserverOptions  );
     const handler = await template.compile({});
 
     handler({}, createExpressMock({
