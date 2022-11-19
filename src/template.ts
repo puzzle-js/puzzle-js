@@ -42,10 +42,12 @@ export class Template {
   pageClass: TemplateClass = new TemplateClass();
   private resourceInjector: ResourceInjector;
   private fragmentSentryConfiguration?: Record<string, FragmentSentryConfig>;
+  private intersectionObserverOptions?: IntersectionObserverInit;
+  private 
 
-  constructor(public rawHtml: string, private name?: string, fragmentSentryConfiguration?: Record<string, FragmentSentryConfig>) {
+  constructor(public rawHtml: string, private name?: string, fragmentSentryConfiguration?: Record<string, FragmentSentryConfig>, intersectionObserverOptions?: IntersectionObserverInit ) {
     this.fragmentSentryConfiguration = fragmentSentryConfiguration;
-
+    this.intersectionObserverOptions = intersectionObserverOptions;
     this.load();
     this.bindPageClass();
     this.pageClass._onCreate();
@@ -157,7 +159,12 @@ export class Template {
       return this.buildHandler(singleFlushHandlerWithoutFragments, [], [], [], isDebug);
     }
 
-    this.resourceInjector = new ResourceInjector(this.fragments, this.name, testCookies);
+    if(this.intersectionObserverOptions) {
+      this.resourceInjector = new ResourceInjector(this.fragments, this.name, testCookies, this.intersectionObserverOptions);
+    }else {
+      this.resourceInjector = new ResourceInjector(this.fragments, this.name, testCookies);
+    }    
+    
     logger.info('resource injector instance created');
 
     Object.values(this.fragments).forEach(fragment => {
