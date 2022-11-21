@@ -43,6 +43,7 @@ export class Template {
   private resourceInjector: ResourceInjector;
   private fragmentSentryConfiguration?: Record<string, FragmentSentryConfig>;
   private intersectionObserverOptions?: IntersectionObserverInit;
+  private onVariableEventScripts: any = {};
 
   constructor(public rawHtml: string, private name?: string, fragmentSentryConfiguration?: Record<string, FragmentSentryConfig>, intersectionObserverOptions?: IntersectionObserverInit ) {
     this.fragmentSentryConfiguration = fragmentSentryConfiguration;
@@ -289,10 +290,10 @@ export class Template {
       const processedAttributes = TemplateCompiler.processExpression(mainElement.attribs, this.pageClass);
       const fragmentContent: IFragmentContentResponse = await fragment.getContent(processedAttributes);
 
-      this.dom(mainElement).replaceWith(`<div id="${fragment.name}" puzzle-fragment="${fragment.name}" puzzle-gateway="${fragment.from}" fragment-partial="${'main'}">${fragmentContent.html['main'] || CONTENT_NOT_FOUND_ERROR}</div>${fragmentScripts}<script>PuzzleJs.emit('${EVENT.ON_FRAGMENT_RENDERED}','${fragment.name}');</script>`);
+      this.dom(mainElement).replaceWith(`<div id="${fragment.name}" puzzle-fragment="${fragment.name}" puzzle-gateway="${fragment.from}" fragment-partial="${'main'}">${fragmentContent.html['main'] || CONTENT_NOT_FOUND_ERROR}</div>${fragmentScripts}`);
 
       partialElements.forEach((i: number, element: any) => {
-        this.dom(element).replaceWith(`<div id="${fragment.name}" puzzle-fragment="${fragment.name}" puzzle-gateway="${fragment.from}" fragment-partial="${element.attribs.partial}">${fragmentContent.html[element.attribs.partial] || CONTENT_NOT_FOUND_ERROR}</div>${fragmentScripts}<script>PuzzleJs.emit('${EVENT.ON_FRAGMENT_RENDERED}','${fragment.name}');</script>`);
+        this.dom(element).replaceWith(`<div id="${fragment.name}" puzzle-fragment="${fragment.name}" puzzle-gateway="${fragment.from}" fragment-partial="${element.attribs.partial}">${fragmentContent.html[element.attribs.partial] || CONTENT_NOT_FOUND_ERROR}</div>${fragmentScripts}`);
       });
 
     }
@@ -364,7 +365,8 @@ export class Template {
               return;
             }
             const fragmentInject = fragmentContent.html[replaceItem.partial] || CONTENT_NOT_FOUND_ERROR;
-            template = template.replace(replaceItem.key, () => fragmentInject + Template.fragmentModelScript(waitedFragmentReplacement.fragment, fragmentContent.model, isDebug));
+            this.onVariableEventScripts[waitedFragmentReplacement.fragment.name] = Template.fragmentModelScript(waitedFragmentReplacement.fragment, fragmentContent.model, isDebug)
+            template = template.replace(replaceItem.key, () => fragmentInject);
           }
         });
     }));
@@ -479,7 +481,7 @@ export class Template {
       });
       //Close stream after all chunked fragments done
       await Promise.all(waitedPromises.map(waitedPromise => waitedPromise.data));
-      res.end(`<script>PuzzleJs.emit('${EVENT.ON_PAGE_LOAD}');</script></body></html>`);
+      res.end(`${Object.values(this.onVariableEventScripts).join("")} <script>PuzzleJs.emit('${EVENT.ON_PAGE_LOAD}');</script></body></html>`);
       this.pageClass._onResponseEnd();
     }
   }
@@ -520,7 +522,7 @@ export class Template {
 
       let output = '';
 
-      output += Template.fragmentModelScript(chunkedReplacement.fragment, fragmentContent.model, isDebug);
+      this.onVariableEventScripts[chunkedReplacement.fragment.name] = Template.fragmentModelScript(chunkedReplacement.fragment, fragmentContent.model, isDebug);
 
       fragmentJsReplacements && fragmentJsReplacements.replaceItems.filter(item => item.location === RESOURCE_LOCATION.CONTENT_START).forEach(replaceItem => {
         output += ResourceInjector.wrapJsAsset(replaceItem);
@@ -532,7 +534,7 @@ export class Template {
             output += `<div style="display: none;" puzzle-fragment="${chunkedReplacement.fragment.name}" puzzle-chunk-key="${replaceItem.key}">${fragmentContent.html[replaceItem.partial] || CONTENT_NOT_FOUND_ERROR}</div>`;
             if (!(replaceItem.key === 'main' && selfReplacing)) {
               // todo replace here
-              output += `<script>PuzzleJs.emit('${EVENT.ON_FRAGMENT_RENDERED}','${chunkedReplacement.fragment.name}','[puzzle-chunk="${replaceItem.key}"]','[puzzle-chunk-key="${replaceItem.key}"]');</script>`;
+              // output += `<script>PuzzleJs.emit('${EVENT.ON_FRAGMENT_RENDERED}','${chunkedReplacement.fragment.name}','[puzzle-chunk="${replaceItem.key}"]','[puzzle-chunk-key="${replaceItem.key}"]');</script>`;
             }
           }
         });
@@ -668,7 +670,7 @@ export class Template {
               const placeholder = typeof asyncPlaceholder === 'object' ? asyncPlaceholder[partial] || "" : asyncPlaceholder;
               this.dom(element).replaceWith(`<div id="${fragment.name}" puzzle-fragment="${element.attribs.name}" puzzle-gateway="${element.attribs.from}" ${element.attribs.partial ? 'fragment-partial="' + element.attribs.partial + '"' : ''}>${placeholder}</div>`);
             } else {
-              this.dom(element).replaceWith(`<div id="${fragment.name}" puzzle-fragment="${element.attribs.name}" puzzle-gateway="${element.attribs.from}" ${element.attribs.partial ? 'fragment-partial="' + element.attribs.partial + '"' : ''}>${replaceKey}</div><script>PuzzleJs.emit('${EVENT.ON_FRAGMENT_RENDERED}','${fragment.name}');</script>`);
+              this.dom(element).replaceWith(`<div id="${fragment.name}" puzzle-fragment="${element.attribs.name}" puzzle-gateway="${element.attribs.from}" ${element.attribs.partial ? 'fragment-partial="' + element.attribs.partial + '"' : ''}>${replaceKey}</div>`);
             }
           } else {
             if (!fragment.clientAsync) {

@@ -101,9 +101,10 @@ export default class ResourceInjector {
       link: '',
       executeType: RESOURCE_JS_EXECUTE_TYPE.SYNC
     });
-
-    dom('head').prepend(libraryConfig);
-    dom('head').prepend(library);
+    
+    dom('body').append(library);
+    dom('body').append(libraryConfig);
+    
   }
 
   /**
