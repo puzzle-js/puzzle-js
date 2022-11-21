@@ -481,7 +481,7 @@ export class Template {
       });
       //Close stream after all chunked fragments done
       await Promise.all(waitedPromises.map(waitedPromise => waitedPromise.data));
-      res.end(`${Object.values(this.onVariableEventScripts).join("")} <script>PuzzleJs.emit('${EVENT.ON_PAGE_LOAD}');</script></body></html>`);
+      res.end(`${Object.values(this.onVariableEventScripts).join("")}<script>PuzzleJs.emit('${EVENT.ON_PAGE_LOAD}');</script></body></html>`);
       this.pageClass._onResponseEnd();
     }
   }

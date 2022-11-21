@@ -718,7 +718,7 @@ describe('Template', () => {
           expect(str).to.eq(null);
         },
         end(str: string) {
-          expect(str).to.include(`<div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" fragment-partial="main"><div>Static Fragment</div></div><script>PuzzleJs.emit('1','product');</script><div></div></div>`);
+          expect(str).to.include(`<div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" fragment-partial="main"><div>Static Fragment</div></div><div></div></div>`);
           done();
         },
         status: () => ''
@@ -832,7 +832,7 @@ describe('Template', () => {
           expect(str).to.eq(null);
         },
         end(str: string) {
-          expect(str).to.eq(`<div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing"></div><script>PuzzleJs.emit('1','product');</script></div>`);
+          expect(str).to.eq(`<div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing"></div></div>`);
           done();
         },
         status: () => ''
@@ -882,7 +882,7 @@ describe('Template', () => {
           expect(str).to.eq(null);
         },
         end(str: string) {
-          expect(str).to.eq(`<div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" fragment-partial="main"><script>console.log('Fragment Part does not exists')</script></div><script>PuzzleJs.emit('1','product');</script></div>`);
+          expect(str).to.eq(`<div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" fragment-partial="main"><script>console.log('Fragment Part does not exists')</script></div></div>`);
           done();
         },
         status: () => ''
@@ -1082,7 +1082,7 @@ describe('Template', () => {
             },
             end(str: string) {
               try {
-                expect(str).to.include(`<div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div><script>PuzzleJs.emit('1','product');</script></div><div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" fragment-partial="gallery">List of great products</div><script>PuzzleJs.emit('1','product');</script></div>`);
+                expect(str).to.include(`<div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div></div><div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" fragment-partial="gallery">List of great products</div></div>`);
                 done();
               } catch (e) {
                 done(e);
@@ -1156,7 +1156,7 @@ describe('Template', () => {
             },
             end(str: string) {
               try {
-                expect(str).to.include(`<div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div><script>PuzzleJs.emit('1','product');</script></div><div><div id="product2" puzzle-fragment="product2" puzzle-gateway="Browsing">List of great products</div><script>PuzzleJs.emit('1','product2');</script></div>`);
+                expect(str).to.include(`<div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div></div><div><div id="product2" puzzle-fragment="product2" puzzle-gateway="Browsing">List of great products</div></div>`);
                 done();
               } catch (e) {
                 done(e);
@@ -1213,7 +1213,7 @@ describe('Template', () => {
             },
             end(str: string) {
               try {
-                expect(str).to.eq(`<div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div><script>PuzzleJs.emit('1','product');</script></div><div><div puzzle-fragment="product2" puzzle-gateway="Browsing"><script>console.log('Fragment Part does not exists')</script></div></div>`);
+                expect(str).to.eq(`<div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div></div><div><div puzzle-fragment="product2" puzzle-gateway="Browsing"><script>console.log('Fragment Part does not exists')</script></div></div>`);
                 done();
               } catch (e) {
                 done(e);
@@ -1293,7 +1293,7 @@ describe('Template', () => {
             },
             end(str: string) {
               try {
-                expect(str).to.eq(`<div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div><script>PuzzleJs.emit('1','product');</script></div><div><div id="header" puzzle-fragment="header" puzzle-gateway="Common">Header Content</div><script>PuzzleJs.emit('1','header');</script></div>`);
+                expect(str).to.eq(`<div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol</div></div><div><div id="header" puzzle-fragment="header" puzzle-gateway="Common">Header Content</div></div>`);
                 done();
               } catch (e) {
                 done(e);
@@ -1361,7 +1361,7 @@ describe('Template', () => {
               chunks.push(str);
               try {
                 expect(chunks[0]).to.include(`<div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main"></div></div>`);
-                expect(chunks[1]).to.include(`<div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Trendyol</div><script>PuzzleJs.emit('${EVENT.ON_FRAGMENT_RENDERED}','product','[puzzle-chunk="product_main"]','[puzzle-chunk-key="product_main"]');</script>`);
+                expect(chunks[1]).to.include(`<div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Trendyol</div>`);
                 expect(chunks[2]).to.include(`</body></html>`);
               } catch (e) {
                 err = e;
@@ -1432,7 +1432,7 @@ describe('Template', () => {
               chunks.push(str);
               try {
                 expect(chunks[0]).to.include(`<div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main" puzzle-placeholder="product_main_placeholder">placeholder</div></div>`);
-                expect(chunks[1]).to.eq(`<div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Trendyol</div><script>PuzzleJs.emit('${EVENT.ON_FRAGMENT_RENDERED}','product','[puzzle-chunk="product_main"]','[puzzle-chunk-key="product_main"]');</script>`);
+                expect(chunks[1]).to.eq(`<div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Trendyol</div>`);
                 expect(chunks[2]).to.include(`</body></html>`);
               } catch (e) {
                 err = e;
@@ -1604,8 +1604,8 @@ describe('Template', () => {
             end(str: string) {
               chunks.push(str);
               try {
-                expect(chunks[0]).to.include(`<meta product="bag"/> </head><body><div id="header" puzzle-fragment="header" puzzle-gateway="Browsing">Header Content</div><script>PuzzleJs.emit('1','header');</script><div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol Product Content</div><script>PuzzleJs.emit('1','product');</script></div><div id="footer" puzzle-fragment="footer" puzzle-gateway="Browsing" puzzle-chunk="footer_main"></div>`);
-                expect(chunks[1]).to.eq(`<div style="display: none;" puzzle-fragment="footer" puzzle-chunk-key="footer_main">Footer Content</div><script>PuzzleJs.emit('${EVENT.ON_FRAGMENT_RENDERED}','footer','[puzzle-chunk="footer_main"]','[puzzle-chunk-key="footer_main"]');</script>`);
+                expect(chunks[0]).to.include(`<meta product="bag"/> </head><body><div id="header" puzzle-fragment="header" puzzle-gateway="Browsing">Header Content</div><div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol Product Content</div></div><div id="footer" puzzle-fragment="footer" puzzle-gateway="Browsing" puzzle-chunk="footer_main"></div>`);
+                expect(chunks[1]).to.eq(`<div style="display: none;" puzzle-fragment="footer" puzzle-chunk-key="footer_main">Footer Content</div>`);
                 expect(chunks[2]).to.include(`</body></html>`);
               } catch (e) {
                 err = e;
@@ -1684,7 +1684,7 @@ describe('Template', () => {
               chunks.push(str);
               try {
                 expect(chunks[0]).to.include(`</head><body><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" fragment-partial="header" puzzle-chunk="product_header"></div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main" puzzle-placeholder="product_main_placeholder">product content placeholder</div><div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" fragment-partial="side" puzzle-chunk="product_side"></div></div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" fragment-partial="footer" puzzle-chunk="product_footer"></div>`);
-                expect(chunks[1]).to.eq(`<div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_header">Header Content</div><script>PuzzleJs.emit('${EVENT.ON_FRAGMENT_RENDERED}','product','[puzzle-chunk="product_header"]','[puzzle-chunk-key="product_header"]');</script><div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Trendyol Product Content</div><script>PuzzleJs.emit('${EVENT.ON_FRAGMENT_RENDERED}','product','[puzzle-chunk="product_main"]','[puzzle-chunk-key="product_main"]');</script><div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_side">Side Content</div><script>PuzzleJs.emit('${EVENT.ON_FRAGMENT_RENDERED}','product','[puzzle-chunk="product_side"]','[puzzle-chunk-key="product_side"]');</script><div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_footer">Footer Content</div><script>PuzzleJs.emit('${EVENT.ON_FRAGMENT_RENDERED}','product','[puzzle-chunk="product_footer"]','[puzzle-chunk-key="product_footer"]');</script>`);
+                expect(chunks[1]).to.eq(`<div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_header">Header Content</div><div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Trendyol Product Content</div><div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_side">Side Content</div><div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_footer">Footer Content</div>`);
                 expect(str).to.eq(`<script>PuzzleJs.emit('${EVENT.ON_PAGE_LOAD}');</script></body></html>`);
               } catch (e) {
                 err = e;

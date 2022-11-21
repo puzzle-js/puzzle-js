@@ -98,7 +98,7 @@ describe('System Tests', () => {
               closeInstance(storefrontInstance, done);
               closeInstance(gatewayInstance, done);
               expect(res.text).to.include(`<body><div id="example" puzzle-fragment="example" puzzle-gateway="Browsing" puzzle-chunk="example_main"></div>`);
-              expect(res.text).to.include(`<div style="display: none;" puzzle-fragment="example" puzzle-chunk-key="example_main">Fragment Content</div><script>PuzzleJs.emit('${EVENT.ON_FRAGMENT_RENDERED}','example','[puzzle-chunk="example_main"]','[puzzle-chunk-key="example_main"]');</script>`);
+              expect(res.text).to.include(`<div style="display: none;" puzzle-fragment="example" puzzle-chunk-key="example_main">Fragment Content</div>`);
             });
         });
     });
