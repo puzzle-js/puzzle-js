@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+# [3.52.0] - 22-11-2022
+### Changed
+- Removed ON_FRAGMENT_RENDER config due to unused and performance issues. After this changes, puzzle-lib will be imported end of the body and do not block the main thread. *Please be careful ON_FRAGMENT_RENDER is not used in gateway configs when update PuzzleJs to this version.*
+
+# [3.51.3] - 22-11-2022
+### Changed
+- Added Intersection Observer options to manage Intersection Observer settings by any page.
+
 # [3.50.1] - 13-09-2022
 ### Changed
 - Added more info to the reject body of get asset method (asset manager).

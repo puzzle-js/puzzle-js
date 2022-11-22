@@ -130,7 +130,7 @@ describe('Resource Injector', () => {
         resourceInjector.injectLibraryConfig(dom as any);
 
         // assert
-        const libConfigStr = dom("head").children("script[puzzle-dependency=puzzle-lib-config]").contents().first().text();
+        const libConfigStr = dom("body").children("script[puzzle-dependency=puzzle-lib-config]").contents().first().text();
         const libConfig = JSON.parse(libConfigStr.split(`PuzzleJs.emit('${EVENT.ON_RENDER_START}');PuzzleJs.emit('${EVENT.ON_CONFIG}','`)[1].split("');")[0]);
         expect(libConfig).toEqual(expectedConfig);
 
@@ -171,7 +171,7 @@ describe('Resource Injector', () => {
         resourceInjector.injectLibraryConfig(dom as any);
 
         // assert
-        const libConfigStr = dom("head").children("script[puzzle-dependency=puzzle-lib-config]").contents().first().text();
+        const libConfigStr = dom("body").children("script[puzzle-dependency=puzzle-lib-config]").contents().first().text();
         const libConfig = JSON.parse(libConfigStr.split(`PuzzleJs.emit('${EVENT.ON_RENDER_START}');PuzzleJs.emit('${EVENT.ON_CONFIG}','`)[1].split("');")[0]);
         expect(libConfig).toEqual(expectedConfig);
 

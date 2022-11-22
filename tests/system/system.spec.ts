@@ -6,7 +6,6 @@ import path from "path";
 import {GatewayConfigurator} from "../../src/configurator";
 import {INJECTABLE, TRANSFER_PROTOCOLS} from "../../src/enums";
 import {TLS_CERT, TLS_KEY, TLS_PASS} from "../core.settings";
-import {EVENT} from "@puzzle-js/client-lib/dist/enums";
 
 describe('System Tests', () => {
   const closeInstance = (instance, done) => {
@@ -98,7 +97,7 @@ describe('System Tests', () => {
               closeInstance(storefrontInstance, done);
               closeInstance(gatewayInstance, done);
               expect(res.text).to.include(`<body><div id="example" puzzle-fragment="example" puzzle-gateway="Browsing" puzzle-chunk="example_main"></div>`);
-              expect(res.text).to.include(`<div style="display: none;" puzzle-fragment="example" puzzle-chunk-key="example_main">Fragment Content</div><script>PuzzleJs.emit('${EVENT.ON_FRAGMENT_RENDERED}','example','[puzzle-chunk="example_main"]','[puzzle-chunk-key="example_main"]');</script>`);
+              expect(res.text).to.include(`<div style="display: none;" puzzle-fragment="example" puzzle-chunk-key="example_main">Fragment Content</div>`);
             });
         });
     });
