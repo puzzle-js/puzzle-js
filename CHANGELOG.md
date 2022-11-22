@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 # [3.52.0] - 22-11-2022
 ### Changed
-- Remove ON_FRAGMENT_RENDER config due to unused and performance issues. After this changes, puzzle-lib will be imported end of the body and do not block the main thread.
+- Removed ON_FRAGMENT_RENDER config due to unused and performance issues. After this changes, puzzle-lib will be imported end of the body and do not block the main thread. *Please be careful ON_FRAGMENT_RENDER is not used in gateway configs when update PuzzleJs to this version.*
 
 # [3.51.3] - 22-11-2022
 ### Changed
