@@ -375,7 +375,7 @@ describe('Resource Injector', () => {
         resourceInjector.injectDependencies(dom as any);
 
         // assert
-        const depScript = dom("head").children(`script[puzzle-dependency=${depName}]`);
+        const depScript = dom("body").children(`script[puzzle-dependency=${depName}]`);
         expect(depScript.attr().src).toBe(dep.link);
 
     });

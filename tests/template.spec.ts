@@ -1361,7 +1361,6 @@ describe('Template', () => {
               chunks.push(str);
               try {
                 expect(chunks[0]).to.include(`<div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main"></div></div>`);
-                expect(chunks[1]).to.include(`<div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Trendyol</div>`);
                 expect(chunks[2]).to.include(`</body></html>`);
               } catch (e) {
                 err = e;
@@ -1432,7 +1431,6 @@ describe('Template', () => {
               chunks.push(str);
               try {
                 expect(chunks[0]).to.include(`<div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main" puzzle-placeholder="product_main_placeholder">placeholder</div></div>`);
-                expect(chunks[1]).to.eq(`<div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Trendyol</div>`);
                 expect(chunks[2]).to.include(`</body></html>`);
               } catch (e) {
                 err = e;
@@ -1605,7 +1603,6 @@ describe('Template', () => {
               chunks.push(str);
               try {
                 expect(chunks[0]).to.include(`<meta product="bag"/> </head><body><div id="header" puzzle-fragment="header" puzzle-gateway="Browsing">Header Content</div><div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing">Trendyol Product Content</div></div><div id="footer" puzzle-fragment="footer" puzzle-gateway="Browsing" puzzle-chunk="footer_main"></div>`);
-                expect(chunks[1]).to.eq(`<div style="display: none;" puzzle-fragment="footer" puzzle-chunk-key="footer_main">Footer Content</div>`);
                 expect(chunks[2]).to.include(`</body></html>`);
               } catch (e) {
                 err = e;
@@ -1684,7 +1681,6 @@ describe('Template', () => {
               chunks.push(str);
               try {
                 expect(chunks[0]).to.include(`</head><body><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" fragment-partial="header" puzzle-chunk="product_header"></div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main" puzzle-placeholder="product_main_placeholder">product content placeholder</div><div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" fragment-partial="side" puzzle-chunk="product_side"></div></div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" fragment-partial="footer" puzzle-chunk="product_footer"></div>`);
-                expect(chunks[1]).to.eq(`<div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_header">Header Content</div><div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_main">Trendyol Product Content</div><div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_side">Side Content</div><div style="display: none;" puzzle-fragment="product" puzzle-chunk-key="product_footer">Footer Content</div>`);
                 expect(str).to.eq(`<script>PuzzleJs.emit('${EVENT.ON_PAGE_LOAD}');</script></body></html>`);
               } catch (e) {
                 err = e;
