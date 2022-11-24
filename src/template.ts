@@ -528,17 +528,6 @@ export class Template {
         output += ResourceInjector.wrapJsAsset(replaceItem);
       });
 
-      chunkedReplacement.replaceItems
-        .forEach(replaceItem => {
-          if (replaceItem.type === REPLACE_ITEM_TYPE.CHUNKED_CONTENT) {
-            output += `<div style="display: none;" puzzle-fragment="${chunkedReplacement.fragment.name}" puzzle-chunk-key="${replaceItem.key}">${fragmentContent.html[replaceItem.partial] || CONTENT_NOT_FOUND_ERROR}</div>`;
-            if (!(replaceItem.key === 'main' && selfReplacing)) {
-              // todo replace here
-              // output += `<script>PuzzleJs.emit('${EVENT.ON_FRAGMENT_RENDERED}','${chunkedReplacement.fragment.name}','[puzzle-chunk="${replaceItem.key}"]','[puzzle-chunk-key="${replaceItem.key}"]');</script>`;
-            }
-          }
-        });
-
       fragmentJsReplacements && fragmentJsReplacements.replaceItems.filter(item => item.location === RESOURCE_LOCATION.CONTENT_END).forEach(replaceItem => {
         output += ResourceInjector.wrapJsAsset(replaceItem);
       });

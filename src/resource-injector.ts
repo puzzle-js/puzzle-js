@@ -75,7 +75,7 @@ export default class ResourceInjector {
           content: ''
         });
 
-        dom('head').prepend(library);
+        dom('body').append(library);
       }
     });
   }
