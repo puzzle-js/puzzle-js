@@ -39,6 +39,7 @@ describe('Resource Injector', () => {
 
         // assert
         expect(dom("body").children().length).toBe(assets.length);
+        
         assets.forEach( (asset) => {
             const script = dom("body").children(`script[puzzle-dependency=${asset.name}]`);
             if(script.length <= 1) {
@@ -376,7 +377,35 @@ describe('Resource Injector', () => {
 
         // assert
         const depScript = dom("body").children(`script[puzzle-dependency=${depName}]`);
+        
         expect(depScript.attr().src).toBe(dep.link);
+        expect(depScript.attr()["puzzle-dependency"]).toBe(dep.name);
+    });
+
+
+    it("should inject dependencies if load method is not ON_RENDER_START", () => {
+
+        // arrange
+        const fragments = {
+            "f1": FragmentHelper.create()
+        };
+        const depName = faker.lorem.word();
+        const dep = fragments.f1.config.dependencies[0];
+        fragments.f1.config.assets[0].type = RESOURCE_TYPE.JS;
+        fragments.f1.config.assets[0].dependent = [depName];
+        dep.name = depName;
+        dep.type = RESOURCE_TYPE.JS;
+        dep.loadMethod = RESOURCE_LOADING_TYPE.ON_PAGE_RENDER;
+        sandbox.stub(ResourceFactory.instance, "get").callsFake( (): any => dep);
+
+        // act
+        const dom = cheerio.load("<html><head></head><body></body></html>");
+        const resourceInjector = new ResourceInjector(fragments, "", {});
+        resourceInjector.injectDependencies(dom as any);
+
+        // assert
+        const depScript = dom("body").children(`script[puzzle-dependency=${depName}]`);
+        expect(depScript.attr()).toBe(undefined);
 
     });
 
