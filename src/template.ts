@@ -418,7 +418,7 @@ export class Template {
       res.end();
       this.pageClass._onResponseEnd();
     } else {
-      res.send(waitedReplacement.template.replace('</body>', () => `<script>PuzzleJs.emit('${EVENT.ON_PAGE_LOAD}');</script></body>`));
+      res.send(waitedReplacement.template.replace('</body>', () => `${Object.values(this.onVariableEventScripts).join("")}<script>PuzzleJs.emit('${EVENT.ON_PAGE_LOAD}');</script></body>`));
       this.pageClass._onResponseEnd();
     }
   }
