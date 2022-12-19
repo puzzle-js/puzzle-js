@@ -10,11 +10,16 @@ import {
   IResponseHandlers
 } from "./types";
 import {DEBUG_INFORMATION, DEBUG_QUERY_NAME} from "./config";
+import {FragmentStorefront} from "./fragment";
 import express from "express";
 
 export class Page {
   ready = false;
   gatewayDependencies: IPageDependentGateways;
+  fragments: Array<{
+    instance: FragmentStorefront,
+    gateway: string
+  }>;
   responseHandlers: IResponseHandlers = {};
   template: Template;
   condition?: (req: express.Request) => false | true;
@@ -40,6 +45,9 @@ export class Page {
     }
     
     this.gatewayDependencies = this.template.getDependencies();
+    this.fragments = Object.values(this.gatewayDependencies.gateways)
+        .map(gw => Object.values(gw.fragments))
+        .reduce((acc, val) => [ ...acc, ...val ], []);
 
     this.gatewayUpdated = this.gatewayUpdated.bind(this);
     this.gatewayReady = this.gatewayReady.bind(this);
@@ -141,7 +149,7 @@ export class Page {
    * @param cookies
    */
   private getHandlerVersion(cookies: ICookieMap, preCompile = false) {
-    return Object.values(this.gatewayDependencies.fragments)
+    return this.fragments
       .reduce((key, fragment) => {
         return `${key}_${fragment.instance.name}|${fragment.instance.detectVersion(cookies, preCompile)}`;
       }, '');
@@ -149,8 +157,7 @@ export class Page {
 
 
   private updatePrgStatus() {
-    this.prgEnabled = Object
-      .values(this.gatewayDependencies.fragments)
+    this.prgEnabled = this.fragments
       .some(fragment => !!(fragment.instance.config && fragment.instance.config.prg && fragment.instance.primary));
   }
 
@@ -171,7 +178,7 @@ export class Page {
    * @param {GatewayStorefrontInstance} gateway
    */
   private updateFragmentsConfig(gateway: GatewayStorefrontInstance) {
-    Object.values(this.gatewayDependencies.fragments).forEach(fragment => {
+    this.fragments.forEach(fragment => {
       if (fragment.gateway === gateway.name && gateway.config) {
         fragment.instance.update(gateway.config.fragments[fragment.instance.name], gateway.url, gateway.name, gateway.assetUrl);
       }

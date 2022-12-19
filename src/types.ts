@@ -204,14 +204,14 @@ export interface IPageDependentGateways {
     gateways: {
         [name: string]: {
             gateway: GatewayStorefrontInstance | null,
-            ready: boolean
-        }
-    };
-    fragments: {
-        [name: string]: {
-            instance: FragmentStorefront,
-            gateway: string
-        }
+            ready: boolean,
+            fragments: {
+                [name: string]: {
+                    instance: FragmentStorefront,
+                    gateway: string
+                }
+            };
+        },
     };
 }
 
