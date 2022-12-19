@@ -38,7 +38,7 @@ describe('Resource Injector', () => {
 
         // assert
         expect(dom("body").children().length).toBe(assets.length);
-        
+
         assets.forEach( (asset) => {
             const script = dom("body").children(`script[puzzle-dependency=${asset.name}]`);
             if(script.length <= 1) {
@@ -137,28 +137,27 @@ describe('Resource Injector', () => {
     it("should inject library config with intersection observer opts", () => {
 
         // arrange
-        const fragments = {
-            "f1":  FragmentHelper.create(),
-            "f2":  FragmentHelper.create()
-        };
+        const fragments = [
+            FragmentHelper.create(),
+            FragmentHelper.create()
+        ];
 
         const intersectionObserverOptions: IntersectionObserverInit = {
             rootMargin: "500px",
-        }
+        };
 
-        const fragmentList = Object.keys(fragments).map( (fKey) => fragments[fKey] );
         let assets: any = [];
-        fragmentList.forEach((fragment) => { assets = assets.concat(fragment.config.assets.map(asset => ({
+        fragments.forEach((fragment) => { assets = assets.concat(fragment.config.assets.map(asset => ({
             ...asset,
             fragment: fragment.name
         })))});
         const pageName = faker.random.word();
         const expectedConfig = {
             page: pageName,
-            fragments: fragmentList.map((fragment) => ({ "name": fragment.name, attributes: fragment.attributes, "chunked": (fragment.config ? (fragment.shouldWait || (fragment.config.render.static || false)) : false) })),
+            fragments: fragments.map((fragment) => ({ "name": fragment.name, attributes: fragment.attributes, "chunked": (fragment.config ? (fragment.shouldWait || (fragment.config.render.static || false)) : false) })),
             assets: assets.filter((asset) => asset.type === RESOURCE_TYPE.JS),
             dependencies: [],
-            intersectionObserverOptions: intersectionObserverOptions,
+            intersectionObserverOptions,
             peers: []
         };
         expectedConfig.assets.forEach((asset) => { asset.preLoaded = false });
@@ -374,7 +373,7 @@ describe('Resource Injector', () => {
 
         // assert
         const depScript = dom("body").children(`script[puzzle-dependency=${depName}]`);
-        
+
         expect(depScript.attr().src).toBe(dep.link);
         expect(depScript.attr()["puzzle-dependency"]).toBe(dep.name);
     });
@@ -383,13 +382,13 @@ describe('Resource Injector', () => {
     it("should inject dependencies if load method is not ON_RENDER_START", () => {
 
         // arrange
-        const fragments = {
-            "f1": FragmentHelper.create()
-        };
+        const fragments = [
+            FragmentHelper.create()
+        ];
         const depName = faker.lorem.word();
-        const dep = fragments.f1.config.dependencies[0];
-        fragments.f1.config.assets[0].type = RESOURCE_TYPE.JS;
-        fragments.f1.config.assets[0].dependent = [depName];
+        const dep = fragments[0].config.dependencies[0];
+        fragments[0].config.assets[0].type = RESOURCE_TYPE.JS;
+        fragments[0].config.assets[0].dependent = [depName];
         dep.name = depName;
         dep.type = RESOURCE_TYPE.JS;
         dep.loadMethod = RESOURCE_LOADING_TYPE.ON_PAGE_RENDER;
