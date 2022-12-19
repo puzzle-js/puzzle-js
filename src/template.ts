@@ -160,7 +160,7 @@ export class Template {
     logger.info(`[Compiling Page ${this.name}]`, 'Creating virtual dom');
     this.load();
 
-    if (this.fragments.length === 0) {
+    if (!this.fragments || this.fragments.length === 0) {
       logger.info(`[Compiling Page ${this.name}]`, 'No fragments detected, implementing single flush handler');
       this.replaceEmptyTags();
       const singleFlushHandlerWithoutFragments = TemplateCompiler.compile(Template.clearHtmlContent(this.dom.html()));

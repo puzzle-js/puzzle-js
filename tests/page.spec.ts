@@ -40,69 +40,69 @@ describe('Page', () => {
     const newPage = new Page(template, {}, '');
 
     expect(newPage.gatewayDependencies).to.deep.include({
-      fragments: {
-        header: {
-          gateway: 'Browsing',
-          instance: {
-            "_attributes": {
-              "from": "Browsing",
-              "name": "header",
-            },
-            name: 'header',
-            clientAsync: false,
-            clientAsyncForce: false,
-            asyncDecentralized: false,
-            criticalCss: false,
-            onDemand: false,
-            primary: false,
-            shouldWait: false,
-            from: "Browsing",
-            static: false
-          }
-        },
-        content: {
-          gateway: 'Browsing',
-          instance: {
-            "_attributes": {
-              "from": "Browsing",
-              "name": "content",
-            },
-            name: 'content',
-            primary: false,
-            clientAsync: false,
-            clientAsyncForce: false,
-            asyncDecentralized: false,
-            criticalCss: false,
-            onDemand: false,
-            shouldWait: false,
-            from: "Browsing",
-            static: false
-          }
-        },
-        footer: {
-          gateway: 'Browsing',
-          instance: {
-            "_attributes": {
-              "from": "Browsing",
-              "name": "footer",
-            },
-            name: 'footer',
-            primary: false,
-            clientAsync: false,
-            clientAsyncForce: false,
-            asyncDecentralized: false,
-            criticalCss: false,
-            onDemand: false,
-            shouldWait: false,
-            from: "Browsing",
-            static: false
-          }
-        }
-      },
       gateways: {
         Browsing: {
           gateway: null,
-          ready: false
+          ready: false,
+          fragments: {
+            header: {
+              gateway: 'Browsing',
+              instance: {
+                "_attributes": {
+                  "from": "Browsing",
+                  "name": "header",
+                },
+                name: 'header',
+                clientAsync: false,
+                clientAsyncForce: false,
+                asyncDecentralized: false,
+                criticalCss: false,
+                onDemand: false,
+                primary: false,
+                shouldWait: false,
+                from: "Browsing",
+                static: false
+              }
+            },
+            content: {
+              gateway: 'Browsing',
+              instance: {
+                "_attributes": {
+                  "from": "Browsing",
+                  "name": "content",
+                },
+                name: 'content',
+                primary: false,
+                clientAsync: false,
+                clientAsyncForce: false,
+                asyncDecentralized: false,
+                criticalCss: false,
+                onDemand: false,
+                shouldWait: false,
+                from: "Browsing",
+                static: false
+              }
+            },
+            footer: {
+              gateway: 'Browsing',
+              instance: {
+                "_attributes": {
+                  "from": "Browsing",
+                  "name": "footer",
+                },
+                name: 'footer',
+                primary: false,
+                clientAsync: false,
+                clientAsyncForce: false,
+                asyncDecentralized: false,
+                criticalCss: false,
+                onDemand: false,
+                shouldWait: false,
+                from: "Browsing",
+                static: false
+              }
+            }
+          }
         }
       }
     });
@@ -290,8 +290,9 @@ describe('Page', () => {
     gateway.events.on(EVENTS.GATEWAY_UPDATED, () => {
       if (gateway.config) {
         expect(gateway.config.fragments.header.testCookie).to.eq('zek');
-        if (newPage.gatewayDependencies.fragments.header.instance.config) {
-          expect(newPage.gatewayDependencies.fragments.header.instance.config.testCookie).to.eq('zek');
+        const fragmentConfig = newPage.fragments.find(f => f.instance.name === "header")!.instance!.config;
+        if (fragmentConfig) {
+          expect(fragmentConfig.testCookie).to.eq('zek');
           done();
         } else {
           done('config does not exists on istance');
