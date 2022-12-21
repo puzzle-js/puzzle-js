@@ -332,7 +332,7 @@ export class Template {
 
       let fragmentContent;
       if ((typeof attributes.if === "boolean" && !attributes.if) || attributes.if === "false") {
-        fragmentContent = "";
+        return;
       } else {
         fragmentContent = await waitedFragmentReplacement.fragment.getContent(attributes, req);
       }
