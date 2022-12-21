@@ -111,23 +111,19 @@ export class Template {
           gateways[from].fragments[fragmentName].static = true;
         }
       } else {
+        gateways[from].fragments[fragmentName].shouldWait = true;
+
         if (!gateways[from].fragments[fragmentName].primary) {
           if (typeof fragment.attribs.primary !== 'undefined') {
             if (primaryName != null && primaryName !== fragment.attribs.name) throw new PuzzleError(ERROR_CODES.MULTIPLE_PRIMARY_FRAGMENTS);
             primaryName = fragment.attribs.name;
             gateways[from].fragments[fragmentName].primary = true;
-            gateways[from].fragments[fragmentName].shouldWait = true;
           }
-        }
-
-        if (!gateways[from].fragments[fragmentName].shouldWait) {
-          gateways[from].fragments[fragmentName].shouldWait = typeof fragment.attribs.shouldwait !== 'undefined' || (fragment.parent && fragment.parent.name === 'head') || false;
         }
 
         if (gateways[from].fragments[fragmentName].clientAsync || (typeof fragment.attribs['client-async'] !== "undefined" || typeof fragment.attribs['async-c2'] !== "undefined")) {
           gateways[from].fragments[fragmentName].attributes = Object.assign(gateways[from].fragments[fragmentName].attributes, fragment.attribs);
           gateways[from].fragments[fragmentName].primary = false;
-          gateways[from].fragments[fragmentName].shouldWait = true;
           gateways[from].fragments[fragmentName].clientAsync = true;
           gateways[from].fragments[fragmentName].clientAsyncForce = gateways[from].fragments[fragmentName].clientAsyncForce || typeof fragment.attribs['client-async-force'] !== "undefined";
           gateways[from].fragments[fragmentName].criticalCss = gateways[from].fragments[fragmentName].criticalCss || typeof fragment.attribs['critical-css'] !== "undefined";
