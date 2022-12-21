@@ -33,27 +33,27 @@ describe('Template', () => {
       gateways: {
         Browsing: {
           gateway: null,
-          ready: false
-        }
-      },
-      fragments: {
-        product: {
-          gateway: 'Browsing',
-          instance: {
-            "_attributes": {
-              "from": "Browsing",
-              "name": "product",
-            },
-            clientAsync: false,
-            clientAsyncForce: false,
-            asyncDecentralized: false,
-            criticalCss: false,
-            onDemand: false,
-            name: 'product',
-            primary: false,
-            shouldWait: false,
-            from: "Browsing",
-            static: false
+          ready: false,
+          fragments: {
+            product: {
+              gateway: 'Browsing',
+              instance: {
+                "_attributes": {
+                  "from": "Browsing",
+                  "name": "product",
+                },
+                clientAsync: false,
+                clientAsyncForce: false,
+                asyncDecentralized: false,
+                criticalCss: false,
+                onDemand: false,
+                name: 'product',
+                primary: false,
+                shouldWait: false,
+                from: "Browsing",
+                static: false
+              }
+            }
           }
         }
       }
@@ -79,7 +79,7 @@ describe('Template', () => {
 
   it('should compile page with Intersection Observer options', async () => {
     const fragmentSentryConfig: Record<string, FragmentSentryConfig> = { product: FragmentSentryConfig.CLIENT_ASYNC };
-    
+
     const intersectionObserverOptions: IntersectionObserverInit = {
       rootMargin: "500px",
     }
@@ -89,24 +89,24 @@ describe('Template', () => {
       gateways: {
         Browsing: {
           gateway: null,
-          ready: false
-        }
-      },
-      fragments: {
-        product: {
-          gateway: 'Browsing',
-          instance: {
-            "_attributes": {},
-            clientAsync: true,
-            clientAsyncForce: false,
-            asyncDecentralized: false,
-            criticalCss: false,
-            onDemand: false,
-            name: 'product',
-            primary: false,
-            shouldWait: true,
-            from: "Browsing",
-            static: false
+          ready: false,
+          fragments: {
+            product: {
+              gateway: 'Browsing',
+              instance: {
+                "_attributes": {},
+                clientAsync: true,
+                clientAsyncForce: false,
+                asyncDecentralized: false,
+                criticalCss: false,
+                onDemand: false,
+                name: 'product',
+                primary: false,
+                shouldWait: true,
+                from: "Browsing",
+                static: false
+              }
+            }
           }
         }
       }
@@ -122,28 +122,28 @@ describe('Template', () => {
       gateways: {
         Browsing: {
           gateway: null,
-          ready: false
-        }
-      },
-      fragments: {
-        product: {
-          gateway: 'Browsing',
-          instance: {
-            "_attributes": {
-              "from": "Browsing",
-              "name": "product",
-              "primary": "",
-            },
-            clientAsync: false,
-            clientAsyncForce: false,
-            asyncDecentralized: false,
-            criticalCss: false,
-            onDemand: false,
-            name: 'product',
-            primary: true,
-            shouldWait: true,
-            from: "Browsing",
-            static: false
+          ready: false,
+          fragments: {
+            product: {
+              gateway: 'Browsing',
+              instance: {
+                "_attributes": {
+                  "from": "Browsing",
+                  "name": "product",
+                  "primary": "",
+                },
+                clientAsync: false,
+                clientAsyncForce: false,
+                asyncDecentralized: false,
+                criticalCss: false,
+                onDemand: false,
+                name: 'product',
+                primary: true,
+                shouldWait: true,
+                from: "Browsing",
+                static: false
+              }
+            }
           }
         }
       }
@@ -158,28 +158,28 @@ describe('Template', () => {
       gateways: {
         Browsing: {
           gateway: null,
-          ready: false
-        }
-      },
-      fragments: {
-        product: {
-          gateway: 'Browsing',
-          instance: {
-            "_attributes": {
-              "from": "Browsing",
-              "name": "product",
-              "if": "${'false'}"
-            },
-            clientAsync: false,
-            clientAsyncForce: false,
-            asyncDecentralized: false,
-            criticalCss: false,
-            onDemand: false,
-            name: 'product',
-            primary: false,
-            shouldWait: false,
-            from: "Browsing",
-            static: false
+          ready: false,
+          fragments: {
+            product: {
+              gateway: 'Browsing',
+              instance: {
+                "_attributes": {
+                  "from": "Browsing",
+                  "name": "product",
+                  "if": "${'false'}"
+                },
+                clientAsync: false,
+                clientAsyncForce: false,
+                asyncDecentralized: false,
+                criticalCss: false,
+                onDemand: false,
+                name: 'product',
+                primary: false,
+                shouldWait: false,
+                from: "Browsing",
+                static: false
+              }
+            }
           }
         }
       }
@@ -193,28 +193,28 @@ describe('Template', () => {
       gateways: {
         Browsing: {
           gateway: null,
-          ready: false
-        }
-      },
-      fragments: {
-        product: {
-          gateway: 'Browsing',
-          instance: {
-            "_attributes": {
-              "from": "Browsing",
-              "name": "product",
-              "enable-redirect": ""
-            },
-            clientAsync: false,
-            clientAsyncForce: false,
-            asyncDecentralized: false,
-            criticalCss: false,
-            onDemand: false,
-            name: 'product',
-            primary: false,
-            shouldWait: false,
-            from: "Browsing",
-            static: false
+          ready: false,
+          fragments: {
+            product: {
+              gateway: 'Browsing',
+              instance: {
+                "_attributes": {
+                  "from": "Browsing",
+                  "name": "product",
+                  "enable-redirect": ""
+                },
+                clientAsync: false,
+                clientAsyncForce: false,
+                asyncDecentralized: false,
+                criticalCss: false,
+                onDemand: false,
+                name: 'product',
+                primary: false,
+                shouldWait: false,
+                from: "Browsing",
+                static: false
+              }
+            }
           }
         }
       }
@@ -228,24 +228,24 @@ describe('Template', () => {
       gateways: {
         Browsing: {
           gateway: null,
-          ready: false
-        }
-      },
-      fragments: {
-        product: {
-          gateway: 'Browsing',
-          instance: {
-            "_attributes": {},
-            clientAsync: true,
-            clientAsyncForce: true,
-            asyncDecentralized: false,
-            criticalCss: false,
-            onDemand: false,
-            name: 'product',
-            primary: false,
-            shouldWait: true,
-            from: "Browsing",
-            static: false
+          ready: false,
+          fragments: {
+            product: {
+              gateway: 'Browsing',
+              instance: {
+                "_attributes": {},
+                clientAsync: true,
+                clientAsyncForce: true,
+                asyncDecentralized: false,
+                criticalCss: false,
+                onDemand: false,
+                name: 'product',
+                primary: false,
+                shouldWait: true,
+                from: "Browsing",
+                static: false
+              }
+            }
           }
         }
       }
@@ -259,24 +259,24 @@ describe('Template', () => {
       gateways: {
         Browsing: {
           gateway: null,
-          ready: false
-        }
-      },
-      fragments: {
-        product: {
-          gateway: 'Browsing',
-          instance: {
-            "_attributes": {},
-            clientAsync: true,
-            clientAsyncForce: false,
-            criticalCss: false,
-            onDemand: true,
-            asyncDecentralized: false,
-            name: 'product',
-            primary: false,
-            shouldWait: true,
-            from: "Browsing",
-            static: false
+          ready: false,
+          fragments: {
+            product: {
+              gateway: 'Browsing',
+              instance: {
+                "_attributes": {},
+                clientAsync: true,
+                clientAsyncForce: false,
+                criticalCss: false,
+                onDemand: true,
+                asyncDecentralized: false,
+                name: 'product',
+                primary: false,
+                shouldWait: true,
+                from: "Browsing",
+                static: false
+              }
+            }
           }
         }
       }
@@ -290,24 +290,24 @@ describe('Template', () => {
       gateways: {
         Browsing: {
           gateway: null,
-          ready: false
-        }
-      },
-      fragments: {
-        product: {
-          gateway: 'Browsing',
-          instance: {
-            "_attributes": {},
-            clientAsync: true,
-            clientAsyncForce: false,
-            criticalCss: true,
-            onDemand: false,
-            asyncDecentralized: false,
-            name: 'product',
-            primary: false,
-            shouldWait: true,
-            from: "Browsing",
-            static: false
+          ready: false,
+          fragments: {
+            product: {
+              gateway: 'Browsing',
+              instance: {
+                "_attributes": {},
+                clientAsync: true,
+                clientAsyncForce: false,
+                criticalCss: true,
+                onDemand: false,
+                asyncDecentralized: false,
+                name: 'product',
+                primary: false,
+                shouldWait: true,
+                from: "Browsing",
+                static: false
+              }
+            }
           }
         }
       }
@@ -346,28 +346,28 @@ describe('Template', () => {
       gateways: {
         Browsing: {
           gateway: null,
-          ready: false
-        }
-      },
-      fragments: {
-        product: {
-          gateway: 'Browsing',
-          instance: {
-            "_attributes": {
-              "from": "Browsing",
-              "name": "product",
-              "partial": "notification",
-            },
-            clientAsync: false,
-            clientAsyncForce: false,
-            asyncDecentralized: false,
-            criticalCss: false,
-            onDemand: false,
-            name: 'product',
-            primary: true,
-            shouldWait: true,
-            from: "Browsing",
-            static: false
+          ready: false,
+          fragments: {
+            product: {
+              gateway: 'Browsing',
+              instance: {
+                "_attributes": {
+                  "from": "Browsing",
+                  "name": "product",
+                  "partial": "notification",
+                },
+                clientAsync: false,
+                clientAsyncForce: false,
+                asyncDecentralized: false,
+                criticalCss: false,
+                onDemand: false,
+                name: 'product',
+                primary: true,
+                shouldWait: true,
+                from: "Browsing",
+                static: false
+              }
+            }
           }
         }
       }
@@ -388,28 +388,28 @@ describe('Template', () => {
       gateways: {
         Browsing: {
           gateway: null,
-          ready: false
-        }
-      },
-      fragments: {
-        product: {
-          gateway: 'Browsing',
-          instance: {
-            "_attributes": {
-              "from": "Browsing",
-              "name": "product",
-              "shouldwait": "",
-            },
-            clientAsync: false,
-            clientAsyncForce: false,
-            asyncDecentralized: false,
-            criticalCss: false,
-            onDemand: false,
-            name: 'product',
-            primary: false,
-            shouldWait: true,
-            from: "Browsing",
-            static: false
+          ready: false,
+          fragments: {
+            product: {
+              gateway: 'Browsing',
+              instance: {
+                "_attributes": {
+                  "from": "Browsing",
+                  "name": "product",
+                  "shouldwait": "",
+                },
+                clientAsync: false,
+                clientAsyncForce: false,
+                asyncDecentralized: false,
+                criticalCss: false,
+                onDemand: false,
+                name: 'product',
+                primary: false,
+                shouldWait: true,
+                from: "Browsing",
+                static: false
+              }
+            }
           }
         }
       }
@@ -432,28 +432,28 @@ describe('Template', () => {
       gateways: {
         Browsing: {
           gateway: null,
-          ready: false
-        }
-      },
-      fragments: {
-        product: {
-          gateway: 'Browsing',
-          instance: {
-            "_attributes": {
-              "from": "Browsing",
-              "name": "product",
-              "partial": "a",
-            },
-            clientAsync: false,
-            clientAsyncForce: false,
-            asyncDecentralized: false,
-            criticalCss: false,
-            onDemand: false,
-            name: 'product',
-            primary: false,
-            shouldWait: true,
-            from: "Browsing",
-            static: false
+          ready: false,
+          fragments: {
+            product: {
+              gateway: 'Browsing',
+              instance: {
+                "_attributes": {
+                  "from": "Browsing",
+                  "name": "product",
+                  "partial": "a",
+                },
+                clientAsync: false,
+                clientAsyncForce: false,
+                asyncDecentralized: false,
+                criticalCss: false,
+                onDemand: false,
+                name: 'product',
+                primary: false,
+                shouldWait: true,
+                from: "Browsing",
+                static: false
+              }
+            }
           }
         }
       }
@@ -543,24 +543,24 @@ describe('Template', () => {
       gateways: {
         Browsing: {
           gateway: null,
-          ready: false
-        }
-      },
-      fragments: {
-        product: {
-          gateway: 'Browsing',
-          instance: {
-            _attributes: {"from": "Browsing", "name": "product", "partial": "meta"},
-            name: 'product',
-            clientAsync: false,
-            clientAsyncForce: false,
-            asyncDecentralized: false,
-            criticalCss: false,
-            onDemand: false,
-            primary: false,
-            shouldWait: true,
-            from: "Browsing",
-            static: false
+          ready: false,
+          fragments: {
+            product: {
+              gateway: 'Browsing',
+              instance: {
+                _attributes: {"from": "Browsing", "name": "product", "partial": "meta"},
+                name: 'product',
+                clientAsync: false,
+                clientAsyncForce: false,
+                asyncDecentralized: false,
+                criticalCss: false,
+                onDemand: false,
+                primary: false,
+                shouldWait: true,
+                from: "Browsing",
+                static: false
+              }
+            }
           }
         }
       }
@@ -592,7 +592,7 @@ describe('Template', () => {
 
     template.getDependencies();
 
-    template.fragments.product.update({
+    template.fragments.find(f => f.name === "product")!.update({
       render: {
         url: '/',
         static: true
@@ -642,7 +642,7 @@ describe('Template', () => {
 
     template.getDependencies();
 
-    template.fragments.product.update({
+    template.fragments.find(f => f.name === "product")!.update({
       render: {
         url: '/',
         static: true
@@ -701,7 +701,7 @@ describe('Template', () => {
 
     template.getDependencies();
 
-    template.fragments.product.update({
+    template.fragments.find(f => f.name === "product")!.update({
       render: {
         url: '/',
         static: true
@@ -751,7 +751,7 @@ describe('Template', () => {
 
     template.getDependencies();
 
-    template.fragments.product.update({
+    template.fragments.find(f => f.name === "product")!.update({
       render: {
         url: '/'
       },
@@ -772,7 +772,7 @@ describe('Template', () => {
     template.compile({}).then(handler => {
       handler({}, createExpressMock({
         write(str: string) {
-          expect(str).to.eq(`<div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing" puzzle-chunk="product_main"></div></div>`);
+          expect(str).to.eq(`<div>  </div>`);
         },
         end(str: string) {
           expect(str).to.eq(`<script>PuzzleJs.emit('0');</script></body></html>`);
@@ -808,7 +808,7 @@ describe('Template', () => {
 
     template.getDependencies();
 
-    template.fragments.product.update({
+    template.fragments.find(f => f.name === "product")!.update({
       render: {
         url: '/'
       },
@@ -832,7 +832,7 @@ describe('Template', () => {
           expect(str).to.eq(null);
         },
         end(str: string) {
-          expect(str).to.eq(`<div><div id="product" puzzle-fragment="product" puzzle-gateway="Browsing"></div></div>`);
+          expect(str).to.eq(`<div>  </div>`);
           done();
         },
         status: () => ''
@@ -865,7 +865,7 @@ describe('Template', () => {
 
     template.getDependencies();
 
-    template.fragments.product.update({
+    template.fragments.find(f => f.name === "product")!.update({
       render: {
         url: '/',
         static: true
@@ -922,7 +922,7 @@ describe('Template', () => {
 
     template.getDependencies();
 
-    template.fragments.product.update({
+    template.fragments.find(f => f.name === "product")!.update({
       render: {
         url: '/',
         static: true
@@ -1005,7 +1005,7 @@ describe('Template', () => {
 
         template.getDependencies();
 
-        template.fragments.product.update({
+        template.fragments.find(f => f.name === "product")!.update({
           render: {
             url: '/'
           },
@@ -1064,7 +1064,7 @@ describe('Template', () => {
 
         template.getDependencies();
 
-        template.fragments.product.update({
+        template.fragments.find(f => f.name === "product")!.update({
           render: {
             url: '/'
           },
@@ -1128,7 +1128,7 @@ describe('Template', () => {
 
         template.getDependencies();
 
-        template.fragments.product.update({
+        template.fragments.find(f => f.name === "product")!.update({
           render: {
             url: '/'
           },
@@ -1138,7 +1138,7 @@ describe('Template', () => {
           version: '1.0.0'
         }, 'http://my-test-gateway.com', 'gateway');
 
-        template.fragments.product2.update({
+        template.fragments.find(f => f.name === "product2")!.update({
           render: {
             url: '/'
           },
@@ -1195,7 +1195,7 @@ describe('Template', () => {
 
         template.getDependencies();
 
-        template.fragments.product.update({
+        template.fragments.find(f => f.name === "product")!.update({
           render: {
             url: '/'
           },
@@ -1265,7 +1265,7 @@ describe('Template', () => {
 
         template.getDependencies();
 
-        template.fragments.product.update({
+        template.fragments.find(f => f.name === "product")!.update({
           render: {
             url: '/'
           },
@@ -1275,7 +1275,7 @@ describe('Template', () => {
           version: '1.0.0'
         }, 'http://my-test-gateway.com', 'gateway');
 
-        template.fragments.header.update({
+        template.fragments.find(f => f.name === "header")!.update({
           render: {
             url: '/'
           },
@@ -1338,7 +1338,7 @@ describe('Template', () => {
 
         template.getDependencies();
 
-        template.fragments.product.update({
+        template.fragments.find(f => f.name === "product")!.update({
           render: {
             url: '/',
             placeholder: false
@@ -1408,7 +1408,7 @@ describe('Template', () => {
 
         template.getDependencies();
 
-        template.fragments.product.update({
+        template.fragments.find(f => f.name === "product")!.update({
           render: {
             url: '/',
             placeholder: true
@@ -1481,7 +1481,7 @@ describe('Template', () => {
 
         template.getDependencies();
 
-        template.fragments.product.update({
+        template.fragments.find(f => f.name === "product")!.update({
           render: {
             url: '/',
             placeholder: true
@@ -1561,7 +1561,7 @@ describe('Template', () => {
 
         template.getDependencies();
 
-        template.fragments.product.update({
+        template.fragments.find(f => f.name === "product")!.update({
           render: {
             url: '/',
           },
@@ -1571,7 +1571,7 @@ describe('Template', () => {
           version: '1.0.0'
         }, 'http://my-test-gateway-chunked-2.com', 'gateway');
 
-        template.fragments.header.update({
+        template.fragments.find(f => f.name === "header")!.update({
           render: {
             url: '/',
           },
@@ -1581,7 +1581,7 @@ describe('Template', () => {
           version: '1.0.0'
         }, 'http://my-test-gateway-chunked-2.com', 'gateway');
 
-        template.fragments.footer.update({
+        template.fragments.find(f => f.name === "footer")!.update({
           render: {
             url: '/',
           },
@@ -1657,7 +1657,7 @@ describe('Template', () => {
 
         template.getDependencies();
 
-        template.fragments.product.update({
+        template.fragments.find(f => f.name === "product")!.update({
           render: {
             url: '/',
             placeholder: true
@@ -1726,7 +1726,7 @@ describe('Template', () => {
 
         template.getDependencies();
 
-        template.fragments['product-not-exists'].update({
+        template.fragments.find(f => f.name === 'product-not-exists')!.update({
           render: {
             url: '/',
             placeholder: false

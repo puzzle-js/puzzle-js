@@ -38,7 +38,7 @@ interface CompressionStreamResponse extends express.Response {
 
 export class Template {
   dom: any;
-  fragments: { [name: string]: FragmentStorefront } = {};
+  fragments: FragmentStorefront[];
   pageClass: TemplateClass = new TemplateClass();
   private resourceInjector: ResourceInjector;
   private fragmentSentryConfiguration?: Record<string, FragmentSentryConfig>;
@@ -71,73 +71,81 @@ export class Template {
    */
   @benchmark(isDebug(), logger.info)
   getDependencies() {
+    const gateways: { [name: string]: { fragments: { [name: string]: FragmentStorefront } } } = {};
     let primaryName: string | null;
 
-    return this.dom(TEMPLATE_FRAGMENT_TAG_NAME).toArray().reduce((dependencyList: IPageDependentGateways, fragment: CheerioElement) => {
-      if (!dependencyList.gateways[fragment.attribs.from]) {
-        dependencyList.gateways[fragment.attribs.from] = {
+    const dependencies = this.dom(TEMPLATE_FRAGMENT_TAG_NAME).toArray().reduce((dependencyList: IPageDependentGateways, fragment: CheerioElement) => {
+      const { from, name: fragmentName } = fragment.attribs;
+      if (!dependencyList.gateways[from]) {
+        gateways[from] = { fragments: {} };
+        dependencyList.gateways[from] = {
           gateway: null,
-          ready: false
+          ready: false,
+          fragments: {}
         };
       }
 
-      if (!dependencyList.fragments[fragment.attribs.name]) {
-        this.fragments[fragment.attribs.name] = new FragmentStorefront(fragment.attribs.name, fragment.attribs.from, { ...fragment.attribs });
-        dependencyList.fragments[fragment.attribs.name] = {
-          gateway: fragment.attribs.from,
-          instance: this.fragments[fragment.attribs.name]
+      if (!dependencyList.gateways[from].fragments[fragmentName]) {
+        gateways[from].fragments[fragmentName] = new FragmentStorefront(fragmentName, from, { ...fragment.attribs });
+        dependencyList.gateways[from].fragments[fragmentName] = {
+          gateway: from,
+          instance: gateways[from].fragments[fragmentName]
         };
       }
 
-      if (this.fragmentSentryConfiguration && typeof this.fragmentSentryConfiguration[fragment.attribs.name] !== "undefined") {
-        const fragmentName = fragment.attribs.name;
+      if (this.fragmentSentryConfiguration && typeof this.fragmentSentryConfiguration[fragmentName] !== "undefined") {
         const fragmentType = this.fragmentSentryConfiguration[fragmentName];
 
         if (fragmentType === FragmentSentryConfig.CLIENT_ASYNC) {
-          this.fragments[fragment.attribs.name].attributes = Object.assign(this.fragments[fragment.attribs.name].attributes, fragment.attribs);
-          this.fragments[fragment.attribs.name].primary = false;
-          this.fragments[fragment.attribs.name].shouldWait = true;
-          this.fragments[fragment.attribs.name].clientAsync = true;
+          gateways[from].fragments[fragmentName].attributes = Object.assign(gateways[from].fragments[fragmentName].attributes, fragment.attribs);
+          gateways[from].fragments[fragmentName].primary = false;
+          gateways[from].fragments[fragmentName].shouldWait = true;
+          gateways[from].fragments[fragmentName].clientAsync = true;
         } else if (fragmentType === FragmentSentryConfig.WAITED || (fragment.parent && fragment.parent.name === 'head')) {
-          this.fragments[fragment.attribs.name].shouldWait = true;
+          gateways[from].fragments[fragmentName].shouldWait = true;
         } else if (fragmentType === FragmentSentryConfig.PRIMARY && primaryName === null) {
           primaryName = fragment.attribs.name;
-          this.fragments[fragment.attribs.name].primary = true;
-          this.fragments[fragment.attribs.name].shouldWait = true;
+          gateways[from].fragments[fragmentName].primary = true;
+          gateways[from].fragments[fragmentName].shouldWait = true;
         } else if (fragmentType === FragmentSentryConfig.STATIC) {
-          this.fragments[fragment.attribs.name].static = true;
+          gateways[from].fragments[fragmentName].static = true;
         }
       } else {
-        if (!this.fragments[fragment.attribs.name].primary) {
+        if (!gateways[from].fragments[fragmentName].primary) {
           if (typeof fragment.attribs.primary !== 'undefined') {
             if (primaryName != null && primaryName !== fragment.attribs.name) throw new PuzzleError(ERROR_CODES.MULTIPLE_PRIMARY_FRAGMENTS);
             primaryName = fragment.attribs.name;
-            this.fragments[fragment.attribs.name].primary = true;
-            this.fragments[fragment.attribs.name].shouldWait = true;
+            gateways[from].fragments[fragmentName].primary = true;
+            gateways[from].fragments[fragmentName].shouldWait = true;
           }
         }
 
-        if (!this.fragments[fragment.attribs.name].shouldWait) {
-          this.fragments[fragment.attribs.name].shouldWait = typeof fragment.attribs.shouldwait !== 'undefined' || (fragment.parent && fragment.parent.name === 'head') || false;
+        if (!gateways[from].fragments[fragmentName].shouldWait) {
+          gateways[from].fragments[fragmentName].shouldWait = typeof fragment.attribs.shouldwait !== 'undefined' || (fragment.parent && fragment.parent.name === 'head') || false;
         }
 
-        if (this.fragments[fragment.attribs.name].clientAsync || (typeof fragment.attribs['client-async'] !== "undefined" || typeof fragment.attribs['async-c2'] !== "undefined")) {
-          this.fragments[fragment.attribs.name].attributes = Object.assign(this.fragments[fragment.attribs.name].attributes, fragment.attribs);
-          this.fragments[fragment.attribs.name].primary = false;
-          this.fragments[fragment.attribs.name].shouldWait = true;
-          this.fragments[fragment.attribs.name].clientAsync = true;
-          this.fragments[fragment.attribs.name].clientAsyncForce = this.fragments[fragment.attribs.name].clientAsyncForce || typeof fragment.attribs['client-async-force'] !== "undefined";
-          this.fragments[fragment.attribs.name].criticalCss = this.fragments[fragment.attribs.name].criticalCss || typeof fragment.attribs['critical-css'] !== "undefined";
-          this.fragments[fragment.attribs.name].onDemand = this.fragments[fragment.attribs.name].onDemand || typeof fragment.attribs['on-demand'] !== "undefined";
-          this.fragments[fragment.attribs.name].asyncDecentralized = this.fragments[fragment.attribs.name].asyncDecentralized || typeof fragment.attribs['async-c2'] !== "undefined";
+        if (gateways[from].fragments[fragmentName].clientAsync || (typeof fragment.attribs['client-async'] !== "undefined" || typeof fragment.attribs['async-c2'] !== "undefined")) {
+          gateways[from].fragments[fragmentName].attributes = Object.assign(gateways[from].fragments[fragmentName].attributes, fragment.attribs);
+          gateways[from].fragments[fragmentName].primary = false;
+          gateways[from].fragments[fragmentName].shouldWait = true;
+          gateways[from].fragments[fragmentName].clientAsync = true;
+          gateways[from].fragments[fragmentName].clientAsyncForce = gateways[from].fragments[fragmentName].clientAsyncForce || typeof fragment.attribs['client-async-force'] !== "undefined";
+          gateways[from].fragments[fragmentName].criticalCss = gateways[from].fragments[fragmentName].criticalCss || typeof fragment.attribs['critical-css'] !== "undefined";
+          gateways[from].fragments[fragmentName].onDemand = gateways[from].fragments[fragmentName].onDemand || typeof fragment.attribs['on-demand'] !== "undefined";
+          gateways[from].fragments[fragmentName].asyncDecentralized = gateways[from].fragments[fragmentName].asyncDecentralized || typeof fragment.attribs['async-c2'] !== "undefined";
         }
       }
 
       return dependencyList;
     }, {
-      gateways: {},
-      fragments: {}
+      gateways: {}
     });
+
+    this.fragments = Object.values(gateways)
+        .map(gw => Object.values(gw.fragments))
+        .reduce((acc, val) => [ ...acc, ...val ], []);
+
+    return dependencies;
   }
 
   //todo fragmentConfigleri versiyon bilgileriyle inmis olmali ki assetleri versionlara gore compile edebilelim. ayni not gatewayde de var.
@@ -151,42 +159,44 @@ export class Template {
   async compile(testCookies: ICookieMap, isDebug = false, precompile = false): Promise<IFragmentEndpointHandler> {
     logger.info(`[Compiling Page ${this.name}]`, 'Creating virtual dom');
     this.load();
-    
-    if (Object.keys(this.fragments).length === 0) {
+
+    if (!this.fragments || this.fragments.length === 0) {
       logger.info(`[Compiling Page ${this.name}]`, 'No fragments detected, implementing single flush handler');
       this.replaceEmptyTags();
       const singleFlushHandlerWithoutFragments = TemplateCompiler.compile(Template.clearHtmlContent(this.dom.html()));
       return this.buildHandler(singleFlushHandlerWithoutFragments, [], [], [], isDebug);
     }
-    
+
     if (this.intersectionObserverOptions) {
       this.resourceInjector = new ResourceInjector(this.fragments, this.name, testCookies, this.intersectionObserverOptions);
     } else {
       this.resourceInjector = new ResourceInjector(this.fragments, this.name, testCookies);
     }
-    
+
     logger.info('resource injector instance created');
 
-    Object.values(this.fragments).forEach(fragment => {
+    this.fragments.forEach(fragment => {
       if (fragment.config) {
         fragment.static = fragment.config.render.static = fragment.config.render.static || fragment.static;
       }
     });
 
-    const chunkedFragmentsWithShouldWait = Object.values(this.fragments).filter(fragment => fragment.config && fragment.shouldWait && !fragment.config.render.static);
-    const chunkedFragmentsWithoutWait = Object.values(this.fragments).filter(fragment => fragment.config && !fragment.shouldWait && !fragment.config.render.static);
-    const staticFragments = Object.values(this.fragments).filter(fragment => fragment.config && fragment.config.render.static);
+    const chunkedFragmentsWithShouldWait = this.fragments.filter(fragment => fragment.config && fragment.shouldWait && !fragment.config.render.static);
+    const chunkedFragmentsWithoutWait = this.fragments.filter(fragment => fragment.config && !fragment.shouldWait && !fragment.config.render.static);
+    const staticFragments = this.fragments.filter(fragment => fragment.config && fragment.config.render.static);
 
     logger.info(`[Compiling Page ${this.name}]`, 'Injecting Puzzle Lib to head');
     this.resourceInjector.injectAssets(this.dom);
     this.resourceInjector.injectDependencies(this.dom);
     this.resourceInjector.injectLibraryConfig(this.dom, isDebug);
 
-    const pageDecentrealized = Object.values(this.fragments).some(fragment => fragment.asyncDecentralized);
+    const pageDecentrealized = this.fragments.some(fragment => fragment.asyncDecentralized);
 
     if(pageDecentrealized){
       this.dom('head').prepend(`<script src="${GUN_PATH}"> </script>`);
     }
+
+    this.wrapConditionalFragmentContainers(this.fragments);
 
     // replace meta async
     for(let i = 0,len = chunkedFragmentsWithShouldWait.length;i < len;i++){
@@ -197,7 +207,7 @@ export class Template {
               });
           }
       }
-    
+
     // todo kaldir lib bagla
     const replaceScripts: any[] = [];
 
@@ -207,7 +217,7 @@ export class Template {
     logger.info(`[Compiling Page ${this.name}]`, 'Adding containers for chunked fragments');
     const chunkReplacements: IReplaceSet[] = this.replaceChunkedFragmentContainers(chunkedFragmentsWithoutWait);
 
-    this.replaceUnfetchedFragments(Object.values(this.fragments).filter(fragment => !fragment.config));
+    this.replaceUnfetchedFragments(this.fragments.filter(fragment => !fragment.config));
 
     // todo kaldir lib bag
     //await this.addDependencies();
@@ -319,8 +329,6 @@ export class Template {
     let statusCode = HTTP_STATUS_CODE.OK;
     let headers = {};
     let cookies = {};
-    
-
 
     await Promise.all(waitedFragments.map(async waitedFragmentReplacement => {
       const attributes = TemplateCompiler.processExpression(waitedFragmentReplacement.fragmentAttributes, this.pageClass, req);
@@ -343,13 +351,13 @@ export class Template {
           }else{
             statusCode = fragmentContent.status;
           }
-          
+
           headers = {
             ...headers,
             ...fragmentContent.headers
           };
         }
-        cookies = fragmentContent.cookies; 
+        cookies = fragmentContent.cookies;
       } else if (waitedFragmentReplacement.fragmentAttributes && waitedFragmentReplacement.fragmentAttributes.enableRedirect) {
         if ((fragmentContent.status === HTTP_STATUS_CODE.MOVED_PERMANENTLY || fragmentContent.status === HTTP_STATUS_CODE.MOVED_TEMPORARILY) && (statusCode === 200 || statusCode === 404)) {
           statusCode = fragmentContent.status;
@@ -555,6 +563,25 @@ export class Template {
   private replaceUnfetchedFragments(fragments: FragmentStorefront[]) {
     fragments.forEach(fragment => {
       this.dom(`fragment[from="${fragment.from}"][name="${fragment.name}"]`).replaceWith(`<div puzzle-fragment="${fragment.name}" puzzle-gateway="${fragment.from}">${CONTENT_NOT_FOUND_ERROR}</div>`);
+    });
+  }
+
+  /**
+   * Find fragments with if attributes and wraps them with expression.
+   * @param {FragmentStorefront[]} fragments
+   * @returns {void}
+   */
+  @benchmark(isDebug(), logger.info)
+  private wrapConditionalFragmentContainers(fragments: FragmentStorefront[]) {
+    fragments.forEach(fragment => {
+      this.dom(`fragment[from="${fragment.from}"][name="${fragment.name}"]`)
+        .each((i, element) => {
+          const ifAttr = fragment.attributes.if;
+          const condition = ifAttr && (TemplateCompiler.isExpression(ifAttr) ? (ifAttr.match(TemplateCompiler.EXPRESSION_REGEX) || [])[1] : ifAttr);
+          if (condition) {
+            this.dom(element).replaceWith(`\${if(${condition}){}${this.dom(element)}\${}}`);
+          }
+        });
     });
   }
 

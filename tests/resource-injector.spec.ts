@@ -21,13 +21,12 @@ describe('Resource Injector', () => {
     it("should inject assets using default version", () => {
 
         // arrange
-        const fragments = {
-            "f1": FragmentHelper.create(),
-            "f2": FragmentHelper.create()
-        };
-        const fragmentList = Object.keys(fragments).map( (fKey) => fragments[fKey] );
+        const fragments = [
+            FragmentHelper.create(),
+            FragmentHelper.create()
+        ];
         let assets: any = [];
-        fragmentList.forEach((fragment) => { assets = assets.concat(fragment.config.assets)});
+        fragments.forEach((fragment) => { assets = assets.concat(fragment.config.assets); });
 
 
         // act
@@ -39,7 +38,7 @@ describe('Resource Injector', () => {
 
         // assert
         expect(dom("body").children().length).toBe(assets.length);
-        
+
         assets.forEach( (asset) => {
             const script = dom("body").children(`script[puzzle-dependency=${asset.name}]`);
             if(script.length <= 1) {
@@ -52,22 +51,22 @@ describe('Resource Injector', () => {
     it("should inject assets using passive version", () => {
 
         // arrange
-        const fragments = {
-            "f1": FragmentHelper.create(),
-            "f2": FragmentHelper.create()
-        };
+        const fragments = [
+            FragmentHelper.create(),
+            FragmentHelper.create()
+        ];
         const f1Version = faker.random.arrayElement(["2.0.0", "3.0.0"]);
         const f2Version = faker.random.arrayElement(["2.0.0", "3.0.0"]);
-        sandbox.stub(fragments.f1, "detectVersion").callsFake(() => f1Version);
-        sandbox.stub(fragments.f2, "detectVersion").callsFake(() => f2Version);
+        sandbox.stub(fragments[0], "detectVersion").callsFake(() => f1Version);
+        sandbox.stub(fragments[1], "detectVersion").callsFake(() => f2Version);
 
         // act
         const dom = cheerio.load("<html><head></head><body></body></html>");
         const resourceInjector = new ResourceInjector(fragments, "", {});
         resourceInjector.injectAssets(dom as any);
 
-        const assets1 = fragments.f1.config.passiveVersions[f1Version].assets.filter((asset) => asset.type === RESOURCE_TYPE.JS);
-        const assets2 = fragments.f2.config.passiveVersions[f2Version].assets.filter((asset) => asset.type === RESOURCE_TYPE.JS);
+        const assets1 = fragments[0].config.passiveVersions[f1Version].assets.filter((asset) => asset.type === RESOURCE_TYPE.JS);
+        const assets2 = fragments[1].config.passiveVersions[f2Version].assets.filter((asset) => asset.type === RESOURCE_TYPE.JS);
 
         // assert
         expect(dom("body").children().length).toBe(assets1.length + assets2.length);
@@ -83,13 +82,12 @@ describe('Resource Injector', () => {
     it("should not inject assets if load method is not ON_RENDER_START", () => {
 
         // arrange
-        const fragments = {
-            "f1": FragmentHelper.create(),
-            "f2": FragmentHelper.create()
-        };
-        const fragmentList = Object.keys(fragments).map( (fKey) => fragments[fKey] );
+        const fragments = [
+            FragmentHelper.create(),
+            FragmentHelper.create()
+        ];
         let assets: any = [];
-        fragmentList.forEach((fragment) => { assets = assets.concat(fragment.config.assets)});
+        fragments.forEach((fragment) => { assets = assets.concat(fragment.config.assets); });
         assets.forEach((asset)=> { asset.loadMethod = 1; });
 
         // act
@@ -105,20 +103,19 @@ describe('Resource Injector', () => {
     it("should inject library config", () => {
 
         // arrange
-        const fragments = {
-            "f1":  FragmentHelper.create(),
-            "f2":  FragmentHelper.create()
-        };
-        const fragmentList = Object.keys(fragments).map( (fKey) => fragments[fKey] );
+        const fragments = [
+            FragmentHelper.create(),
+            FragmentHelper.create()
+        ];
         let assets: any = [];
-        fragmentList.forEach((fragment) => { assets = assets.concat(fragment.config.assets.map(asset => ({
+        fragments.forEach((fragment) => { assets = assets.concat(fragment.config.assets.map(asset => ({
             ...asset,
             fragment: fragment.name
-        })))});
+        })));});
         const pageName = faker.random.word();
         const expectedConfig = {
             page: pageName,
-            fragments: fragmentList.map((fragment) => ({ "name": fragment.name, attributes: fragment.attributes, "chunked": (fragment.config ? (fragment.shouldWait || (fragment.config.render.static || false)) : false) })),
+            fragments: fragments.map((fragment) => ({ "name": fragment.name, attributes: fragment.attributes, "chunked": (fragment.config ? (fragment.shouldWait || (fragment.config.render.static || false)) : false) })),
             assets: assets.filter((asset) => asset.type === RESOURCE_TYPE.JS),
             dependencies: [],
             peers: []
@@ -140,28 +137,27 @@ describe('Resource Injector', () => {
     it("should inject library config with intersection observer opts", () => {
 
         // arrange
-        const fragments = {
-            "f1":  FragmentHelper.create(),
-            "f2":  FragmentHelper.create()
-        };
+        const fragments = [
+            FragmentHelper.create(),
+            FragmentHelper.create()
+        ];
 
         const intersectionObserverOptions: IntersectionObserverInit = {
             rootMargin: "500px",
-        }
+        };
 
-        const fragmentList = Object.keys(fragments).map( (fKey) => fragments[fKey] );
         let assets: any = [];
-        fragmentList.forEach((fragment) => { assets = assets.concat(fragment.config.assets.map(asset => ({
+        fragments.forEach((fragment) => { assets = assets.concat(fragment.config.assets.map(asset => ({
             ...asset,
             fragment: fragment.name
         })))});
         const pageName = faker.random.word();
         const expectedConfig = {
             page: pageName,
-            fragments: fragmentList.map((fragment) => ({ "name": fragment.name, attributes: fragment.attributes, "chunked": (fragment.config ? (fragment.shouldWait || (fragment.config.render.static || false)) : false) })),
+            fragments: fragments.map((fragment) => ({ "name": fragment.name, attributes: fragment.attributes, "chunked": (fragment.config ? (fragment.shouldWait || (fragment.config.render.static || false)) : false) })),
             assets: assets.filter((asset) => asset.type === RESOURCE_TYPE.JS),
             dependencies: [],
-            intersectionObserverOptions: intersectionObserverOptions,
+            intersectionObserverOptions,
             peers: []
         };
         expectedConfig.assets.forEach((asset) => { asset.preLoaded = false });
@@ -181,16 +177,16 @@ describe('Resource Injector', () => {
     it("should inject style sheets using default version", async (done) => {
 
         // arrange
-        const fragments = {
-            "f1": FragmentHelper.create(),
-            "f2": FragmentHelper.create()
-        };
+        const fragments = [
+            FragmentHelper.create(),
+            FragmentHelper.create()
+        ];
 
-        sandbox.stub(fragments.f1, "getAsset").callsFake((arg) => arg + "-CSS-");
-        sandbox.stub(fragments.f2, "getAsset").callsFake((arg) => arg + "-CSS-");
+        sandbox.stub(fragments[0], "getAsset").callsFake((arg) => arg + "-CSS-");
+        sandbox.stub(fragments[1], "getAsset").callsFake((arg) => arg + "-CSS-");
         sandbox.stub(ResourceFactory.instance, "getRawContent").callsFake( (arg): any => arg + "-CSS-");
         sandbox.stub(CleanCSS.prototype, "minify").callsFake((arg): any => ({ styles: arg }));
-        fragments.f1.config.dependencies.push({
+        fragments[0].config.dependencies.push({
             name: faker.lorem.word().split(' ')[0],
             type: faker.random.arrayElement([RESOURCE_TYPE.JS, RESOURCE_TYPE.CSS]),
             content: faker.lorem.word()
@@ -201,8 +197,8 @@ describe('Resource Injector', () => {
         const resourceInjector = new ResourceInjector(fragments, "", {});
         await resourceInjector.injectStyleSheets(dom as any, false);
 
-        const c1 = fragments.f1.config;
-        const c2 = fragments.f2.config;
+        const c1 = fragments[0].config;
+        const c2 = fragments[1].config;
 
         const assets = c1.assets.concat(c2.assets).filter((asset) => asset.type === RESOURCE_TYPE.CSS);
         const deps = c1.dependencies.concat(c2.dependencies).filter((dep) => dep.type === RESOURCE_TYPE.CSS);
@@ -222,17 +218,17 @@ describe('Resource Injector', () => {
     it("should inject style sheets using passive version", async (done) => {
 
         // arrange
-        const fragments = {
-            "f1": FragmentHelper.create(),
-            "f2": FragmentHelper.create()
-        };
+        const fragments = [
+            FragmentHelper.create(),
+            FragmentHelper.create()
+        ];
 
         const f1Version = faker.random.arrayElement(["2.0.0", "3.0.0"]);
         const f2Version = faker.random.arrayElement(["2.0.0", "3.0.0"]);
-        sandbox.stub(fragments.f1, "detectVersion").callsFake(() => f1Version);
-        sandbox.stub(fragments.f2, "detectVersion").callsFake( () => f2Version);
-        sandbox.stub(fragments.f1, "getAsset").callsFake((arg) => arg + "-CSS-");
-        sandbox.stub(fragments.f2, "getAsset").callsFake((arg) => arg + "-CSS-");
+        sandbox.stub(fragments[0], "detectVersion").callsFake(() => f1Version);
+        sandbox.stub(fragments[1], "detectVersion").callsFake( () => f2Version);
+        sandbox.stub(fragments[0], "getAsset").callsFake((arg) => arg + "-CSS-");
+        sandbox.stub(fragments[1], "getAsset").callsFake((arg) => arg + "-CSS-");
         sandbox.stub(ResourceFactory.instance, "getRawContent").callsFake( (arg): any => arg + "-CSS-");
         sandbox.stub(CleanCSS.prototype, "minify").callsFake( (arg): any => ({ styles: arg }));
 
@@ -241,8 +237,8 @@ describe('Resource Injector', () => {
         const resourceInjector = new ResourceInjector(fragments, "", {});
         await resourceInjector.injectStyleSheets(dom as any, false);
 
-        const c1 = fragments.f1.config.passiveVersions[f1Version];
-        const c2 = fragments.f2.config.passiveVersions[f2Version];
+        const c1 = fragments[0].config.passiveVersions[f1Version];
+        const c2 = fragments[1].config.passiveVersions[f2Version];
 
         const assets = c1.assets.concat(c2.assets).filter((asset) => asset.type === RESOURCE_TYPE.CSS);
         const deps = c1.dependencies.concat(c2.dependencies).filter((dep) => dep.type === RESOURCE_TYPE.CSS);
@@ -260,10 +256,10 @@ describe('Resource Injector', () => {
 
     it("should inject external style sheets dependecies as async", async (done) => {
         // arrange
-        const fragments = {
-            "f1": FragmentHelper.create(),
-            "f2": FragmentHelper.create()
-        };
+        const fragments = [
+            FragmentHelper.create(),
+            FragmentHelper.create()
+        ];
         const dependency = {
             name: faker.lorem.word().split(' ')[0],
             type: RESOURCE_TYPE.CSS,
@@ -271,10 +267,10 @@ describe('Resource Injector', () => {
             executeType: RESOURCE_CSS_EXECUTE_TYPE.ASYNC
         };
 
-        sandbox.stub(fragments.f1, "getAsset").callsFake((arg) => arg + "-CSS-");
-        sandbox.stub(fragments.f2, "getAsset").callsFake((arg) => arg + "-CSS-");
+        sandbox.stub(fragments[0], "getAsset").callsFake((arg) => arg + "-CSS-");
+        sandbox.stub(fragments[1], "getAsset").callsFake((arg) => arg + "-CSS-");
         sandbox.stub(ResourceFactory.instance, "get").callsFake( (arg): any => dependency);
-        fragments.f1.config.dependencies.push(dependency);
+        fragments[0].config.dependencies.push(dependency);
 
         // act
         const dom = cheerio.load("<html><head></head><body></body></html>");
@@ -288,20 +284,20 @@ describe('Resource Injector', () => {
 
     it("should inject external style sheets dependecies as sync", async (done) => {
         // arrange
-        const fragments = {
-            "f1": FragmentHelper.create(),
-            "f2": FragmentHelper.create()
-        };
+        const fragments = [
+            FragmentHelper.create(),
+            FragmentHelper.create()
+        ];
         const dependency = {
             name: faker.lorem.word().split(' ')[0],
             type: RESOURCE_TYPE.CSS,
             content: faker.lorem.word()
         };
 
-        sandbox.stub(fragments.f1, "getAsset").callsFake((arg) => arg + "-CSS-");
-        sandbox.stub(fragments.f2, "getAsset").callsFake((arg) => arg + "-CSS-");
+        sandbox.stub(fragments[0], "getAsset").callsFake((arg) => arg + "-CSS-");
+        sandbox.stub(fragments[1], "getAsset").callsFake((arg) => arg + "-CSS-");
         sandbox.stub(ResourceFactory.instance, "get").callsFake( (arg): any => dependency);
-        fragments.f1.config.dependencies.push(dependency);
+        fragments[0].config.dependencies.push(dependency);
 
         // act
         const dom = cheerio.load("<html><head></head><body></body></html>");
@@ -315,11 +311,11 @@ describe('Resource Injector', () => {
 
     it("should inject external style sheets assets as async if it is enabled", async (done) => {
         // arrange
-        const fragments = {
-            "f1": FragmentHelper.create()
-        };
+        const fragments = [
+            FragmentHelper.create()
+        ];
 
-        sandbox.stub(fragments.f1, "getAsset").callsFake((arg) => arg + "-CSS-");
+        sandbox.stub(fragments[0], "getAsset").callsFake((arg) => arg + "-CSS-");
 
         // act
         const dom = cheerio.load("<html><head></head><body></body></html>");
@@ -327,18 +323,18 @@ describe('Resource Injector', () => {
         await resourceInjector.injectStyleSheets(dom as any, false, true, true);
 
         // assert
-        expect(dom("head").find("noscript").length).toEqual(fragments.f1.config.assets.filter(asset => asset.type === RESOURCE_TYPE.CSS).length);
+        expect(dom("head").find("noscript").length).toEqual(fragments[0].config.assets.filter(asset => asset.type === RESOURCE_TYPE.CSS).length);
         done();
     });
 
     it("should inject error message if asset invalid", () => {
 
         // arrange
-        const fragments = {
-            "f1": FragmentHelper.create()
-        };
+        const fragments = [
+            FragmentHelper.create()
+        ];
         const assetName = faker.lorem.word();
-        fragments.f1.config.assets = [ {
+        fragments[0].config.assets = [ {
             name: assetName,
             type: RESOURCE_TYPE.JS,
             loadMethod: RESOURCE_LOADING_TYPE.ON_RENDER_START
@@ -358,13 +354,13 @@ describe('Resource Injector', () => {
     it("should inject dependencies if load method is ON_RENDER_START", () => {
 
         // arrange
-        const fragments = {
-            "f1": FragmentHelper.create()
-        };
+        const fragments = [
+            FragmentHelper.create()
+        ];
         const depName = faker.lorem.word();
-        const dep = fragments.f1.config.dependencies[0];
-        fragments.f1.config.assets[0].type = RESOURCE_TYPE.JS;
-        fragments.f1.config.assets[0].dependent = [depName];
+        const dep = fragments[0].config.dependencies[0];
+        fragments[0].config.assets[0].type = RESOURCE_TYPE.JS;
+        fragments[0].config.assets[0].dependent = [depName];
         dep.name = depName;
         dep.type = RESOURCE_TYPE.JS;
         dep.loadMethod = RESOURCE_LOADING_TYPE.ON_RENDER_START;
@@ -377,7 +373,7 @@ describe('Resource Injector', () => {
 
         // assert
         const depScript = dom("body").children(`script[puzzle-dependency=${depName}]`);
-        
+
         expect(depScript.attr().src).toBe(dep.link);
         expect(depScript.attr()["puzzle-dependency"]).toBe(dep.name);
     });
@@ -386,13 +382,13 @@ describe('Resource Injector', () => {
     it("should inject dependencies if load method is not ON_RENDER_START", () => {
 
         // arrange
-        const fragments = {
-            "f1": FragmentHelper.create()
-        };
+        const fragments = [
+            FragmentHelper.create()
+        ];
         const depName = faker.lorem.word();
-        const dep = fragments.f1.config.dependencies[0];
-        fragments.f1.config.assets[0].type = RESOURCE_TYPE.JS;
-        fragments.f1.config.assets[0].dependent = [depName];
+        const dep = fragments[0].config.dependencies[0];
+        fragments[0].config.assets[0].type = RESOURCE_TYPE.JS;
+        fragments[0].config.assets[0].dependent = [depName];
         dep.name = depName;
         dep.type = RESOURCE_TYPE.JS;
         dep.loadMethod = RESOURCE_LOADING_TYPE.ON_PAGE_RENDER;
@@ -412,13 +408,13 @@ describe('Resource Injector', () => {
     it("should inject dependency script", () => {
 
         // arrange
-        const fragments = {
-            "f1": FragmentHelper.create()
-        };
+        const fragments = [
+            FragmentHelper.create()
+        ];
         const depName = faker.lorem.word();
-        const dep = fragments.f1.config.dependencies[0];
-        fragments.f1.config.assets[0].type = RESOURCE_TYPE.JS;
-        fragments.f1.config.assets[0].dependent = [depName];
+        const dep = fragments[0].config.dependencies[0];
+        fragments[0].config.assets[0].type = RESOURCE_TYPE.JS;
+        fragments[0].config.assets[0].dependent = [depName];
         dep.name = depName;
         dep.type = RESOURCE_TYPE.JS;
         sandbox.stub(ResourceFactory.instance, "get").callsFake( (): any => dep);
@@ -437,12 +433,12 @@ describe('Resource Injector', () => {
     it("should not inject asset at page render start if load method does not exists", () => {
 
         // arrange
-        const fragments = {
-            "f1": FragmentHelper.create()
-        };
-        delete fragments.f1.config.assets[0].loadMethod;
-        fragments.f1.config.assets[0].type = RESOURCE_TYPE.JS;
-        let assets: any = fragments.f1.config.assets;
+        const fragments = [
+            FragmentHelper.create()
+        ];
+        delete fragments[0].config.assets[0].loadMethod;
+        fragments[0].config.assets[0].type = RESOURCE_TYPE.JS;
+        let assets: any = fragments[0].config.assets;
 
         // act
         const dom = cheerio.load("<html><head></head><body></body></html>");
@@ -451,7 +447,7 @@ describe('Resource Injector', () => {
         assets = assets.filter((asset) => asset.type === RESOURCE_TYPE.JS);
 
         // assert
-        const script = dom("body").children(`script[puzzle-dependency=${fragments.f1.config.assets[0].name}]`);
+        const script = dom("body").children(`script[puzzle-dependency=${fragments[0].config.assets[0].name}]`);
         expect(dom("body").children().length).toBe(assets.length - 1);
         expect(script.attr()).toBe(undefined);
 

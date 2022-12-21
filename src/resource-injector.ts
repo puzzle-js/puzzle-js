@@ -11,10 +11,11 @@ import ResourceFactory from "./resourceFactory";
 import {RESOURCE_INJECT_TYPE, RESOURCE_JS_EXECUTE_TYPE, RESOURCE_CSS_EXECUTE_TYPE} from "./enums";
 import CleanCSS from "clean-css";
 import {EXTERNAL_STYLE_SHEETS, PEERS, PUZZLE_DEBUGGER_LINK, PUZZLE_LIB_LINK, CSS_ASSETS_ASYNC_LOAD_ENABLED} from "./config";
+import {TemplateCompiler} from "./templateCompiler";
 
 export default class ResourceInjector {
 
-  private readonly fragments: { [name: string]: FragmentStorefront };
+  private readonly fragments: FragmentStorefront[];
   private readonly pageName: string | undefined;
   private readonly cookies: ICookieMap;
 
@@ -24,7 +25,7 @@ export default class ResourceInjector {
   private readonly intersectionObserverOptions?: IntersectionObserverInit;
   private libraryConfig: IPageLibConfiguration;
 
-  constructor(fragments: { [name: string]: FragmentStorefront }, pageName: string | undefined, cookies: ICookieMap, intersectionObserverOptions?: IntersectionObserverInit) {
+  constructor(fragments: FragmentStorefront[], pageName: string | undefined, cookies: ICookieMap, intersectionObserverOptions?: IntersectionObserverInit) {
     this.fragments = fragments;
     this.cookies = cookies;
     this.intersectionObserverOptions = intersectionObserverOptions;
@@ -101,10 +102,10 @@ export default class ResourceInjector {
       link: '',
       executeType: RESOURCE_JS_EXECUTE_TYPE.SYNC
     });
-    
+
     dom('body').append(library);
     dom('body').append(libraryConfig);
-    
+
   }
 
   /**
@@ -129,7 +130,7 @@ export default class ResourceInjector {
           dependencyNames: []
         };
 
-        for (const fragment of Object.values(this.fragments)) {
+        for (const fragment of this.fragments) {
           await this.loadCSSData(cssData, fragment, precompile);
         }
 
@@ -142,7 +143,7 @@ export default class ResourceInjector {
         resolve(null);
       } else {
         const injectedStyles = new Set();
-        for (const fragment of Object.values(this.fragments)) {
+        for (const fragment of this.fragments) {
           const targetVersion = fragment.detectVersion(this.cookies, precompile);
           const config = this.getFragmentConfig(fragment, targetVersion);
           if (config) {
@@ -173,7 +174,13 @@ export default class ResourceInjector {
                       <noscript><link data-puzzle-dep="${dep.name}" rel="stylesheet" href="${dep.link}"></noscript>
                     `);
                   } else {
-                    dom('head').append(`<link rel="stylesheet" data-puzzle-dep="${dep.name} "href="${dep.link}" />`);
+                    const ifAttr = fragment.attributes.if;
+                    const condition = ifAttr && (TemplateCompiler.isExpression(ifAttr) ? (ifAttr.match(TemplateCompiler.EXPRESSION_REGEX) || [])[1] : ifAttr);
+                    if (condition) {
+                      dom('head').append(`\${if(${condition}){}<link rel="stylesheet" data-puzzle-dep="${dep.name} "href="${dep.link}" />\${}}`);
+                    } else {
+                      dom('head').append(`<link rel="stylesheet" data-puzzle-dep="${dep.name} "href="${dep.link}" />`);
+                    }
                   }
                 }
               });
@@ -210,7 +217,7 @@ export default class ResourceInjector {
         dependencyNames: []
       };
 
-      for (const fragment of Object.values(this.fragments)) {
+      for (const fragment of this.fragments) {
         if (fragment.clientAsync && fragment.criticalCss) {
           await this.loadCSSData(cssData, fragment, precompile);
         }
@@ -292,7 +299,7 @@ export default class ResourceInjector {
    * @returns {Promise<void>}
    */
   private prepare() {
-    for (const fragment of Object.values(this.fragments)) {
+    for (const fragment of this.fragments) {
       if (!fragment.config) continue;
       const targetVersion = fragment.detectVersion(this.cookies);
       const config = this.getFragmentConfig(fragment, targetVersion);
@@ -328,7 +335,8 @@ export default class ResourceInjector {
         type: asset.type,
         fragment: fragment.name,
         link: asset.link,
-        preLoaded: false
+        preLoaded: false,
+        gateway: fragment.from
       });
     });
   }
@@ -361,6 +369,7 @@ export default class ResourceInjector {
   private prepareFragmentFingerPrint(fragment: FragmentStorefront) {
     this.fragmentFingerPrints.push({
       name: fragment.name,
+      gateway: fragment.from,
       chunked: fragment.config ? (fragment.shouldWait || (fragment.config.render.static || false)) : false,
       clientAsync: fragment.clientAsync,
       clientAsyncForce: fragment.clientAsyncForce,
