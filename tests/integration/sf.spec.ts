@@ -172,7 +172,7 @@ describe('Storefront', () => {
             pages: [
                 {
                     url: '/',
-                    html: '<template><div><html><head></head><body><fragment from="Browsing" name="product"/></div></body></html></template>'
+                    html: '<template><div><html><head></head><body><fragment from="Browsing" name="product" chunked /></div></body></html></template>'
                 }
             ]
         } as any);
@@ -309,7 +309,7 @@ describe('Storefront', () => {
             pages: [
                 {
                     url: ['/', '/detail'],
-                    html: `<template><html><head></head><body><fragment from="Browsing" name="${fragment.name}" primary/></div></body></html></template>`
+                    html: `<template><html><head></head><body><fragment from="Browsing" name="${fragment.name}" primary /></div></body></html></template>`
                 }
             ]
         } as any);

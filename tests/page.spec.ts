@@ -59,7 +59,7 @@ describe('Page', () => {
                 criticalCss: false,
                 onDemand: false,
                 primary: false,
-                shouldWait: false,
+                shouldWait: true,
                 from: "Browsing",
                 static: false
               }
@@ -78,7 +78,7 @@ describe('Page', () => {
                 asyncDecentralized: false,
                 criticalCss: false,
                 onDemand: false,
-                shouldWait: false,
+                shouldWait: true,
                 from: "Browsing",
                 static: false
               }
@@ -97,7 +97,7 @@ describe('Page', () => {
                 asyncDecentralized: false,
                 criticalCss: false,
                 onDemand: false,
-                shouldWait: false,
+                shouldWait: true,
                 from: "Browsing",
                 static: false
               }

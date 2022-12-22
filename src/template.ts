@@ -111,7 +111,7 @@ export class Template {
           gateways[from].fragments[fragmentName].static = true;
         }
       } else {
-        gateways[from].fragments[fragmentName].shouldWait = true;
+        gateways[from].fragments[fragmentName].shouldWait = typeof fragment.attribs.chunked === 'undefined';
 
         if (!gateways[from].fragments[fragmentName].primary) {
           if (typeof fragment.attribs.primary !== 'undefined') {
