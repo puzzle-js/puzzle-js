@@ -49,7 +49,7 @@ describe('Template', () => {
                 onDemand: false,
                 name: 'product',
                 primary: false,
-                shouldWait: false,
+                shouldWait: true,
                 from: "Browsing",
                 static: false
               }
@@ -175,7 +175,7 @@ describe('Template', () => {
                 onDemand: false,
                 name: 'product',
                 primary: false,
-                shouldWait: false,
+                shouldWait: true,
                 from: "Browsing",
                 static: false
               }
@@ -210,7 +210,7 @@ describe('Template', () => {
                 onDemand: false,
                 name: 'product',
                 primary: false,
-                shouldWait: false,
+                shouldWait: true,
                 from: "Browsing",
                 static: false
               }
@@ -744,7 +744,7 @@ describe('Template', () => {
     const template = new Template(`
                 <template>
                     <div>
-                        <fragment from="Browsing" name="product" if="${false}"> </fragment>
+                        <fragment from="Browsing" name="product" if="${false}" chunked> </fragment>
                     </div>
                 </template>
             `);
@@ -1329,7 +1329,7 @@ describe('Template', () => {
                             </head>
                             <body>
                             <div>
-                                <fragment from="Browsing" name="product"></fragment>
+                                <fragment from="Browsing" name="product" chunked></fragment>
                             </div>
                             </body>
                         </html>
@@ -1399,7 +1399,7 @@ describe('Template', () => {
                             </head>
                             <body>
                             <div>
-                                <fragment from="Browsing" name="product"></fragment>
+                                <fragment from="Browsing" name="product" chunked></fragment>
                             </div>
                             </body>
                         </html>
@@ -1553,7 +1553,7 @@ describe('Template', () => {
                                 <div>
                                     <fragment from="Browsing" name="product"></fragment>
                                 </div>
-                                <fragment from="Browsing" name="footer"></fragment>
+                                <fragment from="Browsing" name="footer" chunked></fragment>
                             </body>
                         </html>
                     </template>
@@ -1644,12 +1644,12 @@ describe('Template', () => {
                                 
                             </head>
                             <body>
-                                <fragment from="Browsing" name="product" partial="header"></fragment>
-                                <fragment from="Browsing" name="product"></fragment>
+                                <fragment from="Browsing" name="product" partial="header" chunked></fragment>
+                                <fragment from="Browsing" name="product" chunked></fragment>
                                 <div>
-                                    <fragment from="Browsing" name="product" partial="side"></fragment>
+                                    <fragment from="Browsing" name="product" partial="side" chunked></fragment>
                                 </div>
-                                <fragment from="Browsing" name="product" partial="footer"></fragment>
+                                <fragment from="Browsing" name="product" partial="footer" chunked></fragment>
                             </body>
                         </html>
                     </template>

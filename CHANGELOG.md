@@ -4,10 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-# [3.60.10] - 19-12-2022
+# [3.61.0] - 21-12-2022
+### Changed
+- Default behavior for fragments changed as *shouldWait enabled*. (Unstable `chunked` attribute can be used to force previous behavior)
+- Improvements on the fragment `if` attribute
+
+# [3.60.0] - 19-12-2022
 ### Changed
 - Template dependencies recognition and structure refactor.
-- Improvements on the fragment if attribute
+- Improvements on the fragment `if` attribute
 
 # [3.52.0] - 22-11-2022
 ### Changed

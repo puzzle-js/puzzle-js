@@ -65,7 +65,7 @@ describe('System Tests', () => {
       pages: [
         {
           url: '/',
-          html: '<template><html><head></head><body><fragment from="Browsing" name="example"></fragment></body></html></template>'
+          html: '<template><html><head></head><body><fragment from="Browsing" name="example" chunked></fragment></body></html></template>'
         }
       ],
       serverOptions: {
@@ -101,7 +101,7 @@ describe('System Tests', () => {
         });
     });
   });
-  
+
 
   it('should render single static fragment using HTTPS', (done) => {
     const gatewayConfigurator = new GatewayConfigurator();
@@ -158,7 +158,7 @@ describe('System Tests', () => {
       pages: [
         {
           url: '/',
-          html: '<template><html><head></head><body><fragment from="Browsing" name="example"></fragment></body></html></template>'
+          html: '<template><html><head></head><body><fragment from="Browsing" name="example" chunked></fragment></body></html></template>'
         }
       ],
       serverOptions: {
