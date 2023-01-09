@@ -25,7 +25,7 @@ export interface IFragmentBFFRender {
     url: string | string[];
     routeCache?: number;
     selfReplace?: boolean;
-    middlewares?: Array<(req: Request, res: Response, next: NextFunction) => any | string>;
+    middlewares?: Array<((req: Request, res: Response, next: NextFunction) => any) | string>;
     cacheControl?: string;
     placeholder?: boolean;
     error?: boolean;
@@ -136,7 +136,7 @@ export type IFragmentEndpointHandler = (req: any, res: any, next?: any) => void;
 
 export interface IApiHandler {
     path: string;
-    middlewares: Array<(req: Request, res: Response, next: NextFunction) => void>;
+    middlewares: Array<((req: Request, res: Response, next: NextFunction) => void) | string>;
     method: HTTP_METHODS;
     cacheControl?: string;
     routeCache?: number;
