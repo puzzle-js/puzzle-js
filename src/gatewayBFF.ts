@@ -227,7 +227,7 @@ export class GatewayBFF {
     }));
 
     fragmentVersion.assets.forEach(asset => {
-      const assetUrl = asset.fileName ?  `/${fragment.name}/static/${asset.fileName}` : asset.link;
+      const assetUrl = asset.link || `/${fragment.name}/static/${asset.fileName}`;
       if (asset.type === RESOURCE_TYPE.JS) {
         dom('body').append(`<script puzzle-asset="${asset.name}" src="${assetUrl}" type="text/javascript"${RESOURCE_JS_EXECUTE_TYPE.SYNC}></script>`);
       } else if (asset.type === RESOURCE_TYPE.CSS) {

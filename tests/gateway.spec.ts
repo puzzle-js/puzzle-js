@@ -585,14 +585,12 @@ describe('Gateway', () => {
                                 assets: [
                                     {
                                         fileName: 'test-asset-1-filename.js',
-                                        link: 'test-asset-1-link.js',
                                         loadMethod: RESOURCE_LOADING_TYPE.ON_RENDER_START,
                                         type: RESOURCE_TYPE.JS,
                                         name: 'test-asset-1-name',
                                     },
                                     {
                                         fileName: 'test-asset-2-filename.css',
-                                        link: 'test-asset-2-link.css',
                                         loadMethod: RESOURCE_LOADING_TYPE.ON_RENDER_START,
                                         type: RESOURCE_TYPE.CSS,
                                         name: 'test-asset-2-name',
@@ -629,7 +627,7 @@ describe('Gateway', () => {
             }) as any,{});
         });
 
-        it('should render fragment in preview mode with given assets without filename', async () => {
+        it('should render fragment in preview mode with given assets with link', async () => {
             const gatewayConfiguration: IGatewayBFFConfiguration = {
                 ...commonGatewayConfiguration,
                 fragments: [
