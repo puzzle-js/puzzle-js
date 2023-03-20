@@ -38,7 +38,7 @@
     "@types/supertest": "^2.0.4",
     "@types/uuid": "^3.4.3",
     "chai": "^4.1.2",
-    "cross-env": "^5.2.1",
+    "cross-env": "^7.0.3",
     "faker": "^4.1.0",
     "jest": "^24.9.0",
     "jsdom": "^15.0.0",
