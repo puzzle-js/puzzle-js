@@ -1,6 +1,6 @@
 {
   "name": "@puzzle-js/core",
-  "version": "3.62.0",
+  "version": "3.62.1",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "logo": "https://image.ibb.co/jM29on/puzzlelogo.png",
@@ -78,7 +78,6 @@
     "dnscache": "^1.0.1",
     "express": "^4.16.4",
     "helmet": "^3.21.0",
-    "iltorb": "^2.4.3",
     "inversify": "^5.0.1",
     "md5": "^2.2.1",
     "morgan": "^1.9.1",

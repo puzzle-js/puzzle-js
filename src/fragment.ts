@@ -15,7 +15,6 @@ import url from "url";
 import path from "path";
 import { container, TYPES } from "./base";
 import { Logger } from "./logger";
-import { decompress } from "iltorb";
 // TODO: remove this
 import * as express from 'express';
 import { HttpClient } from "./client";
