@@ -137,7 +137,13 @@ export class FragmentBFF extends Fragment {
    * @returns {*}
    */
   private clearRequest(req: express.Request) {
-    const clearedReq = Object.assign({}, req);
+    const clearedReq = Object.assign(
+      {
+        headers: req.headers
+      },
+      req
+    );
+    
     if (req.query) {
       delete clearedReq.query[RENDER_MODE_QUERY_NAME];
       delete clearedReq.query[PREVIEW_PARTIAL_QUERY_NAME];
