@@ -13,8 +13,6 @@ import {GATEWAY_PREPERATION_CHECK_INTERVAL, PUZZLE_DEBUGGER_LINK, PUZZLE_LIB_LIN
 import {StorefrontConfigurator} from "./configurator";
 import fs from "fs";
 import {AssetManager} from "./asset-manager";
-import {SentrySocket} from "./socket";
-import {SentryConnectorStorefront} from "./sentry-connector";
 
 const logger = container.get(TYPES.Logger) as Logger;
 
@@ -26,7 +24,6 @@ export class Storefront {
   pages: Map<string, Page> = new Map();
   gateways: IGatewayMap = {};
   private gatewaysReady = 0;
-  sentrySocket: SentrySocket;
 
 
   /**
@@ -43,7 +40,6 @@ export class Storefront {
     } else {
       this.config = storefrontConfig;
     }
-    this.sentrySocket = new SentrySocket();
     this.server = _server || new Server(this.config.serverOptions);
   }
 
@@ -53,16 +49,8 @@ export class Storefront {
    */
   @callableOnce
   init(cb?: Function) {
-    this.sentrySocket.connect((sentryConnected: boolean) => {
-      if (!sentryConnected) {
-        console.log('Starting PuzzleJs storefront from source');
-        this.start(cb);
-      } else {
-        SentryConnectorStorefront.loadFromSentry(this, () => {
-          this.start(cb);
-        });
-      }
-    });
+    console.log('Starting PuzzleJs storefront from source');
+    this.start(cb);
   }
 
   private start(cb?: Function) {

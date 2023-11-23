@@ -1,5 +1,4 @@
 import { Platform } from './enums';
-import { SentrySocket } from './socket';
 
 class CastedObject {
   string: string;
@@ -28,66 +27,18 @@ class Configuration {
   private static instance: Configuration | null;
   private platform: Platform;
   private name: string;
-  private sentrySocket: SentrySocket;
   private processEnv: Map<string, CastedObject>;
-  private sentryEnv: Map<string, CastedObject>;
 
   private constructor(platfrom: Platform, name: string) {
     this.platform = platfrom;
     this.name = name;
-    this.sentrySocket = new SentrySocket();
     this.processEnv = CastedObject.toMap(process.env);
   }
 
-  static async setup(platform: Platform, name: string, checkIfSentryIsConnected = true): Promise<void> {
+  static async setup(platform: Platform, name: string): Promise<void> {
     if (!Configuration.instance) {
       Configuration.instance = new Configuration(platform, name);
-      try {
-        await Configuration.instance.init(checkIfSentryIsConnected);
-      } catch (e) {
-        throw Error(`Can not init Configuration for ${platform} - ${name}, Error: ${e}`);
-      }
     }
-  }
-
-  private subscribeForSentryConfigUpdate() {
-    this.sentrySocket.client.on(`configurations.${this.platform}.${this.name}.update`, (data) => {
-      if (!data || typeof data !== 'object') return;
-      console.log(`got config update for ${this.platform}-${this.name}, data, ${JSON.stringify(data)}`);
-      this.updateSentryMap(data);
-    });
-  }
-
-  private updateSentryMap(data) {
-    this.sentryEnv = CastedObject.toMap(data);
-  }
-
-  private getSentryData(resolve, reject) {
-    this.sentrySocket.client.on(`configurations.${this.platform}.${this.name}`, (data) => {
-      if (!data || typeof data !== 'object') reject();
-      console.log(`got config for ${this.platform}-${this.name}, data, ${JSON.stringify(data)}`);
-      this.updateSentryMap(data);
-      resolve();
-    });
-    this.sentrySocket.client.emit(`configurations.${this.platform}.get`, { name: this.name });
-    this.subscribeForSentryConfigUpdate();
-  }
-
-  private init(checkIfSentryIsConnected) {
-    if (checkIfSentryIsConnected && (!this.sentrySocket.client || !this.sentrySocket.client.connected)) {
-      return new Promise((resolve, reject) => {
-        this.sentrySocket.connect((connected) => {
-          if (connected) {
-            this.getSentryData(resolve, reject);
-          } else {
-            reject();
-          }
-        });
-      });
-    }
-    return new Promise((resolve, reject) => {
-      this.getSentryData(resolve, reject);
-    });
   }
 
   static getInstance() {
@@ -114,12 +65,6 @@ class Configuration {
       instance = Configuration.instance;
     } else {
       throw Error("Instance does not exists");
-    }
-
-    result = instance.sentryEnv ? instance.sentryEnv.get(value) : undefined;
-
-    if (typeof result !== 'undefined') {
-      return result;
     }
 
     result = instance.processEnv.get(value);
