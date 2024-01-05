@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+# [3.63.2] - 06-01-2024
+### Changed
+- Improvements on the fragment preview mode by adding `puzzle-fragment` and `fragment-partial` attributes.
+
 # [3.63.0] - 24-11-2023
 ### Removed
 - Sentry configuration has been removed. (socket.io-client package removed)
