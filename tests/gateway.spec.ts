@@ -416,7 +416,39 @@ describe('Gateway', () => {
             await bffGw.renderFragment({} as any, 'boutique-list', FRAGMENT_RENDER_MODES.PREVIEW, DEFAULT_MAIN_PARTIAL, createExpressMock({
                 send: (gwResponse: string) => {
                     if (!gwResponse) throw new Error('No response from gateway');
-                    expect(gwResponse).to.include(`<title>Browsing - boutique-list</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"></head><body><div id="boutique-list">test</div></body></html>`);
+                    expect(gwResponse).to.include(`<title>Browsing - boutique-list</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"></head><body><div id="boutique-list" puzzle-fragment="boutique-list" fragment-partial="main">test</div></body></html>`);
+                }
+            }) as any,{});
+        });
+
+        it('should render fragment in preview mode with different partial', async () => {
+            const partialName = "other-section";
+            const gatewayConfiguration: IGatewayBFFConfiguration = {
+                ...commonGatewayConfiguration,
+                fragments: [
+                    {
+                        name: 'boutique-list',
+                        version: 'test',
+                        render: {
+                            url: '/'
+                        },
+                        testCookie: 'fragment_test',
+                        versions: {
+                            'test': {
+                                assets: [],
+                                dependencies: [],
+                                handler: require('./fragments/boutique-list/test-with-partials')
+                            }
+                        }
+                    }
+                ]
+            };
+
+            const bffGw = new GatewayBFF(gatewayConfiguration);
+            await bffGw.renderFragment({} as any, 'boutique-list', FRAGMENT_RENDER_MODES.PREVIEW, partialName, createExpressMock({
+                send: (gwResponse: string) => {
+                    if (!gwResponse) throw new Error('No response from gateway');
+                    expect(gwResponse).to.include(`<title>Browsing - boutique-list</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"></head><body><div id="boutique-list" puzzle-fragment="boutique-list" fragment-partial="${partialName}">other section content</div></body></html>`);
                 }
             }) as any,{});
         });
@@ -453,7 +485,7 @@ describe('Gateway', () => {
             await bffGw.renderFragment({} as any, 'boutique-list', FRAGMENT_RENDER_MODES.PREVIEW, DEFAULT_MAIN_PARTIAL, createExpressMock({
                 send: (gwResponse: string) => {
                     if (!gwResponse) throw new Error('No response from gateway');
-                    expect(gwResponse).to.include(`<title>Browsing - boutique-list</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"></head><body><div id="boutique-list">test2</div></body></html>`);
+                    expect(gwResponse).to.include(`<title>Browsing - boutique-list</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"></head><body><div id="boutique-list" puzzle-fragment="boutique-list" fragment-partial="main">test2</div></body></html>`);
                 }
             }) as any,{}, "test2");
         });
@@ -490,7 +522,7 @@ describe('Gateway', () => {
             await bffGw.renderFragment({} as any, 'boutique-list', FRAGMENT_RENDER_MODES.PREVIEW, DEFAULT_MAIN_PARTIAL, createExpressMock({
                 send: (gwResponse: string) => {
                     if (!gwResponse) throw new Error('No response from gateway');
-                    expect(gwResponse).to.include(`<title>Browsing - boutique-list</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"></head><body><div id="boutique-list">test2</div></body></html>`);
+                    expect(gwResponse).to.include(`<title>Browsing - boutique-list</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"></head><body><div id="boutique-list" puzzle-fragment="boutique-list" fragment-partial="main">test2</div></body></html>`);
                 }
             }) as any,{'fragment_test': 'test2'});
         });
@@ -535,7 +567,7 @@ describe('Gateway', () => {
             await bffGw.renderFragment({url: 'test'} as any, 'boutique-list', FRAGMENT_RENDER_MODES.PREVIEW, DEFAULT_MAIN_PARTIAL, createExpressMock({
                 send: (gwResponse: string) => {
                     if (!gwResponse) throw new Error('No response from gateway');
-                    expect(gwResponse).to.include(`<title>Browsing - boutique-list</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"></head><body><div id="boutique-list">Requested:Url:test</div></body></html>`);
+                    expect(gwResponse).to.include(`<title>Browsing - boutique-list</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"></head><body><div id="boutique-list" puzzle-fragment="boutique-list" fragment-partial="main">Requested:Url:test</div></body></html>`);
                 }
             }) as any,{});
         });
@@ -622,7 +654,7 @@ describe('Gateway', () => {
             await bffGw.renderFragment({url: 'test'} as any, 'boutique-list', FRAGMENT_RENDER_MODES.PREVIEW, DEFAULT_MAIN_PARTIAL, createExpressMock({
                 send: (gwResponse: string) => {
                     if (!gwResponse) throw new Error('No response from gateway');
-                    expect(gwResponse).to.include(`<script puzzle-dependency="puzzle-lib" type="text/javascript">puzzleLibScript</script><title>Browsing - boutique-list</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><link puzzle-asset="test-asset-2-name" rel="stylesheet" href="/boutique-list/static/test-asset-2-filename.css"></head><body><div id="boutique-list">Requested:Url:test</div><script puzzle-asset="test-asset-1-name" src="/boutique-list/static/test-asset-1-filename.js" type="text/javascript"></script>`);
+                    expect(gwResponse).to.include(`<script puzzle-dependency="puzzle-lib" type="text/javascript">puzzleLibScript</script><title>Browsing - boutique-list</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><link puzzle-asset="test-asset-2-name" rel="stylesheet" href="/boutique-list/static/test-asset-2-filename.css"></head><body><div id="boutique-list" puzzle-fragment="boutique-list" fragment-partial="main">Requested:Url:test</div><script puzzle-asset="test-asset-1-name" src="/boutique-list/static/test-asset-1-filename.js" type="text/javascript"></script>`);
                 }
             }) as any,{});
         });
@@ -680,7 +712,7 @@ describe('Gateway', () => {
             await bffGw.renderFragment({url: 'test'} as any, 'boutique-list', FRAGMENT_RENDER_MODES.PREVIEW, DEFAULT_MAIN_PARTIAL, createExpressMock({
                 send: (gwResponse: string) => {
                     if (!gwResponse) throw new Error('No response from gateway');
-                    expect(gwResponse).to.include(`<script puzzle-dependency="puzzle-lib" type="text/javascript">puzzleLibScript</script><title>Browsing - boutique-list</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><link puzzle-asset="test-asset-2-name" rel="stylesheet" href="test-asset-2-link.css"></head><body><div id="boutique-list">Requested:Url:test</div><script puzzle-asset="test-asset-1-name" src="test-asset-1-link.js" type="text/javascript"></script>`);
+                    expect(gwResponse).to.include(`<script puzzle-dependency="puzzle-lib" type="text/javascript">puzzleLibScript</script><title>Browsing - boutique-list</title><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><link puzzle-asset="test-asset-2-name" rel="stylesheet" href="test-asset-2-link.css"></head><body><div id="boutique-list" puzzle-fragment="boutique-list" fragment-partial="main">Requested:Url:test</div><script puzzle-asset="test-asset-1-name" src="test-asset-1-link.js" type="text/javascript"></script>`);
                 }
             }) as any,{});
         });

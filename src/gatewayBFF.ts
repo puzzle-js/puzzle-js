@@ -193,7 +193,7 @@ export class GatewayBFF {
         } else {
           if (gatewayContent.content[partial]) {
             res.status(HTTP_STATUS_CODE.OK);
-            res.send(this.wrapFragmentContent(gatewayContent.content[partial].toString(), fragment, version, gatewayContent.$model));
+            res.send(this.wrapFragmentContent(gatewayContent.content[partial].toString(), fragment, version, gatewayContent.$model, partial));
           } else {
             res.status(HTTP_STATUS_CODE.INTERNAL_SERVER_ERROR);
             res.send(`Partial ${partial} doesn't exist in fragment response`);
@@ -213,8 +213,8 @@ export class GatewayBFF {
    * @param model
    * @returns {string}
    */
-  private wrapFragmentContent(htmlContent: string, fragment: FragmentBFF, version: string, model: FragmentModel): string {
-    const dom = cheerio.load(`<html><head><title>${this.config.name} - ${fragment.name}</title>${this.config.isMobile ? '<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />' : ''}${Template.fragmentModelScript(fragment, model, false)}</head><body><div id="${fragment.name}">${htmlContent}</div></body></html>`);
+  private wrapFragmentContent(htmlContent: string, fragment: FragmentBFF, version: string, model: FragmentModel, partialName: string): string {
+    const dom = cheerio.load(`<html><head><title>${this.config.name} - ${fragment.name}</title>${this.config.isMobile ? '<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />' : ''}${Template.fragmentModelScript(fragment, model, false)}</head><body><div id="${fragment.name}" puzzle-fragment="${fragment.name}" fragment-partial="${partialName}">${htmlContent}</div></body></html>`);
 
     const fragmentVersion = fragment.config.versions[version];
 
