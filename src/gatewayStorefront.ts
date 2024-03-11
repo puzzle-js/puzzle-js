@@ -5,7 +5,6 @@ import {DEFAULT_POLLING_INTERVAL, SATISFY_COMPILE_AMOUNT} from "./config";
 import {Logger} from "./logger";
 import {IExposeConfig, IGatewayConfiguration, SatisfyUpdateMap} from "./types";
 import {container, TYPES} from "./base";
-import {HttpClient} from "./client";
 import {RouteConfiguration} from "puzzle-warden/dist/request-manager";
 import {isDeepStrictEqual} from "util";
 import warden from "puzzle-warden";
@@ -13,7 +12,6 @@ import Timer = NodeJS.Timer;
 import {AssetManager} from "./asset-manager";
 
 const logger = container.get(TYPES.Logger) as Logger;
-const httpClient = container.get(TYPES.Client) as HttpClient;
 
 export class GatewayStorefrontInstance {
   events: EventEmitter = new EventEmitter();
@@ -35,8 +33,6 @@ export class GatewayStorefrontInstance {
     this.url = gatewayConfig.url;
     this.authToken = authToken;
     this.satisfyAmount = gatewayUpdateInterval || SATISFY_COMPILE_AMOUNT;
-    httpClient.init('PuzzleJs Storefront');
-
     this.assetUrl = gatewayConfig.assetUrl;
 
     this.fetch();
@@ -155,4 +151,3 @@ export class GatewayStorefrontInstance {
     return !isDeepStrictEqual(this.config.fragments[fragmentName].warden, newConfiguration);
   }
 }
-
