@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+# [3.65.0] - 19-02-2024
+### Changed
+- A fragment's name included in a page's URL will not cause the URL to be modified (just like js client logic).
+
 # [3.64.1] - 25-01-2024
 ### Changed
 - Improvements on the fragment preview mode by adding `puzzle-fragment` and `fragment-partial` attributes.

@@ -143,7 +143,7 @@ export class FragmentBFF extends Fragment {
       },
       req
     );
-    
+
     if (req.query) {
       delete clearedReq.query[RENDER_MODE_QUERY_NAME];
       delete clearedReq.query[PREVIEW_PARTIAL_QUERY_NAME];
@@ -409,7 +409,7 @@ export class FragmentStorefront extends Fragment {
     delete query.primary;
     delete query.shouldwait;
 
-    const routeRequest = req && parsedRequest ? `${parsedRequest.pathname.replace('/' + this.name, '')}?${querystring.stringify(query)}` : `/?${querystring.stringify(query)}`;
+    const routeRequest = req && parsedRequest ? `${parsedRequest.pathname}?${querystring.stringify(query)}` : `/?${querystring.stringify(query)}`;
 
 
     return httpClient.get(`${this.fragmentUrl}${routeRequest}`, this.name, {
