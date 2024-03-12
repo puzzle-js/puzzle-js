@@ -1,17 +1,11 @@
 import http from "http";
 import https from "https";
 import {injectable} from "inversify";
-import request, {CoreOptions} from "request";
-import {CIRCUIT_ENABLED, DEFAULT_CONTENT_TIMEOUT, KEEP_ALIVE_MSECS, PUZZLE_MAX_SOCKETS} from "./config";
+import {CIRCUIT_ENABLED, KEEP_ALIVE_MSECS, PUZZLE_MAX_SOCKETS} from "./config";
 import warden from "puzzle-warden";
 import supra from "supra-http";
 
 // warden.debug = true;
-
-export interface IRequestOptions {
-  timeout: number;
-  method: string;
-}
 
 const AGENT_CONFIGURATION = {
   keepAlive: true,
@@ -24,41 +18,7 @@ export const httpsAgent = new https.Agent(AGENT_CONFIGURATION);
 
 @injectable()
 export class HttpClient {
-  private httpAgent: http.Agent;
-  private httpsAgent: https.Agent;
-  private static httpClient: request.RequestAPI<request.Request, request.CoreOptions, request.RequiredUriUrl>;
-  private static httpsClient: request.RequestAPI<request.Request, request.CoreOptions, request.RequiredUriUrl>;
-  private defaultOptions: CoreOptions;
-
-  constructor() {
-    this.httpAgent = httpAgent;
-    this.httpsAgent = httpsAgent;
-  }
-
-
-  init(clientName: string, options?: request.CoreOptions) {
-    this.defaultOptions = {
-      encoding: 'utf8',
-      gzip: true,
-      ...options,
-      headers: {
-        'user-agent': clientName || 'PuzzleJs Http Client'
-      },
-    };
-
-    HttpClient.httpClient = request.defaults({
-      ...this.defaultOptions,
-      timeout: DEFAULT_CONTENT_TIMEOUT,
-      agent: httpAgent
-    });
-    HttpClient.httpsClient = request.defaults({
-      ...this.defaultOptions,
-      timeout: DEFAULT_CONTENT_TIMEOUT,
-      agent: httpsAgent
-    });
-  }
-
-  get(requestUrl: string, fragmentName: string, options?: request.CoreOptions): Promise<{ response: http.IncomingMessage, data: any }> {
+  get(requestUrl: string, fragmentName: string, options?: any): Promise<{ response: http.IncomingMessage, data: any }> {
     return new Promise((resolve, reject) => {
       const requestOptions = {
         url: requestUrl,
@@ -97,29 +57,6 @@ export class HttpClient {
           })
           .catch(reject);
       }
-    });
-  }
-
-
-  post(requestUrl: string, fragmentName: string, data?: object, options?: request.CoreOptions): Promise<{ response: request.Response, data: any }> {
-    if (!HttpClient.httpClient && !HttpClient.httpsClient) this.init('PuzzleJs Default Client');
-
-    const client = requestUrl.startsWith('https') ? HttpClient.httpsClient : HttpClient.httpClient;
-
-    return new Promise(function (resolve, reject) {
-      client
-        .post({
-          url: requestUrl,
-          json: data,
-          ...options
-        }, (err, response, data) => {
-          if (err) reject(err);
-
-          resolve({
-            response,
-            data
-          });
-        });
     });
   }
 }
