@@ -19,14 +19,19 @@ export class Api {
         this.prepareHandlers();
     }
 
-    private controllerWrapper(handler) {
+    private controllerWrapper(handler, useExpressErrorForwarding = false) {
         return async (req, res, next) => {
             try {
                 await handler(req, res, next);
             } catch (e) {
+                if (useExpressErrorForwarding) {
+                    next(e);
+                    return;
+                }
+
                 console.error("PUZZLE_BFF_HANDLER_UNHANDLED_ERROR");
                 console.log(e);
-                next(e);
+                return res.status(500).send();
             }
         };
     }
@@ -49,7 +54,7 @@ export class Api {
             const apiHandler = this.config.versions[version];
 
             apiHandler.endpoints.forEach(endpoint => {
-                server.handler.addRoute(`/${API_ROUTE_PREFIX}/${this.config.name}/${version}${endpoint.path}`, endpoint.method, this.controllerWrapper(this.handler[version][endpoint.controller]), endpoint.middlewares);
+                server.handler.addRoute(`/${API_ROUTE_PREFIX}/${this.config.name}/${version}${endpoint.path}`, endpoint.method, this.controllerWrapper(this.handler[version][endpoint.controller], endpoint.useExpressErrorForwarding), endpoint.middlewares);
             });
         });
     }

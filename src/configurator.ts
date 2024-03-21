@@ -24,7 +24,8 @@ const apiEndpointsStructure = struct({
     method: struct.enum(Object.values(HTTP_METHODS)),
     controller: 'string',
     routeCache: 'number?',
-    cacheControl: 'string?'
+    cacheControl: 'string?',
+    useExpressErrorForwarding: 'boolean?'
 });
 
 const customHeaderStructure = struct({

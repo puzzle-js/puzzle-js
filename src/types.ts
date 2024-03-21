@@ -141,6 +141,7 @@ export interface IApiHandler {
     cacheControl?: string;
     routeCache?: number;
     controller: string;
+    useExpressErrorForwarding?: boolean;
 }
 
 export interface IApiVersion {
