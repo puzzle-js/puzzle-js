@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 # [3.65.1] - 20-03-2024
 ### Changed
-- Route handlers have been modified to utilize centralized error middleware by forwarding exceptions using a next() call.
+- Route handlers have been modified to utilize centralized error middleware by forwarding exceptions using a next() call when 'useExpressErrorForwarding' flag is set. With this change, custom error middleware can be used to handle exceptions in a centralized manner.
 
 # [3.65.0] - 19-02-2024
 ### Changed
