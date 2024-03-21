@@ -2,6 +2,7 @@ import { Api } from "../src/api";
 import { expect } from "chai";
 import { HTTP_METHODS } from "../src/enums";
 import { Server } from "../src/network";
+import sinon from "sinon";
 import supertest from "supertest";
 import faker from "faker";
 
@@ -200,6 +201,92 @@ describe('Api',  () => {
       .get(`/api/browsing/${firstParam}/${secondParam}`)
       .expect(200)
       .end(() => {
+      });
+  });
+
+  it('should forward to next middleware when "useExpressErrorForwarding" is set', (done) => {
+    const consoleErrorSpy = sinon.spy(console, 'error');
+    const server = new Server();
+
+    const api = new Api({
+      liveVersion: '1.0.0',
+      name: 'browsing',
+      testCookie: 'browsing-version',
+      versions: {
+        '1.0.0': {
+          handler: {
+            test: (req: any, res: any) => {
+              throw new Error("error");
+            },
+          },
+          endpoints: [
+            {
+              method: HTTP_METHODS.GET,
+              path: '/history',
+              controller: 'test',
+              middlewares: [],
+              useExpressErrorForwarding: true,
+            },
+          ],
+        },
+      },
+    });
+
+    api.registerEndpoints(server);
+
+    supertest(server.handler.getApp())
+      .get('/api/browsing/history')
+      .expect(500)
+      .end((err, res) => {
+        expect(consoleErrorSpy.called).to.be.false;
+
+        consoleErrorSpy.restore();
+        done();
+      });
+  });
+
+  it('should not forward to next middleware when "useExpressErrorForwarding" is not set', (done) => {
+    const consoleErrorSpy = sinon.spy(console, 'error');
+    const consoleLogSpy = sinon.spy(console, 'log');
+    const server = new Server();
+
+    const api = new Api({
+      liveVersion: '1.0.0',
+      name: 'browsing',
+      testCookie: 'browsing-version',
+      versions: {
+        '1.0.0': {
+          handler: {
+            test: (req: any, res: any) => {
+              throw new Error("error");
+            },
+          },
+          endpoints: [
+            {
+              method: HTTP_METHODS.GET,
+              path: '/history',
+              controller: 'test',
+              middlewares: [],
+              useExpressErrorForwarding: false,
+            },
+          ],
+        },
+      },
+    });
+
+    api.registerEndpoints(server);
+
+    supertest(server.handler.getApp())
+      .get('/api/browsing/history')
+      .expect(500)
+      .end((err, res) => {
+        expect(consoleErrorSpy.called).to.be.true;
+        expect(consoleErrorSpy.firstCall.args[0]).to.include("PUZZLE_BFF_HANDLER_UNHANDLED_ERROR");
+        expect(consoleLogSpy.firstCall.args[0]).to.be.instanceOf(Error);
+
+        consoleErrorSpy.restore();
+        consoleLogSpy.restore();
+        done();
       });
   });
 });
