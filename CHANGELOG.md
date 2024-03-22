@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+# [3.65.1] - 20-03-2024
+### Changed
+- Route handlers have been modified to utilize centralized error middleware by forwarding exceptions using a next() call when 'useExpressErrorForwarding' flag is set. With this change, custom error middleware can be used to handle exceptions in a centralized manner.
+
 # [3.65.0] - 19-02-2024
 ### Changed
 - A fragment's name included in a page's URL will not cause the URL to be modified (just like js client logic).
