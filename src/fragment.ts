@@ -78,12 +78,25 @@ export class FragmentBFF extends Fragment {
           };
         }
         if (dataResponse.data) {
-          const renderedPartials = handler.content(dataResponse.data);
-          delete dataResponse.data;
-          return {
-            ...renderedPartials,
-            ...dataResponse
-          };
+          try {
+            const renderedPartials = handler.content(dataResponse.data);
+            delete dataResponse.data;
+            return {
+              ...renderedPartials,
+              ...dataResponse
+            };
+          } catch (error) {
+            logger.error(`Failed to render partial(s) for fragment ${this.config.name}`, {
+              url: req.url,
+              query: req.query,
+              params: req.params,
+              headers: req.headers,
+              error,
+            });
+            return {
+              $status: 500,
+            };
+          }
         } else {
           return dataResponse;
         }

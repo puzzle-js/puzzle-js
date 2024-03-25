@@ -8,6 +8,7 @@ import { RESOURCE_TYPE } from "@puzzle-js/client-lib/dist/enums";
 import { AssetManager } from "../src/asset-manager";
 import * as express from 'express';
 import faker from "faker";
+import sinon from "sinon";
 
 const { lorem: { word } } = faker;
 
@@ -188,6 +189,27 @@ describe('Fragment', () => {
                 return;
             }
             throw new Error('Should have thrown an error');
+        });
+
+        it('should return 500 status and write related log when an error occurred during content execution', async () => {
+            const consoleErrorSpy = sinon.spy(console, 'error');
+
+            const fragmentConfig = JSON.parse(JSON.stringify(commonFragmentBffConfiguration));
+            fragmentConfig.versions.test.handler.content = () => {
+                throw new Error('test error');
+            };
+            fragmentConfig.versions.test.handler.data = () => {
+                return { data: 'yunus' };
+            };
+
+            const fragment = new FragmentBFF(fragmentConfig);
+            const response = await fragment.render({} as express.Request, '1.0.0', {} as express.Response);
+            expect(response).to.deep.eq({
+                $status: 500,
+            });
+            expect(consoleErrorSpy.calledWith(sinon.match.any, sinon.match.has("message", "Failed to render partial(s) for fragment test"))).to.be.eq(true);
+
+            consoleErrorSpy.restore();
         });
     });
 
