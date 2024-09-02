@@ -1,6 +1,6 @@
 {
   "name": "@puzzle-js/core",
-  "version": "3.67.1",
+  "version": "3.67.2",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "logo": "https://image.ibb.co/jM29on/puzzlelogo.png",
@@ -13,7 +13,7 @@
   "devDependencies": {
     "@types/async": "^2.0.49",
     "@types/chai": "^4.2.2",
-    "@types/cheerio": "^0.22.13",
+    "@types/cheerio": "0.22.13",
     "@types/clean-css": "^3.4.30",
     "@types/compression": "^0.0.36",
     "@types/connect-timeout": "^0.0.34",
@@ -68,7 +68,7 @@
   "dependencies": {
     "@puzzle-js/client-lib": "1.8.0",
     "async": "^3.0.1",
-    "cheerio": "^1.0.0-rc.2",
+    "cheerio": "1.0.0-rc.2",
     "clean-css": "^4.1.11",
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.4",
