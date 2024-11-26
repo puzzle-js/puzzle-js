@@ -285,7 +285,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 # [3.1.0] - 12-07-2018
 ### Added
-- Supported p for assets
+- Supported BROTLI for assets
 
 # [3.2.1] - 09-07-2018
 ### Fixed
