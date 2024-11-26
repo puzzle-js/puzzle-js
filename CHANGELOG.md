@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+# [3.67.3] - 26-11-2024
+### Changed
+- Remove `shrink-ray-current` dependency.
+
 # [3.67.0] - 24-05-2024
 ### Update
 - Update puzzle-warden version for node20 compatibility
@@ -281,7 +285,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 # [3.1.0] - 12-07-2018
 ### Added
-- Supported BROTLI for assets
+- Supported p for assets
 
 # [3.2.1] - 09-07-2018
 ### Fixed
