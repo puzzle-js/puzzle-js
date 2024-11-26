@@ -42,7 +42,6 @@ export const CSS_ASSETS_ASYNC_LOAD_ENABLED = loadConfigurationFromEnv("CSS_ASSET
 
 export const USE_HELMET = loadConfigurationFromEnv('USE_HELMET') || false;
 export const USE_MORGAN = loadConfigurationFromEnv('USE_MORGAN') || false;
-export const BROTLI = loadConfigurationFromEnv('BROTLI') || false;
 export const CIRCUIT_ENABLED = loadConfigurationFromEnv("CIRCUIT_ENABLED") || false;
 
 export const SENTRY_PATH = loadConfigurationFromEnv("SENTRY_PATH") || "ws://127.0.0.1:4400";
