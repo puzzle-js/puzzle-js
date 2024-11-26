@@ -5,7 +5,6 @@ import {ServeStaticOptions} from "serve-static";
 import bodyParser from "body-parser";
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
-import shrinkRay from "shrink-ray-current";
 import compression from "compression";
 import {injectable} from "inversify";
 import {container, TYPES} from "../base";
@@ -13,7 +12,7 @@ import {container, TYPES} from "../base";
 import {pubsub} from "../util";
 import {EVENTS, HTTP_METHODS} from "../enums";
 import {ICustomHeader} from "../types";
-import {BROTLI, NO_COMPRESS_QUERY_NAME, USE_HELMET, USE_MORGAN} from "../config";
+import {NO_COMPRESS_QUERY_NAME, USE_HELMET, USE_MORGAN} from "../config";
 import {Logger} from "../logger";
 
 const logger = container.get(TYPES.Logger) as Logger;
@@ -123,12 +122,13 @@ export class ExpressHandler {
         this.app.use(bodyParser.json());
         this.app.use(cookieParser());
 
-        const compressionMethod = BROTLI ? shrinkRay : compression;
-        this.app.use(compressionMethod({
-            filter(req: any) {
+        this.app.use(
+            compression({
+              filter(req: Request) {
                 return !req.query[NO_COMPRESS_QUERY_NAME];
-            }
-        }));
+              },
+            }),
+        );
     }
 
 }
